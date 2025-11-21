@@ -14,6 +14,180 @@ export type Database = {
   }
   public: {
     Tables: {
+      book_chapters: {
+        Row: {
+          book_id: string
+          content: string
+          created_at: string
+          id: string
+          order_num: number
+          title: string
+        }
+        Insert: {
+          book_id: string
+          content: string
+          created_at?: string
+          id?: string
+          order_num: number
+          title: string
+        }
+        Update: {
+          book_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          order_num?: number
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "book_chapters_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "chemistry_books"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chapter_questions: {
+        Row: {
+          chapter_id: string
+          correct_answer: string
+          created_at: string
+          explanation: string | null
+          id: string
+          order_num: number
+          question_text: string
+        }
+        Insert: {
+          chapter_id: string
+          correct_answer: string
+          created_at?: string
+          explanation?: string | null
+          id?: string
+          order_num: number
+          question_text: string
+        }
+        Update: {
+          chapter_id?: string
+          correct_answer?: string
+          created_at?: string
+          explanation?: string | null
+          id?: string
+          order_num?: number
+          question_text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chapter_questions_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "book_chapters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chemistry_books: {
+        Row: {
+          author: string | null
+          cover_image_url: string | null
+          created_at: string
+          description: string | null
+          difficulty_level: number | null
+          id: string
+          title: string
+          topic: string
+        }
+        Insert: {
+          author?: string | null
+          cover_image_url?: string | null
+          created_at?: string
+          description?: string | null
+          difficulty_level?: number | null
+          id?: string
+          title: string
+          topic: string
+        }
+        Update: {
+          author?: string | null
+          cover_image_url?: string | null
+          created_at?: string
+          description?: string | null
+          difficulty_level?: number | null
+          id?: string
+          title?: string
+          topic?: string
+        }
+        Relationships: []
+      }
+      chemistry_tasks: {
+        Row: {
+          correct_answer: string
+          created_at: string
+          description: string
+          difficulty_level: number
+          explanation: string | null
+          id: string
+          points: number
+          question: string
+          title: string
+          topic: string
+        }
+        Insert: {
+          correct_answer: string
+          created_at?: string
+          description: string
+          difficulty_level: number
+          explanation?: string | null
+          id?: string
+          points?: number
+          question: string
+          title: string
+          topic: string
+        }
+        Update: {
+          correct_answer?: string
+          created_at?: string
+          description?: string
+          difficulty_level?: number
+          explanation?: string | null
+          id?: string
+          points?: number
+          question?: string
+          title?: string
+          topic?: string
+        }
+        Relationships: []
+      }
+      completed_tasks: {
+        Row: {
+          completed_at: string
+          id: string
+          task_id: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string
+          id?: string
+          task_id: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string
+          id?: string
+          task_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "completed_tasks_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "chemistry_tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       questions: {
         Row: {
           correct_answer: string
@@ -93,6 +267,36 @@ export type Database = {
           id?: string
           image_url?: string | null
           title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_progress: {
+        Row: {
+          completed_tasks: number
+          created_at: string
+          current_level: number
+          id: string
+          total_points: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_tasks?: number
+          created_at?: string
+          current_level?: number
+          id?: string
+          total_points?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_tasks?: number
+          created_at?: string
+          current_level?: number
+          id?: string
+          total_points?: number
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
