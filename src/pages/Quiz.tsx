@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Upload, Loader2, CheckCircle2, XCircle, Trophy, LogOut } from "lucide-react";
+import { Upload, Loader2, CheckCircle2, XCircle, Trophy, LogOut, Shuffle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import type { User } from "@supabase/supabase-js";
@@ -171,6 +171,40 @@ const Quiz = () => {
     }
   };
 
+  const shuffleArray = <T,>(array: T[]): T[] => {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  };
+
+  const shuffleQuestion = (question: Question): Question => {
+    const options = [
+      { key: 'A', value: question.option_a },
+      { key: 'B', value: question.option_b },
+      { key: 'C', value: question.option_c },
+      { key: 'D', value: question.option_d },
+    ];
+
+    const correctOption = options.find(opt => opt.key === question.correct_answer);
+    const shuffledOptions = shuffleArray(options);
+
+    const newCorrectAnswer = shuffledOptions.findIndex(
+      opt => opt.value === correctOption?.value
+    );
+
+    return {
+      ...question,
+      option_a: shuffledOptions[0].value,
+      option_b: shuffledOptions[1].value,
+      option_c: shuffledOptions[2].value,
+      option_d: shuffledOptions[3].value,
+      correct_answer: ['A', 'B', 'C', 'D'][newCorrectAnswer],
+    };
+  };
+
   const startQuiz = async (quizId: string) => {
     const { data, error } = await supabase
       .from('questions')
@@ -188,11 +222,19 @@ const Quiz = () => {
       return;
     }
 
-    setQuestions(data || []);
+    // Shuffle questions and their answers
+    const shuffledQuestions = shuffleArray(data || []).map(q => shuffleQuestion(q));
+
+    setQuestions(shuffledQuestions);
     setCurrentQuiz(quizId);
     setCurrentQuestionIndex(0);
     setSelectedAnswer(null);
     setShowResults(false);
+
+    toast({
+      title: "Test boshlandi",
+      description: "Savollar va javoblar tasodifiy tartibda ko'rsatiladi",
+    });
   };
 
   const handleAnswer = async () => {
@@ -483,7 +525,7 @@ const Quiz = () => {
             </label>
 
             <p className="text-sm text-muted-foreground text-center">
-              AI test rasmini tahlil qilib, savollarni avtomatik yaratadi
+              AI test rasmini tahlil qilib, savollarni avtomatik yaratadi. Test boshlanganda savollar va javoblar aralashtiriladi.
             </p>
           </div>
         </Card>
@@ -508,12 +550,18 @@ const Quiz = () => {
                 >
                   <div className="flex items-start justify-between mb-3">
                     <h3 className="font-semibold text-lg">{quiz.title}</h3>
-                    {quiz.completed_at && (
-                      <Badge variant="outline" className="bg-green-500/10 border-green-500/30">
-                        <CheckCircle2 className="w-3 h-3 mr-1" />
-                        Bajarilgan
+                    <div className="flex gap-2">
+                      <Badge variant="outline" className="bg-primary/10 border-primary/30">
+                        <Shuffle className="w-3 h-3 mr-1" />
+                        Aralash
                       </Badge>
-                    )}
+                      {quiz.completed_at && (
+                        <Badge variant="outline" className="bg-green-500/10 border-green-500/30">
+                          <CheckCircle2 className="w-3 h-3 mr-1" />
+                          Bajarilgan
+                        </Badge>
+                      )}
+                    </div>
                   </div>
                   
                   {quiz.description && (
