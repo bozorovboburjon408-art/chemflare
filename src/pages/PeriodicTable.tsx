@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { AtomVisualization, NucleusVisualization } from "@/components/AtomVisualization";
+import { NuclearStability } from "@/components/NuclearStability";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface Element {
@@ -253,9 +254,10 @@ const PeriodicTable = () => {
               </DialogHeader>
               
               <Tabs defaultValue="3d" className="w-full">
-                <TabsList className="grid w-full grid-cols-3">
+                <TabsList className="grid w-full grid-cols-4">
                   <TabsTrigger value="3d">3D Model</TabsTrigger>
                   <TabsTrigger value="nucleus">Yadro</TabsTrigger>
+                  <TabsTrigger value="stability">Barqarorlik</TabsTrigger>
                   <TabsTrigger value="info">Ma'lumot</TabsTrigger>
                 </TabsList>
                 
@@ -372,6 +374,14 @@ const PeriodicTable = () => {
                       {selectedElement.atomicNumber > 92 && "Bu element faqat laboratoriyada sun'iy ravishda yaratiladi."}
                     </p>
                   </div>
+                </TabsContent>
+                
+                <TabsContent value="stability" className="space-y-4">
+                  <NuclearStability
+                    atomicNumber={selectedElement.atomicNumber}
+                    atomicMass={selectedElement.atomicMass}
+                    symbol={selectedElement.symbol}
+                  />
                 </TabsContent>
                 
                 <TabsContent value="info" className="space-y-4">
