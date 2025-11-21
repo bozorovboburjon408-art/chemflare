@@ -18,9 +18,11 @@ Deno.serve(async (req) => {
       )
     }
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
-    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!
-    const authHeader = req.headers.get('Authorization')!
+    const lovableApiKey = Deno.env.get('LOVABLE_API_KEY')
+    
+    if (!lovableApiKey) {
+      throw new Error('LOVABLE_API_KEY is not configured')
+    }
 
     // Use Lovable AI to solve the chemistry problem
     const messages = []
@@ -46,18 +48,16 @@ Deno.serve(async (req) => {
       })
     }
 
-    const aiResponse = await fetch(`${supabaseUrl}/functions/v1/lovable-ai`, {
+    const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': authHeader,
+        'Authorization': `Bearer ${lovableApiKey}`,
         'Content-Type': 'application/json',
-        'apikey': supabaseAnonKey,
       },
       body: JSON.stringify({
         model: 'google/gemini-2.5-flash',
         messages,
         max_tokens: 2000,
-        temperature: 0.3,
       })
     })
 
