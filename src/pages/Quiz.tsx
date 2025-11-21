@@ -43,6 +43,8 @@ const Quiz = () => {
   const [showResults, setShowResults] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadTitle, setUploadTitle] = useState("");
+  const [questionsImage, setQuestionsImage] = useState<string | null>(null);
+  const [answersImage, setAnswersImage] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -98,7 +100,7 @@ const Quiz = () => {
     setQuizzes(data || []);
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (type: 'questions' | 'answers', e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -111,54 +113,84 @@ const Quiz = () => {
       return;
     }
 
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const base64 = event.target?.result as string;
+      if (type === 'questions') {
+        setQuestionsImage(base64);
+        toast({
+          title: "Yuklandi",
+          description: "Savollar rasmi yuklandi. Endi javoblar rasmini yuklang.",
+        });
+      } else {
+        setAnswersImage(base64);
+        toast({
+          title: "Yuklandi",
+          description: "Javoblar rasmi yuklandi. Ikkala rasm tayyor.",
+        });
+      }
+      e.target.value = "";
+    };
+
+    reader.onerror = () => {
+      toast({
+        title: "Xato",
+        description: "Rasmni o'qishda xatolik",
+        variant: "destructive",
+      });
+    };
+
+    reader.readAsDataURL(file);
+  };
+
+  const createQuiz = async () => {
+    if (!questionsImage || !answersImage) {
+      toast({
+        title: "Xato",
+        description: "Iltimos, ikkala rasmni ham yuklang",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsUploading(true);
 
     try {
-      // Convert to base64
-      const reader = new FileReader();
-      reader.onload = async (event) => {
-        const base64 = event.target?.result as string;
-
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) {
-          toast({
-            title: "Xato",
-            description: "Tizimga kirish talab qilinadi",
-            variant: "destructive",
-          });
-          return;
-        }
-
-        const { data, error } = await supabase.functions.invoke('process-quiz-image', {
-          body: {
-            imageBase64: base64,
-            title: uploadTitle || undefined,
-          },
-        });
-
-        if (error) {
-          throw error;
-        }
-
-        if (data.error) {
-          throw new Error(data.error);
-        }
-
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
         toast({
-          title: "Muvaffaqiyatli!",
-          description: `${data.questionCount} ta savol yaratildi`,
+          title: "Xato",
+          description: "Tizimga kirish talab qilinadi",
+          variant: "destructive",
         });
+        return;
+      }
 
-        setUploadTitle("");
-        e.target.value = "";
-        loadQuizzes();
-      };
+      const { data, error } = await supabase.functions.invoke('process-quiz-image', {
+        body: {
+          imageBase64: questionsImage,
+          answersImageBase64: answersImage,
+          title: uploadTitle || undefined,
+        },
+      });
 
-      reader.onerror = () => {
-        throw new Error("Rasmni o'qishda xatolik");
-      };
+      if (error) {
+        throw error;
+      }
 
-      reader.readAsDataURL(file);
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      toast({
+        title: "Muvaffaqiyatli!",
+        description: `${data.questionCount} ta savol yaratildi`,
+      });
+
+      setUploadTitle("");
+      setQuestionsImage(null);
+      setAnswersImage(null);
+      loadQuizzes();
     } catch (error: any) {
       console.error('Upload error:', error);
       toast({
@@ -492,40 +524,76 @@ const Quiz = () => {
               disabled={isUploading}
             />
             
-            <label htmlFor="file-upload" className="block">
-              <Button 
-                variant="default" 
-                size="lg"
-                disabled={isUploading}
-                className="w-full cursor-pointer"
-                asChild
-              >
-                <span>
-                  {isUploading ? (
-                    <>
-                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                      AI tahlil qilmoqda...
-                    </>
-                  ) : (
-                    <>
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="questions-upload" className="block">
+                  <Button 
+                    variant={questionsImage ? "outline" : "default"}
+                    size="lg"
+                    disabled={isUploading}
+                    className="w-full cursor-pointer"
+                    asChild
+                  >
+                    <span>
                       <Upload className="w-5 h-5 mr-2" />
-                      Test rasmini yuklash
-                    </>
-                  )}
-                </span>
-              </Button>
-              <input
-                id="file-upload"
-                type="file"
-                accept="image/*"
-                onChange={handleFileUpload}
-                className="hidden"
-                disabled={isUploading}
-              />
-            </label>
+                      {questionsImage ? "Savollar yuklandi ✓" : "1. Savollar rasmini yuklash"}
+                    </span>
+                  </Button>
+                  <input
+                    id="questions-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleFileUpload('questions', e)}
+                    className="hidden"
+                    disabled={isUploading}
+                  />
+                </label>
+              </div>
+
+              <div>
+                <label htmlFor="answers-upload" className="block">
+                  <Button 
+                    variant={answersImage ? "outline" : "default"}
+                    size="lg"
+                    disabled={isUploading || !questionsImage}
+                    className="w-full cursor-pointer"
+                    asChild
+                  >
+                    <span>
+                      <Upload className="w-5 h-5 mr-2" />
+                      {answersImage ? "Javoblar yuklandi ✓" : "2. Javoblar rasmini yuklash"}
+                    </span>
+                  </Button>
+                  <input
+                    id="answers-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleFileUpload('answers', e)}
+                    className="hidden"
+                    disabled={isUploading || !questionsImage}
+                  />
+                </label>
+              </div>
+            </div>
+
+            <Button
+              onClick={createQuiz}
+              disabled={isUploading || !questionsImage || !answersImage}
+              size="lg"
+              className="w-full"
+            >
+              {isUploading ? (
+                <>
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  AI tahlil qilmoqda...
+                </>
+              ) : (
+                "Test yaratish"
+              )}
+            </Button>
 
             <p className="text-sm text-muted-foreground text-center">
-              AI test rasmini tahlil qilib, savollarni avtomatik yaratadi. Test boshlanganda savollar va javoblar aralashtiriladi.
+              AI ikkala rasmni tahlil qilib, test savollarini va to'g'ri javoblarni avtomatik aniqlaydi.
             </p>
           </div>
         </Card>
