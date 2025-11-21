@@ -12,13 +12,17 @@ serve(async (req) => {
   }
 
   try {
-    const { imageBase64, title } = await req.json();
+    const { imageBase64, answersImageBase64, title } = await req.json();
     
     if (!imageBase64) {
-      throw new Error('Image data is required');
+      throw new Error('Questions image is required');
+    }
+    
+    if (!answersImageBase64) {
+      throw new Error('Answers image is required');
     }
 
-    console.log('Processing quiz image...');
+    console.log('Processing quiz images...');
 
     // Get API key
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
@@ -26,7 +30,7 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
 
-    // Call Lovable AI to analyze the image and extract questions
+    // Call Lovable AI to analyze both images and extract questions with correct answers
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -38,28 +42,47 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `Siz test savollarini tahlil qiluvchi yordamchisiz. Rasmdan barcha test savollarini oling va JSON formatida qaytaring.
+            content: `Siz test savollarini va javoblarini tahlil qiluvchi yordamchisiz. 
             
+Birinchi rasmda test savollari, ikkinchi rasmda esa to'g'ri javoblar bor.
+
 Har bir savol uchun:
 - question_text: Savol matni (to'liq)
 - option_a, option_b, option_c, option_d: 4 ta javob varianti
-- correct_answer: To'g'ri javob (A, B, C yoki D)
+- correct_answer: To'g'ri javob (A, B, C yoki D) - ikkinchi rasmdan oling
 - explanation: Qisqa tushuntirish (ixtiyoriy)
 
-MUHIM: Faqat JSON formatida javob bering, boshqa matn qo'shmang!`
+MUHIM: 
+1. Faqat JSON formatida javob bering, boshqa matn qo'shmang!
+2. To'g'ri javoblarni ikkinchi rasmdan oling va birinchi rasmdagi savol tartibiga mos ravishda qo'ying.
+3. Agar savollar va javoblar soni bir xil bo'lmasa, xato qaytaring.`
           },
           {
             role: 'user',
             content: [
               {
                 type: 'text',
-                text: 'Bu rasmdan barcha test savollarini ajratib oling va JSON formatida qaytaring:'
+                text: 'BIRINCHI RASM - Test savollari:'
               },
               {
                 type: 'image_url',
                 image_url: {
                   url: imageBase64
                 }
+              },
+              {
+                type: 'text',
+                text: 'IKKINCHI RASM - To\'g\'ri javoblar:'
+              },
+              {
+                type: 'image_url',
+                image_url: {
+                  url: answersImageBase64
+                }
+              },
+              {
+                type: 'text',
+                text: 'Ikkala rasmni tahlil qilib, savollarni javoblari bilan birga JSON formatida qaytaring:'
               }
             ]
           }
@@ -107,10 +130,10 @@ MUHIM: Faqat JSON formatida javob bering, boshqa matn qo'shmang!`
     const questions = JSON.parse(jsonStr);
     
     if (!Array.isArray(questions) || questions.length === 0) {
-      throw new Error('No valid questions found in the image');
+      throw new Error('No valid questions found in the images');
     }
 
-    console.log(`Successfully extracted ${questions.length} questions`);
+    console.log(`Successfully extracted ${questions.length} questions with answers`);
 
     // Get user from authorization header
     const authHeader = req.headers.get('authorization');
