@@ -1,5 +1,5 @@
 import { NavLink } from "@/components/NavLink";
-import { Atom, Brain, Calculator, Menu, X, GraduationCap, BookOpen } from "lucide-react";
+import { Atom, Brain, Calculator, Menu, X, GraduationCap, BookOpen, Beaker } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
@@ -8,6 +8,7 @@ const Navigation = () => {
 
   const navItems = [
     { to: "/", icon: Atom, label: "Davriy Jadval" },
+    { to: "/reactions", icon: Beaker, label: "Reaksiyalar" },
     { to: "/learning", icon: GraduationCap, label: "O'rganish" },
     { to: "/library", icon: BookOpen, label: "Kitobxona" },
     { to: "/quiz", icon: Brain, label: "Test" },
