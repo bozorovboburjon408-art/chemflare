@@ -2,3 +2,6 @@ project_id = "cshazxfkbjcsdxgznpde"
 
 [functions.process-quiz-image]
 verify_jwt = true
+
+[functions.solve-chemistry]
+verify_jwt = true

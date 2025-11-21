@@ -2,43 +2,61 @@ import { useState } from "react";
 import Navigation from "@/components/Navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Upload, Send, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const Calculator = () => {
   const [question, setQuestion] = useState("");
+  const [solution, setSolution] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const { toast } = useToast();
+
+  const solveProblem = async (problemText: string, imageData?: string) => {
+    setIsProcessing(true);
+    setSolution("");
+
+    try {
+      const { data, error } = await supabase.functions.invoke('solve-chemistry', {
+        body: { question: problemText, imageData }
+      });
+
+      if (error) throw error;
+
+      setSolution(data.solution);
+      toast({
+        title: "Muvaffaqiyatli!",
+        description: "Masala yechildi",
+      });
+    } catch (error: any) {
+      console.error('Error solving problem:', error);
+      toast({
+        title: "Xatolik",
+        description: error.message || "Masalani yechishda xatolik yuz berdi",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!question.trim()) return;
-
-    setIsProcessing(true);
-    
-    setTimeout(() => {
-      setIsProcessing(false);
-      toast({
-        title: "AI bilan integratsiya kerak",
-        description: "Kimyoviy hisob-kitoblarni amalga oshirish uchun Lovable Cloud va AI xizmatlarini ulash kerak.",
-      });
-    }, 2000);
+    solveProblem(question);
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setIsProcessing(true);
-    
-    setTimeout(() => {
-      setIsProcessing(false);
-      toast({
-        title: "AI bilan integratsiya kerak",
-        description: "Rasm tahlili uchun Lovable Cloud va AI xizmatlarini ulash kerak.",
-      });
-    }, 2000);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64Data = reader.result as string;
+      solveProblem(question || "", base64Data);
+    };
+    reader.readAsDataURL(file);
   };
 
   return (
@@ -62,7 +80,7 @@ const Calculator = () => {
                 <label className="block text-sm font-medium mb-2">
                   Kimyoviy masala yoki hisob-kitobni kiriting
                 </label>
-                <Input
+                <Textarea
                   value={question}
                   onChange={(e) => setQuestion(e.target.value)}
                   placeholder="Masalan: 2H₂ + O₂ → 2H₂O reaksiyasida 4g H₂ dan qancha suv hosil bo'ladi?"
@@ -139,10 +157,19 @@ const Calculator = () => {
             </div>
           </Card>
 
+          {solution && (
+            <Card className="p-6 bg-gradient-card animate-fade-in">
+              <h3 className="font-semibold mb-4 text-lg">Yechim:</h3>
+              <div className="prose prose-sm max-w-none dark:prose-invert">
+                <pre className="whitespace-pre-wrap text-sm">{solution}</pre>
+              </div>
+            </Card>
+          )}
+
           <div className="text-center">
             <Card className="inline-block p-4 bg-muted/50">
               <p className="text-sm text-muted-foreground">
-                💡 Bu xususiyat Lovable Cloud va AI xizmatlari bilan ishlaydi
+                💡 AI yordamida kimyoviy masalalarni yeching
               </p>
             </Card>
           </div>
