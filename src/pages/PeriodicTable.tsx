@@ -3,6 +3,8 @@ import Navigation from "@/components/Navigation";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { AtomVisualization } from "@/components/AtomVisualization";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface Element {
   symbol: string;
@@ -240,7 +242,7 @@ const PeriodicTable = () => {
       </main>
 
       <Dialog open={!!selectedElement} onOpenChange={() => setSelectedElement(null)}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           {selectedElement && (
             <>
               <DialogHeader>
@@ -249,36 +251,87 @@ const PeriodicTable = () => {
                   <span className="text-5xl font-bold text-primary">{selectedElement.symbol}</span>
                 </DialogTitle>
               </DialogHeader>
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+              
+              <Tabs defaultValue="3d" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="3d">3D Model</TabsTrigger>
+                  <TabsTrigger value="info">Ma'lumot</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="3d" className="space-y-4">
                   <div className="p-4 bg-muted/50 rounded-lg">
-                    <p className="text-sm text-muted-foreground">Atom raqami</p>
-                    <p className="text-2xl font-bold text-primary">{selectedElement.atomicNumber}</p>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      3D atom modeli - aylanish uchun sichqoncha bilan sudrab boring, zoom qilish uchun scroll qiling
+                    </p>
+                    <AtomVisualization
+                      atomicNumber={selectedElement.atomicNumber}
+                      symbol={selectedElement.symbol}
+                      electrons={selectedElement.electrons}
+                    />
                   </div>
+                  
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="p-3 bg-primary/10 rounded-lg text-center">
+                      <p className="text-xs text-muted-foreground">Protonlar</p>
+                      <p className="text-xl font-bold text-primary">{selectedElement.atomicNumber}</p>
+                    </div>
+                    <div className="p-3 bg-secondary/10 rounded-lg text-center">
+                      <p className="text-xs text-muted-foreground">Elektronlar</p>
+                      <p className="text-xl font-bold text-secondary">{selectedElement.atomicNumber}</p>
+                    </div>
+                    <div className="p-3 bg-accent/10 rounded-lg text-center">
+                      <p className="text-xs text-muted-foreground">Qobiqlar</p>
+                      <p className="text-xl font-bold text-accent">{selectedElement.electrons.split(',').length}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="p-4 bg-gradient-card rounded-lg border border-border">
+                    <p className="text-sm font-semibold text-primary mb-2">Elektron taqsimoti</p>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedElement.electrons.split(',').map((e, i) => (
+                        <Badge key={i} variant="outline" className="text-sm">
+                          {i + 1}-qobiq: {e} elektron
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="info" className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-4 bg-muted/50 rounded-lg">
+                      <p className="text-sm text-muted-foreground">Atom raqami</p>
+                      <p className="text-2xl font-bold text-primary">{selectedElement.atomicNumber}</p>
+                    </div>
+                    <div className="p-4 bg-muted/50 rounded-lg">
+                      <p className="text-sm text-muted-foreground">Atom massasi</p>
+                      <p className="text-2xl font-bold text-primary">{selectedElement.atomicMass}</p>
+                    </div>
+                  </div>
+                  
                   <div className="p-4 bg-muted/50 rounded-lg">
-                    <p className="text-sm text-muted-foreground">Atom massasi</p>
-                    <p className="text-2xl font-bold text-primary">{selectedElement.atomicMass}</p>
+                    <p className="text-sm text-muted-foreground">Elektronlar taqsimoti</p>
+                    <p className="text-lg font-mono font-semibold">{selectedElement.electrons}</p>
                   </div>
-                </div>
-                <div className="p-4 bg-muted/50 rounded-lg">
-                  <p className="text-sm text-muted-foreground">Elektronlar taqsimoti</p>
-                  <p className="text-lg font-mono font-semibold">{selectedElement.electrons}</p>
-                </div>
-                <div className="p-4 bg-muted/50 rounded-lg">
-                  <p className="text-sm text-muted-foreground">Inglizcha nomi</p>
-                  <p className="text-xl font-semibold">{selectedElement.name}</p>
-                </div>
-                <div className="p-4 bg-gradient-card rounded-lg border border-border">
-                  <p className="text-sm font-semibold text-primary mb-2">Qisqacha ma'lumot</p>
-                  <p className="text-foreground leading-relaxed">{selectedElement.description}</p>
-                </div>
-                {selectedElement.detailedInfo && (
-                  <div className="p-4 bg-accent/10 rounded-lg border border-accent/20">
-                    <p className="text-sm font-semibold text-accent-foreground mb-2">Batafsil ma'lumot</p>
-                    <p className="text-foreground leading-relaxed">{selectedElement.detailedInfo}</p>
+                  
+                  <div className="p-4 bg-muted/50 rounded-lg">
+                    <p className="text-sm text-muted-foreground">Inglizcha nomi</p>
+                    <p className="text-xl font-semibold">{selectedElement.name}</p>
                   </div>
-                )}
-              </div>
+                  
+                  <div className="p-4 bg-gradient-card rounded-lg border border-border">
+                    <p className="text-sm font-semibold text-primary mb-2">Qisqacha ma'lumot</p>
+                    <p className="text-foreground leading-relaxed">{selectedElement.description}</p>
+                  </div>
+                  
+                  {selectedElement.detailedInfo && (
+                    <div className="p-4 bg-accent/10 rounded-lg border border-accent/20">
+                      <p className="text-sm font-semibold text-accent-foreground mb-2">Batafsil ma'lumot</p>
+                      <p className="text-foreground leading-relaxed">{selectedElement.detailedInfo}</p>
+                    </div>
+                  )}
+                </TabsContent>
+              </Tabs>
             </>
           )}
         </DialogContent>
