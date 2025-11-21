@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { AlertCircle, Flame, Droplets, Wind, Sparkles, ArrowRight } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import MoleculeViewer from "@/components/MoleculeViewer";
+import AnimatedReactionViewer from "@/components/AnimatedReactionViewer";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface Reaction {
   equation: string;
@@ -373,37 +375,56 @@ const ChemicalReactions = () => {
                   <p className="text-2xl font-mono text-primary">{result.equation}</p>
                 </div>
 
-                {/* 3D Molecule Visualization */}
+                {/* 3D Molecule Visualization with Animation */}
                 <div className="p-6 bg-background rounded-lg">
-                  <p className="text-sm font-medium text-muted-foreground mb-4">3D Molekulyar tuzilma:</p>
-                  <div className="grid md:grid-cols-[1fr_auto_1fr] gap-4 items-center">
-                    <div className="space-y-4">
-                      <p className="text-center font-semibold text-sm text-muted-foreground">Dastlabki moddalar</p>
-                      {result.reactants.map((molecule, idx) => (
-                        <MoleculeViewer 
-                          key={`reactant-${idx}`}
-                          formula={molecule} 
-                          label={`Reaktiv ${idx + 1}`}
-                        />
-                      ))}
-                    </div>
+                  <Tabs defaultValue="animation" className="w-full">
+                    <TabsList className="grid w-full grid-cols-2 mb-4">
+                      <TabsTrigger value="animation">Animatsiya</TabsTrigger>
+                      <TabsTrigger value="structure">Tuzilma</TabsTrigger>
+                    </TabsList>
                     
-                    <div className="flex flex-col items-center justify-center px-4">
-                      <ArrowRight className="w-8 h-8 text-primary animate-pulse" />
-                      <p className="text-xs text-muted-foreground mt-2">Reaksiya</p>
-                    </div>
+                    <TabsContent value="animation" className="space-y-4">
+                      <p className="text-sm font-medium text-muted-foreground">
+                        Reaksiya jarayonini 3D animatsiyada ko'ring - atomlar harakati va bog'larning uzilishi/hosil bo'lishi:
+                      </p>
+                      <AnimatedReactionViewer 
+                        reactants={result.reactants}
+                        products={result.products}
+                      />
+                    </TabsContent>
                     
-                    <div className="space-y-4">
-                      <p className="text-center font-semibold text-sm text-muted-foreground">Hosil bo'lgan moddalar</p>
-                      {result.products.map((molecule, idx) => (
-                        <MoleculeViewer 
-                          key={`product-${idx}`}
-                          formula={molecule} 
-                          label={`Mahsulot ${idx + 1}`}
-                        />
-                      ))}
-                    </div>
-                  </div>
+                    <TabsContent value="structure">
+                      <p className="text-sm font-medium text-muted-foreground mb-4">3D Molekulyar tuzilma:</p>
+                      <div className="grid md:grid-cols-[1fr_auto_1fr] gap-4 items-center">
+                        <div className="space-y-4">
+                          <p className="text-center font-semibold text-sm text-muted-foreground">Dastlabki moddalar</p>
+                          {result.reactants.map((molecule, idx) => (
+                            <MoleculeViewer 
+                              key={`reactant-${idx}`}
+                              formula={molecule} 
+                              label={`Reaktiv ${idx + 1}`}
+                            />
+                          ))}
+                        </div>
+                        
+                        <div className="flex flex-col items-center justify-center px-4">
+                          <ArrowRight className="w-8 h-8 text-primary animate-pulse" />
+                          <p className="text-xs text-muted-foreground mt-2">Reaksiya</p>
+                        </div>
+                        
+                        <div className="space-y-4">
+                          <p className="text-center font-semibold text-sm text-muted-foreground">Hosil bo'lgan moddalar</p>
+                          {result.products.map((molecule, idx) => (
+                            <MoleculeViewer 
+                              key={`product-${idx}`}
+                              formula={molecule} 
+                              label={`Mahsulot ${idx + 1}`}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    </TabsContent>
+                  </Tabs>
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-4">
