@@ -22,7 +22,19 @@ const Calculator = () => {
         body: { question: problemText, imageData }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase function error:', error);
+        throw new Error(error.message || 'Xizmatda xatolik yuz berdi');
+      }
+
+      if (data.error) {
+        console.error('Response error:', data.error);
+        throw new Error(data.error);
+      }
+
+      if (!data.solution) {
+        throw new Error('Yechim topilmadi');
+      }
 
       setSolution(data.solution);
       toast({
@@ -33,7 +45,7 @@ const Calculator = () => {
       console.error('Error solving problem:', error);
       toast({
         title: "Xatolik",
-        description: error.message || "Masalani yechishda xatolik yuz berdi",
+        description: error.message || "Masalani yechishda xatolik yuz berdi. Qaytadan urinib ko'ring.",
         variant: "destructive",
       });
     } finally {

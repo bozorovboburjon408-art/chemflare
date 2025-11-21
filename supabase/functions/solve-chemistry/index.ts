@@ -63,7 +63,23 @@ Deno.serve(async (req) => {
 
     if (!aiResponse.ok) {
       const errorData = await aiResponse.text()
-      throw new Error(`AI request failed: ${errorData}`)
+      console.error('AI Gateway error response:', errorData)
+      
+      if (aiResponse.status === 429) {
+        return new Response(
+          JSON.stringify({ error: 'Juda ko\'p so\'rov yuborildi. Iltimos, biroz kutib qayta urinib ko\'ring.' }),
+          { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+      
+      if (aiResponse.status === 402) {
+        return new Response(
+          JSON.stringify({ error: 'AI xizmati uchun to\'lov kerak. Iltimos, admin bilan bog\'laning.' }),
+          { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+      
+      throw new Error(`AI so'rov muvaffaqiyatsiz: ${errorData}`)
     }
 
     const aiData = await aiResponse.json()
