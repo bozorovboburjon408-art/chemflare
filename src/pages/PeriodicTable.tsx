@@ -3,7 +3,7 @@ import Navigation from "@/components/Navigation";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { AtomVisualization } from "@/components/AtomVisualization";
+import { AtomVisualization, NucleusVisualization } from "@/components/AtomVisualization";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface Element {
@@ -253,8 +253,9 @@ const PeriodicTable = () => {
               </DialogHeader>
               
               <Tabs defaultValue="3d" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
+                <TabsList className="grid w-full grid-cols-3">
                   <TabsTrigger value="3d">3D Model</TabsTrigger>
+                  <TabsTrigger value="nucleus">Yadro</TabsTrigger>
                   <TabsTrigger value="info">Ma'lumot</TabsTrigger>
                 </TabsList>
                 
@@ -267,6 +268,7 @@ const PeriodicTable = () => {
                       atomicNumber={selectedElement.atomicNumber}
                       symbol={selectedElement.symbol}
                       electrons={selectedElement.electrons}
+                      atomicMass={selectedElement.atomicMass}
                     />
                   </div>
                   
@@ -294,6 +296,81 @@ const PeriodicTable = () => {
                         </Badge>
                       ))}
                     </div>
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="nucleus" className="space-y-4">
+                  <div className="p-4 bg-muted/50 rounded-lg">
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Yadro tuzilishi - har bir proton va neytron alohida ko'rsatilgan. Aylanish uchun sudrab boring.
+                    </p>
+                    <NucleusVisualization
+                      atomicNumber={selectedElement.atomicNumber}
+                      symbol={selectedElement.symbol}
+                      electrons={selectedElement.electrons}
+                      atomicMass={selectedElement.atomicMass}
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="p-4 bg-red-500/10 rounded-lg border border-red-500/30">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                        <p className="text-xs text-muted-foreground">Protonlar</p>
+                      </div>
+                      <p className="text-2xl font-bold text-red-500">{selectedElement.atomicNumber}</p>
+                      <p className="text-xs text-muted-foreground mt-1">Musbat (+) zaryad</p>
+                    </div>
+                    
+                    <div className="p-4 bg-blue-500/10 rounded-lg border border-blue-500/30">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                        <p className="text-xs text-muted-foreground">Neytronlar</p>
+                      </div>
+                      <p className="text-2xl font-bold text-blue-500">
+                        {Math.round(parseFloat(selectedElement.atomicMass.replace(/[()]/g, '')) || selectedElement.atomicNumber) - selectedElement.atomicNumber}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">Neytral (0) zaryad</p>
+                    </div>
+                    
+                    <div className="p-4 bg-amber-500/10 rounded-lg border border-amber-500/30">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="w-3 h-3 rounded-full bg-amber-500"></div>
+                        <p className="text-xs text-muted-foreground">Jami</p>
+                      </div>
+                      <p className="text-2xl font-bold text-amber-500">
+                        {Math.round(parseFloat(selectedElement.atomicMass.replace(/[()]/g, '')) || selectedElement.atomicNumber)}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">Nuklonlar soni</p>
+                    </div>
+                  </div>
+                  
+                  <div className="p-4 bg-gradient-card rounded-lg border border-border">
+                    <h3 className="text-sm font-semibold text-primary mb-3">Yadro haqida</h3>
+                    <div className="space-y-2 text-sm text-muted-foreground">
+                      <p>
+                        <span className="font-semibold text-foreground">Yadro o'lchami:</span> Atom o'lchamidan 100,000 marta kichikroq, lekin atomning 99.9% massasini tashkil qiladi.
+                      </p>
+                      <p>
+                        <span className="font-semibold text-foreground">Kuchli o'zaro ta'sir:</span> Proton va neytronlarni bir-biriga bog'laydigan eng kuchli tabiiy kuch.
+                      </p>
+                      <p>
+                        <span className="font-semibold text-foreground">Massa raqami:</span> {selectedElement.atomicMass} - proton va neytronlar yig'indisi.
+                      </p>
+                      <p>
+                        <span className="font-semibold text-foreground">Zaryad:</span> +{selectedElement.atomicNumber} (protonlar soni tufayli).
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="p-4 bg-accent/5 rounded-lg border border-accent/20">
+                    <h3 className="text-sm font-semibold text-accent-foreground mb-2">Qiziqarli fakt</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {selectedElement.atomicNumber <= 2 && "Bu element Big Bang vaqtida paydo bo'lgan."}
+                      {selectedElement.atomicNumber > 2 && selectedElement.atomicNumber <= 26 && "Bu element yulduzlar ichida sintez qilinadi."}
+                      {selectedElement.atomicNumber > 26 && selectedElement.atomicNumber <= 92 && "Bu element supernova portlashlarida yoki neytron yulduzlar to'qnashuvida hosil bo'ladi."}
+                      {selectedElement.atomicNumber > 92 && "Bu element faqat laboratoriyada sun'iy ravishda yaratiladi."}
+                    </p>
                   </div>
                 </TabsContent>
                 
