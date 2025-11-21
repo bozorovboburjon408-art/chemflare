@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import PeriodicTable from "./pages/PeriodicTable";
 import Quiz from "./pages/Quiz";
 import Calculator from "./pages/Calculator";
+import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -20,6 +21,7 @@ const App = () => (
           <Route path="/" element={<PeriodicTable />} />
           <Route path="/quiz" element={<Quiz />} />
           <Route path="/calculator" element={<Calculator />} />
+          <Route path="/auth" element={<Auth />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
