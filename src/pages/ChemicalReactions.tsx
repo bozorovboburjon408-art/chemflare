@@ -4,8 +4,9 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { AlertCircle, Flame, Droplets, Wind, Sparkles } from "lucide-react";
+import { AlertCircle, Flame, Droplets, Wind, Sparkles, ArrowRight } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import MoleculeViewer from "@/components/MoleculeViewer";
 
 interface Reaction {
   equation: string;
@@ -15,6 +16,8 @@ interface Reaction {
   observation: string;
   color?: string;
   icon: "flame" | "droplets" | "wind" | "sparkles";
+  reactants: string[];
+  products: string[];
 }
 
 interface Reactant {
@@ -70,7 +73,9 @@ const reactions: { [key: string]: Reaction } = {
     conditions: "Xona haroratida",
     observation: "Vodorod gazi pufakchalar ko'rinishida ajralib chiqadi, eritma isiydi",
     color: "Ko'k-yashil",
-    icon: "droplets"
+    icon: "droplets",
+    reactants: ["Zn", "HCl"],
+    products: ["ZnCl2", "H2"]
   },
   "h2so4-zn": {
     equation: "Zn + H₂SO₄ → ZnSO₄ + H₂↑",
@@ -78,7 +83,9 @@ const reactions: { [key: string]: Reaction } = {
     description: "Rux sulfat kislota bilan reaksiyaga kirib, sink sulfat va vodorod gazi hosil qiladi",
     conditions: "Xona haroratida",
     observation: "Vodorod gazi pufakchalar shaklida ajralib chiqadi",
-    icon: "droplets"
+    icon: "droplets",
+    reactants: ["Zn", "H2SO4"],
+    products: ["ZnSO4", "H2"]
   },
   "hcl-fe": {
     equation: "Fe + 2HCl → FeCl₂ + H₂↑",
@@ -87,7 +94,9 @@ const reactions: { [key: string]: Reaction } = {
     conditions: "Xona haroratida",
     observation: "Yashil rangli eritma hosil bo'ladi, vodorod gazi ajraladi",
     color: "Yashil",
-    icon: "droplets"
+    icon: "droplets",
+    reactants: ["Fe", "HCl"],
+    products: ["FeCl2", "H2"]
   },
   "hcl-mg": {
     equation: "Mg + 2HCl → MgCl₂ + H₂↑",
@@ -95,7 +104,9 @@ const reactions: { [key: string]: Reaction } = {
     description: "Magniy xlorid kislota bilan jadal reaksiyaga kirib, magniy xlorid va vodorod gazi hosil qiladi",
     conditions: "Xona haroratida, tez",
     observation: "Magniy eriydi, ko'p miqdorda vodorod gazi ajraladi, eritma qiziydi",
-    icon: "flame"
+    icon: "flame",
+    reactants: ["Mg", "HCl"],
+    products: ["MgCl2", "H2"]
   },
   
   // Kislota + Asos (Neytrallanish)
@@ -105,7 +116,9 @@ const reactions: { [key: string]: Reaction } = {
     description: "Kislota va asos o'zaro ta'sirlashib, tuz va suv hosil qiladi",
     conditions: "Xona haroratida",
     observation: "Rang o'zgarmaydi, eritma isiydi, tuz kristallari hosil bo'ladi",
-    icon: "droplets"
+    icon: "droplets",
+    reactants: ["HCl", "NaOH"],
+    products: ["NaCl", "H2O"]
   },
   "h2so4-naoh": {
     equation: "H₂SO₄ + 2NaOH → Na₂SO₄ + 2H₂O",
@@ -113,7 +126,9 @@ const reactions: { [key: string]: Reaction } = {
     description: "Sulfat kislota natriy gidroksid bilan neytrallanib, natriy sulfat va suv hosil qiladi",
     conditions: "Xona haroratida",
     observation: "Ko'p issiqlik ajraladi",
-    icon: "flame"
+    icon: "flame",
+    reactants: ["H2SO4", "NaOH"],
+    products: ["Na2SO4", "H2O"]
   },
   
   // Tuz + Tuz (Almashinish)
@@ -124,7 +139,9 @@ const reactions: { [key: string]: Reaction } = {
     conditions: "Xona haroratida",
     observation: "Oq rangli cho'kma hosil bo'ladi",
     color: "Oq",
-    icon: "sparkles"
+    icon: "sparkles",
+    reactants: ["NaCl", "AgNO3"],
+    products: ["AgCl", "NaNO3"]
   },
   "cuso4-naoh": {
     equation: "CuSO₄ + 2NaOH → Cu(OH)₂↓ + Na₂SO₄",
@@ -133,7 +150,9 @@ const reactions: { [key: string]: Reaction } = {
     conditions: "Xona haroratida",
     observation: "Ko'k rangli cho'kma hosil bo'ladi",
     color: "Ko'k",
-    icon: "sparkles"
+    icon: "sparkles",
+    reactants: ["CuSO4", "NaOH"],
+    products: ["Cu(OH)2", "Na2SO4"]
   },
   
   // Oksid + Suv
@@ -143,7 +162,9 @@ const reactions: { [key: string]: Reaction } = {
     description: "Kalsiy oksid suv bilan birikib, kalsiy gidroksid (ohak suvi) hosil qiladi",
     conditions: "Xona haroratida",
     observation: "Ko'p issiqlik ajraladi, oq chang eriydi",
-    icon: "flame"
+    icon: "flame",
+    reactants: ["CaO", "H2O"],
+    products: ["Ca(OH)2"]
   },
   "so2-h2o": {
     equation: "SO₂ + H₂O → H₂SO₃",
@@ -151,7 +172,9 @@ const reactions: { [key: string]: Reaction } = {
     description: "Oltingugurt dioksid suv bilan birikib, sulfat kislota hosil qiladi",
     conditions: "Xona haroratida",
     observation: "Gaz suvda eriydi, kislotali eritma hosil bo'ladi",
-    icon: "droplets"
+    icon: "droplets",
+    reactants: ["SO2", "H2O"],
+    products: ["H2SO3"]
   },
   
   // Yonish
@@ -162,7 +185,9 @@ const reactions: { [key: string]: Reaction } = {
     conditions: "Yuqori harorat yoki alanga",
     observation: "Juda yorqin oq yorug'lik, oq chang (magniy oksid) hosil bo'ladi",
     color: "Oq yorug'lik",
-    icon: "flame"
+    icon: "flame",
+    reactants: ["Mg", "O2"],
+    products: ["MgO"]
   },
   "h2-o2": {
     equation: "2H₂ + O₂ → 2H₂O",
@@ -170,7 +195,9 @@ const reactions: { [key: string]: Reaction } = {
     description: "Vodorod kislorodda yonib, suv hosil qiladi",
     conditions: "Alanga yoki uchqun",
     observation: "Portlash bilan yonadi, suv tomchilari hosil bo'ladi",
-    icon: "flame"
+    icon: "flame",
+    reactants: ["H2", "O2"],
+    products: ["H2O"]
   },
   
   // Karbonat + Kislota
@@ -180,7 +207,9 @@ const reactions: { [key: string]: Reaction } = {
     description: "Natriy karbonat kislota bilan reaksiyaga kirib, karbonat angidrid gazi ajraladi",
     conditions: "Xona haroratida",
     observation: "Ko'p miqdorda gaz pufakchalar ajralib chiqadi, shivirlash eshitiladi",
-    icon: "wind"
+    icon: "wind",
+    reactants: ["Na2CO3", "HCl"],
+    products: ["NaCl", "H2O", "CO2"]
   },
 };
 
@@ -342,6 +371,39 @@ const ChemicalReactions = () => {
                 <div className="p-4 bg-background rounded-lg">
                   <p className="text-sm text-muted-foreground mb-2">Reaksiya tenglamasi:</p>
                   <p className="text-2xl font-mono text-primary">{result.equation}</p>
+                </div>
+
+                {/* 3D Molecule Visualization */}
+                <div className="p-6 bg-background rounded-lg">
+                  <p className="text-sm font-medium text-muted-foreground mb-4">3D Molekulyar tuzilma:</p>
+                  <div className="grid md:grid-cols-[1fr_auto_1fr] gap-4 items-center">
+                    <div className="space-y-4">
+                      <p className="text-center font-semibold text-sm text-muted-foreground">Dastlabki moddalar</p>
+                      {result.reactants.map((molecule, idx) => (
+                        <MoleculeViewer 
+                          key={`reactant-${idx}`}
+                          formula={molecule} 
+                          label={`Reaktiv ${idx + 1}`}
+                        />
+                      ))}
+                    </div>
+                    
+                    <div className="flex flex-col items-center justify-center px-4">
+                      <ArrowRight className="w-8 h-8 text-primary animate-pulse" />
+                      <p className="text-xs text-muted-foreground mt-2">Reaksiya</p>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      <p className="text-center font-semibold text-sm text-muted-foreground">Hosil bo'lgan moddalar</p>
+                      {result.products.map((molecule, idx) => (
+                        <MoleculeViewer 
+                          key={`product-${idx}`}
+                          formula={molecule} 
+                          label={`Mahsulot ${idx + 1}`}
+                        />
+                      ))}
+                    </div>
+                  </div>
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-4">
