@@ -5,10 +5,14 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Beaker, AlertCircle, Info, Plus, X } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Loader2, Beaker, AlertCircle, Info, Plus, X, Sparkles, Flame, Droplets, Wind } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import Navigation from "@/components/Navigation";
+import AnimatedReactionViewer from "@/components/AnimatedReactionViewer";
+import { predefinedReactions, reactionCategories, type PredefinedReaction } from "@/data/predefinedReactions";
 
 interface ReactionResult {
   possible: boolean;
@@ -31,11 +35,21 @@ interface ReactionResult {
 }
 
 const ChemicalReactions = () => {
+  const [activeTab, setActiveTab] = useState<"generator" | "library">("generator");
+  
+  // AI Generator state
   const [substances, setSubstances] = useState<string[]>(['']);
-  const [result, setResult] = useState<ReactionResult | null>(null);
+  const [aiResult, setAiResult] = useState<ReactionResult | null>(null);
   const [loading, setLoading] = useState(false);
+  
+  // Library state
+  const [selectedCategory, setSelectedCategory] = useState("Barchasi");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedReaction, setSelectedReaction] = useState<PredefinedReaction | null>(null);
+  
   const { toast } = useToast();
 
+  // AI Generator functions
   const addSubstanceInput = () => {
     setSubstances([...substances, '']);
   };
@@ -65,7 +79,7 @@ const ChemicalReactions = () => {
     }
 
     setLoading(true);
-    setResult(null);
+    setAiResult(null);
 
     try {
       const { data, error } = await supabase.functions.invoke('generate-reaction', {
@@ -80,7 +94,7 @@ const ChemicalReactions = () => {
         throw new Error(data.error);
       }
 
-      setResult(data);
+      setAiResult(data);
       
       if (!data.possible) {
         toast({
@@ -100,6 +114,27 @@ const ChemicalReactions = () => {
     }
   };
 
+  // Library functions
+  const getIcon = (iconName: string) => {
+    const icons = {
+      flame: Flame,
+      droplets: Droplets,
+      wind: Wind,
+      sparkles: Sparkles,
+    };
+    const IconComponent = icons[iconName as keyof typeof icons] || Beaker;
+    return <IconComponent className="w-5 h-5" />;
+  };
+
+  const filteredReactions = predefinedReactions.filter(reaction => {
+    const matchesCategory = selectedCategory === "Barchasi" || reaction.category === selectedCategory;
+    const matchesSearch = searchQuery === "" || 
+      reaction.equation.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      reaction.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      reaction.type.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-cyan-50 dark:from-gray-900 dark:via-purple-900 dark:to-blue-900">
       <Navigation />
@@ -110,189 +145,312 @@ const ChemicalReactions = () => {
             <Beaker className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-4">
-            Intellektual Reaksiya Generatori
+            Kimyoviy Reaksiyalar
           </h1>
           <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-            Istalgan kimyoviy moddalarni kiriting va AI barcha mumkin bo'lgan reaksiyalarni tahlil qiladi
+            AI generator yoki 100+ laboratoriya reaksiyalari kutubxonasidan foydalaning
           </p>
         </div>
 
-        <div className="max-w-4xl mx-auto space-y-6">
-          <Card className="p-6 backdrop-blur-sm bg-white/80 dark:bg-gray-800/80 shadow-xl border-0">
-            <div className="space-y-4">
-              <div className="space-y-3">
-                <label className="text-sm font-medium block">
-                  Kimyoviy moddalar (formula yoki nom)
-                </label>
-                {substances.map((substance, index) => (
-                  <div key={index} className="flex gap-2">
-                    <Input
-                      value={substance}
-                      onChange={(e) => updateSubstance(index, e.target.value)}
-                      placeholder="Masalan: HCl, NaOH, H2SO4, Fe, CuSO4, CH4..."
-                      className="flex-1"
-                    />
-                    {substances.length > 1 && (
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => removeSubstanceInput(index)}
-                      >
-                        <X className="w-4 h-4" />
-                      </Button>
-                    )}
-                  </div>
-                ))}
-                <Button
-                  variant="outline"
-                  onClick={addSubstanceInput}
-                  className="w-full"
-                  disabled={substances.length >= 5}
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "generator" | "library")} className="max-w-6xl mx-auto">
+          <TabsList className="grid w-full grid-cols-2 mb-6">
+            <TabsTrigger value="generator">AI Generator</TabsTrigger>
+            <TabsTrigger value="library">Reaksiyalar Kutubxonasi ({predefinedReactions.length})</TabsTrigger>
+          </TabsList>
+
+          {/* AI Generator Tab */}
+          <TabsContent value="generator" className="space-y-6">
+            <Card className="p-6 backdrop-blur-sm bg-white/80 dark:bg-gray-800/80 shadow-xl border-0">
+              <div className="space-y-4">
+                <div className="space-y-3">
+                  <label className="text-sm font-medium block">
+                    Kimyoviy moddalar (formula yoki nom)
+                  </label>
+                  {substances.map((substance, index) => (
+                    <div key={index} className="flex gap-2">
+                      <Input
+                        value={substance}
+                        onChange={(e) => updateSubstance(index, e.target.value)}
+                        placeholder="Masalan: HCl, NaOH, H2SO4, Fe, CuSO4, CH4..."
+                        className="flex-1"
+                      />
+                      {substances.length > 1 && (
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => removeSubstanceInput(index)}
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                  <Button
+                    variant="outline"
+                    onClick={addSubstanceInput}
+                    className="w-full"
+                    disabled={substances.length >= 5}
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Yana modda qo'shish
+                  </Button>
+                </div>
+
+                <Button 
+                  onClick={generateReaction}
+                  disabled={loading || substances.every(s => s.trim() === '')}
+                  className="w-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"
+                  size="lg"
                 >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Yana modda qo'shish
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                      Tahlil qilinmoqda...
+                    </>
+                  ) : (
+                    <>
+                      <Beaker className="w-5 h-5 mr-2" />
+                      Reaksiyani Tahlil Qilish
+                    </>
+                  )}
                 </Button>
               </div>
+            </Card>
 
-              <Button 
-                onClick={generateReaction}
-                disabled={loading || substances.every(s => s.trim() === '')}
-                className="w-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"
-                size="lg"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                    Tahlil qilinmoqda...
-                  </>
-                ) : (
-                  <>
-                    <Beaker className="w-5 h-5 mr-2" />
-                    Reaksiyani Tahlil Qilish
-                  </>
+            {aiResult && !aiResult.possible && (
+              <Alert className="backdrop-blur-sm bg-yellow-50/80 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  <strong>Reaksiya sodir bo'lmaydi:</strong> {aiResult.noReactionReason || "Bu moddalar o'rtasida kimyoviy reaksiya bo'lmaydi."}
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {aiResult && aiResult.possible && aiResult.reactions && aiResult.reactions.map((reaction, idx) => (
+              <Card key={idx} className="p-6 backdrop-blur-sm bg-white/80 dark:bg-gray-800/80 shadow-xl border-0 space-y-6">
+                {aiResult.reactions && aiResult.reactions.length > 1 && (
+                  <Badge className="bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+                    Variant {idx + 1}
+                  </Badge>
                 )}
-              </Button>
-            </div>
-          </Card>
 
-          {result && !result.possible && (
-            <Alert className="backdrop-blur-sm bg-yellow-50/80 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                <strong>Reaksiya sodir bo'lmaydi:</strong> {result.noReactionReason || "Bu moddalar o'rtasida kimyoviy reaksiya bo'lmaydi."}
-              </AlertDescription>
-            </Alert>
-          )}
-
-          {result && result.possible && result.reactions && result.reactions.map((reaction, idx) => (
-            <Card key={idx} className="p-6 backdrop-blur-sm bg-white/80 dark:bg-gray-800/80 shadow-xl border-0 space-y-6">
-              {result.reactions && result.reactions.length > 1 && (
-                <Badge className="bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
-                  Variant {idx + 1}
-                </Badge>
-              )}
-
-              <div className="space-y-4">
-                <div>
-                  <h4 className="font-semibold mb-2 flex items-center gap-2">
-                    <Beaker className="w-4 h-4" />
-                    Reaksiya tenglamasi
-                  </h4>
-                  <div className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 p-4 rounded-lg font-mono text-center text-lg">
-                    {reaction.equation}
-                  </div>
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-4">
                   <div>
-                    <h4 className="font-semibold mb-2 text-purple-600 dark:text-purple-400">
-                      Reaksiya turi
+                    <h4 className="font-semibold mb-2 flex items-center gap-2">
+                      <Beaker className="w-4 h-4" />
+                      Reaksiya tenglamasi
                     </h4>
-                    <Badge className="bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
-                      {reaction.type}
-                    </Badge>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold mb-2 text-blue-600 dark:text-blue-400">
-                      Kuzatilishi
-                    </h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">{reaction.observation}</p>
-                  </div>
-                </div>
-
-                {reaction.conditions && Object.keys(reaction.conditions).length > 0 && (
-                  <div>
-                    <h4 className="font-semibold mb-2 text-green-600 dark:text-green-400">
-                      Sharoitlar
-                    </h4>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                      {reaction.conditions.temperature && (
-                        <Badge variant="outline">🌡️ {reaction.conditions.temperature}</Badge>
-                      )}
-                      {reaction.conditions.pressure && (
-                        <Badge variant="outline">⚡ {reaction.conditions.pressure}</Badge>
-                      )}
-                      {reaction.conditions.catalyst && (
-                        <Badge variant="outline">⚗️ {reaction.conditions.catalyst}</Badge>
-                      )}
-                      {reaction.conditions.medium && (
-                        <Badge variant="outline">💧 {reaction.conditions.medium}</Badge>
-                      )}
-                      {reaction.conditions.concentration && (
-                        <Badge variant="outline">📊 {reaction.conditions.concentration}</Badge>
-                      )}
+                    <div className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 p-4 rounded-lg font-mono text-center text-lg">
+                      {reaction.equation}
                     </div>
                   </div>
-                )}
 
-                {reaction.ionicEquation && (
-                  <div>
-                    <h4 className="font-semibold mb-2 text-cyan-600 dark:text-cyan-400">
-                      Ionli tenglama
-                    </h4>
-                    <div className="bg-cyan-50 dark:bg-cyan-900/20 p-3 rounded-lg font-mono text-sm">
-                      {reaction.ionicEquation}
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <h4 className="font-semibold mb-2 text-purple-600 dark:text-purple-400">
+                        Reaksiya turi
+                      </h4>
+                      <Badge className="bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+                        {reaction.type}
+                      </Badge>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold mb-2 text-blue-600 dark:text-blue-400">
+                        Kuzatilishi
+                      </h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">{reaction.observation}</p>
                     </div>
                   </div>
-                )}
 
-                <Separator />
+                  {reaction.conditions && Object.keys(reaction.conditions).length > 0 && (
+                    <div>
+                      <h4 className="font-semibold mb-2 text-green-600 dark:text-green-400">
+                        Sharoitlar
+                      </h4>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                        {reaction.conditions.temperature && (
+                          <Badge variant="outline">🌡️ {reaction.conditions.temperature}</Badge>
+                        )}
+                        {reaction.conditions.pressure && (
+                          <Badge variant="outline">⚡ {reaction.conditions.pressure}</Badge>
+                        )}
+                        {reaction.conditions.catalyst && (
+                          <Badge variant="outline">⚗️ {reaction.conditions.catalyst}</Badge>
+                        )}
+                        {reaction.conditions.medium && (
+                          <Badge variant="outline">💧 {reaction.conditions.medium}</Badge>
+                        )}
+                        {reaction.conditions.concentration && (
+                          <Badge variant="outline">📊 {reaction.conditions.concentration}</Badge>
+                        )}
+                      </div>
+                    </div>
+                  )}
 
-                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
-                  <h4 className="font-semibold mb-2 text-blue-900 dark:text-blue-100 flex items-center gap-2">
-                    <Info className="w-4 h-4" />
-                    Tushuntirish
+                  {reaction.ionicEquation && (
+                    <div>
+                      <h4 className="font-semibold mb-2 text-cyan-600 dark:text-cyan-400">
+                        Ionli tenglama
+                      </h4>
+                      <div className="bg-cyan-50 dark:bg-cyan-900/20 p-3 rounded-lg font-mono text-sm">
+                        {reaction.ionicEquation}
+                      </div>
+                    </div>
+                  )}
+
+                  <Separator />
+
+                  <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                    <h4 className="font-semibold mb-2 text-blue-900 dark:text-blue-100 flex items-center gap-2">
+                      <Info className="w-4 h-4" />
+                      Tushuntirish
+                    </h4>
+                    <p className="text-sm text-blue-800 dark:text-blue-200">
+                      {reaction.explanation}
+                    </p>
+                  </div>
+                </div>
+              </Card>
+            ))}
+
+            <Card className="p-6 backdrop-blur-sm bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border-purple-200 dark:border-purple-800">
+              <div className="flex items-start gap-3">
+                <Info className="w-5 h-5 text-purple-600 dark:text-purple-400 mt-0.5" />
+                <div className="space-y-2">
+                  <h4 className="font-semibold text-purple-900 dark:text-purple-100">
+                    Intellektual Reaksiya Generatori Haqida
                   </h4>
-                  <p className="text-sm text-blue-800 dark:text-blue-200">
-                    {reaction.explanation}
+                  <p className="text-sm text-purple-800 dark:text-purple-200">
+                    AI generator istalgan kimyoviy moddalar o'rtasidagi reaksiyalarni tahlil qiladi.
+                    Haqiqiy kimyo qoidalariga amal qiladi: metalllar aktivlik qatori, eruvchanlık jadvali, 
+                    oksidlanish-qaytarilish reaksiyalari.
                   </p>
                 </div>
               </div>
             </Card>
-          ))}
+          </TabsContent>
 
-          <Card className="p-6 backdrop-blur-sm bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border-purple-200 dark:border-purple-800">
-            <div className="flex items-start gap-3">
-              <Info className="w-5 h-5 text-purple-600 dark:text-purple-400 mt-0.5" />
-              <div className="space-y-2">
-                <h4 className="font-semibold text-purple-900 dark:text-purple-100">
-                  Intellektual Reaksiya Generatori Haqida
-                </h4>
-                <p className="text-sm text-purple-800 dark:text-purple-200">
-                  Ushbu generator sun'iy intellekt yordamida istalgan kimyoviy moddalar o'rtasidagi reaksiyalarni tahlil qiladi.
-                  U haqiqiy kimyo qoidalariga amal qiladi: metalllar aktivlik qatori, eruvchanlık jadvali, 
-                  oksidlanish-qaytarilish reaksiyalari, organik va noorganik kimyo qonunlari.
-                </p>
-                <ul className="text-sm text-purple-800 dark:text-purple-200 list-disc list-inside space-y-1">
-                  <li>Barcha turdagi moddalarni qo'llab-quvvatlaydi (kislotalar, ishqorlar, tuzlar, metallar, organik moddalar)</li>
-                  <li>Turli sharoitlarda (harorat, bosim, katalizator) mumkin bo'lgan barcha reaksiyalarni ko'rsatadi</li>
-                  <li>Agar reaksiya bo'lmasa, sababini tushuntiradi</li>
-                  <li>Ionli tenglamalar va batafsil tushuntirishlar beradi</li>
-                </ul>
+          {/* Library Tab */}
+          <TabsContent value="library" className="space-y-6">
+            <Card className="p-6 backdrop-blur-sm bg-white/80 dark:bg-gray-800/80 shadow-xl border-0">
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium block mb-2">Kategoriya</label>
+                  <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {reactionCategories.map(category => (
+                        <SelectItem key={category} value={category}>
+                          {category}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="text-sm font-medium block mb-2">Qidiruv</label>
+                  <Input
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Reaksiya, modda yoki tur bo'yicha qidiring..."
+                  />
+                </div>
               </div>
+            </Card>
+
+            <div className="grid md:grid-cols-2 gap-4">
+              {filteredReactions.map(reaction => (
+                <Card
+                  key={reaction.id}
+                  className="p-4 cursor-pointer hover:shadow-lg transition-shadow backdrop-blur-sm bg-white/80 dark:bg-gray-800/80 border-0"
+                  onClick={() => setSelectedReaction(reaction)}
+                >
+                  <div className="flex items-start gap-3 mb-3">
+                    <div className="p-2 rounded-lg bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30">
+                      {getIcon(reaction.icon)}
+                    </div>
+                    <div className="flex-1">
+                      <Badge variant="outline" className="mb-2">{reaction.type}</Badge>
+                      <div className="font-mono text-sm mb-2">{reaction.equation}</div>
+                      <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2">
+                        {reaction.description}
+                      </p>
+                    </div>
+                  </div>
+                </Card>
+              ))}
             </div>
-          </Card>
-        </div>
+
+            {filteredReactions.length === 0 && (
+              <Alert>
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  Hech qanday reaksiya topilmadi. Boshqa kategoriya yoki qidiruv so'zini sinab ko'ring.
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {selectedReaction && (
+              <Card className="p-6 backdrop-blur-sm bg-white/80 dark:bg-gray-800/80 shadow-xl border-0 space-y-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-3 rounded-xl bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30">
+                      {getIcon(selectedReaction.icon)}
+                    </div>
+                    <div>
+                      <Badge className="mb-2">{selectedReaction.category}</Badge>
+                      <h3 className="font-bold text-lg">{selectedReaction.type}</h3>
+                    </div>
+                  </div>
+                  <Button variant="outline" onClick={() => setSelectedReaction(null)}>
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+
+                <Separator />
+
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="font-semibold mb-2 flex items-center gap-2">
+                      <Beaker className="w-4 h-4" />
+                      Reaksiya tenglamasi
+                    </h4>
+                    <div className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 p-4 rounded-lg font-mono text-center text-lg">
+                      {selectedReaction.equation}
+                    </div>
+                  </div>
+
+                  <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
+                    <h5 className="font-medium mb-3">3D Animatsiya</h5>
+                    <AnimatedReactionViewer
+                      reactants={selectedReaction.reactants}
+                      products={selectedReaction.products}
+                    />
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <h4 className="font-semibold mb-2">Sharoitlar</h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">{selectedReaction.conditions}</p>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold mb-2">Kuzatilishi</h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">{selectedReaction.observation}</p>
+                    </div>
+                  </div>
+
+                  <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                    <p className="text-sm text-blue-800 dark:text-blue-200">
+                      {selectedReaction.description}
+                    </p>
+                  </div>
+                </div>
+              </Card>
+            )}
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
