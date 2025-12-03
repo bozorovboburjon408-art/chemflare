@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { User } from "@supabase/supabase-js";
 
 interface ChemistryBook {
   id: string;
@@ -59,7 +60,7 @@ interface UserProgress {
 const QUESTION_COUNTS = [3, 5, 10, 15, 20];
 
 const Learning = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
   const [progress, setProgress] = useState<UserProgress>({ 
     current_level: 0, 
     total_points: 0, 
@@ -86,36 +87,49 @@ const Learning = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    checkAuth();
-  }, []);
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      loadUserProgress();
-      loadBooks();
-    }
-  }, [isAuthenticated]);
-
-  const checkAuth = () => {
-    const auth = localStorage.getItem("chemlearn_auth");
-    if (auth !== "true") {
-      navigate("/auth");
-      return;
-    }
-    setIsAuthenticated(true);
-    setIsLoading(false);
-  };
-
-  const loadUserProgress = () => {
-    // Load progress from localStorage for code-based auth
-    const savedProgress = localStorage.getItem("chemlearn_progress");
-    if (savedProgress) {
-      try {
-        const parsed = JSON.parse(savedProgress);
-        setProgress(parsed);
-      } catch (e) {
-        console.error('Error parsing saved progress:', e);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setUser(session?.user ?? null);
+        setIsLoading(false);
+        if (!session) {
+          navigate("/auth");
+        }
       }
+    );
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      setIsLoading(false);
+      if (!session) {
+        navigate("/auth");
+      } else {
+        loadUserProgress(session.user.id);
+        loadBooks();
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
+
+  const loadUserProgress = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('user_progress')
+        .select('*')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (error) throw error;
+      
+      if (data) {
+        setProgress({
+          current_level: data.current_level,
+          total_points: data.total_points,
+          completed_tasks: data.completed_tasks,
+        });
+      }
+    } catch (error: any) {
+      console.error('Error loading progress:', error);
     }
   };
 
@@ -218,10 +232,10 @@ const Learning = () => {
     setShowResult(true);
     setAnswers([...answers, { selected: selectedAnswer, correct: currentQuestion.correct, isCorrect }]);
     
-    if (isCorrect) {
+    if (isCorrect && user) {
       setScore(score + 1);
       
-      // Update user progress in localStorage
+      // Update user progress in database
       const newPoints = progress.total_points + 10;
       const newCompletedTasks = progress.completed_tasks + 1;
       const newLevel = Math.min(Math.floor(newCompletedTasks / 10), 10);
@@ -232,8 +246,22 @@ const Learning = () => {
         completed_tasks: newCompletedTasks,
       };
       
-      localStorage.setItem("chemlearn_progress", JSON.stringify(newProgress));
+      try {
+        await supabase
+          .from('user_progress')
+          .upsert({
+            user_id: user.id,
+            current_level: newLevel,
+            total_points: newPoints,
+            completed_tasks: newCompletedTasks,
+          }, { onConflict: 'user_id' });
+      } catch (error) {
+        console.error('Error updating progress:', error);
+      }
+      
       setProgress(newProgress);
+    } else if (isCorrect) {
+      setScore(score + 1);
     }
   };
 

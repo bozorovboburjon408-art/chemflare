@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Upload, Loader2, CheckCircle2, XCircle, Trophy, LogOut, Shuffle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { User } from "@supabase/supabase-js";
 
 interface Quiz {
   id: string;
@@ -33,7 +34,8 @@ interface Question {
 }
 
 const Quiz = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [currentQuiz, setCurrentQuiz] = useState<string | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -48,27 +50,35 @@ const Quiz = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    checkAuth();
-  }, []);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setUser(session?.user ?? null);
+        setIsLoading(false);
+        if (!session) {
+          navigate("/auth");
+        }
+      }
+    );
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      setIsLoading(false);
+      if (!session) {
+        navigate("/auth");
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (user) {
       loadQuizzes();
     }
-  }, [isAuthenticated]);
+  }, [user]);
 
-  const checkAuth = () => {
-    const auth = localStorage.getItem("chemlearn_auth");
-    if (auth !== "true") {
-      navigate("/auth");
-      return;
-    }
-    setIsAuthenticated(true);
-  };
-
-  const handleSignOut = () => {
-    localStorage.removeItem("chemlearn_auth");
-    localStorage.removeItem("chemlearn_code");
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
     navigate("/auth");
   };
 
@@ -147,8 +157,8 @@ const Quiz = () => {
     setIsUploading(true);
 
     try {
-      // Check localStorage auth
-      if (localStorage.getItem("chemlearn_auth") !== "true") {
+      // Check auth
+      if (!user) {
         toast({
           title: "Xato",
           description: "Tizimga kirish talab qilinadi",
@@ -312,7 +322,7 @@ const Quiz = () => {
     loadQuizzes();
   };
 
-  if (!isAuthenticated) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />

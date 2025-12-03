@@ -4,32 +4,51 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Atom, Loader2, Key } from "lucide-react";
-
-// Access codes - these can be expanded or managed differently
-const VALID_CODES = ["chemlearn2024", "kimyo123", "student", "teacher", "demo"];
+import { Atom, Loader2, User, Lock } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const [code, setCode] = useState("");
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
-    // Check if user is already logged in via localStorage
-    const isAuthenticated = localStorage.getItem("chemlearn_auth");
-    if (isAuthenticated === "true") {
-      navigate("/quiz");
-    }
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (session) {
+          navigate("/quiz");
+        }
+      }
+    );
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        navigate("/quiz");
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, [navigate]);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!code.trim()) {
+    if (!email.trim() || !password.trim()) {
       toast({
         title: "Xato",
-        description: "Kirish kodini kiriting",
+        description: "Login va parolni kiriting",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (password.length < 6) {
+      toast({
+        title: "Xato",
+        description: "Parol kamida 6 ta belgidan iborat bo'lishi kerak",
         variant: "destructive",
       });
       return;
@@ -37,22 +56,67 @@ const Auth = () => {
 
     setIsLoading(true);
 
-    // Simulate a small delay for better UX
-    await new Promise(resolve => setTimeout(resolve, 500));
+    try {
+      if (isSignUp) {
+        const { error } = await supabase.auth.signUp({
+          email: email.trim(),
+          password: password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/`,
+          }
+        });
 
-    if (VALID_CODES.includes(code.toLowerCase().trim())) {
-      localStorage.setItem("chemlearn_auth", "true");
-      localStorage.setItem("chemlearn_code", code.toLowerCase().trim());
-      
-      toast({
-        title: "Muvaffaqiyatli!",
-        description: "Tizimga kirdingiz",
-      });
-      navigate("/quiz");
-    } else {
+        if (error) {
+          if (error.message.includes("already registered")) {
+            toast({
+              title: "Xato",
+              description: "Bu login allaqachon ro'yxatdan o'tgan",
+              variant: "destructive",
+            });
+          } else {
+            toast({
+              title: "Xato",
+              description: error.message,
+              variant: "destructive",
+            });
+          }
+        } else {
+          toast({
+            title: "Muvaffaqiyatli!",
+            description: "Ro'yxatdan o'tdingiz",
+          });
+        }
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({
+          email: email.trim(),
+          password: password,
+        });
+
+        if (error) {
+          if (error.message.includes("Invalid login credentials")) {
+            toast({
+              title: "Xato",
+              description: "Noto'g'ri login yoki parol",
+              variant: "destructive",
+            });
+          } else {
+            toast({
+              title: "Xato",
+              description: error.message,
+              variant: "destructive",
+            });
+          }
+        } else {
+          toast({
+            title: "Muvaffaqiyatli!",
+            description: "Tizimga kirdingiz",
+          });
+        }
+      }
+    } catch (error: any) {
       toast({
         title: "Xato",
-        description: "Noto'g'ri kod. Iltimos, to'g'ri kodni kiriting.",
+        description: "Tizimda xatolik yuz berdi",
         variant: "destructive",
       });
     }
@@ -71,23 +135,39 @@ const Auth = () => {
             ChemLearn
           </h1>
           <p className="text-muted-foreground">
-            Kirish kodini kiriting
+            {isSignUp ? "Ro'yxatdan o'tish" : "Tizimga kirish"}
           </p>
         </div>
 
-        <form onSubmit={handleLogin} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <label className="text-sm font-medium flex items-center gap-2">
-              <Key className="w-4 h-4 text-primary" />
-              Kirish kodi
+              <User className="w-4 h-4 text-primary" />
+              Login (email)
             </label>
             <Input
-              type="text"
-              placeholder="Kodingizni kiriting..."
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
+              type="email"
+              placeholder="login@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               disabled={isLoading}
-              className="text-center text-lg tracking-wider border-primary/30 focus:border-primary"
+              className="border-primary/30 focus:border-primary"
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium flex items-center gap-2">
+              <Lock className="w-4 h-4 text-primary" />
+              Parol
+            </label>
+            <Input
+              type="password"
+              placeholder="******"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              disabled={isLoading}
+              className="border-primary/30 focus:border-primary"
               required
             />
           </div>
@@ -100,16 +180,25 @@ const Auth = () => {
             {isLoading ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Tekshirilmoqda...
+                {isSignUp ? "Ro'yxatdan o'tilmoqda..." : "Kirilmoqda..."}
               </>
             ) : (
-              "Kirish"
+              isSignUp ? "Ro'yxatdan o'tish" : "Kirish"
             )}
           </Button>
         </form>
 
-        <div className="text-center text-sm text-muted-foreground">
-          <p>Kirish kodi sizning o'qituvchingizda yoki administratorda</p>
+        <div className="text-center">
+          <button
+            type="button"
+            onClick={() => setIsSignUp(!isSignUp)}
+            className="text-sm text-primary hover:underline"
+            disabled={isLoading}
+          >
+            {isSignUp 
+              ? "Akkauntingiz bormi? Kirish" 
+              : "Akkauntingiz yo'qmi? Ro'yxatdan o'tish"}
+          </button>
         </div>
       </Card>
     </div>
