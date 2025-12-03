@@ -2,6 +2,7 @@ import { NavLink } from "@/components/NavLink";
 import { Atom, Brain, Calculator, Menu, X, GraduationCap, BookOpen, Beaker } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import universityLogo from "@/assets/university-logo.jpg";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -20,9 +21,11 @@ const Navigation = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-hero flex items-center justify-center shadow-elegant">
-              <Atom className="w-6 h-6 text-primary-foreground" />
-            </div>
+            <img 
+              src={universityLogo} 
+              alt="Navoiy Davlat Konchilik va Texnologiyalar Universiteti" 
+              className="w-10 h-10 rounded-full object-contain"
+            />
             <span className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
               ChemLearn
             </span>
