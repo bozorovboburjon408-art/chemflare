@@ -176,7 +176,7 @@ const PeriodicTable = () => {
       <main className="container mx-auto px-4 pt-24 pb-12">
         <div className="text-center mb-12 animate-fade-in">
           <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
-            Kimyoviy Elementlar Davriy Jadvali
+            KIMYOVIY ELEMENTLAR DAVRIY JADVALI
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Barcha elementlarni o'rganing va ularning xususiyatlari haqida batafsil ma'lumot oling
