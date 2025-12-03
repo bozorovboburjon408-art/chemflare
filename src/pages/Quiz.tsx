@@ -101,19 +101,48 @@ const Quiz = () => {
     setQuizzes(data || []);
   };
 
-  const handleFileUpload = async (type: 'questions' | 'answers', e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const MAX_FILE_SIZE = 30 * 1024 * 1024; // 30MB
+  const MAX_FILES = 10;
 
-    if (!file.type.startsWith('image/')) {
+  const handleFileUpload = async (type: 'questions' | 'answers', e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    // Check number of files
+    if (files.length > MAX_FILES) {
       toast({
         title: "Xato",
-        description: "Faqat rasm fayllari qabul qilinadi",
+        description: `Maksimum ${MAX_FILES} ta fayl yuklash mumkin`,
         variant: "destructive",
       });
       return;
     }
 
+    // Validate all files
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Xato",
+          description: `"${file.name}" - faqat rasm fayllari qabul qilinadi`,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (file.size > MAX_FILE_SIZE) {
+        toast({
+          title: "Xato",
+          description: `"${file.name}" - fayl hajmi 30MB dan oshmasligi kerak`,
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
+    // Read the first file (for now, keeping single file behavior for quiz processing)
+    const file = files[0];
     const reader = new FileReader();
     reader.onload = (event) => {
       const base64 = event.target?.result as string;
@@ -595,6 +624,8 @@ const Quiz = () => {
 
             <p className="text-sm text-muted-foreground text-center">
               AI ikkala rasmni tahlil qilib, test savollarini va to'g'ri javoblarni avtomatik aniqlaydi.
+              <br />
+              <span className="text-xs">Maksimum 10 ta fayl, har biri 30MB gacha</span>
             </p>
           </div>
         </Card>
