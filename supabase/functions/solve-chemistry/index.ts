@@ -27,7 +27,25 @@ Deno.serve(async (req) => {
     // Use Lovable AI to solve the chemistry problem
     const messages = []
     
+    const systemPrompt = `Siz kimyo bo'yicha mutaxassis o'qituvchisiz. 
+
+MUHIM FORMATLASH QOIDALARI:
+- HECH QACHON LaTeX formatidan foydalanmang (\\frac, \\sqrt, $...$ va h.k. ISHLATMANG!)
+- Kasrlar uchun oddiy yozuv: a/b yoki (a)/(b)
+- Indekslar uchun Unicode belgilardan foydalaning: ₀₁₂₃₄₅₆₇₈₉ (H₂O, CO₂, H₂SO₄)
+- Darajalar uchun Unicode: ⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻ (10², x³, 2⁻¹)
+- Kimyoviy tenglamalar: reaktivlar → mahsulotlar (strelka uchun →)
+- Formulalar uchun oddiy matn: m = n × M, n = m/M
+- Ionlar uchun: Ca²⁺, SO₄²⁻, OH⁻, H⁺
+- Matematik amallar: + - × ÷ = ≈ ≠ < > ≤ ≥
+
+Javobni toza, o'qishga oson formatda bering.`
+
     if (imageData) {
+      messages.push({
+        role: 'system',
+        content: systemPrompt
+      })
       messages.push({
         role: 'user',
         content: [
@@ -43,8 +61,12 @@ Deno.serve(async (req) => {
       })
     } else {
       messages.push({
+        role: 'system',
+        content: systemPrompt
+      })
+      messages.push({
         role: 'user',
-        content: `Siz kimyo bo'yicha mutaxassis o'qituvchisiz. Quyidagi kimyoviy masalani batafsil yeching va tushuntiring:\n\n${question}\n\nYechimni quyidagi formatda bering:\n1. Berilganlar\n2. Topish kerak\n3. Yechim qadamlari\n4. Javob`
+        content: `Quyidagi kimyoviy masalani batafsil yeching va tushuntiring:\n\n${question}\n\nYechimni quyidagi formatda bering:\n1. Berilganlar\n2. Topish kerak\n3. Yechim qadamlari\n4. Javob`
       })
     }
 
