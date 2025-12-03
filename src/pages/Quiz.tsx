@@ -44,8 +44,8 @@ const Quiz = () => {
   const [showResults, setShowResults] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadTitle, setUploadTitle] = useState("");
-  const [questionsImage, setQuestionsImage] = useState<string | null>(null);
-  const [answersImage, setAnswersImage] = useState<string | null>(null);
+  const [questionsImages, setQuestionsImages] = useState<string[]>([]);
+  const [answersImages, setAnswersImages] = useState<string[]>([]);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -141,43 +141,51 @@ const Quiz = () => {
       }
     }
 
-    // Read the first file (for now, keeping single file behavior for quiz processing)
-    const file = files[0];
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const base64 = event.target?.result as string;
-      if (type === 'questions') {
-        setQuestionsImage(base64);
-        toast({
-          title: "Yuklandi",
-          description: "Savollar rasmi yuklandi. Endi javoblar rasmini yuklang.",
-        });
-      } else {
-        setAnswersImage(base64);
-        toast({
-          title: "Yuklandi",
-          description: "Javoblar rasmi yuklandi. Ikkala rasm tayyor.",
-        });
-      }
-      e.target.value = "";
-    };
-
-    reader.onerror = () => {
-      toast({
-        title: "Xato",
-        description: "Rasmni o'qishda xatolik",
-        variant: "destructive",
+    // Read all files
+    const readFile = (file: File): Promise<string> => {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (event) => resolve(event.target?.result as string);
+        reader.onerror = () => reject(new Error("Rasmni o'qishda xatolik"));
+        reader.readAsDataURL(file);
       });
     };
 
-    reader.readAsDataURL(file);
+    try {
+      const base64Images: string[] = [];
+      for (let i = 0; i < files.length; i++) {
+        const base64 = await readFile(files[i]);
+        base64Images.push(base64);
+      }
+
+      if (type === 'questions') {
+        setQuestionsImages(base64Images);
+        toast({
+          title: "Yuklandi",
+          description: `${base64Images.length} ta savollar rasmi yuklandi. Endi javoblar rasmini yuklang.`,
+        });
+      } else {
+        setAnswersImages(base64Images);
+        toast({
+          title: "Yuklandi",
+          description: `${base64Images.length} ta javoblar rasmi yuklandi. Rasmlar tayyor.`,
+        });
+      }
+      e.target.value = "";
+    } catch (error) {
+      toast({
+        title: "Xato",
+        description: "Rasmlarni o'qishda xatolik",
+        variant: "destructive",
+      });
+    }
   };
 
   const createQuiz = async () => {
-    if (!questionsImage || !answersImage) {
+    if (questionsImages.length === 0 || answersImages.length === 0) {
       toast({
         title: "Xato",
-        description: "Iltimos, ikkala rasmni ham yuklang",
+        description: "Iltimos, ikkala turdagi rasmlarni ham yuklang",
         variant: "destructive",
       });
       return;
@@ -198,8 +206,10 @@ const Quiz = () => {
 
       const { data, error } = await supabase.functions.invoke('process-quiz-image', {
         body: {
-          imageBase64: questionsImage,
-          answersImageBase64: answersImage,
+          imageBase64: questionsImages[0],
+          answersImageBase64: answersImages[0],
+          questionsImages: questionsImages,
+          answersImages: answersImages,
           title: uploadTitle || undefined,
         },
       });
@@ -218,8 +228,8 @@ const Quiz = () => {
       });
 
       setUploadTitle("");
-      setQuestionsImage(null);
-      setAnswersImage(null);
+      setQuestionsImages([]);
+      setAnswersImages([]);
       loadQuizzes();
     } catch (error: any) {
       console.error('Upload error:', error);
@@ -558,7 +568,7 @@ const Quiz = () => {
               <div>
                 <label htmlFor="questions-upload" className="block">
                   <Button 
-                    variant={questionsImage ? "outline" : "default"}
+                    variant={questionsImages.length > 0 ? "outline" : "default"}
                     size="lg"
                     disabled={isUploading}
                     className="w-full cursor-pointer"
@@ -566,13 +576,16 @@ const Quiz = () => {
                   >
                     <span>
                       <Upload className="w-5 h-5 mr-2" />
-                      {questionsImage ? "Savollar yuklandi ✓" : "1. Savollar rasmini yuklash"}
+                      {questionsImages.length > 0 
+                        ? `Savollar yuklandi (${questionsImages.length} ta) ✓` 
+                        : "1. Savollar rasmlarini yuklash"}
                     </span>
                   </Button>
                   <input
                     id="questions-upload"
                     type="file"
                     accept="image/*"
+                    multiple
                     onChange={(e) => handleFileUpload('questions', e)}
                     className="hidden"
                     disabled={isUploading}
@@ -583,24 +596,27 @@ const Quiz = () => {
               <div>
                 <label htmlFor="answers-upload" className="block">
                   <Button 
-                    variant={answersImage ? "outline" : "default"}
+                    variant={answersImages.length > 0 ? "outline" : "default"}
                     size="lg"
-                    disabled={isUploading || !questionsImage}
+                    disabled={isUploading || questionsImages.length === 0}
                     className="w-full cursor-pointer"
                     asChild
                   >
                     <span>
                       <Upload className="w-5 h-5 mr-2" />
-                      {answersImage ? "Javoblar yuklandi ✓" : "2. Javoblar rasmini yuklash"}
+                      {answersImages.length > 0 
+                        ? `Javoblar yuklandi (${answersImages.length} ta) ✓` 
+                        : "2. Javoblar rasmlarini yuklash"}
                     </span>
                   </Button>
                   <input
                     id="answers-upload"
                     type="file"
                     accept="image/*"
+                    multiple
                     onChange={(e) => handleFileUpload('answers', e)}
                     className="hidden"
-                    disabled={isUploading || !questionsImage}
+                    disabled={isUploading || questionsImages.length === 0}
                   />
                 </label>
               </div>
@@ -608,7 +624,7 @@ const Quiz = () => {
 
             <Button
               onClick={createQuiz}
-              disabled={isUploading || !questionsImage || !answersImage}
+              disabled={isUploading || questionsImages.length === 0 || answersImages.length === 0}
               size="lg"
               className="w-full"
             >
