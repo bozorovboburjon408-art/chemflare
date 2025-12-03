@@ -1,5 +1,5 @@
 import { NavLink } from "@/components/NavLink";
-import { Atom, Brain, Calculator, Menu, X, GraduationCap, BookOpen, Beaker } from "lucide-react";
+import { Atom, Brain, Calculator, Menu, X, GraduationCap, BookOpen, Beaker, Code2 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import universityLogo from "@/assets/university-logo.jpg";
@@ -14,6 +14,7 @@ const Navigation = () => {
     { to: "/library", icon: BookOpen, label: "Kitobxona" },
     { to: "/quiz", icon: Brain, label: "Test" },
     { to: "/calculator", icon: Calculator, label: "Kalkulyator" },
+    { to: "/developers", icon: Code2, label: "Ishlab chiqaruvchilar" },
   ];
 
   return (
