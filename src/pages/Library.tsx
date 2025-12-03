@@ -15,7 +15,6 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import type { User } from "@supabase/supabase-js";
 
 interface ChemistryBook {
   id: string;
@@ -45,7 +44,7 @@ interface ChapterQuestion {
 }
 
 const Library = () => {
-  const [user, setUser] = useState<User | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [books, setBooks] = useState<ChemistryBook[]>([]);
   const [selectedBook, setSelectedBook] = useState<ChemistryBook | null>(null);
   const [chapters, setChapters] = useState<BookChapter[]>([]);
@@ -61,27 +60,18 @@ const Library = () => {
   }, []);
 
   useEffect(() => {
-    if (user) {
+    if (isAuthenticated) {
       loadBooks();
     }
-  }, [user]);
+  }, [isAuthenticated]);
 
-  const checkAuth = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    if (!session) {
+  const checkAuth = () => {
+    const auth = localStorage.getItem("chemlearn_auth");
+    if (auth !== "true") {
       navigate("/auth");
       return;
     }
-
-    setUser(session.user);
-
-    supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_OUT') {
-        navigate("/auth");
-      }
-      setUser(session?.user ?? null);
-    });
+    setIsAuthenticated(true);
   };
 
   const loadBooks = async () => {

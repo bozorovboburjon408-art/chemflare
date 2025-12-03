@@ -9,7 +9,6 @@ import { Badge } from "@/components/ui/badge";
 import { Upload, Loader2, CheckCircle2, XCircle, Trophy, LogOut, Shuffle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import type { User } from "@supabase/supabase-js";
 
 interface Quiz {
   id: string;
@@ -34,7 +33,7 @@ interface Question {
 }
 
 const Quiz = () => {
-  const [user, setUser] = useState<User | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [currentQuiz, setCurrentQuiz] = useState<string | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -53,31 +52,23 @@ const Quiz = () => {
   }, []);
 
   useEffect(() => {
-    if (user) {
+    if (isAuthenticated) {
       loadQuizzes();
     }
-  }, [user]);
+  }, [isAuthenticated]);
 
-  const checkAuth = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    if (!session) {
+  const checkAuth = () => {
+    const auth = localStorage.getItem("chemlearn_auth");
+    if (auth !== "true") {
       navigate("/auth");
       return;
     }
-
-    setUser(session.user);
-
-    supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_OUT') {
-        navigate("/auth");
-      }
-      setUser(session?.user ?? null);
-    });
+    setIsAuthenticated(true);
   };
 
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
+  const handleSignOut = () => {
+    localStorage.removeItem("chemlearn_auth");
+    localStorage.removeItem("chemlearn_code");
     navigate("/auth");
   };
 
@@ -156,8 +147,8 @@ const Quiz = () => {
     setIsUploading(true);
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
+      // Check localStorage auth
+      if (localStorage.getItem("chemlearn_auth") !== "true") {
         toast({
           title: "Xato",
           description: "Tizimga kirish talab qilinadi",
@@ -321,7 +312,7 @@ const Quiz = () => {
     loadQuizzes();
   };
 
-  if (!user) {
+  if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
