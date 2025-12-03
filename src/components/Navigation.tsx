@@ -16,14 +16,16 @@ const Navigation = () => {
   ];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-lg border-b border-border">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-card/80 backdrop-blur-xl border-b border-border/50 shadow-sm">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-hero flex items-center justify-center shadow-elegant">
               <Atom className="w-6 h-6 text-primary-foreground" />
             </div>
-            <span className="text-xl font-bold text-foreground">ChemLearn</span>
+            <span className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              ChemLearn
+            </span>
           </div>
 
           {/* Desktop Navigation */}
@@ -32,11 +34,11 @@ const Navigation = () => {
               <NavLink
                 key={to}
                 to={to}
-                className="px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent/10 transition-colors flex items-center space-x-2"
-                activeClassName="!text-primary !bg-primary/10"
+                className="px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-primary/5 transition-all duration-200 flex items-center space-x-2 group"
+                activeClassName="!text-primary !bg-primary/10 shadow-sm"
               >
-                <Icon className="w-4 h-4" />
-                <span>{label}</span>
+                <Icon className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                <span className="font-medium">{label}</span>
               </NavLink>
             ))}
           </div>
@@ -45,7 +47,7 @@ const Navigation = () => {
           <Button
             variant="ghost"
             size="icon"
-            className="md:hidden"
+            className="md:hidden hover:bg-primary/10"
             onClick={() => setIsOpen(!isOpen)}
           >
             {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -54,17 +56,17 @@ const Navigation = () => {
 
         {/* Mobile Navigation */}
         {isOpen && (
-          <div className="md:hidden py-4 space-y-2 animate-fade-in">
+          <div className="md:hidden py-4 space-y-2 animate-fade-in border-t border-border/50">
             {navItems.map(({ to, icon: Icon, label }) => (
               <NavLink
                 key={to}
                 to={to}
                 onClick={() => setIsOpen(false)}
-                className="flex items-center space-x-3 px-4 py-3 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent/10 transition-colors"
+                className="flex items-center space-x-3 px-4 py-3 rounded-lg text-muted-foreground hover:text-foreground hover:bg-primary/5 transition-colors"
                 activeClassName="!text-primary !bg-primary/10"
               >
                 <Icon className="w-5 h-5" />
-                <span>{label}</span>
+                <span className="font-medium">{label}</span>
               </NavLink>
             ))}
           </div>

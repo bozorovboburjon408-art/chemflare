@@ -3,7 +3,7 @@ import Navigation from "@/components/Navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Upload, Send, Loader2 } from "lucide-react";
+import { Upload, Send, Loader2, Sparkles, FlaskConical, Calculator as CalcIcon, Beaker } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -77,8 +77,13 @@ const Calculator = () => {
       
       <main className="container mx-auto px-4 pt-24 pb-12">
         <div className="text-center mb-12 animate-fade-in">
-          <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
-            Kimyoviy Kalkulyator
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-hero shadow-elegant mb-6">
+            <CalcIcon className="w-8 h-8 text-primary-foreground" />
+          </div>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">
+            <span className="bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
+              Kimyoviy Kalkulyator
+            </span>
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Har qanday kimyoviy hisob-kitob yoki masalani yuboring - AI yechim topadi
@@ -86,17 +91,17 @@ const Calculator = () => {
         </div>
 
         <div className="max-w-3xl mx-auto space-y-6">
-          <Card className="p-6">
+          <Card className="p-6 shadow-elegant border-border/50 bg-card/80 backdrop-blur-sm">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-2">
+                <label className="block text-sm font-medium mb-2 text-foreground">
                   Kimyoviy masala yoki hisob-kitobni kiriting
                 </label>
                 <Textarea
                   value={question}
                   onChange={(e) => setQuestion(e.target.value)}
                   placeholder="Masalan: 2H₂ + O₂ → 2H₂O reaksiyasida 4g H₂ dan qancha suv hosil bo'ladi?"
-                  className="min-h-[100px] resize-none"
+                  className="min-h-[100px] resize-none bg-background/50 border-border/50 focus:border-primary/50"
                   disabled={isProcessing}
                 />
               </div>
@@ -105,7 +110,7 @@ const Calculator = () => {
                 <Button
                   type="submit"
                   disabled={isProcessing || !question.trim()}
-                  className="flex-1"
+                  className="flex-1 bg-gradient-hero hover:opacity-90 shadow-elegant transition-all duration-300"
                 >
                   {isProcessing ? (
                     <>
@@ -126,6 +131,7 @@ const Calculator = () => {
                     variant="outline"
                     disabled={isProcessing}
                     asChild
+                    className="border-secondary/50 hover:bg-secondary/10 hover:border-secondary transition-all duration-300"
                   >
                     <span className="cursor-pointer">
                       <Upload className="w-4 h-4 mr-2" />
@@ -145,43 +151,82 @@ const Calculator = () => {
             </form>
           </Card>
 
-          <Card className="p-6 bg-gradient-card">
-            <h3 className="font-semibold mb-4 text-lg">Kalkulyator imkoniyatlari:</h3>
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <h4 className="font-medium text-primary">Hisob-kitoblar:</h4>
-                <ul className="text-sm text-muted-foreground space-y-1">
-                  <li>• Molyar massa hisoblash</li>
-                  <li>• Reaksiya tenglamalari</li>
-                  <li>• Konsentratsiya hisoblash</li>
-                  <li>• pH va pOH hisoblash</li>
+          <Card className="p-6 bg-gradient-card border-border/50 shadow-sm">
+            <div className="flex items-center gap-2 mb-4">
+              <Sparkles className="w-5 h-5 text-secondary" />
+              <h3 className="font-semibold text-lg">Kalkulyator imkoniyatlari</h3>
+            </div>
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <FlaskConical className="w-4 h-4 text-primary" />
+                  <h4 className="font-medium text-primary">Hisob-kitoblar</h4>
+                </div>
+                <ul className="text-sm text-muted-foreground space-y-2 ml-6">
+                  <li className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary/50" />
+                    Molyar massa hisoblash
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary/50" />
+                    Reaksiya tenglamalari
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary/50" />
+                    Konsentratsiya hisoblash
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary/50" />
+                    pH va pOH hisoblash
+                  </li>
                 </ul>
               </div>
-              <div className="space-y-2">
-                <h4 className="font-medium text-primary">Rasm tahlili:</h4>
-                <ul className="text-sm text-muted-foreground space-y-1">
-                  <li>• Strukturaviy formula tahlili</li>
-                  <li>• Grafik va diagram o'qish</li>
-                  <li>• Qo'lda yozilgan tenglamalar</li>
-                  <li>• Jadval ma'lumotlarini olish</li>
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <Beaker className="w-4 h-4 text-secondary" />
+                  <h4 className="font-medium text-secondary">Rasm tahlili</h4>
+                </div>
+                <ul className="text-sm text-muted-foreground space-y-2 ml-6">
+                  <li className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-secondary/50" />
+                    Strukturaviy formula tahlili
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-secondary/50" />
+                    Grafik va diagram o'qish
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-secondary/50" />
+                    Qo'lda yozilgan tenglamalar
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-secondary/50" />
+                    Jadval ma'lumotlarini olish
+                  </li>
                 </ul>
               </div>
             </div>
           </Card>
 
           {solution && (
-            <Card className="p-6 bg-gradient-card animate-fade-in">
-              <h3 className="font-semibold mb-4 text-lg">Yechim:</h3>
+            <Card className="p-6 bg-gradient-card border-primary/20 shadow-elegant animate-fade-in">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-8 h-8 rounded-lg bg-gradient-hero flex items-center justify-center">
+                  <Sparkles className="w-4 h-4 text-primary-foreground" />
+                </div>
+                <h3 className="font-semibold text-lg">Yechim</h3>
+              </div>
               <div className="prose prose-sm max-w-none dark:prose-invert">
-                <pre className="whitespace-pre-wrap text-sm">{solution}</pre>
+                <pre className="whitespace-pre-wrap text-sm bg-muted/30 p-4 rounded-lg border border-border/50">{solution}</pre>
               </div>
             </Card>
           )}
 
           <div className="text-center">
-            <Card className="inline-block p-4 bg-muted/50">
+            <Card className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-silver border-0 shadow-sm">
+              <Sparkles className="w-4 h-4 text-primary" />
               <p className="text-sm text-muted-foreground">
-                💡 AI yordamida kimyoviy masalalarni yeching
+                AI yordamida kimyoviy masalalarni yeching
               </p>
             </Card>
           </div>
