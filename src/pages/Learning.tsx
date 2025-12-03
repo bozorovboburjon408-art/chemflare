@@ -20,7 +20,6 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import type { User } from "@supabase/supabase-js";
 
 interface ChemistryBook {
   id: string;
@@ -60,7 +59,7 @@ interface UserProgress {
 const QUESTION_COUNTS = [3, 5, 10, 15, 20];
 
 const Learning = () => {
-  const [user, setUser] = useState<User | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [progress, setProgress] = useState<UserProgress>({ 
     current_level: 0, 
     total_points: 0, 
@@ -91,62 +90,32 @@ const Learning = () => {
   }, []);
 
   useEffect(() => {
-    if (user) {
-      loadUserData();
+    if (isAuthenticated) {
+      loadUserProgress();
       loadBooks();
     }
-  }, [user]);
+  }, [isAuthenticated]);
 
-  const checkAuth = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    if (!session) {
+  const checkAuth = () => {
+    const auth = localStorage.getItem("chemlearn_auth");
+    if (auth !== "true") {
       navigate("/auth");
       return;
     }
-
-    setUser(session.user);
-
-    supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_OUT') {
-        navigate("/auth");
-      }
-      setUser(session?.user ?? null);
-    });
+    setIsAuthenticated(true);
+    setIsLoading(false);
   };
 
-  const loadUserData = async () => {
-    try {
-      const { data: progressData, error: progressError } = await supabase
-        .from('user_progress')
-        .select('*')
-        .eq('user_id', user!.id)
-        .maybeSingle();
-
-      if (progressError) throw progressError;
-
-      if (!progressData) {
-        const { data: newProgress, error: createError } = await supabase
-          .from('user_progress')
-          .insert({ user_id: user!.id })
-          .select()
-          .single();
-
-        if (createError) throw createError;
-        setProgress({
-          current_level: newProgress.current_level,
-          total_points: newProgress.total_points,
-          completed_tasks: newProgress.completed_tasks,
-        });
-      } else {
-        setProgress({
-          current_level: progressData.current_level,
-          total_points: progressData.total_points,
-          completed_tasks: progressData.completed_tasks,
-        });
+  const loadUserProgress = () => {
+    // Load progress from localStorage for code-based auth
+    const savedProgress = localStorage.getItem("chemlearn_progress");
+    if (savedProgress) {
+      try {
+        const parsed = JSON.parse(savedProgress);
+        setProgress(parsed);
+      } catch (e) {
+        console.error('Error parsing saved progress:', e);
       }
-    } catch (error: any) {
-      console.error('Error loading user data:', error);
     }
   };
 
@@ -252,29 +221,19 @@ const Learning = () => {
     if (isCorrect) {
       setScore(score + 1);
       
-      // Update user progress
-      try {
-        const newPoints = progress.total_points + 10;
-        const newCompletedTasks = progress.completed_tasks + 1;
-        const newLevel = Math.min(Math.floor(newCompletedTasks / 10), 10);
+      // Update user progress in localStorage
+      const newPoints = progress.total_points + 10;
+      const newCompletedTasks = progress.completed_tasks + 1;
+      const newLevel = Math.min(Math.floor(newCompletedTasks / 10), 10);
 
-        await supabase
-          .from('user_progress')
-          .update({
-            total_points: newPoints,
-            completed_tasks: newCompletedTasks,
-            current_level: newLevel,
-          })
-          .eq('user_id', user!.id);
-
-        setProgress({
-          current_level: newLevel,
-          total_points: newPoints,
-          completed_tasks: newCompletedTasks,
-        });
-      } catch (error) {
-        console.error('Error updating progress:', error);
-      }
+      const newProgress = {
+        current_level: newLevel,
+        total_points: newPoints,
+        completed_tasks: newCompletedTasks,
+      };
+      
+      localStorage.setItem("chemlearn_progress", JSON.stringify(newProgress));
+      setProgress(newProgress);
     }
   };
 
