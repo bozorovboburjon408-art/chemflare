@@ -10,6 +10,7 @@ import Auth from "./pages/Auth";
 import Learning from "./pages/Learning";
 import Library from "./pages/Library";
 import ChemicalReactions from "./pages/ChemicalReactions";
+import Developers from "./pages/Developers";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/learning" element={<Learning />} />
           <Route path="/library" element={<Library />} />
           <Route path="/reactions" element={<ChemicalReactions />} />
+          <Route path="/developers" element={<Developers />} />
           <Route path="/auth" element={<Auth />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
