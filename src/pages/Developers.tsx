@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import Navigation from "@/components/Navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Heart, Users, Lightbulb, MessageCircle, ExternalLink, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Heart, Users, Lightbulb, MessageCircle, ExternalLink, Loader2, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface Developer {
   id: string;
@@ -15,34 +17,153 @@ interface Developer {
   order_num: number;
 }
 
+interface OldTeamMember {
+  name: string;
+  telegram: string;
+  avatar?: string;
+}
+
+interface OldMentor {
+  name: string;
+  role: string;
+  avatar?: string;
+}
+
+const STORAGE_KEYS = {
+  TEAM_MEMBERS: "developers_team_members",
+  MENTORS: "developers_mentors",
+};
+
 const Developers = () => {
   const [teamMembers, setTeamMembers] = useState<Developer[]>([]);
   const [mentors, setMentors] = useState<Developer[]>([]);
   const [loading, setLoading] = useState(true);
+  const [migrating, setMigrating] = useState(false);
+  const [hasLocalData, setHasLocalData] = useState(false);
 
   useEffect(() => {
-    const fetchDevelopers = async () => {
-      const { data, error } = await supabase
-        .from('developers')
-        .select('*')
-        .order('order_num');
+    // Check if there's old localStorage data with avatars
+    const oldMembers = localStorage.getItem(STORAGE_KEYS.TEAM_MEMBERS);
+    const oldMentors = localStorage.getItem(STORAGE_KEYS.MENTORS);
+    
+    if (oldMembers || oldMentors) {
+      const members: OldTeamMember[] = oldMembers ? JSON.parse(oldMembers) : [];
+      const mentorsList: OldMentor[] = oldMentors ? JSON.parse(oldMentors) : [];
       
-      if (error) {
-        console.error('Error fetching developers:', error);
-        setLoading(false);
-        return;
-      }
-
-      const members = data?.filter(d => d.type === 'member') || [];
-      const mentorsList = data?.filter(d => d.type === 'mentor') || [];
-      
-      setTeamMembers(members);
-      setMentors(mentorsList);
-      setLoading(false);
-    };
+      const hasAvatars = members.some(m => m.avatar) || mentorsList.some(m => m.avatar);
+      setHasLocalData(hasAvatars);
+    }
 
     fetchDevelopers();
   }, []);
+
+  const fetchDevelopers = async () => {
+    const { data, error } = await supabase
+      .from('developers')
+      .select('*')
+      .order('order_num');
+    
+    if (error) {
+      console.error('Error fetching developers:', error);
+      setLoading(false);
+      return;
+    }
+
+    const members = data?.filter(d => d.type === 'member') || [];
+    const mentorsList = data?.filter(d => d.type === 'mentor') || [];
+    
+    setTeamMembers(members);
+    setMentors(mentorsList);
+    setLoading(false);
+  };
+
+  const migrateLocalStorageToSupabase = async () => {
+    setMigrating(true);
+    
+    try {
+      const oldMembersStr = localStorage.getItem(STORAGE_KEYS.TEAM_MEMBERS);
+      const oldMentorsStr = localStorage.getItem(STORAGE_KEYS.MENTORS);
+      
+      const oldMembers: OldTeamMember[] = oldMembersStr ? JSON.parse(oldMembersStr) : [];
+      const oldMentorsList: OldMentor[] = oldMentorsStr ? JSON.parse(oldMentorsStr) : [];
+
+      // Upload member avatars
+      for (const oldMember of oldMembers) {
+        if (oldMember.avatar && oldMember.avatar.startsWith('data:')) {
+          const dbMember = teamMembers.find(m => m.name === oldMember.name);
+          if (dbMember) {
+            // Convert base64 to blob
+            const response = await fetch(oldMember.avatar);
+            const blob = await response.blob();
+            const fileName = `member-${dbMember.id}.jpg`;
+            
+            // Upload to storage
+            const { error: uploadError } = await supabase.storage
+              .from('developer-avatars')
+              .upload(fileName, blob, { upsert: true });
+            
+            if (uploadError) {
+              console.error('Upload error:', uploadError);
+              continue;
+            }
+            
+            // Get public URL
+            const { data: urlData } = supabase.storage
+              .from('developer-avatars')
+              .getPublicUrl(fileName);
+            
+            // Update database
+            await supabase
+              .from('developers')
+              .update({ avatar_url: urlData.publicUrl })
+              .eq('id', dbMember.id);
+          }
+        }
+      }
+
+      // Upload mentor avatars
+      for (const oldMentor of oldMentorsList) {
+        if (oldMentor.avatar && oldMentor.avatar.startsWith('data:')) {
+          const dbMentor = mentors.find(m => m.name === oldMentor.name);
+          if (dbMentor) {
+            const response = await fetch(oldMentor.avatar);
+            const blob = await response.blob();
+            const fileName = `mentor-${dbMentor.id}.jpg`;
+            
+            const { error: uploadError } = await supabase.storage
+              .from('developer-avatars')
+              .upload(fileName, blob, { upsert: true });
+            
+            if (uploadError) {
+              console.error('Upload error:', uploadError);
+              continue;
+            }
+            
+            const { data: urlData } = supabase.storage
+              .from('developer-avatars')
+              .getPublicUrl(fileName);
+            
+            await supabase
+              .from('developers')
+              .update({ avatar_url: urlData.publicUrl })
+              .eq('id', dbMentor.id);
+          }
+        }
+      }
+
+      toast.success("Rasmlar muvaffaqiyatli ko'chirildi!");
+      setHasLocalData(false);
+      
+      // Refresh data
+      await fetchDevelopers();
+      
+    } catch (error) {
+      console.error('Migration error:', error);
+      toast.error("Xatolik yuz berdi");
+    }
+    
+    setMigrating(false);
+  };
 
   if (loading) {
     return (
@@ -60,6 +181,26 @@ const Developers = () => {
       <Navigation />
       
       <main className="container mx-auto px-4 pt-24 pb-12">
+        {/* Migration Banner */}
+        {hasLocalData && (
+          <Card className="mb-6 bg-amber-500/10 border-amber-500/30">
+            <CardContent className="p-4 flex items-center justify-between">
+              <div>
+                <p className="font-medium text-foreground">Eski rasmlar topildi!</p>
+                <p className="text-sm text-muted-foreground">LocalStorage'dagi rasmlarni serverga ko'chirish mumkin</p>
+              </div>
+              <Button onClick={migrateLocalStorageToSupabase} disabled={migrating}>
+                {migrating ? (
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                ) : (
+                  <Upload className="w-4 h-4 mr-2" />
+                )}
+                Ko'chirish
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Hero Section */}
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent mb-4">
