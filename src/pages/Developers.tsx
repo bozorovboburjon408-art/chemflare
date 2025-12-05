@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Navigation from "@/components/Navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -19,22 +19,46 @@ interface Mentor {
   avatar?: string;
 }
 
-const Developers = () => {
-  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([
-    { name: "Azamat Karimov", telegram: "@Azamat3434" },
-    { name: "Bozorov Boburjon", telegram: "@Boburjon2108" },
-    { name: "Binaqulov Sohibjon", telegram: "@sohib_2210" },
-    { name: "Baxodirov Azizbek", telegram: "@bakhodirov_o6_o7" },
-    { name: "Absalomov Shohijahon", telegram: "@renox_17" },
-    { name: "Sardor Zarifov", telegram: "@Sardor_Zarifov" },
-  ]);
+const STORAGE_KEYS = {
+  TEAM_MEMBERS: "developers_team_members",
+  MENTORS: "developers_mentors",
+};
 
-  const [mentors, setMentors] = useState<Mentor[]>([
-    { name: "Jo'rayev I.", role: "G'oya beruvchi ustoz" },
-    { name: "X. Kamola", role: "Qo'llab-quvvatlovchi ustoz" },
-    { name: "Jamol aka", role: "Yordam beruvchi ustoz" },
-    { name: "Firdavs aka", role: "Yordam beruvchi ustoz" },
-  ]);
+const defaultTeamMembers: TeamMember[] = [
+  { name: "Azamat Karimov", telegram: "@Azamat3434" },
+  { name: "Bozorov Boburjon", telegram: "@Boburjon2108" },
+  { name: "Binaqulov Sohibjon", telegram: "@sohib_2210" },
+  { name: "Baxodirov Azizbek", telegram: "@bakhodirov_o6_o7" },
+  { name: "Absalomov Shohijahon", telegram: "@renox_17" },
+  { name: "Sardor Zarifov", telegram: "@Sardor_Zarifov" },
+];
+
+const defaultMentors: Mentor[] = [
+  { name: "Jo'rayev I.", role: "G'oya beruvchi ustoz" },
+  { name: "X. Kamola", role: "Qo'llab-quvvatlovchi ustoz" },
+  { name: "Jamol aka", role: "Yordam beruvchi ustoz" },
+  { name: "Firdavs aka", role: "Yordam beruvchi ustoz" },
+];
+
+const Developers = () => {
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.TEAM_MEMBERS);
+    return saved ? JSON.parse(saved) : defaultTeamMembers;
+  });
+
+  const [mentors, setMentors] = useState<Mentor[]>(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.MENTORS);
+    return saved ? JSON.parse(saved) : defaultMentors;
+  });
+
+  // Save to localStorage whenever data changes
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.TEAM_MEMBERS, JSON.stringify(teamMembers));
+  }, [teamMembers]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.MENTORS, JSON.stringify(mentors));
+  }, [mentors]);
 
   const [editingMember, setEditingMember] = useState<number | null>(null);
   const [editingMentor, setEditingMentor] = useState<number | null>(null);
