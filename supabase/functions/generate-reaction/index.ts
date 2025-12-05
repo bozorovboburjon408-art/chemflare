@@ -21,10 +21,10 @@ serve(async (req) => {
       )
     }
 
-    const openaiApiKey = Deno.env.get('OPENAI_API_KEY')
+    const lovableApiKey = Deno.env.get('LOVABLE_API_KEY')
     
-    if (!openaiApiKey) {
-      throw new Error('OPENAI_API_KEY is not configured')
+    if (!lovableApiKey) {
+      throw new Error('LOVABLE_API_KEY is not configured')
     }
 
     const systemPrompt = `Sen Qwen 2.5 modelsan. Kimyo bo'yicha aniq, qisqa, ilmiy javob ber.
@@ -75,28 +75,27 @@ Eslatma:
 - Har xil sharoitlardagi turli reaksiyalarni ko'rsating
 - Real kimyoviy qoidalarga rioya qiling`;
 
-    console.log('Sending request to OpenAI...')
+    console.log('Sending request to Lovable AI...')
 
-    const aiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+    const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${openaiApiKey}`,
+        'Authorization': `Bearer ${lovableApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'google/gemini-2.5-flash',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
         ],
         max_tokens: 4000,
-        temperature: 0.3,
       })
     })
 
     if (!aiResponse.ok) {
       const errorData = await aiResponse.text()
-      console.error('OpenAI API error:', errorData)
+      console.error('Lovable AI error:', errorData)
       
       if (aiResponse.status === 429) {
         return new Response(
@@ -105,10 +104,10 @@ Eslatma:
         )
       }
       
-      if (aiResponse.status === 401) {
+      if (aiResponse.status === 402) {
         return new Response(
-          JSON.stringify({ error: 'OpenAI API kaliti noto\'g\'ri. Iltimos, tekshiring.' }),
-          { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          JSON.stringify({ error: 'AI krediti tugagan. Iltimos, hisobingizga mablag\' qo\'shing.' }),
+          { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
       }
       
@@ -118,7 +117,7 @@ Eslatma:
     const aiData = await aiResponse.json()
     let result = aiData.choices[0].message.content
     
-    console.log('OpenAI response received successfully')
+    console.log('Lovable AI response received successfully')
     
     // Clean up JSON from markdown code blocks if present
     result = result.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
