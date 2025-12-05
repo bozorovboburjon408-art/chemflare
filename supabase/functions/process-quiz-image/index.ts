@@ -1,3 +1,4 @@
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -24,25 +25,12 @@ serve(async (req) => {
 
     console.log('Processing quiz images...');
 
-    // Get API key
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) {
-      throw new Error('LOVABLE_API_KEY is not configured');
+    const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
+    if (!openaiApiKey) {
+      throw new Error('OPENAI_API_KEY is not configured');
     }
 
-    // Call Lovable AI to analyze both images and extract questions with correct answers
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
-        messages: [
-          {
-            role: 'system',
-            content: `Siz test savollarini va javoblarini tahlil qiluvchi yordamchisiz. 
+    const systemPrompt = `Siz test savollarini va javoblarini tahlil qiluvchi yordamchisiz. 
             
 Birinchi rasmda test savollari, ikkinchi rasmda esa to'g'ri javoblar bor.
 
@@ -55,7 +43,20 @@ Har bir savol uchun:
 MUHIM: 
 1. Faqat JSON formatida javob bering, boshqa matn qo'shmang!
 2. To'g'ri javoblarni ikkinchi rasmdan oling va birinchi rasmdagi savol tartibiga mos ravishda qo'ying.
-3. Agar savollar va javoblar soni bir xil bo'lmasa, xato qaytaring.`
+3. Agar savollar va javoblar soni bir xil bo'lmasa, xato qaytaring.`;
+
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${openaiApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [
+          {
+            role: 'system',
+            content: systemPrompt
           },
           {
             role: 'user',
@@ -87,7 +88,7 @@ MUHIM:
             ]
           }
         ],
-        temperature: 0.1,
+        max_tokens: 4000,
       }),
     });
 
@@ -98,28 +99,26 @@ MUHIM:
           { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
-      if (response.status === 402) {
+      if (response.status === 401) {
         return new Response(
-          JSON.stringify({ error: 'Payment required. Please add credits to your workspace.' }),
-          { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          JSON.stringify({ error: 'OpenAI API kaliti noto\'g\'ri. Iltimos, tekshiring.' }),
+          { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
       
       const errorText = await response.text();
-      console.error('AI API error:', response.status, errorText);
+      console.error('OpenAI API error:', response.status, errorText);
       throw new Error('AI processing failed');
     }
 
     const aiResponse = await response.json();
-    console.log('AI Response received');
+    console.log('OpenAI response received');
 
-    // Parse AI response
     const content = aiResponse.choices?.[0]?.message?.content;
     if (!content) {
       throw new Error('No content received from AI');
     }
 
-    // Clean JSON response (remove markdown formatting if present)
     let jsonStr = content.trim();
     if (jsonStr.startsWith('```json')) {
       jsonStr = jsonStr.replace(/```json\n?/g, '').replace(/```\n?/g, '');
@@ -135,7 +134,6 @@ MUHIM:
 
     console.log(`Successfully extracted ${questions.length} questions with answers`);
 
-    // Get user from authorization header
     const authHeader = req.headers.get('authorization');
     if (!authHeader) {
       throw new Error('No authorization header');
@@ -151,13 +149,11 @@ MUHIM:
       }
     );
 
-    // Get user
     const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
     if (userError || !user) {
       throw new Error('User not authenticated');
     }
 
-    // Create quiz
     const { data: quiz, error: quizError } = await supabaseClient
       .from('quizzes')
       .insert({
@@ -173,7 +169,6 @@ MUHIM:
       throw new Error('Failed to create quiz');
     }
 
-    // Insert questions
     const questionsToInsert = questions.map((q: any, index: number) => ({
       quiz_id: quiz.id,
       question_text: q.question_text,
