@@ -188,6 +188,39 @@ export type Database = {
           },
         ]
       }
+      developers: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          id: string
+          name: string
+          order_num: number | null
+          role: string | null
+          telegram: string | null
+          type: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          order_num?: number | null
+          role?: string | null
+          telegram?: string | null
+          type: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          order_num?: number | null
+          role?: string | null
+          telegram?: string | null
+          type?: string
+        }
+        Relationships: []
+      }
       questions: {
         Row: {
           correct_answer: string

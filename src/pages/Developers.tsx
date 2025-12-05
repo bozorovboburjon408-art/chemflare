@@ -1,53 +1,59 @@
+import { useEffect, useState } from "react";
 import Navigation from "@/components/Navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Heart, Users, Lightbulb, MessageCircle, ExternalLink } from "lucide-react";
+import { Heart, Users, Lightbulb, MessageCircle, ExternalLink, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
-interface TeamMember {
+interface Developer {
+  id: string;
   name: string;
-  telegram: string;
-  avatar?: string;
+  telegram: string | null;
+  role: string | null;
+  type: string;
+  avatar_url: string | null;
+  order_num: number;
 }
-
-interface Mentor {
-  name: string;
-  role: string;
-  avatar?: string;
-}
-
-const STORAGE_KEYS = {
-  TEAM_MEMBERS: "developers_team_members",
-  MENTORS: "developers_mentors",
-};
-
-const defaultTeamMembers: TeamMember[] = [
-  { name: "Azamat Karimov", telegram: "@Azamat3434" },
-  { name: "Bozorov Boburjon", telegram: "@Boburjon2108" },
-  { name: "Binaqulov Sohibjon", telegram: "@sohib_2210" },
-  { name: "Baxodirov Azizbek", telegram: "@bakhodirov_o6_o7" },
-  { name: "Absalomov Shohijahon", telegram: "@renox_17" },
-  { name: "Sardor Zarifov", telegram: "@Sardor_Zarifov" },
-];
-
-const defaultMentors: Mentor[] = [
-  { name: "Jo'rayev I.", role: "G'oya beruvchi ustoz" },
-  { name: "X. Kamola", role: "Qo'llab-quvvatlovchi ustoz" },
-  { name: "Jamol aka", role: "Yordam beruvchi ustoz" },
-  { name: "Firdavs aka", role: "Yordam beruvchi ustoz" },
-];
-
-const getStoredData = () => {
-  const savedMembers = localStorage.getItem(STORAGE_KEYS.TEAM_MEMBERS);
-  const savedMentors = localStorage.getItem(STORAGE_KEYS.MENTORS);
-  
-  return {
-    teamMembers: savedMembers ? JSON.parse(savedMembers) as TeamMember[] : defaultTeamMembers,
-    mentors: savedMentors ? JSON.parse(savedMentors) as Mentor[] : defaultMentors,
-  };
-};
 
 const Developers = () => {
-  const { teamMembers, mentors } = getStoredData();
+  const [teamMembers, setTeamMembers] = useState<Developer[]>([]);
+  const [mentors, setMentors] = useState<Developer[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDevelopers = async () => {
+      const { data, error } = await supabase
+        .from('developers')
+        .select('*')
+        .order('order_num');
+      
+      if (error) {
+        console.error('Error fetching developers:', error);
+        setLoading(false);
+        return;
+      }
+
+      const members = data?.filter(d => d.type === 'member') || [];
+      const mentorsList = data?.filter(d => d.type === 'mentor') || [];
+      
+      setTeamMembers(members);
+      setMentors(mentorsList);
+      setLoading(false);
+    };
+
+    fetchDevelopers();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        <div className="flex items-center justify-center h-[80vh]">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -91,13 +97,13 @@ const Developers = () => {
             <h2 className="text-2xl font-bold text-foreground">Minnatdorchilik</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {mentors.map((mentor, index) => (
-              <Card key={index} className="bg-card/50 hover:bg-card/80 transition-colors border-accent/20">
+            {mentors.map((mentor) => (
+              <Card key={mentor.id} className="bg-card/50 hover:bg-card/80 transition-colors border-accent/20">
                 <CardContent className="p-5 text-center">
                   <div className="w-16 h-16 mx-auto mb-3">
-                    {mentor.avatar ? (
+                    {mentor.avatar_url ? (
                       <img 
-                        src={mentor.avatar} 
+                        src={mentor.avatar_url} 
                         alt={mentor.name}
                         className="w-16 h-16 rounded-full object-cover"
                       />
@@ -124,14 +130,14 @@ const Developers = () => {
             <h2 className="text-2xl font-bold text-foreground">Jamoa A'zolari</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {teamMembers.map((member, index) => (
-              <Card key={index} className="bg-card/50 hover:bg-card/80 hover:border-primary/30 transition-all">
+            {teamMembers.map((member) => (
+              <Card key={member.id} className="bg-card/50 hover:bg-card/80 hover:border-primary/30 transition-all">
                 <CardContent className="p-5">
                   <div className="flex items-center gap-4">
                     <div>
-                      {member.avatar ? (
+                      {member.avatar_url ? (
                         <img 
-                          src={member.avatar} 
+                          src={member.avatar_url} 
                           alt={member.name}
                           className="w-12 h-12 rounded-full object-cover"
                         />
@@ -146,15 +152,17 @@ const Developers = () => {
                     
                     <div className="flex-1">
                       <h3 className="font-semibold text-foreground">{member.name}</h3>
-                      <a 
-                        href={`https://t.me/${member.telegram.replace('@', '')}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sm text-primary hover:text-primary/80 flex items-center gap-1 mt-1 hover:underline"
-                      >
-                        {member.telegram}
-                        <ExternalLink className="w-3 h-3" />
-                      </a>
+                      {member.telegram && (
+                        <a 
+                          href={`https://t.me/${member.telegram.replace('@', '')}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm text-primary hover:text-primary/80 flex items-center gap-1 mt-1 hover:underline"
+                        >
+                          {member.telegram}
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      )}
                     </div>
                   </div>
                 </CardContent>
