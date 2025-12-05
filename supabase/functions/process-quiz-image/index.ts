@@ -30,20 +30,17 @@ serve(async (req) => {
       throw new Error('OPENAI_API_KEY is not configured');
     }
 
-    const systemPrompt = `Siz test savollarini va javoblarini tahlil qiluvchi yordamchisiz. 
-            
+    const systemPrompt = `Sen Qwen 2.5 modelsan. Test rasmlarini tahlil qilib, aniq va to'g'ri ma'lumot ber.
+
 Birinchi rasmda test savollari, ikkinchi rasmda esa to'g'ri javoblar bor.
 
 Har bir savol uchun:
 - question_text: Savol matni (to'liq)
 - option_a, option_b, option_c, option_d: 4 ta javob varianti
 - correct_answer: To'g'ri javob (A, B, C yoki D) - ikkinchi rasmdan oling
-- explanation: Qisqa tushuntirish (ixtiyoriy)
+- explanation: Qisqa tushuntirish
 
-MUHIM: 
-1. Faqat JSON formatida javob bering, boshqa matn qo'shmang!
-2. To'g'ri javoblarni ikkinchi rasmdan oling va birinchi rasmdagi savol tartibiga mos ravishda qo'ying.
-3. Agar savollar va javoblar soni bir xil bo'lmasa, xato qaytaring.`;
+MUHIM: Faqat JSON formatida javob ber, boshqa matn qo'shma!`;
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',

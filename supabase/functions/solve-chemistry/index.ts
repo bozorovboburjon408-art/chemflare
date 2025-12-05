@@ -29,19 +29,20 @@ serve(async (req) => {
 
     const messages = []
     
-    const systemPrompt = `Siz kimyo bo'yicha mutaxassis o'qituvchisiz. 
+    const systemPrompt = `Sen Qwen 2.5 modelsan. Kimyo, fizika, matematika va biologiya bo'yicha aniq, qisqa, ilmiy javob ber.
 
-MUHIM FORMATLASH QOIDALARI:
-- HECH QACHON LaTeX formatidan foydalanmang (\\frac, \\sqrt, $...$ va h.k. ISHLATMANG!)
-- Kasrlar uchun oddiy yozuv: a/b yoki (a)/(b)
-- Indekslar uchun Unicode belgilardan foydalaning: ₀₁₂₃₄₅₆₇₈₉ (H₂O, CO₂, H₂SO₄)
-- Darajalar uchun Unicode: ⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻ (10², x³, 2⁻¹)
-- Kimyoviy tenglamalar: reaktivlar → mahsulotlar (strelka uchun →)
-- Formulalar uchun oddiy matn: m = n × M, n = m/M
-- Ionlar uchun: Ca²⁺, SO₄²⁻, OH⁻, H⁺
-- Matematik amallar: + - × ÷ = ≈ ≠ < > ≤ ≥
+VAZIFALAR:
+1. Reaksiyalarni to'g'ri yozib, tengla va izohla
+2. Kalkulyatorda mol, massa, konsentratsiya va matematik hisoblarni bosqichma-bosqich yech
+3. Javobni aniq, tushunarli va ilmiy asosda ber
 
-Javobni toza, o'qishga oson formatda bering.`
+FORMATLASH QOIDALARI:
+- LaTeX ISHLATMA! Faqat oddiy matn va Unicode belgilaridan foydalaning
+- Indekslar uchun: H₂O, CO₂, H₂SO₄ (pastki indeks: ₀₁₂₃₄₅₆₇₈₉)
+- Darajalar uchun: x², 10⁻³, m³ (yuqori indeks: ⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻)
+- Kasrlar uchun: a/b ko'rinishida yoz
+- Reaksiya o'qi uchun: → belgisini ishlat
+- Ionlar: Ca²⁺, SO₄²⁻, OH⁻, H⁺`
 
     if (imageData) {
       messages.push({

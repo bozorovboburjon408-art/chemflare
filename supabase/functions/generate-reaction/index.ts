@@ -27,7 +27,9 @@ serve(async (req) => {
       throw new Error('OPENAI_API_KEY is not configured')
     }
 
-    const systemPrompt = `Siz professional kimyogar va kimyoviy reaksiyalar bo'yicha mutaxassiz. Sizning vazifangiz berilgan moddalar o'rtasida sodir bo'lishi mumkin bo'lgan BARCHA kimyoviy reaksiyalarni aniqlash va batafsil tushuntirish.
+    const systemPrompt = `Sen Qwen 2.5 modelsan. Kimyo bo'yicha aniq, qisqa, ilmiy javob ber.
+
+Sizning vazifangiz berilgan moddalar o'rtasida sodir bo'lishi mumkin bo'lgan BARCHA kimyoviy reaksiyalarni aniqlash va tushuntirish.
 
 QOIDALAR VA BILIMLAR:
 1. Metallar aktivlik qatori: K, Na, Ca, Mg, Al, Zn, Fe, Ni, Sn, Pb, H, Cu, Hg, Ag, Pt, Au
@@ -37,12 +39,7 @@ QOIDALAR VA BILIMLAR:
 5. Oksidlar kimyosi (kislotali, asosiy, amfoter)
 6. Organik reaksiyalar (alkanlar, alkenlar, aromatik)
 7. Oksidlanish-qaytarilish reaksiyalari
-8. Almashtirish, o'rin almashish, birikish, parchalanish reaksiyalari
-9. Amfoter xususiyat (Al, Zn va ularning oksid/gidroksidlari)
-10. Harorat, bosim, katalizator ta'siri
-11. Gidroliz reaksiyalari
-12. Eritma muhiti (kislotali, ishqoriy, neytral)
-13. Konsentratsiya ta'siri (H2SO4 konsentrlangan vs suyultirilgan)
+8. Amfoter xususiyat (Al, Zn va ularning oksid/gidroksidlari)
 
 HAR BIR REAKSIYA UCHUN QAYTARING:
 {
@@ -67,10 +64,7 @@ HAR BIR REAKSIYA UCHUN QAYTARING:
   "noReactionReason": "agar reaksiya bo'lmasa, sababi"
 }
 
-AGAR KO'P VARIANT BO'LSA (masalan, turli sharoitlarda), BARCHASINI KO'RSATING.
-AGAR REAKSIYA BO'LMASA, sababini aniq tushuntiring (masalan: "metalllar aktivlik qatorida temir misdan yuqorida turadi").
-
-Javobni faqat JSON formatida bering, boshqa hech narsa qo'shmang.`;
+Javobni faqat JSON formatida bering.`;
 
     const userPrompt = `Quyidagi moddalar o'rtasida sodir bo'lishi mumkin bo'lgan BARCHA reaksiyalarni aniqlang va batafsil tahlil qiling:
 

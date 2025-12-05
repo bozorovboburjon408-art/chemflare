@@ -26,15 +26,13 @@ serve(async (req) => {
       throw new Error("OPENAI_API_KEY is not configured");
     }
 
-    const systemPrompt = `Sen tajribali kimyo o'qituvchisisan. Sening vazifang berilgan kimyo matnidan qiziqarli test savollari tuzish.
+    const systemPrompt = `Sen Qwen 2.5 modelsan. Test savollarini tuzishda aniq, qisqa, ilmiy javob ber.
 
 QOIDALAR:
 1. Har bir savol 4 ta variant (A, B, C, D) bilan bo'lsin
 2. Savollar matn mazmuniga asoslangan bo'lsin
 3. To'g'ri javob faqat bitta bo'lsin
-4. Variantlar o'xshash bo'lsin, lekin faqat bittasi to'g'ri
-5. Savollar qiziqarli va o'ylantiradigan bo'lsin
-6. Har bir savolga tushuntirish yoz
+4. Testlarda faqat to'g'ri variant va qisqa izoh ber
 
 JSON formatida javob ber:
 {
@@ -48,7 +46,7 @@ JSON formatida javob ber:
         "D": "To'rtinchi variant"
       },
       "correct": "A",
-      "explanation": "Nima uchun bu javob to'g'ri ekanligi haqida tushuntirish"
+      "explanation": "Qisqa tushuntirish"
     }
   ]
 }`;
