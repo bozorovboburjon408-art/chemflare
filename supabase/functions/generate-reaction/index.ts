@@ -1,9 +1,12 @@
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-Deno.serve(async (req) => {
+serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
@@ -18,13 +21,12 @@ Deno.serve(async (req) => {
       )
     }
 
-    const lovableApiKey = Deno.env.get('LOVABLE_API_KEY')
+    const openaiApiKey = Deno.env.get('OPENAI_API_KEY')
     
-    if (!lovableApiKey) {
-      throw new Error('LOVABLE_API_KEY is not configured')
+    if (!openaiApiKey) {
+      throw new Error('OPENAI_API_KEY is not configured')
     }
 
-    // Comprehensive chemistry expert system prompt
     const systemPrompt = `Siz professional kimyogar va kimyoviy reaksiyalar bo'yicha mutaxassiz. Sizning vazifangiz berilgan moddalar o'rtasida sodir bo'lishi mumkin bo'lgan BARCHA kimyoviy reaksiyalarni aniqlash va batafsil tushuntirish.
 
 QOIDALAR VA BILIMLAR:
@@ -79,14 +81,16 @@ Eslatma:
 - Har xil sharoitlardagi turli reaksiyalarni ko'rsating
 - Real kimyoviy qoidalarga rioya qiling`;
 
-    const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    console.log('Sending request to OpenAI...')
+
+    const aiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${lovableApiKey}`,
+        'Authorization': `Bearer ${openaiApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-pro',
+        model: 'gpt-4o-mini',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
@@ -98,7 +102,7 @@ Eslatma:
 
     if (!aiResponse.ok) {
       const errorData = await aiResponse.text()
-      console.error('AI Gateway error:', errorData)
+      console.error('OpenAI API error:', errorData)
       
       if (aiResponse.status === 429) {
         return new Response(
@@ -107,10 +111,10 @@ Eslatma:
         )
       }
       
-      if (aiResponse.status === 402) {
+      if (aiResponse.status === 401) {
         return new Response(
-          JSON.stringify({ error: 'AI xizmati uchun to\'lov kerak. Iltimos, admin bilan bog\'laning.' }),
-          { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          JSON.stringify({ error: 'OpenAI API kaliti noto\'g\'ri. Iltimos, tekshiring.' }),
+          { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
       }
       
@@ -119,6 +123,8 @@ Eslatma:
 
     const aiData = await aiResponse.json()
     let result = aiData.choices[0].message.content
+    
+    console.log('OpenAI response received successfully')
     
     // Clean up JSON from markdown code blocks if present
     result = result.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
