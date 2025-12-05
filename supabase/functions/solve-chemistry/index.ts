@@ -6,6 +6,80 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+const systemPrompt = `Sen kimyo, fizika, matematika va biologiya bo'yicha aniq, qisqa, ilmiy javob beradigan AI yordamchisan.
+
+VAZIFALAR:
+1. Reaksiyalarni to'g'ri yozib, tengla va izohla
+2. Kalkulyatorda mol, massa, konsentratsiya va matematik hisoblarni bosqichma-bosqich yech
+3. Javobni aniq, tushunarli va ilmiy asosda ber
+
+FORMATLASH QOIDALARI:
+- LaTeX ISHLATMA! Faqat oddiy matn va Unicode belgilaridan foydalaning
+- Indekslar uchun: H₂O, CO₂, H₂SO₄ (pastki indeks: ₀₁₂₃₄₅₆₇₈₉)
+- Darajalar uchun: x², 10⁻³, m³ (yuqori indeks: ⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻)
+- Kasrlar uchun: a/b ko'rinishida yoz
+- Reaksiya o'qi uchun: → belgisini ishlat
+- Ionlar: Ca²⁺, SO₄²⁻, OH⁻, H⁺`
+
+async function callGeminiAPI(parts: any[], googleApiKey: string) {
+  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${googleApiKey}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{ parts }],
+      generationConfig: { maxOutputTokens: 2000 }
+    })
+  })
+  
+  if (!response.ok) {
+    const errorText = await response.text()
+    throw new Error(`Gemini API error (${response.status}): ${errorText}`)
+  }
+  
+  const data = await response.json()
+  return data.candidates?.[0]?.content?.parts?.[0]?.text
+}
+
+async function callOpenAI(messages: any[], openaiKey: string, imageData?: string) {
+  const userContent: any[] = []
+  
+  if (imageData) {
+    userContent.push({
+      type: "image_url",
+      image_url: { url: imageData }
+    })
+  }
+  
+  userContent.push({
+    type: "text",
+    text: messages[messages.length - 1].content
+  })
+
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${openaiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'gpt-4o-mini',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userContent }
+      ],
+      max_tokens: 2000
+    })
+  })
+
+  if (!response.ok) {
+    const errorText = await response.text()
+    throw new Error(`OpenAI API error (${response.status}): ${errorText}`)
+  }
+
+  const data = await response.json()
+  return data.choices?.[0]?.message?.content
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
@@ -22,81 +96,61 @@ serve(async (req) => {
     }
 
     const googleApiKey = Deno.env.get('GOOGLE_AI_API_KEY')
+    const openaiKey = Deno.env.get('OPENAI_API_KEY')
     
-    if (!googleApiKey) {
-      throw new Error('GOOGLE_AI_API_KEY is not configured')
+    if (!googleApiKey && !openaiKey) {
+      throw new Error('Hech qanday AI API kaliti sozlanmagan')
     }
 
-    const systemPrompt = `Sen Qwen 2.5 modelsan. Kimyo, fizika, matematika va biologiya bo'yicha aniq, qisqa, ilmiy javob ber.
+    let solution: string | undefined
 
-VAZIFALAR:
-1. Reaksiyalarni to'g'ri yozib, tengla va izohla
-2. Kalkulyatorda mol, massa, konsentratsiya va matematik hisoblarni bosqichma-bosqich yech
-3. Javobni aniq, tushunarli va ilmiy asosda ber
+    // Prepare content for both APIs
+    const userPrompt = imageData 
+      ? (question || 'Bu rasmda ko\'rsatilgan kimyoviy masalani yeching va batafsil tushuntiring.')
+      : `Quyidagi kimyoviy masalani batafsil yeching va tushuntiring:\n\n${question}\n\nYechimni quyidagi formatda bering:\n1. Berilganlar\n2. Topish kerak\n3. Yechim qadamlari\n4. Javob`
 
-FORMATLASH QOIDALARI:
-- LaTeX ISHLATMA! Faqat oddiy matn va Unicode belgilaridan foydalaning
-- Indekslar uchun: H₂O, CO₂, H₂SO₄ (pastki indeks: ₀₁₂₃₄₅₆₇₈₉)
-- Darajalar uchun: x², 10⁻³, m³ (yuqori indeks: ⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻)
-- Kasrlar uchun: a/b ko'rinishida yoz
-- Reaksiya o'qi uchun: → belgisini ishlat
-- Ionlar: Ca²⁺, SO₄²⁻, OH⁻, H⁺`
-
-    const parts: any[] = [{ text: systemPrompt }]
-
-    if (imageData) {
-      // Extract base64 data and mime type from data URL
-      const matches = imageData.match(/^data:([^;]+);base64,(.+)$/)
-      if (matches) {
-        parts.push({
-          inline_data: {
-            mime_type: matches[1],
-            data: matches[2]
+    // Try Gemini first
+    if (googleApiKey) {
+      try {
+        console.log('Trying Gemini API...')
+        const parts: any[] = [{ text: systemPrompt }]
+        
+        if (imageData) {
+          const matches = imageData.match(/^data:([^;]+);base64,(.+)$/)
+          if (matches) {
+            parts.push({
+              inline_data: {
+                mime_type: matches[1],
+                data: matches[2]
+              }
+            })
           }
-        })
-      }
-      parts.push({ 
-        text: question || 'Bu rasmda ko\'rsatilgan kimyoviy masalani yeching va batafsil tushuntiring.' 
-      })
-    } else {
-      parts.push({ 
-        text: `Quyidagi kimyoviy masalani batafsil yeching va tushuntiring:\n\n${question}\n\nYechimni quyidagi formatda bering:\n1. Berilganlar\n2. Topish kerak\n3. Yechim qadamlari\n4. Javob` 
-      })
-    }
-
-    console.log('Sending request to Google AI...')
-    
-    const aiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${googleApiKey}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        contents: [{ parts }],
-        generationConfig: {
-          maxOutputTokens: 2000,
         }
-      })
-    })
-
-    if (!aiResponse.ok) {
-      const errorData = await aiResponse.text()
-      console.error('Google AI error response:', errorData)
-      
-      if (aiResponse.status === 429) {
-        return new Response(
-          JSON.stringify({ error: 'Juda ko\'p so\'rov yuborildi. Iltimos, biroz kutib qayta urinib ko\'ring.' }),
-          { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        )
+        parts.push({ text: userPrompt })
+        
+        solution = await callGeminiAPI(parts, googleApiKey)
+        console.log('Gemini API success')
+      } catch (geminiError) {
+        console.error('Gemini API failed:', geminiError)
+        // Will try OpenAI below
       }
-      
-      throw new Error(`AI so'rov muvaffaqiyatsiz: ${errorData}`)
     }
 
-    const aiData = await aiResponse.json()
-    console.log('Google AI response received successfully')
-    
-    const solution = aiData.candidates?.[0]?.content?.parts?.[0]?.text
+    // Fallback to OpenAI if Gemini failed or not available
+    if (!solution && openaiKey) {
+      try {
+        console.log('Trying OpenAI API (fallback)...')
+        solution = await callOpenAI(
+          [{ role: 'user', content: userPrompt }],
+          openaiKey,
+          imageData
+        )
+        console.log('OpenAI API success')
+      } catch (openaiError) {
+        console.error('OpenAI API also failed:', openaiError)
+        throw new Error('Barcha AI xizmatlari ishlamayapti. Keyinroq qayta urinib ko\'ring.')
+      }
+    }
 
     if (!solution) {
       throw new Error('AI javob bermadi')
