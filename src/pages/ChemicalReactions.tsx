@@ -245,6 +245,18 @@ const ChemicalReactions = () => {
                     </div>
                   </div>
 
+                  {/* Molekulyar animatsiya */}
+                  <div>
+                    <h4 className="font-semibold mb-2 flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
+                      <Sparkles className="w-4 h-4" />
+                      Molekulyar Animatsiya
+                    </h4>
+                    <AnimatedReactionViewer 
+                      reactants={substances.filter(s => s.trim() !== '')} 
+                      products={reaction.products || []}
+                    />
+                  </div>
+
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
                       <h4 className="font-semibold mb-2 text-purple-600 dark:text-purple-400">
