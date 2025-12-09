@@ -14,6 +14,37 @@ import Navigation from "@/components/Navigation";
 import AnimatedReactionViewer from "@/components/AnimatedReactionViewer";
 import { predefinedReactions, reactionCategories, type PredefinedReaction } from "@/data/predefinedReactions";
 
+interface MoleculeAtom {
+  element: string;
+  position: [number, number, number];
+  color: string;
+  radius: number;
+}
+
+interface MoleculeBond {
+  from: number;
+  to: number;
+  order: number;
+}
+
+interface MoleculeData {
+  formula: string;
+  name: string;
+  atoms: MoleculeAtom[];
+  bonds: MoleculeBond[];
+}
+
+interface AnimationStep {
+  phase: string;
+  description: string;
+}
+
+interface MolecularAnimationData {
+  reactants: MoleculeData[];
+  products: MoleculeData[];
+  animationSteps: AnimationStep[];
+}
+
 interface ReactionResult {
   possible: boolean;
   reactions?: Array<{
@@ -30,6 +61,7 @@ interface ReactionResult {
     observation: string;
     explanation: string;
     products: string[];
+    molecularAnimation?: MolecularAnimationData;
   }>;
   noReactionReason?: string;
 }
@@ -252,6 +284,7 @@ const ChemicalReactions = () => {
                       Molekulyar Animatsiya
                     </h4>
                     <AnimatedReactionViewer 
+                      animationData={reaction.molecularAnimation}
                       reactants={substances.filter(s => s.trim() !== '')} 
                       products={reaction.products || []}
                     />
