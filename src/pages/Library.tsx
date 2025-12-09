@@ -13,6 +13,7 @@ import {
   Search,
   GraduationCap
 } from "lucide-react";
+import AdminBookUpload from "@/components/AdminBookUpload";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
@@ -351,12 +352,17 @@ const Library = () => {
       
       <main className="container mx-auto px-4 pt-24 pb-12">
         <div className="max-w-6xl mx-auto">
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">
-            Kimyo Kitobxonasi
-          </h1>
-          <p className="text-muted-foreground mb-8">
-            Kimyoni o'rganish uchun kitoblar va o'quv materiallari
-          </p>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold mb-2">
+                Kimyo Kitobxonasi
+              </h1>
+              <p className="text-muted-foreground">
+                Kimyoni o'rganish uchun kitoblar va o'quv materiallari
+              </p>
+            </div>
+            <AdminBookUpload onUploadSuccess={loadBooks} />
+          </div>
 
           <div className="relative mb-8">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
