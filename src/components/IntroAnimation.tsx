@@ -279,7 +279,7 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
                 }}
                 transition={{ duration: 2, repeat: Infinity }}
               >
-                XIMIYA
+                ChemFlare
               </motion.h1>
               
               {/* Subtitle */}
@@ -289,7 +289,7 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5, duration: 0.8 }}
               >
-                CHEMFLARE
+                KIMYO ILMINI O'RGANING
               </motion.p>
             </motion.div>
           )}
