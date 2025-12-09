@@ -18,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Upload, Loader2, Lock, BookPlus, ImageIcon } from "lucide-react";
+import { Upload, Loader2, Lock, BookPlus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -210,26 +210,21 @@ const AdminBookUpload = ({ onUploadSuccess }: AdminBookUploadProps) => {
 
           <div className="space-y-2">
             <Label htmlFor="cover-image">Muqova rasmi</Label>
-            <div className="flex items-center gap-4">
-              {coverPreview ? (
+            <Input
+              id="cover-image"
+              type="file"
+              accept="image/*"
+              onChange={handleCoverChange}
+            />
+            {coverPreview && (
+              <div className="mt-3 border rounded-lg overflow-hidden">
                 <img 
                   src={coverPreview} 
                   alt="Cover preview" 
-                  className="w-20 h-28 object-cover rounded border"
+                  className="w-full max-h-64 object-contain bg-muted"
                 />
-              ) : (
-                <div className="w-20 h-28 bg-muted rounded border flex items-center justify-center">
-                  <ImageIcon className="w-8 h-8 text-muted-foreground" />
-                </div>
-              )}
-              <Input
-                id="cover-image"
-                type="file"
-                accept="image/*"
-                onChange={handleCoverChange}
-                className="flex-1"
-              />
-            </div>
+              </div>
+            )}
           </div>
 
           <div className="space-y-2">
