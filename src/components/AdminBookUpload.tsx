@@ -18,8 +18,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Upload, Loader2, Lock, BookPlus } from "lucide-react";
+import { Upload, Loader2, Lock, BookPlus, ImageIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface AdminBookUploadProps {
   onUploadSuccess: () => void;
@@ -30,6 +31,8 @@ const AdminBookUpload = ({ onUploadSuccess }: AdminBookUploadProps) => {
   const [isUploading, setIsUploading] = useState(false);
   const [adminPassword, setAdminPassword] = useState("");
   const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [coverImage, setCoverImage] = useState<File | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [bookTitle, setBookTitle] = useState("");
   const [bookAuthor, setBookAuthor] = useState("");
   const [bookTopic, setBookTopic] = useState("");
@@ -37,11 +40,11 @@ const AdminBookUpload = ({ onUploadSuccess }: AdminBookUploadProps) => {
   const [difficultyLevel, setDifficultyLevel] = useState("1");
   const { toast } = useToast();
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePdfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && file.type === "application/pdf") {
       setPdfFile(file);
-    } else {
+    } else if (file) {
       toast({
         title: "Xato",
         description: "Faqat PDF fayl yuklash mumkin",
@@ -50,11 +53,29 @@ const AdminBookUpload = ({ onUploadSuccess }: AdminBookUploadProps) => {
     }
   };
 
-  const handleUpload = async () => {
-    if (!adminPassword) {
+  const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.type.startsWith("image/")) {
+      setCoverImage(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setCoverPreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    } else if (file) {
       toast({
         title: "Xato",
-        description: "Admin parolini kiriting",
+        description: "Faqat rasm fayl yuklash mumkin",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleUpload = async () => {
+    if (adminPassword !== "admin77") {
+      toast({
+        title: "Xato",
+        description: "Admin paroli noto'g'ri",
         variant: "destructive",
       });
       return;
@@ -81,37 +102,62 @@ const AdminBookUpload = ({ onUploadSuccess }: AdminBookUploadProps) => {
     setIsUploading(true);
 
     try {
-      const formData = new FormData();
-      formData.append("password", adminPassword);
-      formData.append("pdf", pdfFile);
-      formData.append("title", bookTitle);
-      formData.append("author", bookAuthor);
-      formData.append("topic", bookTopic);
-      formData.append("description", bookDescription);
-      formData.append("difficulty_level", difficultyLevel);
+      const timestamp = Date.now();
+      
+      // Upload PDF to storage
+      const pdfPath = `pdfs/${timestamp}_${pdfFile.name}`;
+      const { error: pdfError } = await supabase.storage
+        .from('book-files')
+        .upload(pdfPath, pdfFile);
 
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/process-book-pdf`,
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
+      if (pdfError) throw pdfError;
 
-      const data = await response.json();
+      const { data: pdfUrlData } = supabase.storage
+        .from('book-files')
+        .getPublicUrl(pdfPath);
 
-      if (!response.ok) {
-        throw new Error(data.error || "Yuklashda xatolik");
+      // Upload cover image if provided
+      let coverUrl = null;
+      if (coverImage) {
+        const coverPath = `covers/${timestamp}_${coverImage.name}`;
+        const { error: coverError } = await supabase.storage
+          .from('book-files')
+          .upload(coverPath, coverImage);
+
+        if (coverError) throw coverError;
+
+        const { data: coverUrlData } = supabase.storage
+          .from('book-files')
+          .getPublicUrl(coverPath);
+        
+        coverUrl = coverUrlData.publicUrl;
       }
+
+      // Insert book record into database
+      const { error: dbError } = await supabase
+        .from('chemistry_books')
+        .insert({
+          title: bookTitle,
+          author: bookAuthor || null,
+          topic: bookTopic,
+          description: bookDescription || null,
+          difficulty_level: parseInt(difficultyLevel),
+          cover_image_url: coverUrl,
+          pdf_url: pdfUrlData.publicUrl,
+        });
+
+      if (dbError) throw dbError;
 
       toast({
         title: "Muvaffaqiyat!",
-        description: `Kitob yuklandi: ${data.chaptersCount} ta bob yaratildi`,
+        description: "Kitob muvaffaqiyatli yuklandi",
       });
 
       // Reset form
       setAdminPassword("");
       setPdfFile(null);
+      setCoverImage(null);
+      setCoverPreview(null);
       setBookTitle("");
       setBookAuthor("");
       setBookTopic("");
@@ -146,7 +192,7 @@ const AdminBookUpload = ({ onUploadSuccess }: AdminBookUploadProps) => {
             Admin - Kitob yuklash
           </DialogTitle>
           <DialogDescription>
-            PDF formatdagi kitobni yuklang, AI uni bob-boblarga ajratadi
+            PDF kitob va muqova rasmini yuklang
           </DialogDescription>
         </DialogHeader>
 
@@ -163,16 +209,37 @@ const AdminBookUpload = ({ onUploadSuccess }: AdminBookUploadProps) => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="pdf-file">PDF fayl *</Label>
-            <div className="flex items-center gap-2">
+            <Label htmlFor="cover-image">Muqova rasmi</Label>
+            <div className="flex items-center gap-4">
+              {coverPreview ? (
+                <img 
+                  src={coverPreview} 
+                  alt="Cover preview" 
+                  className="w-20 h-28 object-cover rounded border"
+                />
+              ) : (
+                <div className="w-20 h-28 bg-muted rounded border flex items-center justify-center">
+                  <ImageIcon className="w-8 h-8 text-muted-foreground" />
+                </div>
+              )}
               <Input
-                id="pdf-file"
+                id="cover-image"
                 type="file"
-                accept=".pdf"
-                onChange={handleFileChange}
+                accept="image/*"
+                onChange={handleCoverChange}
                 className="flex-1"
               />
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="pdf-file">PDF fayl *</Label>
+            <Input
+              id="pdf-file"
+              type="file"
+              accept=".pdf"
+              onChange={handlePdfChange}
+            />
             {pdfFile && (
               <p className="text-sm text-muted-foreground">
                 Tanlangan: {pdfFile.name} ({(pdfFile.size / 1024 / 1024).toFixed(2)} MB)
@@ -253,12 +320,12 @@ const AdminBookUpload = ({ onUploadSuccess }: AdminBookUploadProps) => {
             {isUploading ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                AI qayta ishlamoqda... (1-3 daqiqa)
+                Yuklanmoqda...
               </>
             ) : (
               <>
                 <Upload className="w-4 h-4 mr-2" />
-                Yuklash va qayta ishlash
+                Kitobni yuklash
               </>
             )}
           </Button>

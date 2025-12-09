@@ -95,6 +95,7 @@ export type Database = {
           description: string | null
           difficulty_level: number | null
           id: string
+          pdf_url: string | null
           title: string
           topic: string
         }
@@ -105,6 +106,7 @@ export type Database = {
           description?: string | null
           difficulty_level?: number | null
           id?: string
+          pdf_url?: string | null
           title: string
           topic: string
         }
@@ -115,6 +117,7 @@ export type Database = {
           description?: string | null
           difficulty_level?: number | null
           id?: string
+          pdf_url?: string | null
           title?: string
           topic?: string
         }
