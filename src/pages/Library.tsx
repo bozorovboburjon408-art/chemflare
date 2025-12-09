@@ -152,12 +152,13 @@ const Library = () => {
                   className="overflow-hidden hover:shadow-lg transition-all"
                 >
                   {/* Cover Image */}
-                  <div className="h-48 bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center overflow-hidden">
+                  <div className="aspect-[3/4] bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center overflow-hidden">
                     {book.cover_image_url ? (
                       <img 
                         src={book.cover_image_url} 
                         alt={book.title}
                         className="w-full h-full object-cover"
+                        loading="lazy"
                       />
                     ) : (
                       <BookOpen className="w-20 h-20 text-primary" />
