@@ -55,11 +55,12 @@ serve(async (req) => {
     
     console.log(`PDF converted to base64, length: ${base64Pdf.length}`);
 
-    // Get API keys
+    // Get Lovable AI API key (primary)
+    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     const GOOGLE_AI_API_KEY = Deno.env.get('GOOGLE_AI_API_KEY');
     const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
 
-    if (!GOOGLE_AI_API_KEY && !OPENAI_API_KEY) {
+    if (!LOVABLE_API_KEY && !GOOGLE_AI_API_KEY && !OPENAI_API_KEY) {
       throw new Error("AI API key is not configured");
     }
 
@@ -99,8 +100,56 @@ JSON formatda javob ber:
     let bookData;
     let aiUsed = "";
 
-    // Try Google AI first
-    if (GOOGLE_AI_API_KEY) {
+    // Try Lovable AI first (primary - uses Gemini under the hood)
+    if (LOVABLE_API_KEY) {
+      try {
+        console.log("Attempting Lovable AI...");
+        const lovableResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'google/gemini-2.5-flash',
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { 
+                role: 'user', 
+                content: [
+                  { type: "text", text: `Kitob nomi: "${bookTitle}"\nMavzu: ${bookTopic}\n\nUshbu PDF ni tahlil qilib, kitob formatiga o'tkaz.` },
+                  { 
+                    type: "image_url", 
+                    image_url: { 
+                      url: `data:application/pdf;base64,${base64Pdf}`
+                    } 
+                  }
+                ]
+              }
+            ],
+          }),
+        });
+
+        if (lovableResponse.ok) {
+          const lovableData = await lovableResponse.json();
+          const text = lovableData.choices?.[0]?.message?.content;
+          if (text) {
+            const cleanedText = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+            bookData = JSON.parse(cleanedText);
+            aiUsed = "Lovable AI";
+            console.log("Lovable AI success");
+          }
+        } else {
+          const errText = await lovableResponse.text();
+          console.log("Lovable AI failed:", lovableResponse.status, errText);
+        }
+      } catch (e) {
+        console.log("Lovable AI error:", e);
+      }
+    }
+
+    // Fallback to Google AI
+    if (!bookData && GOOGLE_AI_API_KEY) {
       try {
         console.log("Attempting Google AI...");
         const googleResponse = await fetch(
@@ -146,12 +195,10 @@ JSON formatda javob ber:
       }
     }
 
-    // Fallback to OpenAI if Google AI failed
+    // Fallback to OpenAI
     if (!bookData && OPENAI_API_KEY) {
       try {
         console.log("Attempting OpenAI...");
-        
-        // For OpenAI, we need to extract text first (simplified approach)
         const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
           headers: {
@@ -200,7 +247,7 @@ JSON formatda javob ber:
     }
 
     if (!bookData || !bookData.chapters) {
-      throw new Error("AI PDF ni qayta ishlashda xatolik yuz berdi");
+      throw new Error("AI PDF ni qayta ishlashda xatolik yuz berdi. Barcha AI xizmatlari ishlamadi.");
     }
 
     // Save to Supabase
