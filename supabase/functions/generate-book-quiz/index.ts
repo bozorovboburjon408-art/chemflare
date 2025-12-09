@@ -59,42 +59,79 @@ ${chapterContent}
 
 Iltimos, shu matn asosida ${questionCount} ta test savoli tuz. Savollar qiziqarli, o'ylantiradigan va turli qiyinlik darajasida bo'lsin.`;
 
-    console.log('Sending request to Google AI...');
+    const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
+    
+    let content: string | undefined;
+    let usedProvider = '';
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${googleApiKey}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        contents: [{
-          parts: [
-            { text: systemPrompt },
-            { text: userPrompt }
-          ]
-        }],
-        generationConfig: {
-          maxOutputTokens: 4000,
+    // Try Google AI first
+    console.log('Trying Google AI...');
+    try {
+      const googleResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${googleApiKey}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contents: [{
+            parts: [
+              { text: systemPrompt },
+              { text: userPrompt }
+            ]
+          }],
+          generationConfig: {
+            maxOutputTokens: 4000,
+          }
+        }),
+      });
+
+      if (googleResponse.ok) {
+        const googleData = await googleResponse.json();
+        content = googleData.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (content) {
+          usedProvider = 'Google AI';
+          console.log('Google AI response received successfully');
         }
-      }),
-    });
-
-    if (!response.ok) {
-      if (response.status === 429) {
-        return new Response(
-          JSON.stringify({ error: "Juda ko'p so'rov yuborildi. Biroz kuting." }),
-          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+      } else {
+        const errorText = await googleResponse.text();
+        console.log('Google AI failed, trying OpenAI fallback...', errorText);
       }
-      const errorText = await response.text();
-      console.error("Google AI error:", response.status, errorText);
-      throw new Error(`AI request failed: ${errorText}`);
+    } catch (e) {
+      console.log('Google AI error, trying OpenAI fallback...', e);
     }
 
-    const data = await response.json();
-    console.log('Google AI response received successfully');
-    
-    let content = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    // Fallback to OpenAI if Google AI failed
+    if (!content && openaiApiKey) {
+      console.log('Using OpenAI fallback...');
+      const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${openaiApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userPrompt }
+          ],
+          max_tokens: 4000,
+        })
+      });
+
+      if (openaiResponse.ok) {
+        const openaiData = await openaiResponse.json();
+        content = openaiData.choices?.[0]?.message?.content;
+        usedProvider = 'OpenAI';
+        console.log('OpenAI response received successfully');
+      } else {
+        const errorText = await openaiResponse.text();
+        console.error('OpenAI also failed:', errorText);
+        throw new Error('Barcha AI xizmatlari ishlamayapti');
+      }
+    }
+
+    console.log(`Response received from ${usedProvider}`);
 
     if (!content) {
       throw new Error("No response from AI");
