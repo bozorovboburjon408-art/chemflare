@@ -1,9 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
 import Navigation from "@/components/Navigation";
-import PageHero from "@/components/PageHero";
-import AnimatedCard from "@/components/AnimatedCard";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,8 +11,7 @@ import {
   Search,
   Download,
   FileText,
-  Trash2,
-  Library as LibraryIcon
+  Trash2
 } from "lucide-react";
 import {
   AlertDialog,
@@ -166,62 +162,46 @@ const Library = () => {
     <div className="min-h-screen bg-background">
       <Navigation />
       
-      <main className="pt-20">
-        <PageHero
-          icon={<LibraryIcon className="w-full h-full" />}
-          title="Kimyo Kitobxonasi"
-          subtitle="Kimyoni o'rganish uchun kitoblar - yuklab oling va o'qing"
-          gradient="from-secondary via-primary to-accent"
-          stats={[
-            { value: `${books.length}+`, label: "Kitoblar" },
-            { value: "PDF", label: "Formatda" },
-            { value: "Bepul", label: "Yuklab olish" }
-          ]}
-        />
-        
-        <div className="container mx-auto px-4 pb-12">
-          <div className="max-w-6xl mx-auto">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="flex justify-end mb-6"
-            >
-              <AdminBookUpload onUploadSuccess={loadBooks} />
-            </motion.div>
+      <main className="container mx-auto px-4 pt-24 pb-12">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold mb-2">
+                Kimyo Kitobxonasi
+              </h1>
+              <p className="text-muted-foreground">
+                Kimyoni o'rganish uchun kitoblar - yuklab oling va o'qing
+              </p>
+            </div>
+            <AdminBookUpload onUploadSuccess={loadBooks} />
+          </div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="relative mb-8"
-            >
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-              <Input
-                placeholder="Kitob, mavzu yoki muallif bo'yicha qidirish..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 h-12 text-lg"
-              />
-            </motion.div>
+          <div className="relative mb-8">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+            <Input
+              placeholder="Kitob, mavzu yoki muallif bo'yicha qidirish..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
 
-            {filteredBooks.length === 0 ? (
-              <AnimatedCard delay={0.4} className="p-8 text-center">
-                <BookOpen className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                <p className="text-muted-foreground">
-                  {searchQuery 
-                    ? "Qidiruv bo'yicha kitoblar topilmadi" 
-                    : "Kitobxona hozircha bo'sh"}
-                </p>
-              </AnimatedCard>
-            ) : (
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredBooks.map((book, index) => (
-                  <AnimatedCard
-                    key={book.id}
-                    delay={0.4 + index * 0.1}
-                    className="overflow-hidden"
-                  >
+          {filteredBooks.length === 0 ? (
+            <Card className="p-8 text-center">
+              <BookOpen className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+              <p className="text-muted-foreground">
+                {searchQuery 
+                  ? "Qidiruv bo'yicha kitoblar topilmadi" 
+                  : "Kitobxona hozircha bo'sh"}
+              </p>
+            </Card>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredBooks.map((book) => (
+                <Card
+                  key={book.id}
+                  className="overflow-hidden hover:shadow-lg transition-all"
+                >
                   {/* Cover Image */}
                   <div className="aspect-[3/4] bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center overflow-hidden">
                     {book.cover_image_url ? (
@@ -318,13 +298,12 @@ const Library = () => {
                           </AlertDialogFooter>
                         </AlertDialogContent>
                       </AlertDialog>
-                      </div>
                     </div>
-                  </AnimatedCard>
-                ))}
-              </div>
-            )}
-          </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
       </main>
     </div>

@@ -1,14 +1,11 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
 import Navigation from "@/components/Navigation";
-import PageHero from "@/components/PageHero";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { AtomVisualization, NucleusVisualization } from "@/components/AtomVisualization";
 import { NuclearStability } from "@/components/NuclearStability";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Atom } from "lucide-react";
 
 interface Element {
   symbol: string;
@@ -173,22 +170,6 @@ const PeriodicTable = () => {
   const [selectedElement, setSelectedElement] = useState<Element | null>(null);
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
-      
-      <main className="pt-20">
-        <PageHero
-          icon={<Atom className="w-full h-full" />}
-          title="Davriy Jadval"
-          subtitle="Barcha kimyoviy elementlar - atom tuzilishi, yadro va batafsil ma'lumotlar"
-          stats={[
-            { value: "118", label: "Elementlar" },
-            { value: "3D", label: "Atom modeli" },
-            { value: "100%", label: "Interaktiv" }
-          ]}
-        />
-        
-        <div className="container mx-auto px-4 pb-12">
     <div className="min-h-screen bg-background">
       <Navigation />
       
