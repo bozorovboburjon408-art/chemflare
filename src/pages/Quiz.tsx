@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import Navigation from "@/components/Navigation";
+import PageHero from "@/components/PageHero";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Upload, Loader2, CheckCircle2, XCircle, Trophy, LogOut, Shuffle } from "lucide-react";
+import { Upload, Loader2, CheckCircle2, XCircle, Trophy, LogOut, Shuffle, FileQuestion, Image, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
@@ -537,25 +539,48 @@ const Quiz = () => {
     <div className="min-h-screen bg-background">
       <Navigation />
       
-      <main className="container mx-auto px-4 pt-24 pb-12">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
-              Test va Viktorina
-            </h1>
-            <p className="text-muted-foreground">
-              Test rasmini yuklang yoki mavjud testlarni yeching
-            </p>
-          </div>
-          <Button variant="outline" onClick={handleSignOut}>
-            <LogOut className="w-4 h-4 mr-2" />
-            Chiqish
-          </Button>
-        </div>
+      <main className="pt-20">
+        <PageHero
+          icon={<FileQuestion className="w-full h-full" />}
+          title="Test va Viktorina"
+          subtitle="Test rasmini yuklang yoki mavjud testlarni yeching - AI savollarni avtomatik aniqlaydi"
+          gradient="from-accent via-secondary to-primary"
+          stats={[
+            { value: `${quizzes.length}`, label: "Sizning testlaringiz" },
+            { value: "AI", label: "Tahlil qiladi" },
+            { value: "100%", label: "Bepul" }
+          ]}
+        />
+        
+        <div className="container mx-auto px-4 pb-12">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="flex justify-end mb-6"
+          >
+            <Button variant="outline" onClick={handleSignOut}>
+              <LogOut className="w-4 h-4 mr-2" />
+              Chiqish
+            </Button>
+          </motion.div>
 
-        {/* Upload Section */}
-        <Card className="p-6 mb-8">
-          <h2 className="text-xl font-semibold mb-4">Yangi test yaratish</h2>
+          {/* Upload Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            <Card className="p-6 mb-8 bg-gradient-card border-border/50 shadow-elegant">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-lg">
+                  <Image className="w-6 h-6 text-primary-foreground" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold">Yangi test yaratish</h2>
+                  <p className="text-sm text-muted-foreground">Rasmlarni yuklang va AI savollarni aniqlaydi</p>
+                </div>
+              </div>
           <div className="space-y-4">
             <Input
               placeholder="Test nomi (ixtiyoriy)"
@@ -644,59 +669,76 @@ const Quiz = () => {
               <span className="text-xs">Maksimum 10 ta fayl, har biri 30MB gacha</span>
             </p>
           </div>
-        </Card>
-
-        {/* Quizzes List */}
-        <div>
-          <h2 className="text-2xl font-semibold mb-4">Sizning testlaringiz</h2>
-          
-          {quizzes.length === 0 ? (
-            <Card className="p-8 text-center">
-              <p className="text-muted-foreground">
-                Hozircha testlar yo'q. Yuqorida rasm yuklab test yarating!
-              </p>
             </Card>
-          ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {quizzes.map((quiz) => (
-                <Card
-                  key={quiz.id}
-                  className="p-6 hover:shadow-lg transition-shadow cursor-pointer"
-                  onClick={() => startQuiz(quiz.id)}
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <h3 className="font-semibold text-lg">{quiz.title}</h3>
-                    <div className="flex gap-2">
-                      <Badge variant="outline" className="bg-primary/10 border-primary/30">
-                        <Shuffle className="w-3 h-3 mr-1" />
-                        Aralash
-                      </Badge>
-                      {quiz.completed_at && (
-                        <Badge variant="outline" className="bg-green-500/10 border-green-500/30">
-                          <CheckCircle2 className="w-3 h-3 mr-1" />
-                          Bajarilgan
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                  
-                  {quiz.description && (
-                    <p className="text-sm text-muted-foreground mb-3">
-                      {quiz.description}
-                    </p>
-                  )}
+          </motion.div>
 
-                  <p className="text-xs text-muted-foreground">
-                    {new Date(quiz.created_at).toLocaleDateString('uz-UZ', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                    })}
-                  </p>
-                </Card>
-              ))}
+          {/* Quizzes List */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+          >
+            <div className="flex items-center gap-3 mb-6">
+              <Sparkles className="w-6 h-6 text-secondary" />
+              <h2 className="text-2xl font-semibold">Sizning testlaringiz</h2>
             </div>
-          )}
+            
+            {quizzes.length === 0 ? (
+              <Card className="p-8 text-center bg-gradient-card border-border/50">
+                <FileQuestion className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+                <p className="text-muted-foreground">
+                  Hozircha testlar yo'q. Yuqorida rasm yuklab test yarating!
+                </p>
+              </Card>
+            ) : (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {quizzes.map((quiz, index) => (
+                  <motion.div
+                    key={quiz.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 + index * 0.1 }}
+                    whileHover={{ y: -5, scale: 1.02 }}
+                  >
+                    <Card
+                      className="p-6 hover:shadow-elegant transition-all cursor-pointer bg-card/80 backdrop-blur-sm border-border/50"
+                      onClick={() => startQuiz(quiz.id)}
+                    >
+                      <div className="flex items-start justify-between mb-3">
+                        <h3 className="font-semibold text-lg">{quiz.title}</h3>
+                        <div className="flex gap-2">
+                          <Badge variant="outline" className="bg-primary/10 border-primary/30">
+                            <Shuffle className="w-3 h-3 mr-1" />
+                            Aralash
+                          </Badge>
+                          {quiz.completed_at && (
+                            <Badge variant="outline" className="bg-green-500/10 border-green-500/30">
+                              <CheckCircle2 className="w-3 h-3 mr-1" />
+                              Bajarilgan
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {quiz.description && (
+                        <p className="text-sm text-muted-foreground mb-3">
+                          {quiz.description}
+                        </p>
+                      )}
+
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(quiz.created_at).toLocaleDateString('uz-UZ', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                        })}
+                      </p>
+                    </Card>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </motion.div>
         </div>
       </main>
     </div>
