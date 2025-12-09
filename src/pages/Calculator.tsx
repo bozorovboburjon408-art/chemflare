@@ -1,9 +1,12 @@
 import { useState } from "react";
+import { motion } from "framer-motion";
 import Navigation from "@/components/Navigation";
+import PageHero from "@/components/PageHero";
+import AnimatedCard from "@/components/AnimatedCard";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Upload, Send, Loader2, Sparkles, FlaskConical, Calculator as CalcIcon, Beaker } from "lucide-react";
+import { Upload, Send, Loader2, Sparkles, FlaskConical, Calculator as CalcIcon, Beaker, Brain, Zap } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import SolutionRenderer from "@/components/SolutionRenderer";
@@ -76,23 +79,22 @@ const Calculator = () => {
     <div className="min-h-screen bg-background">
       <Navigation />
       
-      <main className="container mx-auto px-4 pt-24 pb-12">
-        <div className="text-center mb-12 animate-fade-in">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-hero shadow-elegant mb-6">
-            <CalcIcon className="w-8 h-8 text-primary-foreground" />
-          </div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            <span className="bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
-              Kimyoviy Kalkulyator
-            </span>
-          </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Har qanday kimyoviy hisob-kitob yoki masalani yuboring - AI yechim topadi
-          </p>
-        </div>
+      <main className="pt-20">
+        <PageHero
+          icon={<CalcIcon className="w-full h-full" />}
+          title="Kimyoviy Kalkulyator"
+          subtitle="Har qanday kimyoviy hisob-kitob yoki masalani yuboring - AI yechim topadi"
+          stats={[
+            { value: "1000+", label: "Masalalar yechildi" },
+            { value: "99%", label: "Aniqlik darajasi" },
+            { value: "AI", label: "Sun'iy intellekt" }
+          ]}
+        />
+        
+        <div className="container mx-auto px-4 pb-12">
 
-        <div className="max-w-3xl mx-auto space-y-6">
-          <Card className="p-6 shadow-elegant border-border/50 bg-card/80 backdrop-blur-sm">
+          <div className="max-w-3xl mx-auto space-y-6">
+            <AnimatedCard delay={0.2} className="p-6 shadow-elegant bg-card/80">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-2 text-foreground">
@@ -150,9 +152,9 @@ const Calculator = () => {
                 </label>
               </div>
             </form>
-          </Card>
+          </AnimatedCard>
 
-          <Card className="p-6 bg-gradient-card border-border/50 shadow-sm">
+          <AnimatedCard delay={0.4} className="p-6 bg-gradient-card shadow-sm">
             <div className="flex items-center gap-2 mb-4">
               <Sparkles className="w-5 h-5 text-secondary" />
               <h3 className="font-semibold text-lg">Kalkulyator imkoniyatlari</h3>
@@ -207,10 +209,15 @@ const Calculator = () => {
                 </ul>
               </div>
             </div>
-          </Card>
+          </AnimatedCard>
 
           {solution && (
-            <Card className="p-6 bg-gradient-card border-primary/20 shadow-elegant animate-fade-in">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <Card className="p-6 bg-gradient-card border-primary/20 shadow-elegant">
               <div className="flex items-center gap-2 mb-6">
                 <div className="w-10 h-10 rounded-xl bg-gradient-hero flex items-center justify-center shadow-lg">
                   <Sparkles className="w-5 h-5 text-primary-foreground" />
@@ -221,16 +228,23 @@ const Calculator = () => {
                 </div>
               </div>
               <SolutionRenderer solution={solution} />
-            </Card>
+              </Card>
+            </motion.div>
           )}
 
-          <div className="text-center">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6 }}
+            className="text-center"
+          >
             <Card className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-silver border-0 shadow-sm">
               <Sparkles className="w-4 h-4 text-primary" />
               <p className="text-sm text-muted-foreground">
                 AI yordamida kimyoviy masalalarni yeching
               </p>
             </Card>
+          </motion.div>
           </div>
         </div>
       </main>

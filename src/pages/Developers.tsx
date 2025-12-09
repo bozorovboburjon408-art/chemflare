@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import Navigation from "@/components/Navigation";
+import PageHero from "@/components/PageHero";
+import AnimatedCard from "@/components/AnimatedCard";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Heart, Users, Lightbulb, MessageCircle, ExternalLink, Loader2, Upload } from "lucide-react";
+import { Heart, Users, Lightbulb, MessageCircle, ExternalLink, Loader2, Upload, Code2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -180,165 +183,205 @@ const Developers = () => {
     <div className="min-h-screen bg-background">
       <Navigation />
       
-      <main className="container mx-auto px-4 pt-24 pb-12">
-        {/* Migration Banner */}
-        {hasLocalData && (
-          <Card className="mb-6 bg-amber-500/10 border-amber-500/30">
-            <CardContent className="p-4 flex items-center justify-between">
-              <div>
-                <p className="font-medium text-foreground">Eski rasmlar topildi!</p>
-                <p className="text-sm text-muted-foreground">LocalStorage'dagi rasmlarni serverga ko'chirish mumkin</p>
-              </div>
-              <Button onClick={migrateLocalStorageToSupabase} disabled={migrating}>
-                {migrating ? (
-                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                ) : (
-                  <Upload className="w-4 h-4 mr-2" />
-                )}
-                Ko'chirish
-              </Button>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Hero Section */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent mb-4">
-            ISHLAB CHIQARUVCHILAR
-          </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Bu loyiha — intilish, mehnat va ilmga bo'lgan muhabbatimiz samarasidir
-          </p>
-        </div>
-
-        {/* Mission Section */}
-        <Card className="mb-8 bg-gradient-to-br from-primary/5 to-accent/5 border-primary/20">
-          <CardContent className="p-6 md:p-8">
-            <div className="flex items-start gap-4">
-              <div className="p-3 rounded-full bg-primary/10">
-                <Lightbulb className="w-6 h-6 text-primary" />
-              </div>
-              <div>
-                <h2 className="text-xl font-semibold text-foreground mb-3">Bizning Maqsadimiz</h2>
-                <p className="text-muted-foreground leading-relaxed">
-                  Kimyoni <span className="text-primary font-medium">bepul</span>, <span className="text-primary font-medium">sodda</span>, <span className="text-primary font-medium">tushunarli</span> va eng muhimi <span className="text-primary font-medium">mukammal</span> tarzda o'rgatuvchi ilova yaratish edi. Bugun esa shu maqsadimiz ro'yobga chiqdi.
-                </p>
-                <p className="text-muted-foreground leading-relaxed mt-3">
-                  Bu dastur — ustozlarimizning ilhomi, bizning mehnatimiz va sizning ilmga bo'lgan qiziqishingizdan tug'ilgan katta loyiha.
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Mentors Section */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-6">
-            <Heart className="w-6 h-6 text-accent" />
-            <h2 className="text-2xl font-bold text-foreground">Minnatdorchilik</h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {mentors.map((mentor) => (
-              <Card key={mentor.id} className="bg-card/50 hover:bg-card/80 transition-colors border-accent/20">
-                <CardContent className="p-5 text-center">
-                  <div className="w-16 h-16 mx-auto mb-3">
-                    {mentor.avatar_url ? (
-                      <img 
-                        src={mentor.avatar_url} 
-                        alt={mentor.name}
-                        className="w-16 h-16 rounded-full object-cover"
-                      />
+      <main className="pt-20">
+        <PageHero
+          icon={<Code2 className="w-full h-full" />}
+          title="Ishlab Chiqaruvchilar"
+          subtitle="Bu loyiha — intilish, mehnat va ilmga bo'lgan muhabbatimiz samarasidir"
+          gradient="from-accent via-primary to-secondary"
+          stats={[
+            { value: `${teamMembers.length}`, label: "Jamoa a'zolari" },
+            { value: `${mentors.length}`, label: "Ustozlar" },
+            { value: "❤️", label: "Muhabbat" }
+          ]}
+        />
+        
+        <div className="container mx-auto px-4 pb-12">
+          {/* Migration Banner */}
+          {hasLocalData && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              <Card className="mb-6 bg-amber-500/10 border-amber-500/30">
+                <CardContent className="p-4 flex items-center justify-between">
+                  <div>
+                    <p className="font-medium text-foreground">Eski rasmlar topildi!</p>
+                    <p className="text-sm text-muted-foreground">LocalStorage'dagi rasmlarni serverga ko'chirish mumkin</p>
+                  </div>
+                  <Button onClick={migrateLocalStorageToSupabase} disabled={migrating}>
+                    {migrating ? (
+                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
                     ) : (
-                      <div className="w-16 h-16 rounded-full bg-accent/10 flex items-center justify-center">
-                        <span className="text-xl font-bold text-accent">
-                          {mentor.name.charAt(0)}
-                        </span>
-                      </div>
+                      <Upload className="w-4 h-4 mr-2" />
                     )}
-                  </div>
-                  <h3 className="font-semibold text-foreground">{mentor.name}</h3>
-                  <p className="text-sm text-muted-foreground mt-1">{mentor.role}</p>
+                    Ko'chirish
+                  </Button>
                 </CardContent>
               </Card>
-            ))}
-          </div>
-        </div>
+            </motion.div>
+          )}
 
-        {/* Team Section */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-6">
-            <Users className="w-6 h-6 text-primary" />
-            <h2 className="text-2xl font-bold text-foreground">Jamoa A'zolari</h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {teamMembers.map((member) => (
-              <Card key={member.id} className="bg-card/50 hover:bg-card/80 hover:border-primary/30 transition-all">
-                <CardContent className="p-5">
-                  <div className="flex items-center gap-4">
-                    <div>
-                      {member.avatar_url ? (
-                        <img 
-                          src={member.avatar_url} 
-                          alt={member.name}
-                          className="w-12 h-12 rounded-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                          <span className="text-lg font-bold text-primary">
-                            {member.name.split(' ').map(n => n.charAt(0)).join('')}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                    
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-foreground">{member.name}</h3>
-                      {member.telegram && (
-                        <a 
-                          href={`https://t.me/${member.telegram.replace('@', '')}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-sm text-primary hover:text-primary/80 flex items-center gap-1 mt-1 hover:underline"
-                        >
-                          {member.telegram}
-                          <ExternalLink className="w-3 h-3" />
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-
-        {/* Contact Section */}
-        <Card className="bg-gradient-to-br from-accent/5 to-primary/5 border-accent/20">
-          <CardContent className="p-6 md:p-8">
-            <div className="flex items-start gap-4">
-              <div className="p-3 rounded-full bg-accent/10">
-                <MessageCircle className="w-6 h-6 text-accent" />
-              </div>
-              <div>
-                <h2 className="text-xl font-semibold text-foreground mb-3">Bog'lanish</h2>
-                <p className="text-muted-foreground leading-relaxed">
-                  Taklif va fikr-mulohazalar uchun biz bilan bemalol bog'lanishingiz mumkin. Telegram username'larimiz yuqorida ko'rsatilgan.
-                </p>
-                <div className="mt-4">
-                  <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20">
-                    Oldinda yanada ko'proq g'oyalar, yangilanishlar va imkoniyatlar kutmoqda!
-                  </Badge>
+          {/* Mission Section */}
+          <AnimatedCard delay={0.2} hover={false} className="mb-8 bg-gradient-to-br from-primary/5 to-accent/5 border-primary/20">
+            <CardContent className="p-6 md:p-8">
+              <div className="flex items-start gap-4">
+                <div className="p-3 rounded-full bg-primary/10">
+                  <Lightbulb className="w-6 h-6 text-primary" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold text-foreground mb-3">Bizning Maqsadimiz</h2>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Kimyoni <span className="text-primary font-medium">bepul</span>, <span className="text-primary font-medium">sodda</span>, <span className="text-primary font-medium">tushunarli</span> va eng muhimi <span className="text-primary font-medium">mukammal</span> tarzda o'rgatuvchi ilova yaratish edi. Bugun esa shu maqsadimiz ro'yobga chiqdi.
+                  </p>
+                  <p className="text-muted-foreground leading-relaxed mt-3">
+                    Bu dastur — ustozlarimizning ilhomi, bizning mehnatimiz va sizning ilmga bo'lgan qiziqishingizdan tug'ilgan katta loyiha.
+                  </p>
                 </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </AnimatedCard>
 
-        {/* Footer */}
-        <div className="text-center mt-12 text-muted-foreground">
-          <p className="text-sm">
-            Biz bilan qoling — bilim sari birga intilamiz! 🚀
-          </p>
+          {/* Mentors Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="mb-8"
+          >
+            <div className="flex items-center gap-3 mb-6">
+              <Heart className="w-6 h-6 text-accent" />
+              <h2 className="text-2xl font-bold text-foreground">Minnatdorchilik</h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {mentors.map((mentor, index) => (
+                <motion.div
+                  key={mentor.id}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.4 + index * 0.1 }}
+                  whileHover={{ y: -5, scale: 1.02 }}
+                >
+                  <Card className="bg-card/50 hover:bg-card/80 transition-colors border-accent/20 h-full">
+                    <CardContent className="p-5 text-center">
+                      <div className="w-16 h-16 mx-auto mb-3">
+                        {mentor.avatar_url ? (
+                          <img 
+                            src={mentor.avatar_url} 
+                            alt={mentor.name}
+                            className="w-16 h-16 rounded-full object-cover ring-2 ring-accent/20"
+                          />
+                        ) : (
+                          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-accent/20 to-primary/20 flex items-center justify-center ring-2 ring-accent/20">
+                            <span className="text-xl font-bold text-accent">
+                              {mentor.name.charAt(0)}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <h3 className="font-semibold text-foreground">{mentor.name}</h3>
+                      <p className="text-sm text-muted-foreground mt-1">{mentor.role}</p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Team Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="mb-8"
+          >
+            <div className="flex items-center gap-3 mb-6">
+              <Users className="w-6 h-6 text-primary" />
+              <h2 className="text-2xl font-bold text-foreground">Jamoa A'zolari</h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {teamMembers.map((member, index) => (
+                <motion.div
+                  key={member.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.6 + index * 0.1 }}
+                  whileHover={{ y: -3, scale: 1.01 }}
+                >
+                  <Card className="bg-card/50 hover:bg-card/80 hover:border-primary/30 transition-all h-full">
+                    <CardContent className="p-5">
+                      <div className="flex items-center gap-4">
+                        <div>
+                          {member.avatar_url ? (
+                            <img 
+                              src={member.avatar_url} 
+                              alt={member.name}
+                              className="w-12 h-12 rounded-full object-cover ring-2 ring-primary/20"
+                            />
+                          ) : (
+                            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center ring-2 ring-primary/20">
+                              <span className="text-lg font-bold text-primary">
+                                {member.name.split(' ').map(n => n.charAt(0)).join('')}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                        
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-foreground">{member.name}</h3>
+                          {member.telegram && (
+                            <a 
+                              href={`https://t.me/${member.telegram.replace('@', '')}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-sm text-primary hover:text-primary/80 flex items-center gap-1 mt-1 hover:underline"
+                            >
+                              {member.telegram}
+                              <ExternalLink className="w-3 h-3" />
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Contact Section */}
+          <AnimatedCard delay={0.7} hover={false} className="bg-gradient-to-br from-accent/5 to-primary/5 border-accent/20">
+            <CardContent className="p-6 md:p-8">
+              <div className="flex items-start gap-4">
+                <div className="p-3 rounded-full bg-accent/10">
+                  <MessageCircle className="w-6 h-6 text-accent" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold text-foreground mb-3">Bog'lanish</h2>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Taklif va fikr-mulohazalar uchun biz bilan bemalol bog'lanishingiz mumkin. Telegram username'larimiz yuqorida ko'rsatilgan.
+                  </p>
+                  <div className="mt-4">
+                    <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20">
+                      Oldinda yanada ko'proq g'oyalar, yangilanishlar va imkoniyatlar kutmoqda!
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </AnimatedCard>
+
+          {/* Footer */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8 }}
+            className="text-center mt-12 text-muted-foreground"
+          >
+            <p className="text-sm">
+              Biz bilan qoling — bilim sari birga intilamiz! 🚀
+            </p>
+          </motion.div>
         </div>
       </main>
     </div>
