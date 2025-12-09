@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Upload, Send, Loader2, Sparkles, FlaskConical, Calculator as CalcIcon, Beaker } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import SolutionRenderer from "@/components/SolutionRenderer";
 
 const Calculator = () => {
   const [question, setQuestion] = useState("");
@@ -210,15 +211,16 @@ const Calculator = () => {
 
           {solution && (
             <Card className="p-6 bg-gradient-card border-primary/20 shadow-elegant animate-fade-in">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-gradient-hero flex items-center justify-center">
-                  <Sparkles className="w-4 h-4 text-primary-foreground" />
+              <div className="flex items-center gap-2 mb-6">
+                <div className="w-10 h-10 rounded-xl bg-gradient-hero flex items-center justify-center shadow-lg">
+                  <Sparkles className="w-5 h-5 text-primary-foreground" />
                 </div>
-                <h3 className="font-semibold text-lg">Yechim</h3>
+                <div>
+                  <h3 className="font-bold text-xl">Yechim</h3>
+                  <p className="text-xs text-muted-foreground">AI tomonidan tayyorlangan batafsil javob</p>
+                </div>
               </div>
-              <div className="prose prose-sm max-w-none dark:prose-invert">
-                <pre className="whitespace-pre-wrap text-sm bg-muted/30 p-4 rounded-lg border border-border/50">{solution}</pre>
-              </div>
+              <SolutionRenderer solution={solution} />
             </Card>
           )}
 
