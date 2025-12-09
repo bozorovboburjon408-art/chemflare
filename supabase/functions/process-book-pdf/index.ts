@@ -40,9 +40,20 @@ serve(async (req) => {
 
     console.log(`Processing PDF: ${pdfFile.name}, size: ${pdfFile.size}`);
 
-    // Read PDF as base64
+    // Read PDF as base64 (chunked to avoid stack overflow)
     const arrayBuffer = await pdfFile.arrayBuffer();
-    const base64Pdf = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+    const uint8Array = new Uint8Array(arrayBuffer);
+    
+    // Convert to base64 in chunks to avoid stack overflow
+    let binaryString = '';
+    const chunkSize = 8192;
+    for (let i = 0; i < uint8Array.length; i += chunkSize) {
+      const chunk = uint8Array.slice(i, i + chunkSize);
+      binaryString += String.fromCharCode.apply(null, Array.from(chunk));
+    }
+    const base64Pdf = btoa(binaryString);
+    
+    console.log(`PDF converted to base64, length: ${base64Pdf.length}`);
 
     // Get API keys
     const GOOGLE_AI_API_KEY = Deno.env.get('GOOGLE_AI_API_KEY');
