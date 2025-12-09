@@ -10,8 +10,20 @@ import {
   Loader2, 
   Search,
   Download,
-  FileText
+  FileText,
+  Trash2
 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import AdminBookUpload from "@/components/AdminBookUpload";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -33,6 +45,8 @@ const Library = () => {
   const [books, setBooks] = useState<ChemistryBook[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [adminPassword, setAdminPassword] = useState("");
+  const [deletingBookId, setDeletingBookId] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -90,6 +104,43 @@ const Library = () => {
         description: "Bu kitob uchun PDF fayl mavjud emas",
         variant: "destructive",
       });
+    }
+  };
+
+  const deleteBook = async (bookId: string) => {
+    if (adminPassword !== "admin77") {
+      toast({
+        title: "Xato",
+        description: "Admin paroli noto'g'ri",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setDeletingBookId(bookId);
+    try {
+      const { error } = await supabase
+        .from('chemistry_books')
+        .delete()
+        .eq('id', bookId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Muvaffaqiyat",
+        description: "Kitob o'chirildi",
+      });
+      setAdminPassword("");
+      loadBooks();
+    } catch (error: any) {
+      console.error('Error deleting book:', error);
+      toast({
+        title: "Xato",
+        description: "Kitobni o'chirishda xatolik",
+        variant: "destructive",
+      });
+    } finally {
+      setDeletingBookId(null);
     }
   };
 
@@ -186,25 +237,68 @@ const Library = () => {
                       )}
                     </div>
                     
-                    {/* Download Button */}
-                    {book.pdf_url ? (
-                      <Button 
-                        onClick={() => downloadBook(book)}
-                        className="w-full gap-2"
-                      >
-                        <Download className="w-4 h-4" />
-                        PDF yuklash
-                      </Button>
-                    ) : (
-                      <Button 
-                        disabled
-                        variant="outline"
-                        className="w-full gap-2"
-                      >
-                        <FileText className="w-4 h-4" />
-                        PDF mavjud emas
-                      </Button>
-                    )}
+                    {/* Action Buttons */}
+                    <div className="flex gap-2">
+                      {book.pdf_url ? (
+                        <Button 
+                          onClick={() => downloadBook(book)}
+                          className="flex-1 gap-2"
+                        >
+                          <Download className="w-4 h-4" />
+                          PDF yuklash
+                        </Button>
+                      ) : (
+                        <Button 
+                          disabled
+                          variant="outline"
+                          className="flex-1 gap-2"
+                        >
+                          <FileText className="w-4 h-4" />
+                          PDF yo'q
+                        </Button>
+                      )}
+                      
+                      {/* Admin Delete Button */}
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="destructive" size="icon">
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Kitobni o'chirish</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              "{book.title}" kitobini o'chirmoqchimisiz? Bu amalni ortga qaytarib bo'lmaydi.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <div className="py-4">
+                            <Input
+                              type="password"
+                              placeholder="Admin parolini kiriting"
+                              value={adminPassword}
+                              onChange={(e) => setAdminPassword(e.target.value)}
+                            />
+                          </div>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel onClick={() => setAdminPassword("")}>
+                              Bekor qilish
+                            </AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => deleteBook(book.id)}
+                              disabled={deletingBookId === book.id}
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            >
+                              {deletingBookId === book.id ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                "O'chirish"
+                              )}
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
                   </div>
                 </Card>
               ))}
