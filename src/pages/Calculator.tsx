@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Send, Loader2, Sparkles, FlaskConical, Calculator as CalcIcon, Beaker } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import SolutionRenderer from "@/components/SolutionRenderer";
-import { solveChemistryProblem } from "@/data/chemistrySolver";
+import { supabase } from "@/integrations/supabase/client";
 
 const Calculator = () => {
   const [question, setQuestion] = useState("");
@@ -14,35 +14,42 @@ const Calculator = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const { toast } = useToast();
 
-  const solveProblem = (problemText: string) => {
+  const solveProblem = async (problemText: string) => {
     setIsProcessing(true);
     setSolution("");
 
-    // Mahalliy bazadan yechish (API siz)
-    setTimeout(() => {
-      try {
-        const result = solveChemistryProblem(problemText);
-        setSolution(result);
+    try {
+      const { data, error } = await supabase.functions.invoke('solve-chemistry', {
+        body: { question: problemText }
+      });
+
+      if (error) throw error;
+
+      if (data?.solution) {
+        setSolution(data.solution);
         toast({
           title: "Muvaffaqiyatli!",
           description: "Masala yechildi",
         });
-      } catch (error: any) {
-        toast({
-          title: "Xatolik",
-          description: "Masalani yechishda xatolik. Qaytadan urinib ko'ring.",
-          variant: "destructive",
-        });
-      } finally {
-        setIsProcessing(false);
+      } else {
+        throw new Error("Javob olinmadi");
       }
-    }, 500);
+    } catch (error: any) {
+      console.error("Error solving problem:", error);
+      toast({
+        title: "Xatolik",
+        description: error.message || "Masalani yechishda xatolik. Qaytadan urinib ko'ring.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!question.trim()) return;
-    solveProblem(question);
+    await solveProblem(question);
   };
 
   const exampleQuestions = [
@@ -69,7 +76,7 @@ const Calculator = () => {
             </span>
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Har qanday kimyoviy masalani yuboring - darhol yechim oling (API siz ishlaydi!)
+            Har qanday kimyoviy masalani yuboring - sun'iy intellekt yordamida darhol yechim oling!
           </p>
         </div>
 
@@ -200,7 +207,7 @@ const Calculator = () => {
             <Card className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-silver border-0 shadow-sm">
               <Sparkles className="w-4 h-4 text-primary" />
               <p className="text-sm text-muted-foreground">
-                100+ element va 150+ birikma bazasi bilan ishlaydi
+                Gemini AI yordamida har qanday kimyoviy masalani yechadi
               </p>
             </Card>
           </div>
