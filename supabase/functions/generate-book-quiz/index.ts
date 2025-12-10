@@ -21,9 +21,9 @@ serve(async (req) => {
       );
     }
 
-    const googleApiKey = Deno.env.get("GOOGLE_AI_API_KEY");
-    if (!googleApiKey) {
-      throw new Error("GOOGLE_AI_API_KEY is not configured");
+    const deepseekKey = Deno.env.get("DEEPSEEK_API_KEY");
+    if (!deepseekKey) {
+      throw new Error("DEEPSEEK_API_KEY is not configured");
     }
 
 const systemPrompt = `Sen professional kimyo o'qituvchisisan. Test savollarini tuzishda quyidagi qoidalarga amal qil:
@@ -74,79 +74,34 @@ ${chapterContent}
 
 Iltimos, shu matn asosida ${questionCount} ta test savoli tuz. Savollar qiziqarli, o'ylantiradigan va turli qiyinlik darajasida bo'lsin.`;
 
-    const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
+    console.log('Using DeepSeek API...');
     
-    let content: string | undefined;
-    let usedProvider = '';
+    const response = await fetch('https://api.deepseek.com/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${deepseekKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'deepseek-chat',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ],
+        max_tokens: 4000,
+      })
+    });
 
-    // Try Google AI first
-    console.log('Trying Google AI...');
-    try {
-      const googleResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${googleApiKey}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          contents: [{
-            parts: [
-              { text: systemPrompt },
-              { text: userPrompt }
-            ]
-          }],
-          generationConfig: {
-            maxOutputTokens: 4000,
-          }
-        }),
-      });
-
-      if (googleResponse.ok) {
-        const googleData = await googleResponse.json();
-        content = googleData.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (content) {
-          usedProvider = 'Google AI';
-          console.log('Google AI response received successfully');
-        }
-      } else {
-        const errorText = await googleResponse.text();
-        console.log('Google AI failed, trying OpenAI fallback...', errorText);
-      }
-    } catch (e) {
-      console.log('Google AI error, trying OpenAI fallback...', e);
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('DeepSeek API error:', errorText);
+      throw new Error('AI xizmati javob bermadi');
     }
 
-    // Fallback to OpenAI if Google AI failed
-    if (!content && openaiApiKey) {
-      console.log('Using OpenAI fallback...');
-      const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${openaiApiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o-mini',
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: userPrompt }
-          ],
-          max_tokens: 4000,
-        })
-      });
-
-      if (openaiResponse.ok) {
-        const openaiData = await openaiResponse.json();
-        content = openaiData.choices?.[0]?.message?.content;
-        usedProvider = 'OpenAI';
-        console.log('OpenAI response received successfully');
-      } else {
-        const errorText = await openaiResponse.text();
-        console.error('OpenAI also failed:', errorText);
-        throw new Error('Barcha AI xizmatlari ishlamayapti');
-      }
-    }
-
-    console.log(`Response received from ${usedProvider}`);
+    const data = await response.json();
+    let content = data.choices?.[0]?.message?.content;
+    
+    console.log('DeepSeek API response received successfully');
 
     if (!content) {
       throw new Error("No response from AI");
