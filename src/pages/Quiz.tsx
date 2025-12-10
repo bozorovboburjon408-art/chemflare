@@ -101,7 +101,7 @@ const Quiz = () => {
     setQuizzes(data || []);
   };
 
-  const MAX_FILE_SIZE = 30 * 1024 * 1024; // 30MB
+  const MAX_FILE_SIZE = 2 * 1024 * 1024 * 1024; // 2GB
   const MAX_FILES = 10;
 
   const handleFileUpload = async (type: 'questions' | 'answers', e: React.ChangeEvent<HTMLInputElement>) => {
@@ -134,7 +134,7 @@ const Quiz = () => {
       if (file.size > MAX_FILE_SIZE) {
         toast({
           title: "Xato",
-          description: `"${file.name}" - fayl hajmi 30MB dan oshmasligi kerak`,
+          description: `"${file.name}" - fayl hajmi 2GB dan oshmasligi kerak`,
           variant: "destructive",
         });
         return;

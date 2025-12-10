@@ -37,17 +37,31 @@ const AdminBookUpload = ({ onUploadSuccess }: AdminBookUploadProps) => {
   const [difficultyLevel, setDifficultyLevel] = useState("1");
   const { toast } = useToast();
 
+  const MAX_FILE_SIZE = 2 * 1024 * 1024 * 1024; // 2GB
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file && file.type === "application/pdf") {
-      setPdfFile(file);
-    } else {
+    if (!file) return;
+    
+    if (file.type !== "application/pdf") {
       toast({
         title: "Xato",
         description: "Faqat PDF fayl yuklash mumkin",
         variant: "destructive",
       });
+      return;
     }
+    
+    if (file.size > MAX_FILE_SIZE) {
+      toast({
+        title: "Xato",
+        description: "Fayl hajmi 2GB dan oshmasligi kerak",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setPdfFile(file);
   };
 
   const handleUpload = async () => {
