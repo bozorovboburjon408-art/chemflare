@@ -1,951 +1,1014 @@
+// MASALALAR BAZASI - HAR QANDAY KIMYOVIY MASALANI YECHISH
+
 import {
   elements,
   compounds,
-  constants,
-  formulas,
   parseFormula,
   calculateMolarMass,
-  calculateMoles,
-  calculateMass,
-  calculateConcentration,
-  calculatePH,
-  calculatePOH,
-  calculateGasVolume,
-  calculateElectrolysisMass,
-  identifyProblemType,
-  extractNumbers,
-  extractFormulas,
-  type ChemistrySolution
 } from './chemistryKnowledge';
 
-// Asosiy masala yechuvchi funksiya
-export function solveChemistryProblem(question: string): string {
-  const lowerQ = question.toLowerCase();
-  const numbers = extractNumbers(question);
-  const foundFormulas = extractFormulas(question);
-  const problemType = identifyProblemType(question);
-  
-  let solution = "";
-  
-  try {
-    switch (problemType) {
-      case 'molar_mass':
-        solution = solveMolarMass(question, foundFormulas);
-        break;
-      case 'mole_calculation':
-        solution = solveMoleCalculation(question, foundFormulas, numbers);
-        break;
-      case 'mass_calculation':
-        solution = solveMassCalculation(question, foundFormulas, numbers);
-        break;
-      case 'concentration':
-        solution = solveConcentration(question, numbers);
-        break;
-      case 'ph_calculation':
-        solution = solvePHCalculation(question, numbers);
-        break;
-      case 'gas_volume':
-        solution = solveGasVolume(question, foundFormulas, numbers);
-        break;
-      case 'electrolysis':
-        solution = solveElectrolysis(question, numbers);
-        break;
-      case 'percent_calculation':
-        solution = solvePercentCalculation(question, numbers);
-        break;
-      case 'reaction_balance':
-        solution = solveReactionBalance(question, foundFormulas);
-        break;
-      case 'density':
-        solution = solveDensity(question, numbers);
-        break;
-      default:
-        solution = solveGeneral(question, foundFormulas, numbers);
-    }
-  } catch (error) {
-    solution = solveGeneral(question, foundFormulas, numbers);
-  }
-  
-  return solution;
+// ==================== MASALA SHABLONLARI ====================
+interface ProblemTemplate {
+  id: string;
+  patterns: RegExp[];
+  type: string;
+  solve: (question: string, matches: RegExpMatchArray | null) => string;
 }
 
-// Molyar massa hisoblash
-function solveMolarMass(question: string, formulas: string[]): string {
-  if (formulas.length === 0) {
-    return formatSolution({
-      given: "Formula ko'rsatilmagan",
-      find: "Molyar massa (M)",
-      solution: `Molyar massani hisoblash uchun modda formulasi kerak.
-
-📝 MOLYAR MASSA FORMULASI:
-M = m₁ × n₁ + m₂ × n₂ + ...
-
-Bu yerda:
-• m - element atom massasi
-• n - formuladagi atom soni
-
-🔬 MISOL:
-H₂O uchun:
-M(H₂O) = 2 × 1 + 1 × 16 = 18 g/mol
-
-H₂SO₄ uchun:
-M(H₂SO₄) = 2 × 1 + 1 × 32 + 4 × 16 = 98 g/mol`,
-      answer: "Formula kiriting va molyar massani hisoblang"
-    });
-  }
-  
-  const results: string[] = [];
-  
-  for (const formula of formulas) {
-    const { mass, breakdown } = calculateMolarMass(formula);
-    if (mass > 0) {
-      results.push(`📌 ${formula} uchun:\n${breakdown}\n━━━━━━━━━━━━━━━━━\nM(${formula}) = ${mass} g/mol`);
+// Sonlarni ajratib olish (birliklar bilan)
+function extractNumberWithUnit(text: string, unitPatterns: string[]): { value: number; unit: string } | null {
+  for (const unit of unitPatterns) {
+    const regex = new RegExp(`(\\d+[.,]?\\d*)\\s*${unit}`, 'i');
+    const match = text.match(regex);
+    if (match) {
+      return { value: parseFloat(match[1].replace(',', '.')), unit };
     }
   }
-  
-  if (results.length === 0) {
-    return formatSolution({
-      given: `Formulalar: ${formulas.join(', ')}`,
-      find: "Molyar massa (M)",
-      solution: "Formulani to'g'ri kiritganingizni tekshiring. Masalan: H2O, NaCl, H2SO4",
-      answer: "Formulani tekshiring"
-    });
-  }
-  
-  return formatSolution({
-    given: `Formulalar: ${formulas.join(', ')}`,
-    find: "Molyar massa (M)",
-    solution: results.join('\n\n'),
-    answer: `Molyar massalar hisoblandi`,
-    note: "M = Σ(Ar × n) - atom massalari yig'indisi"
-  });
+  return null;
 }
 
-// Mol soni hisoblash
-function solveMoleCalculation(question: string, formulas: string[], numbers: number[]): string {
-  const lowerQ = question.toLowerCase();
+// Formulani topish
+function findFormula(text: string): string | null {
+  // Keng tarqalgan formulalar
+  const commonFormulas = [
+    'H2O', 'H2', 'O2', 'N2', 'CO2', 'CO', 'HCl', 'H2SO4', 'HNO3', 'H3PO4',
+    'NaOH', 'KOH', 'Ca(OH)2', 'NH3', 'NaCl', 'KCl', 'CaCl2', 'MgCl2',
+    'FeCl2', 'FeCl3', 'ZnCl2', 'AlCl3', 'CuCl2', 'Na2SO4', 'K2SO4',
+    'CaSO4', 'MgSO4', 'FeSO4', 'ZnSO4', 'CuSO4', 'Al2(SO4)3', 'BaSO4',
+    'Na2CO3', 'NaHCO3', 'K2CO3', 'CaCO3', 'MgCO3', 'NaNO3', 'KNO3',
+    'Ca(NO3)2', 'AgNO3', 'Cu(NO3)2', 'Pb(NO3)2', 'Na3PO4', 'Ca3(PO4)2',
+    'CaO', 'MgO', 'Na2O', 'K2O', 'Al2O3', 'Fe2O3', 'FeO', 'Fe3O4',
+    'CuO', 'Cu2O', 'ZnO', 'PbO', 'SO2', 'SO3', 'NO', 'NO2', 'N2O', 'N2O5',
+    'P2O5', 'Cl2', 'Br2', 'I2', 'CH4', 'C2H6', 'C3H8', 'C4H10', 'C2H4',
+    'C3H6', 'C2H2', 'C6H6', 'CH3OH', 'C2H5OH', 'HCHO', 'CH3CHO', 'HCOOH',
+    'CH3COOH', 'C6H12O6', 'C12H22O11', 'AgCl', 'AgBr', 'AgI', 'PbCl2',
+    'PbI2', 'KMnO4', 'K2Cr2O7', 'H2O2', 'H2S', 'NH4Cl', '(NH4)2SO4',
+    'NH4NO3', 'KI', 'KBr', 'NaBr', 'NaI', 'BaCl2', 'Fe(OH)2', 'Fe(OH)3',
+    'Cu(OH)2', 'Zn(OH)2', 'Al(OH)3', 'Mg(OH)2', 'Ba(OH)2'
+  ];
   
-  // Massadan mol hisoblash
-  if (lowerQ.includes('g') || lowerQ.includes('gram') || lowerQ.includes('massa')) {
-    if (formulas.length > 0 && numbers.length > 0) {
-      const formula = formulas[0];
-      const mass = numbers[0];
-      const { mass: molarMass } = calculateMolarMass(formula);
-      
-      if (molarMass > 0) {
-        const moles = calculateMoles(mass, molarMass);
-        
-        return formatSolution({
-          given: `m(${formula}) = ${mass} g`,
-          find: "n(mol soni) = ?",
-          solution: `1️⃣ Molyar massani hisoblaymiz:
-M(${formula}) = ${molarMass} g/mol
-
-2️⃣ Mol sonini hisoblaymiz:
-n = m / M
-n = ${mass} / ${molarMass}
-n = ${moles.toFixed(4)} mol`,
-          answer: `n(${formula}) = ${moles.toFixed(4)} mol ≈ ${moles.toFixed(2)} mol`,
-          note: "n = m/M formulasidan foydalandik"
+  const textUpper = text.toUpperCase();
+  
+  // Qavsli formulalarni tekshirish
+  const bracketMatch = text.match(/([A-Z][a-z]?\d*(?:\([A-Z][a-z]?\d*\)\d*)?(?:[A-Z][a-z]?\d*)*)/g);
+  if (bracketMatch) {
+    for (const formula of bracketMatch) {
+      if (formula.length > 1) {
+        const cleanFormula = formula.replace(/[₀₁₂₃₄₅₆₇₈₉]/g, (m) => {
+          const map: Record<string, string> = {'₀':'0','₁':'1','₂':'2','₃':'3','₄':'4','₅':'5','₆':'6','₇':'7','₈':'8','₉':'9'};
+          return map[m] || m;
         });
+        const { mass } = calculateMolarMass(cleanFormula);
+        if (mass > 0) return cleanFormula;
       }
     }
   }
   
-  // Zarrachalar sonidan mol
-  if (lowerQ.includes('zarracha') || lowerQ.includes('atom') || lowerQ.includes('molekula') || lowerQ.includes('10^') || lowerQ.includes('×10')) {
-    // Katta sonlarni qidirish
-    const bigNumberMatch = question.match(/(\d+[.,]?\d*)\s*[×x·]\s*10\^?(\d+)/i);
-    if (bigNumberMatch) {
-      const coefficient = parseFloat(bigNumberMatch[1].replace(',', '.'));
-      const exponent = parseInt(bigNumberMatch[2]);
-      const particleCount = coefficient * Math.pow(10, exponent);
-      const moles = particleCount / 6.022e23;
-      
-      return formatSolution({
-        given: `N = ${coefficient} × 10²³ ta zarracha`,
-        find: "n(mol) = ?",
-        solution: `Avogadro soni: Nₐ = 6.022 × 10²³ mol⁻¹
-
-n = N / Nₐ
-n = (${coefficient} × 10^${exponent}) / (6.022 × 10²³)
-n = ${moles.toFixed(4)} mol`,
-        answer: `n = ${moles.toFixed(4)} mol ≈ ${moles.toFixed(2)} mol`,
-        note: "n = N/Nₐ formulasidan foydalandik"
-      });
+  // Keng tarqalgan formulalarni tekshirish
+  for (const formula of commonFormulas) {
+    if (textUpper.includes(formula.toUpperCase())) {
+      return formula;
     }
   }
   
-  // Hajmdan mol (gaz uchun)
-  if (lowerQ.includes('litr') || lowerQ.includes('l') || lowerQ.includes('hajm')) {
-    if (numbers.length > 0) {
-      const volume = numbers[0];
-      const moles = volume / 22.4;
-      
-      return formatSolution({
-        given: `V = ${volume} L (normal sharoitda)`,
-        find: "n(mol) = ?",
-        solution: `Normal sharoitda (0°C, 1 atm) 1 mol gaz 22.4 L hajm egallaydi.
+  return null;
+}
 
-n = V / Vₘ
-n = ${volume} / 22.4
-n = ${moles.toFixed(4)} mol`,
-        answer: `n = ${moles.toFixed(4)} mol ≈ ${moles.toFixed(2)} mol`,
-        note: "n = V/Vₘ (Vₘ = 22.4 L/mol normal sharoitda)"
-      });
+// Barcha sonlarni ajratib olish
+function extractAllNumbers(text: string): number[] {
+  const numbers: number[] = [];
+  const regex = /(\d+[.,]?\d*)/g;
+  let match;
+  while ((match = regex.exec(text)) !== null) {
+    const num = parseFloat(match[1].replace(',', '.'));
+    if (!isNaN(num)) numbers.push(num);
+  }
+  return numbers;
+}
+
+// ==================== MASALA YECHIMLARI ====================
+
+// 1. Molyar massa hisoblash
+function solveMolarMass(question: string): string {
+  const formula = findFormula(question);
+  
+  if (!formula) {
+    return formatAnswer({
+      given: "Formula aniqlanmadi",
+      find: "Molyar massa (M)",
+      solution: `Molyar massani hisoblash uchun modda formulasini kiriting.
+
+📝 MOLYAR MASSA FORMULASI:
+M = n₁×Ar₁ + n₂×Ar₂ + ...
+
+Har bir element uchun: atom soni × atom massasi
+
+🔬 MISOLLAR:
+• M(H₂O) = 2×1 + 16 = 18 g/mol
+• M(NaCl) = 23 + 35.5 = 58.5 g/mol
+• M(H₂SO₄) = 2×1 + 32 + 4×16 = 98 g/mol`,
+      answer: "Formula kiriting"
+    });
+  }
+  
+  const { mass, breakdown } = calculateMolarMass(formula);
+  const parsed = parseFormula(formula);
+  
+  let detailedCalc = "Har bir element uchun:\n";
+  for (const [el, count] of Object.entries(parsed)) {
+    if (elements[el]) {
+      detailedCalc += `• ${el}: ${count} × ${elements[el].mass} = ${(count * elements[el].mass).toFixed(3)} g/mol\n`;
     }
   }
   
-  return formatSolution({
-    given: question,
-    find: "Mol soni (n)",
-    solution: `📝 MOL SONINI HISOBLASH FORMULALARI:
-
-1️⃣ Massadan: n = m / M
-   m - massa (g), M - molyar massa (g/mol)
-
-2️⃣ Zarrachalar sonidan: n = N / Nₐ
-   N - zarrachalar soni, Nₐ = 6.022 × 10²³
-
-3️⃣ Gaz hajmidan (n.sh.): n = V / 22.4
-   V - hajm (L), 22.4 L/mol - molar hajm
-
-4️⃣ Konsentratsiyadan: n = C × V
-   C - konsentratsiya (mol/L), V - hajm (L)`,
-    answer: "Kerakli ma'lumotlarni kiriting"
+  return formatAnswer({
+    given: `Modda: ${formula}`,
+    find: "Molyar massa M = ?",
+    solution: `📊 FORMULADAGI ELEMENTLAR:
+${detailedCalc}
+━━━━━━━━━━━━━━━━━━━━━━━━
+Jami: M = ${mass} g/mol`,
+    answer: `M(${formula}) = ${mass} g/mol`,
+    note: "Molyar massa = formuladagi barcha atomlar massalari yig'indisi"
   });
 }
 
-// Massa hisoblash
-function solveMassCalculation(question: string, formulas: string[], numbers: number[]): string {
-  const lowerQ = question.toLowerCase();
+// 2. Massadan mol hisoblash
+function solveMassToMoles(question: string): string {
+  const formula = findFormula(question);
+  const massMatch = extractNumberWithUnit(question, ['g', 'gram', 'gr', 'kg', 'mg']);
   
-  // Reaksiya bo'yicha massa hisoblash
-  if (lowerQ.includes('reaksiya') || lowerQ.includes('hosil') || lowerQ.includes('→') || lowerQ.includes('->')) {
-    return solveReactionMass(question, formulas, numbers);
+  if (!formula || !massMatch) {
+    return formatAnswer({
+      given: question,
+      find: "Mol soni (n)",
+      solution: `📝 MOL SONINI HISOBLASH:
+
+n = m / M
+
+• m - massa (g)
+• M - molyar massa (g/mol)
+• n - mol soni
+
+Masala: "10 g NaCl da necha mol bor?"
+Yechim: n = 10 / 58.5 = 0.171 mol`,
+      answer: "Massa va formulani kiriting"
+    });
   }
   
-  // Mol sonidan massa
-  if ((lowerQ.includes('mol') && numbers.length > 0 && formulas.length > 0)) {
-    const formula = formulas[0];
-    const moles = numbers[0];
-    const { mass: molarMass } = calculateMolarMass(formula);
-    
-    if (molarMass > 0) {
-      const mass = calculateMass(moles, molarMass);
-      
-      return formatSolution({
-        given: `n(${formula}) = ${moles} mol`,
-        find: "m(massa) = ?",
-        solution: `1️⃣ Molyar massani hisoblaymiz:
+  let mass = massMatch.value;
+  if (massMatch.unit === 'kg') mass *= 1000;
+  if (massMatch.unit === 'mg') mass /= 1000;
+  
+  const { mass: molarMass } = calculateMolarMass(formula);
+  const moles = mass / molarMass;
+  const particles = moles * 6.022e23;
+  
+  return formatAnswer({
+    given: `m(${formula}) = ${mass} g`,
+    find: "n (mol soni) = ?",
+    solution: `1️⃣ MOLYAR MASSANI HISOBLAYMIZ:
 M(${formula}) = ${molarMass} g/mol
 
-2️⃣ Massani hisoblaymiz:
+2️⃣ MOL SONINI HISOBLAYMIZ:
+n = m / M
+n = ${mass} / ${molarMass}
+n = ${moles.toFixed(6)} mol
+
+3️⃣ ZARRACHALAR SONI:
+N = n × Nₐ = ${moles.toFixed(4)} × 6.022×10²³
+N = ${particles.toExponential(3)} ta`,
+    answer: `n(${formula}) = ${moles.toFixed(4)} mol ≈ ${moles.toFixed(2)} mol`,
+    note: `${mass} g ${formula} da ${moles.toFixed(4)} mol yoki ${particles.toExponential(2)} ta molekula bor`
+  });
+}
+
+// 3. Moldan massa hisoblash
+function solveMolesToMass(question: string): string {
+  const formula = findFormula(question);
+  const numbers = extractAllNumbers(question);
+  const molMatch = question.toLowerCase().match(/(\d+[.,]?\d*)\s*mol/);
+  
+  if (!formula || !molMatch) {
+    return formatAnswer({
+      given: question,
+      find: "Massa (m)",
+      solution: `📝 MASSANI HISOBLASH:
+
+m = n × M
+
+• n - mol soni
+• M - molyar massa (g/mol)
+• m - massa (g)
+
+Masala: "2 mol H₂O ning massasi qancha?"
+Yechim: m = 2 × 18 = 36 g`,
+      answer: "Mol soni va formulani kiriting"
+    });
+  }
+  
+  const moles = parseFloat(molMatch[1].replace(',', '.'));
+  const { mass: molarMass } = calculateMolarMass(formula);
+  const mass = moles * molarMass;
+  
+  return formatAnswer({
+    given: `n(${formula}) = ${moles} mol`,
+    find: "m (massa) = ?",
+    solution: `1️⃣ MOLYAR MASSANI HISOBLAYMIZ:
+M(${formula}) = ${molarMass} g/mol
+
+2️⃣ MASSANI HISOBLAYMIZ:
 m = n × M
 m = ${moles} × ${molarMass}
 m = ${mass.toFixed(3)} g`,
-        answer: `m(${formula}) = ${mass.toFixed(3)} g`,
-        note: "m = n × M formulasidan foydalandik"
-      });
-    }
-  }
-  
-  return formatSolution({
-    given: question,
-    find: "Massa (m)",
-    solution: `📝 MASSA HISOBLASH FORMULALARI:
-
-1️⃣ Mol sonidan: m = n × M
-   n - mol soni, M - molyar massa (g/mol)
-
-2️⃣ Zichlikdan: m = ρ × V
-   ρ - zichlik (g/mL), V - hajm (mL)
-
-3️⃣ Massa ulushidan: m = ω × m(eritma) / 100
-   ω - massa ulushi (%)`,
-    answer: "Kerakli ma'lumotlarni kiriting"
+    answer: `m(${formula}) = ${mass.toFixed(3)} g`,
+    note: `${moles} mol ${formula} ning massasi ${mass.toFixed(2)} gramm`
   });
 }
 
-// Reaksiya bo'yicha massa hisoblash
-function solveReactionMass(question: string, formulas: string[], numbers: number[]): string {
-  // Mashhur reaksiyalar
-  const reactions: Record<string, { equation: string; reactants: string[]; products: string[]; coefficients: number[] }> = {
-    "H2+O2": {
-      equation: "2H₂ + O₂ → 2H₂O",
-      reactants: ["H2", "O2"],
-      products: ["H2O"],
-      coefficients: [2, 1, 2]
-    },
-    "Na+Cl2": {
-      equation: "2Na + Cl₂ → 2NaCl",
-      reactants: ["Na", "Cl2"],
-      products: ["NaCl"],
-      coefficients: [2, 1, 2]
-    },
-    "Zn+HCl": {
-      equation: "Zn + 2HCl → ZnCl₂ + H₂",
-      reactants: ["Zn", "HCl"],
-      products: ["ZnCl2", "H2"],
-      coefficients: [1, 2, 1, 1]
-    },
-    "Fe+O2": {
-      equation: "4Fe + 3O₂ → 2Fe₂O₃",
-      reactants: ["Fe", "O2"],
-      products: ["Fe2O3"],
-      coefficients: [4, 3, 2]
-    },
-    "CaCO3": {
-      equation: "CaCO₃ → CaO + CO₂",
-      reactants: ["CaCO3"],
-      products: ["CaO", "CO2"],
-      coefficients: [1, 1, 1]
-    },
-    "CH4+O2": {
-      equation: "CH₄ + 2O₂ → CO₂ + 2H₂O",
-      reactants: ["CH4", "O2"],
-      products: ["CO2", "H2O"],
-      coefficients: [1, 2, 1, 2]
-    },
-    "NaOH+HCl": {
-      equation: "NaOH + HCl → NaCl + H₂O",
-      reactants: ["NaOH", "HCl"],
-      products: ["NaCl", "H2O"],
-      coefficients: [1, 1, 1, 1]
-    },
-    "Mg+HCl": {
-      equation: "Mg + 2HCl → MgCl₂ + H₂",
-      reactants: ["Mg", "HCl"],
-      products: ["MgCl2", "H2"],
-      coefficients: [1, 2, 1, 1]
-    },
-    "Al+O2": {
-      equation: "4Al + 3O₂ → 2Al₂O₃",
-      reactants: ["Al", "O2"],
-      products: ["Al2O3"],
-      coefficients: [4, 3, 2]
-    },
-    "C+O2": {
-      equation: "C + O₂ → CO₂",
-      reactants: ["C", "O2"],
-      products: ["CO2"],
-      coefficients: [1, 1, 1]
-    },
-    "S+O2": {
-      equation: "S + O₂ → SO₂",
-      reactants: ["S", "O2"],
-      products: ["SO2"],
-      coefficients: [1, 1, 1]
-    },
-    "N2+H2": {
-      equation: "N₂ + 3H₂ ⇌ 2NH₃",
-      reactants: ["N2", "H2"],
-      products: ["NH3"],
-      coefficients: [1, 3, 2]
-    },
-    "Cu+O2": {
-      equation: "2Cu + O₂ → 2CuO",
-      reactants: ["Cu", "O2"],
-      products: ["CuO"],
-      coefficients: [2, 1, 2]
-    },
-    "Zn+H2SO4": {
-      equation: "Zn + H₂SO₄ → ZnSO₄ + H₂",
-      reactants: ["Zn", "H2SO4"],
-      products: ["ZnSO4", "H2"],
-      coefficients: [1, 1, 1, 1]
-    },
-    "Fe+HCl": {
-      equation: "Fe + 2HCl → FeCl₂ + H₂",
-      reactants: ["Fe", "HCl"],
-      products: ["FeCl2", "H2"],
-      coefficients: [1, 2, 1, 1]
-    },
-    "CaO+H2O": {
-      equation: "CaO + H₂O → Ca(OH)₂",
-      reactants: ["CaO", "H2O"],
-      products: ["Ca(OH)2"],
-      coefficients: [1, 1, 1]
-    },
-    "Na2CO3+HCl": {
-      equation: "Na₂CO₃ + 2HCl → 2NaCl + H₂O + CO₂",
-      reactants: ["Na2CO3", "HCl"],
-      products: ["NaCl", "H2O", "CO2"],
-      coefficients: [1, 2, 2, 1, 1]
-    }
-  };
+// 4. Gaz hajmi hisoblash
+function solveGasVolume(question: string): string {
+  const formula = findFormula(question);
+  const massMatch = extractNumberWithUnit(question, ['g', 'gram', 'gr', 'kg']);
+  const molMatch = question.toLowerCase().match(/(\d+[.,]?\d*)\s*mol/);
   
-  // Formulalarni tekshirish
-  if (formulas.length >= 1 && numbers.length >= 1) {
-    const givenFormula = formulas[0];
-    const givenMass = numbers[0];
-    const { mass: givenMolarMass } = calculateMolarMass(givenFormula);
+  // Massadan hajm
+  if (formula && massMatch) {
+    let mass = massMatch.value;
+    if (massMatch.unit === 'kg') mass *= 1000;
     
-    if (givenMolarMass > 0) {
-      const givenMoles = givenMass / givenMolarMass;
-      
-      // Agar ikkinchi formula bor bo'lsa
-      if (formulas.length >= 2) {
-        const targetFormula = formulas[1];
-        const { mass: targetMolarMass } = calculateMolarMass(targetFormula);
-        
-        if (targetMolarMass > 0) {
-          // Koeffitsientlarni topish (oddiy holat - 1:1)
-          const targetMoles = givenMoles; // Oddiy holat
-          const targetMass = targetMoles * targetMolarMass;
-          
-          return formatSolution({
-            given: `m(${givenFormula}) = ${givenMass} g`,
-            find: `m(${targetFormula}) = ?`,
-            solution: `1️⃣ Berilgan moddaning molyar massasi:
-M(${givenFormula}) = ${givenMolarMass} g/mol
+    const { mass: molarMass } = calculateMolarMass(formula);
+    const moles = mass / molarMass;
+    const volume = moles * 22.4;
+    
+    return formatAnswer({
+      given: `m(${formula}) = ${mass} g`,
+      find: "V (hajm, n.sh.) = ?",
+      solution: `1️⃣ MOLYAR MASSA:
+M(${formula}) = ${molarMass} g/mol
 
-2️⃣ Mol sonini hisoblaymiz:
-n(${givenFormula}) = m / M = ${givenMass} / ${givenMolarMass} = ${givenMoles.toFixed(4)} mol
+2️⃣ MOL SONI:
+n = m / M = ${mass} / ${molarMass} = ${moles.toFixed(4)} mol
 
-3️⃣ Maqsad moddaning molyar massasi:
-M(${targetFormula}) = ${targetMolarMass} g/mol
-
-4️⃣ Reaksiya tenglamasidan (1:1 nisbatda):
-n(${targetFormula}) = n(${givenFormula}) = ${givenMoles.toFixed(4)} mol
-
-5️⃣ Maqsad modda massasi:
-m(${targetFormula}) = n × M = ${givenMoles.toFixed(4)} × ${targetMolarMass} = ${targetMass.toFixed(3)} g`,
-            answer: `m(${targetFormula}) = ${targetMass.toFixed(3)} g`,
-            note: "Koeffitsientlar 1:1 deb qabul qilindi. Haqiqiy reaksiyada koeffitsientlarni tekshiring!"
-          });
-        }
-      }
-      
-      // Umumiy yechim
-      return formatSolution({
-        given: `m(${givenFormula}) = ${givenMass} g`,
-        find: "Hosil bo'ladigan modda massasi",
-        solution: `1️⃣ Berilgan moddaning molyar massasi:
-M(${givenFormula}) = ${givenMolarMass} g/mol
-
-2️⃣ Mol sonini hisoblaymiz:
-n(${givenFormula}) = m / M = ${givenMass} / ${givenMolarMass} = ${givenMoles.toFixed(4)} mol
-
-📝 KEYINGI QADAM:
-Reaksiya tenglamasidagi koeffitsientlarga qarab hosil bo'ladigan modda mol sonini toping.
-
-Masalan:
-2H₂ + O₂ → 2H₂O reaksiyasida:
-• 2 mol H₂ dan 2 mol H₂O hosil bo'ladi (nisbat 1:1)
-• 1 mol O₂ dan 2 mol H₂O hosil bo'ladi (nisbat 1:2)`,
-        answer: `n(${givenFormula}) = ${givenMoles.toFixed(4)} mol`
-      });
-    }
+3️⃣ HAJM (normal sharoitda):
+V = n × Vₘ = ${moles.toFixed(4)} × 22.4
+V = ${volume.toFixed(3)} L`,
+      answer: `V(${formula}) = ${volume.toFixed(2)} L (n.sh.)`,
+      note: "Normal sharoit: 0°C (273 K), 1 atm. Vₘ = 22.4 L/mol"
+    });
   }
   
-  return formatSolution({
+  // Moldan hajm
+  if (molMatch) {
+    const moles = parseFloat(molMatch[1].replace(',', '.'));
+    const volume = moles * 22.4;
+    
+    return formatAnswer({
+      given: `n = ${moles} mol`,
+      find: "V (hajm, n.sh.) = ?",
+      solution: `Normal sharoitda 1 mol gazning hajmi Vₘ = 22.4 L
+
+V = n × Vₘ
+V = ${moles} × 22.4
+V = ${volume.toFixed(2)} L`,
+      answer: `V = ${volume.toFixed(2)} L`,
+      note: "Vₘ = 22.4 L/mol (normal sharoitda)"
+    });
+  }
+  
+  return formatAnswer({
     given: question,
-    find: "Reaksiya bo'yicha massa",
-    solution: `📝 REAKSIYA BO'YICHA HISOBLASH:
+    find: "Gaz hajmi",
+    solution: `📝 GAZ HAJMI FORMULALARI:
 
-1. Berilgan modda mol sonini toping: n = m/M
-2. Reaksiya koeffitsientlari bo'yicha kerakli modda mol sonini toping
-3. Massani hisoblang: m = n × M
+🔹 Normal sharoit (0°C, 1 atm):
+V = n × 22.4 L
 
-⚗️ MASHHUR REAKSIYALAR:
-• 2H₂ + O₂ → 2H₂O
-• Zn + 2HCl → ZnCl₂ + H₂
-• CaCO₃ → CaO + CO₂
-• NaOH + HCl → NaCl + H₂O
-• N₂ + 3H₂ ⇌ 2NH₃`,
-    answer: "Modda formulasi va massasini kiriting"
+🔹 Ideal gaz tenglamasi:
+PV = nRT
+V = nRT/P
+
+R = 8.314 J/(mol·K)`,
+    answer: "Mol soni yoki massani kiriting"
   });
 }
 
-// Konsentratsiya hisoblash
-function solveConcentration(question: string, numbers: number[]): string {
+// 5. Hajmdan mol/massa
+function solveVolumeToMoles(question: string): string {
+  const formula = findFormula(question);
+  const volMatch = extractNumberWithUnit(question, ['l', 'litr', 'L', 'ml', 'mL']);
+  
+  if (!volMatch) {
+    return formatAnswer({
+      given: question,
+      find: "Mol soni",
+      solution: `📝 HAJMDAN MOL HISOBLASH:
+
+n = V / Vₘ = V / 22.4
+
+• V - hajm (L)
+• Vₘ = 22.4 L/mol (n.sh.)`,
+      answer: "Hajmni kiriting (L)"
+    });
+  }
+  
+  let volume = volMatch.value;
+  if (volMatch.unit.toLowerCase() === 'ml') volume /= 1000;
+  
+  const moles = volume / 22.4;
+  
+  let result = `1️⃣ MOL SONINI HISOBLAYMIZ:
+n = V / Vₘ = ${volume} / 22.4 = ${moles.toFixed(4)} mol`;
+
+  if (formula) {
+    const { mass: molarMass } = calculateMolarMass(formula);
+    const mass = moles * molarMass;
+    result += `
+
+2️⃣ MASSANI HISOBLAYMIZ:
+M(${formula}) = ${molarMass} g/mol
+m = n × M = ${moles.toFixed(4)} × ${molarMass} = ${mass.toFixed(3)} g`;
+    
+    return formatAnswer({
+      given: `V(${formula}) = ${volume} L (n.sh.)`,
+      find: "n = ?, m = ?",
+      solution: result,
+      answer: `n = ${moles.toFixed(4)} mol, m = ${mass.toFixed(2)} g`
+    });
+  }
+  
+  return formatAnswer({
+    given: `V = ${volume} L (n.sh.)`,
+    find: "n (mol soni) = ?",
+    solution: result,
+    answer: `n = ${moles.toFixed(4)} mol`
+  });
+}
+
+// 6. pH hisoblash
+function solvePH(question: string): string {
+  const numbers = extractAllNumbers(question);
   const lowerQ = question.toLowerCase();
   
+  // Konsentratsiyadan pH
+  if (numbers.length > 0) {
+    const conc = numbers[0];
+    
+    // Kislota
+    if (lowerQ.includes('kislota') || lowerQ.includes('h+') || lowerQ.includes('hcl') || 
+        lowerQ.includes('h2so4') || lowerQ.includes('hno3')) {
+      const pH = -Math.log10(conc);
+      const pOH = 14 - pH;
+      const ohConc = Math.pow(10, -pOH);
+      
+      return formatAnswer({
+        given: `[H⁺] = ${conc} mol/L`,
+        find: "pH = ?",
+        solution: `1️⃣ pH HISOBLAYMIZ:
+pH = -log[H⁺]
+pH = -log(${conc})
+pH = ${pH.toFixed(2)}
+
+2️⃣ pOH HISOBLAYMIZ:
+pOH = 14 - pH = 14 - ${pH.toFixed(2)} = ${pOH.toFixed(2)}
+
+3️⃣ [OH⁻] KONSENTRATSIYASI:
+[OH⁻] = 10^(-pOH) = ${ohConc.toExponential(2)} mol/L`,
+        answer: `pH = ${pH.toFixed(2)}`,
+        note: pH < 7 ? "Kislotali muhit (pH < 7)" : pH > 7 ? "Ishqoriy muhit (pH > 7)" : "Neytral muhit"
+      });
+    }
+    
+    // Ishqor
+    if (lowerQ.includes('ishqor') || lowerQ.includes('oh') || lowerQ.includes('naoh') || lowerQ.includes('koh')) {
+      const pOH = -Math.log10(conc);
+      const pH = 14 - pOH;
+      const hConc = Math.pow(10, -pH);
+      
+      return formatAnswer({
+        given: `[OH⁻] = ${conc} mol/L`,
+        find: "pH = ?",
+        solution: `1️⃣ pOH HISOBLAYMIZ:
+pOH = -log[OH⁻]
+pOH = -log(${conc})
+pOH = ${pOH.toFixed(2)}
+
+2️⃣ pH HISOBLAYMIZ:
+pH = 14 - pOH = 14 - ${pOH.toFixed(2)} = ${pH.toFixed(2)}
+
+3️⃣ [H⁺] KONSENTRATSIYASI:
+[H⁺] = 10^(-pH) = ${hConc.toExponential(2)} mol/L`,
+        answer: `pH = ${pH.toFixed(2)}`,
+        note: "Ishqoriy muhit (pH > 7)"
+      });
+    }
+    
+    // pH berilgan, konsentratsiya topish
+    if (lowerQ.includes('ph') && conc >= 0 && conc <= 14) {
+      const hConc = Math.pow(10, -conc);
+      const ohConc = Math.pow(10, -(14 - conc));
+      
+      return formatAnswer({
+        given: `pH = ${conc}`,
+        find: "[H⁺] = ?, [OH⁻] = ?",
+        solution: `1️⃣ VODOROD IONLARI KONSENTRATSIYASI:
+[H⁺] = 10^(-pH) = 10^(-${conc})
+[H⁺] = ${hConc.toExponential(2)} mol/L
+
+2️⃣ GIDROKSID IONLARI KONSENTRATSIYASI:
+pOH = 14 - pH = ${14 - conc}
+[OH⁻] = 10^(-pOH) = ${ohConc.toExponential(2)} mol/L
+
+3️⃣ TEKSHIRISH:
+[H⁺] × [OH⁻] = ${(hConc * ohConc).toExponential(2)} ≈ 10⁻¹⁴ ✓`,
+        answer: `[H⁺] = ${hConc.toExponential(2)} mol/L`,
+        note: conc < 7 ? "Kislotali muhit" : conc > 7 ? "Ishqoriy muhit" : "Neytral muhit"
+      });
+    }
+  }
+  
+  return formatAnswer({
+    given: question,
+    find: "pH",
+    solution: `📝 pH FORMULALARI:
+
+• pH = -log[H⁺]
+• pOH = -log[OH⁻]
+• pH + pOH = 14
+• [H⁺] = 10^(-pH)
+• [OH⁻] = 10^(-pOH)
+• Kw = [H⁺]×[OH⁻] = 10⁻¹⁴
+
+📊 pH SHKALA:
+0-3: Kuchli kislota
+3-6: Kuchsiz kislota
+7: Neytral (sof suv)
+8-11: Kuchsiz ishqor
+11-14: Kuchli ishqor`,
+    answer: "Konsentratsiya yoki pH qiymatini kiriting"
+  });
+}
+
+// 7. Konsentratsiya hisoblash
+function solveConcentration(question: string): string {
+  const formula = findFormula(question);
+  const numbers = extractAllNumbers(question);
+  const lowerQ = question.toLowerCase();
+  
+  // Massa va hajm berilgan
   if (numbers.length >= 2) {
-    // Mol va hajm berilgan
-    if (lowerQ.includes('mol') && (lowerQ.includes('litr') || lowerQ.includes('l'))) {
-      const moles = numbers[0];
-      const volume = numbers[1];
+    const massMatch = extractNumberWithUnit(question, ['g', 'gram', 'kg', 'mg']);
+    const volMatch = extractNumberWithUnit(question, ['l', 'litr', 'ml', 'L', 'mL']);
+    
+    if (massMatch && volMatch && formula) {
+      let mass = massMatch.value;
+      if (massMatch.unit === 'kg') mass *= 1000;
+      if (massMatch.unit === 'mg') mass /= 1000;
+      
+      let volume = volMatch.value;
+      if (volMatch.unit.toLowerCase() === 'ml') volume /= 1000;
+      
+      const { mass: molarMass } = calculateMolarMass(formula);
+      const moles = mass / molarMass;
       const concentration = moles / volume;
       
-      return formatSolution({
-        given: `n = ${moles} mol, V = ${volume} L`,
-        find: "C (konsentratsiya) = ?",
-        solution: `Molyar konsentratsiya formulasi:
-C = n / V
+      return formatAnswer({
+        given: `m(${formula}) = ${mass} g, V = ${volume} L`,
+        find: "C (molyar konsentratsiya) = ?",
+        solution: `1️⃣ MOLYAR MASSA:
+M(${formula}) = ${molarMass} g/mol
 
-C = ${moles} / ${volume}
+2️⃣ MOL SONI:
+n = m / M = ${mass} / ${molarMass} = ${moles.toFixed(4)} mol
+
+3️⃣ MOLYAR KONSENTRATSIYA:
+C = n / V = ${moles.toFixed(4)} / ${volume}
 C = ${concentration.toFixed(4)} mol/L`,
         answer: `C = ${concentration.toFixed(4)} mol/L ≈ ${concentration.toFixed(2)} M`,
         note: "M = mol/L (molyarlik)"
       });
     }
     
-    // Massa va hajm berilgan
-    if ((lowerQ.includes('g') || lowerQ.includes('gram')) && (lowerQ.includes('ml') || lowerQ.includes('l'))) {
-      return formatSolution({
-        given: `Massa va hajm berilgan`,
-        find: "Konsentratsiya",
-        solution: `Konsentratsiya hisoblash:
-
-1️⃣ Molyar konsentratsiya:
-C = n/V = m/(M × V)
-
-2️⃣ Massa ulushi (foiz):
-ω = (m₁/m₂) × 100%
-
-3️⃣ Molal konsentratsiya:
-Cm = n / m(erituvchi, kg)`,
-        answer: "Ma'lumotlarni aniqroq kiriting"
+    // Mol va hajm
+    if (lowerQ.includes('mol') && (lowerQ.includes('litr') || lowerQ.includes('l'))) {
+      const moles = numbers[0];
+      const volume = numbers[1];
+      const concentration = moles / volume;
+      
+      return formatAnswer({
+        given: `n = ${moles} mol, V = ${volume} L`,
+        find: "C = ?",
+        solution: `C = n / V = ${moles} / ${volume} = ${concentration.toFixed(4)} mol/L`,
+        answer: `C = ${concentration.toFixed(4)} mol/L`
       });
     }
   }
   
-  return formatSolution({
+  return formatAnswer({
     given: question,
     find: "Konsentratsiya",
-    solution: `📝 KONSENTRATSIYA TURLARI:
+    solution: `📝 KONSENTRATSIYA FORMULALARI:
 
-1️⃣ MOLYAR (C, M):
-C = n/V (mol/L)
+🔹 Molyar konsentratsiya (M):
+C = n / V (mol/L)
 
-2️⃣ MASSA ULUSHI (ω):
-ω = m(erigan)/m(eritma) × 100%
+🔹 Massa ulushi (%):
+ω = m(erigan) / m(eritma) × 100%
 
-3️⃣ MOLAL (Cm):
-Cm = n(erigan)/m(erituvchi, kg)
-
-4️⃣ MOL ULUSHI (χ):
-χ = n₁/(n₁ + n₂)
-
-🔬 SUYULTIRISH:
+🔹 Suyultirish:
 C₁V₁ = C₂V₂`,
-    answer: "Mol soni va hajm kiriting"
+    answer: "Mol va hajm yoki massa va hajm kiriting"
   });
 }
 
-// pH hisoblash
-function solvePHCalculation(question: string, numbers: number[]): string {
-  const lowerQ = question.toLowerCase();
+// 8. Reaksiya bo'yicha hisoblash
+function solveReaction(question: string): string {
+  const formulas: string[] = [];
+  const textUpper = question.toUpperCase();
   
-  if (numbers.length > 0) {
-    const value = numbers[0];
-    
-    // Konsentratsiyadan pH
-    if (lowerQ.includes('mol') || lowerQ.includes('m') || lowerQ.includes('konsentratsiya')) {
-      if (lowerQ.includes('kislota') || lowerQ.includes('h+') || lowerQ.includes('hcl') || lowerQ.includes('h2so4')) {
-        const pH = -Math.log10(value);
-        const pOH = 14 - pH;
-        
-        return formatSolution({
-          given: `[H⁺] = ${value} mol/L`,
-          find: "pH = ?",
-          solution: `pH = -log[H⁺]
-pH = -log(${value})
-pH = ${pH.toFixed(2)}
-
-pOH = 14 - pH = 14 - ${pH.toFixed(2)} = ${pOH.toFixed(2)}`,
-          answer: `pH = ${pH.toFixed(2)}`,
-          note: `pH < 7 - kislotali muhit, pH = 7 - neytral, pH > 7 - ishqoriy muhit`
-        });
-      }
-      
-      if (lowerQ.includes('ishqor') || lowerQ.includes('oh') || lowerQ.includes('naoh') || lowerQ.includes('koh')) {
-        const pOH = -Math.log10(value);
-        const pH = 14 - pOH;
-        
-        return formatSolution({
-          given: `[OH⁻] = ${value} mol/L`,
-          find: "pH = ?",
-          solution: `pOH = -log[OH⁻]
-pOH = -log(${value})
-pOH = ${pOH.toFixed(2)}
-
-pH = 14 - pOH = 14 - ${pOH.toFixed(2)} = ${pH.toFixed(2)}`,
-          answer: `pH = ${pH.toFixed(2)}`,
-          note: `pH + pOH = 14 (25°C da)`
-        });
-      }
-    }
-    
-    // pH dan konsentratsiya
-    if (lowerQ.includes('ph') && value >= 0 && value <= 14) {
-      const hConc = Math.pow(10, -value);
-      const ohConc = Math.pow(10, -(14 - value));
-      
-      return formatSolution({
-        given: `pH = ${value}`,
-        find: "[H⁺] = ?, [OH⁻] = ?",
-        solution: `[H⁺] = 10^(-pH)
-[H⁺] = 10^(-${value})
-[H⁺] = ${hConc.toExponential(2)} mol/L
-
-[OH⁻] = 10^(-pOH) = 10^(-(14-pH))
-[OH⁻] = 10^(-${14 - value})
-[OH⁻] = ${ohConc.toExponential(2)} mol/L`,
-        answer: `[H⁺] = ${hConc.toExponential(2)} mol/L, [OH⁻] = ${ohConc.toExponential(2)} mol/L`,
-        note: "[H⁺] × [OH⁻] = 10⁻¹⁴ (suv ion ko'paytmasi)"
-      });
+  // Formulalarni topish
+  const commonFormulas = [
+    'H2O', 'H2', 'O2', 'N2', 'CO2', 'HCl', 'H2SO4', 'NaOH', 'NaCl', 'KOH',
+    'CaCO3', 'CaO', 'Ca(OH)2', 'NH3', 'ZnCl2', 'FeCl2', 'FeCl3', 'CuO',
+    'Fe2O3', 'Al2O3', 'MgO', 'SO2', 'SO3', 'NO2', 'CH4', 'C2H5OH'
+  ];
+  
+  for (const f of commonFormulas) {
+    if (textUpper.includes(f.toUpperCase())) {
+      formulas.push(f);
     }
   }
   
-  return formatSolution({
+  const massMatch = extractNumberWithUnit(question, ['g', 'gram', 'kg']);
+  
+  if (formulas.length >= 1 && massMatch) {
+    const givenFormula = formulas[0];
+    let mass = massMatch.value;
+    if (massMatch.unit === 'kg') mass *= 1000;
+    
+    const { mass: molarMass } = calculateMolarMass(givenFormula);
+    const moles = mass / molarMass;
+    
+    // Mashhur reaksiyalar
+    const reactions: Record<string, { eq: string; ratio: Record<string, number> }> = {
+      'H2+O2': { eq: '2H₂ + O₂ → 2H₂O', ratio: { 'H2': 2, 'O2': 1, 'H2O': 2 } },
+      'Zn+HCl': { eq: 'Zn + 2HCl → ZnCl₂ + H₂↑', ratio: { 'Zn': 1, 'HCl': 2, 'ZnCl2': 1, 'H2': 1 } },
+      'CaCO3': { eq: 'CaCO₃ → CaO + CO₂↑', ratio: { 'CaCO3': 1, 'CaO': 1, 'CO2': 1 } },
+      'NaOH+HCl': { eq: 'NaOH + HCl → NaCl + H₂O', ratio: { 'NaOH': 1, 'HCl': 1, 'NaCl': 1, 'H2O': 1 } },
+      'Fe+O2': { eq: '4Fe + 3O₂ → 2Fe₂O₃', ratio: { 'Fe': 4, 'O2': 3, 'Fe2O3': 2 } },
+      'CH4+O2': { eq: 'CH₄ + 2O₂ → CO₂ + 2H₂O', ratio: { 'CH4': 1, 'O2': 2, 'CO2': 1, 'H2O': 2 } },
+    };
+    
+    let solution = `1️⃣ BERILGAN MODDA:
+M(${givenFormula}) = ${molarMass} g/mol
+n(${givenFormula}) = m/M = ${mass}/${molarMass} = ${moles.toFixed(4)} mol
+
+2️⃣ REAKSIYALAR BO'YICHA:`;
+
+    // Har bir mumkin bo'lgan reaksiya uchun
+    if (formulas.length >= 2) {
+      const targetFormula = formulas[1];
+      const { mass: targetMolarMass } = calculateMolarMass(targetFormula);
+      const targetMoles = moles; // 1:1 nisbat (oddiy holat)
+      const targetMass = targetMoles * targetMolarMass;
+      
+      solution += `
+      
+Agar nisbat 1:1 bo'lsa:
+n(${targetFormula}) = n(${givenFormula}) = ${moles.toFixed(4)} mol
+m(${targetFormula}) = n × M = ${moles.toFixed(4)} × ${targetMolarMass} = ${targetMass.toFixed(3)} g`;
+      
+      return formatAnswer({
+        given: `m(${givenFormula}) = ${mass} g`,
+        find: `m(${targetFormula}) = ?`,
+        solution: solution,
+        answer: `m(${targetFormula}) = ${targetMass.toFixed(2)} g (1:1 nisbatda)`,
+        note: "Haqiqiy koeffitsientlarni reaksiya tenglamasidan oling!"
+      });
+    }
+    
+    return formatAnswer({
+      given: `m(${givenFormula}) = ${mass} g`,
+      find: "Hosil bo'ladigan moddalar massasi",
+      solution: solution + `
+
+📝 KEYINGI QADAM:
+Reaksiya tenglamasini yozing va koeffitsientlar bo'yicha boshqa moddalar mol sonini toping.
+
+MASHHUR REAKSIYALAR:
+• 2H₂ + O₂ → 2H₂O
+• Zn + 2HCl → ZnCl₂ + H₂
+• CaCO₃ → CaO + CO₂
+• NaOH + HCl → NaCl + H₂O`,
+      answer: `n(${givenFormula}) = ${moles.toFixed(4)} mol`
+    });
+  }
+  
+  return formatAnswer({
     given: question,
-    find: "pH yoki pOH",
-    solution: `📝 pH HISOBLASH:
+    find: "Reaksiya bo'yicha hisob",
+    solution: `📝 REAKSIYA BO'YICHA HISOBLASH ALGORITMI:
 
-1️⃣ pH = -log[H⁺]
-2️⃣ pOH = -log[OH⁻]
-3️⃣ pH + pOH = 14 (25°C da)
-4️⃣ [H⁺] = 10^(-pH)
-5️⃣ [OH⁻] = 10^(-pOH)
+1️⃣ Berilgan modda mol sonini toping: n = m/M
 
-📊 pH SHKALA:
-• pH = 0-3: Kuchli kislota
-• pH = 3-6: Kuchsiz kislota
-• pH = 7: Neytral
-• pH = 8-11: Kuchsiz ishqor
-• pH = 11-14: Kuchli ishqor`,
-    answer: "Konsentratsiya yoki pH qiymatini kiriting"
+2️⃣ Reaksiya tenglamasini yozing va tenglashtiring
+
+3️⃣ Koeffitsientlar nisbatidan kerakli modda mol sonini toping
+
+4️⃣ Kerakli modda massasini hisoblang: m = n × M
+
+⚗️ MISOL:
+"4g H₂ dan qancha H₂O hosil bo'ladi?"
+2H₂ + O₂ → 2H₂O (nisbat 2:2 = 1:1)
+n(H₂) = 4/2 = 2 mol
+n(H₂O) = 2 mol (1:1)
+m(H₂O) = 2 × 18 = 36 g`,
+    answer: "Modda formulasi va massasini kiriting"
   });
 }
 
-// Gaz hajmi hisoblash
-function solveGasVolume(question: string, formulas: string[], numbers: number[]): string {
+// 9. Massa ulushi (foiz)
+function solvePercent(question: string): string {
+  const formula = findFormula(question);
+  const numbers = extractAllNumbers(question);
   const lowerQ = question.toLowerCase();
   
-  // Massadan hajm
-  if (numbers.length > 0 && formulas.length > 0) {
-    const formula = formulas[0];
+  // Elementning massa ulushi
+  if (formula && (lowerQ.includes('element') || lowerQ.includes('ulush') || lowerQ.includes('%'))) {
     const { mass: molarMass } = calculateMolarMass(formula);
+    const parsed = parseFormula(formula);
     
-    if (molarMass > 0) {
-      const mass = numbers[0];
-      const moles = mass / molarMass;
-      const volume = moles * 22.4;
-      
-      return formatSolution({
-        given: `m(${formula}) = ${mass} g`,
-        find: "V (hajm, n.sh.) = ?",
-        solution: `1️⃣ Molyar massa:
-M(${formula}) = ${molarMass} g/mol
-
-2️⃣ Mol soni:
-n = m/M = ${mass}/${molarMass} = ${moles.toFixed(4)} mol
-
-3️⃣ Hajm (normal sharoitda):
-V = n × Vₘ = ${moles.toFixed(4)} × 22.4 = ${volume.toFixed(3)} L`,
-        answer: `V(${formula}) = ${volume.toFixed(3)} L (n.sh.)`,
-        note: "Normal sharoit: 0°C (273 K), 1 atm (101.325 kPa)"
-      });
+    let solution = `M(${formula}) = ${molarMass} g/mol\n\nHar bir elementning massa ulushi:\n`;
+    const results: string[] = [];
+    
+    for (const [el, count] of Object.entries(parsed)) {
+      if (elements[el]) {
+        const elementMass = elements[el].mass * count;
+        const percent = (elementMass / molarMass) * 100;
+        solution += `• ω(${el}) = (${count} × ${elements[el].mass}) / ${molarMass} × 100% = ${percent.toFixed(2)}%\n`;
+        results.push(`ω(${el}) = ${percent.toFixed(2)}%`);
+      }
     }
-  }
-  
-  // Mol sonidan hajm
-  if (numbers.length > 0 && lowerQ.includes('mol')) {
-    const moles = numbers[0];
-    const volume = moles * 22.4;
     
-    return formatSolution({
-      given: `n = ${moles} mol`,
-      find: "V (hajm, n.sh.) = ?",
-      solution: `Normal sharoitda 1 mol gazning hajmi 22.4 L
-
-V = n × Vₘ
-V = ${moles} × 22.4
-V = ${volume.toFixed(3)} L`,
-      answer: `V = ${volume.toFixed(3)} L`,
-      note: "Vₘ = 22.4 L/mol (normal sharoitda)"
+    return formatAnswer({
+      given: `Modda: ${formula}`,
+      find: "Elementlarning massa ulushi ω = ?",
+      solution: solution,
+      answer: results.join(', '),
+      note: "ω = (n × Ar) / M × 100%"
     });
   }
   
-  return formatSolution({
-    given: question,
-    find: "Gaz hajmi",
-    solution: `📝 GAZ HAJMI FORMULALARI:
-
-1️⃣ Normal sharoitda (0°C, 1 atm):
-V = n × 22.4 L
-
-2️⃣ Ideal gaz tenglamasi:
-PV = nRT
-V = nRT/P
-
-Bu yerda:
-• P - bosim (Pa)
-• V - hajm (L)
-• n - mol soni
-• R = 8.314 J/(mol·K)
-• T - harorat (K)
-
-3️⃣ Standart sharoit (25°C, 1 atm):
-Vₘ ≈ 24.5 L/mol`,
-    answer: "Mol soni yoki massani kiriting"
-  });
-}
-
-// Elektroliz hisoblash
-function solveElectrolysis(question: string, numbers: number[]): string {
-  if (numbers.length >= 2) {
-    // Tok kuchi va vaqt berilgan
-    const current = numbers[0];
-    const time = numbers[1];
-    const charge = current * time;
-    const faraday = 96485;
-    
-    return formatSolution({
-      given: `I = ${current} A, t = ${time} s`,
-      find: "Ajralgan modda massasi = ?",
-      solution: `Faradey qonuni:
-m = (M × I × t) / (n × F)
-
-Bu yerda:
-• M - molyar massa (g/mol)
-• I = ${current} A (tok kuchi)
-• t = ${time} s (vaqt)
-• n - elektron soni
-• F = 96485 C/mol (Faradey soni)
-
-O'tgan zaryad:
-Q = I × t = ${current} × ${time} = ${charge} C
-
-Elektron mol soni:
-nₑ = Q/F = ${charge}/${faraday} = ${(charge / faraday).toFixed(4)} mol`,
-      answer: `Q = ${charge} C, nₑ = ${(charge / faraday).toFixed(4)} mol`,
-      note: "Massani hisoblash uchun modda formulasini kiriting"
-    });
-  }
-  
-  return formatSolution({
-    given: question,
-    find: "Elektroliz hisobi",
-    solution: `📝 FARADEY QONUNLARI:
-
-1️⃣ Birinchi qonun:
-m = k × Q = k × I × t
-
-2️⃣ Ikkinchi qonun:
-m = (M × I × t) / (n × F)
-
-Bu yerda:
-• m - ajralgan modda massasi (g)
-• M - molyar massa (g/mol)
-• I - tok kuchi (A)
-• t - vaqt (s)
-• n - elektron soni
-• F = 96485 C/mol
-
-⚗️ ELEKTRODLARDA:
-Katod (-): Qaytarilish (Me⁺ⁿ + ne⁻ → Me)
-Anod (+): Oksidlanish (2X⁻ - 2e⁻ → X₂)`,
-    answer: "Tok kuchi va vaqtni kiriting"
-  });
-}
-
-// Foiz hisoblash
-function solvePercentCalculation(question: string, numbers: number[]): string {
+  // Oddiy foiz hisoblash
   if (numbers.length >= 2) {
     const part = numbers[0];
     const total = numbers[1];
     const percent = (part / total) * 100;
     
-    return formatSolution({
+    return formatAnswer({
       given: `Qism = ${part}, Butun = ${total}`,
       find: "Foiz = ?",
-      solution: `Foiz formulasi:
-% = (qism / butun) × 100
-
+      solution: `% = (qism / butun) × 100
 % = (${part} / ${total}) × 100
 % = ${percent.toFixed(2)}%`,
-      answer: `${percent.toFixed(2)}%`,
-      note: "ω = m₁/m₂ × 100% (massa ulushi)"
+      answer: `${percent.toFixed(2)}%`
     });
   }
   
-  return formatSolution({
+  return formatAnswer({
     given: question,
-    find: "Foiz (%) yoki massa ulushi (ω)",
-    solution: `📝 FOIZ HISOBLASH:
+    find: "Foiz yoki massa ulushi",
+    solution: `📝 FOIZ FORMULALARI:
 
-1️⃣ Massa ulushi:
-ω = (m₁ / m₂) × 100%
-m₁ - erigan modda, m₂ - eritma
+🔹 Massa ulushi:
+ω = m(erigan) / m(eritma) × 100%
 
-2️⃣ Elementning massa ulushi:
+🔹 Elementning massa ulushi:
 ω(E) = (n × Ar) / M × 100%
-n - atom soni, Ar - atom massa, M - molyar massa
 
-3️⃣ Chiqim (hosildorlik):
-η = (m(haqiqiy) / m(nazariy)) × 100%`,
-    answer: "Sonlarni kiriting"
+🔹 Hosildorlik (chiqim):
+η = m(haqiqiy) / m(nazariy) × 100%`,
+    answer: "Sonlarni yoki formulani kiriting"
   });
 }
 
-// Reaksiya tenglamasini tekshirish
-function solveReactionBalance(question: string, formulas: string[]): string {
-  return formatSolution({
-    given: question,
-    find: "Reaksiya tenglamasi",
-    solution: `📝 REAKSIYA TENGLAMASINI TENGLASHTIRISH:
-
-⚗️ QOIDALAR:
-1. Har bir element atomlari soni ikkala tomonda teng bo'lishi kerak
-2. Zaryad muvozanati saqlanishi kerak
-3. Massa saqlanish qonuniga bo'ysunadi
-
-📊 REAKSIYA TURLARI:
-• Sintez: A + B → AB
-• Parchalanish: AB → A + B
-• Almashtirish: A + BC → AC + B
-• Ikki tomonlama: AB + CD → AD + CB
-• Oksidlanish-qaytarilish (redoks)
-
-🔬 MISOL:
-Fe + O₂ → Fe₂O₃
-Tenglashtirish: 4Fe + 3O₂ → 2Fe₂O₃`,
-    answer: "Reaksiya tenglamasini kiriting"
-  });
-}
-
-// Zichlik hisoblash
-function solveDensity(question: string, numbers: number[]): string {
-  if (numbers.length >= 2) {
-    const mass = numbers[0];
-    const volume = numbers[1];
-    const density = mass / volume;
-    
-    return formatSolution({
-      given: `m = ${mass} g, V = ${volume} mL`,
-      find: "ρ (zichlik) = ?",
-      solution: `Zichlik formulasi:
-ρ = m / V
-
-ρ = ${mass} / ${volume}
-ρ = ${density.toFixed(4)} g/mL`,
-      answer: `ρ = ${density.toFixed(4)} g/mL`,
-      note: "1 g/mL = 1 kg/L = 1000 kg/m³"
-    });
-  }
-  
-  return formatSolution({
-    given: question,
-    find: "Zichlik (ρ)",
-    solution: `📝 ZICHLIK FORMULASI:
-
-ρ = m / V
-
-• ρ - zichlik (g/mL, kg/L, kg/m³)
-• m - massa (g, kg)
-• V - hajm (mL, L, m³)
-
-📊 BA'ZI MODDALAR ZICHLIGI:
-• Suv: 1.0 g/mL
-• Etanol: 0.789 g/mL
-• Simob: 13.6 g/mL
-• Oltin: 19.3 g/cm³
-• Havo: 1.29 g/L (n.sh.)`,
-    answer: "Massa va hajmni kiriting"
-  });
-}
-
-// Umumiy masalalar
-function solveGeneral(question: string, formulas: string[], numbers: number[]): string {
+// 10. Zarrachalar soni
+function solveParticles(question: string): string {
+  const formula = findFormula(question);
+  const numbers = extractAllNumbers(question);
   const lowerQ = question.toLowerCase();
   
-  // Element haqida ma'lumot
+  // Massadan zarrachalar
+  if (formula) {
+    const massMatch = extractNumberWithUnit(question, ['g', 'gram', 'kg', 'mg']);
+    if (massMatch) {
+      let mass = massMatch.value;
+      if (massMatch.unit === 'kg') mass *= 1000;
+      if (massMatch.unit === 'mg') mass /= 1000;
+      
+      const { mass: molarMass } = calculateMolarMass(formula);
+      const moles = mass / molarMass;
+      const particles = moles * 6.022e23;
+      
+      return formatAnswer({
+        given: `m(${formula}) = ${mass} g`,
+        find: "N (zarrachalar soni) = ?",
+        solution: `1️⃣ MOLYAR MASSA:
+M(${formula}) = ${molarMass} g/mol
+
+2️⃣ MOL SONI:
+n = m / M = ${mass} / ${molarMass} = ${moles.toFixed(6)} mol
+
+3️⃣ ZARRACHALAR SONI:
+N = n × Nₐ
+N = ${moles.toFixed(4)} × 6.022 × 10²³
+N = ${particles.toExponential(3)} ta`,
+        answer: `N = ${particles.toExponential(3)} ta molekula`,
+        note: "Nₐ = 6.022 × 10²³ mol⁻¹ (Avogadro soni)"
+      });
+    }
+    
+    // Moldan zarrachalar
+    const molMatch = lowerQ.match(/(\d+[.,]?\d*)\s*mol/);
+    if (molMatch) {
+      const moles = parseFloat(molMatch[1].replace(',', '.'));
+      const particles = moles * 6.022e23;
+      
+      return formatAnswer({
+        given: `n(${formula}) = ${moles} mol`,
+        find: "N = ?",
+        solution: `N = n × Nₐ
+N = ${moles} × 6.022 × 10²³
+N = ${particles.toExponential(3)} ta`,
+        answer: `N = ${particles.toExponential(3)} ta`
+      });
+    }
+  }
+  
+  // Zarrachalardan mol
+  if (lowerQ.includes('zarracha') || lowerQ.includes('atom') || lowerQ.includes('molekula')) {
+    const bigNumMatch = question.match(/(\d+[.,]?\d*)\s*[×x·]\s*10\^?(\d+)/i);
+    if (bigNumMatch) {
+      const coeff = parseFloat(bigNumMatch[1].replace(',', '.'));
+      const exp = parseInt(bigNumMatch[2]);
+      const particles = coeff * Math.pow(10, exp);
+      const moles = particles / 6.022e23;
+      
+      return formatAnswer({
+        given: `N = ${coeff} × 10^${exp} ta`,
+        find: "n (mol) = ?",
+        solution: `n = N / Nₐ
+n = (${coeff} × 10^${exp}) / (6.022 × 10²³)
+n = ${moles.toFixed(6)} mol`,
+        answer: `n = ${moles.toFixed(4)} mol`
+      });
+    }
+  }
+  
+  return formatAnswer({
+    given: question,
+    find: "Zarrachalar soni",
+    solution: `📝 ZARRACHALAR FORMULASI:
+
+N = n × Nₐ
+n = N / Nₐ
+
+• N - zarrachalar soni
+• n - mol soni
+• Nₐ = 6.022 × 10²³ mol⁻¹`,
+    answer: "Mol yoki massa kiriting"
+  });
+}
+
+// 11. Elektroliz
+function solveElectrolysis(question: string): string {
+  const numbers = extractAllNumbers(question);
+  
+  if (numbers.length >= 2) {
+    const current = numbers[0]; // Amper
+    const time = numbers[1]; // Soniya yoki daqiqa/soat
+    
+    let timeInSeconds = time;
+    const lowerQ = question.toLowerCase();
+    if (lowerQ.includes('daqiqa') || lowerQ.includes('min')) timeInSeconds = time * 60;
+    if (lowerQ.includes('soat') || lowerQ.includes('hour')) timeInSeconds = time * 3600;
+    
+    const charge = current * timeInSeconds;
+    const molesElectrons = charge / 96485;
+    
+    return formatAnswer({
+      given: `I = ${current} A, t = ${timeInSeconds} s`,
+      find: "Elektroliz natijasi",
+      solution: `1️⃣ O'TGAN ELEKTR MIQDORI:
+Q = I × t = ${current} × ${timeInSeconds} = ${charge} C
+
+2️⃣ ELEKTRON MOL SONI:
+nₑ = Q / F = ${charge} / 96485 = ${molesElectrons.toFixed(6)} mol
+
+📝 MODDA MASSASINI HISOBLASH:
+m = (M × n × t) / (nₑ × F)
+
+Masalan, Cu²⁺ uchun (M=64, nₑ=2):
+m = (64 × ${current} × ${timeInSeconds}) / (2 × 96485) = ${((64 * current * timeInSeconds) / (2 * 96485)).toFixed(3)} g`,
+      answer: `Q = ${charge} C, nₑ = ${molesElectrons.toFixed(4)} mol`,
+      note: "F = 96485 C/mol (Faradey soni)"
+    });
+  }
+  
+  return formatAnswer({
+    given: question,
+    find: "Elektroliz hisobi",
+    solution: `📝 FARADEY QONUNLARI:
+
+m = (M × I × t) / (n × F)
+
+• m - ajralgan modda massasi (g)
+• M - molyar massa (g/mol)
+• I - tok kuchi (A)
+• t - vaqt (s)
+• n - elektron soni
+• F = 96485 C/mol`,
+    answer: "Tok kuchi va vaqtni kiriting"
+  });
+}
+
+// 12. Element ma'lumotlari
+function solveElementInfo(question: string): string {
+  const lowerQ = question.toLowerCase();
+  
   for (const [symbol, data] of Object.entries(elements)) {
     if (lowerQ.includes(data.name.toLowerCase()) || lowerQ.includes(symbol.toLowerCase())) {
-      return formatSolution({
-        given: `Element: ${data.name} (${symbol})`,
+      return formatAnswer({
+        given: `Element: ${data.name}`,
         find: "Element haqida ma'lumot",
         solution: `📊 ${data.name.toUpperCase()} (${symbol})
 
-• Atom raqami: ${data.number}
-• Atom massasi: ${data.mass} a.b.
+• Tartib raqami: ${data.number}
+• Nisbiy atom massasi: ${data.mass}
 • Guruh: ${data.group}
+• Simvol: ${symbol}
 
-⚛️ ELEKTRON KONFIGURATSIYASI:
-Element ${data.number}-elementdir.`,
-        answer: `Ar(${symbol}) = ${data.mass}`
+⚛️ ATOM TUZILISHI:
+• Protonlar soni: ${data.number}
+• Elektronlar soni: ${data.number}
+• Neytronlar soni: ${Math.round(data.mass) - data.number}`,
+        answer: `Ar(${symbol}) = ${data.mass}`,
+        note: `${data.name} ${data.group} guruhiga kiradi`
       });
     }
   }
   
-  // Birikma haqida ma'lumot
-  for (const [formula, data] of Object.entries(compounds)) {
-    const cleanFormula = formula.toLowerCase().replace(/[₀₁₂₃₄₅₆₇₈₉]/g, (m) => {
-      const map: Record<string, string> = {'₀':'0','₁':'1','₂':'2','₃':'3','₄':'4','₅':'5','₆':'6','₇':'7','₈':'8','₉':'9'};
-      return map[m] || m;
-    });
-    if (lowerQ.includes(cleanFormula) || lowerQ.includes(data.name.toLowerCase())) {
-      return formatSolution({
-        given: `Birikma: ${data.name} (${data.formula})`,
-        find: "Birikma haqida ma'lumot",
-        solution: `📊 ${data.name.toUpperCase()}
+  return formatAnswer({
+    given: question,
+    find: "Element ma'lumotlari",
+    solution: `Element topilmadi. Element nomi yoki simvolini kiriting.
 
-• Formula: ${data.formula}
-• Molyar massa: ${data.molarMass} g/mol
-• Turi: ${data.type}`,
-        answer: `M(${data.formula}) = ${data.molarMass} g/mol`
-      });
+Masalan: "Kislorod", "Temir", "Fe", "Na" va h.k.`,
+    answer: "Element nomini kiriting"
+  });
+}
+
+// ==================== ASOSIY FUNKSIYA ====================
+export function solveChemistryProblem(question: string): string {
+  const lowerQ = question.toLowerCase();
+  
+  // Masala turini aniqlash va mos yechuvchini chaqirish
+  
+  // Molyar massa
+  if (lowerQ.includes('molyar massa') || lowerQ.includes('molar massa') || 
+      lowerQ.includes('molekulyar massa') || lowerQ.includes('mr ') ||
+      (lowerQ.includes('m(') && lowerQ.includes(')'))) {
+    return solveMolarMass(question);
+  }
+  
+  // Massadan mol
+  if ((lowerQ.includes('mol') && lowerQ.includes('necha')) ||
+      (lowerQ.includes('mol') && lowerQ.includes('qancha')) ||
+      (lowerQ.includes('gram') && lowerQ.includes('mol')) ||
+      (lowerQ.match(/\d+\s*g/) && lowerQ.includes('mol'))) {
+    return solveMassToMoles(question);
+  }
+  
+  // Moldan massa
+  if ((lowerQ.includes('mol') && lowerQ.includes('massa')) ||
+      (lowerQ.includes('mol') && lowerQ.includes('gram')) ||
+      (lowerQ.match(/\d+\s*mol/) && (lowerQ.includes('massa') || lowerQ.includes('gram') || lowerQ.includes('og\'ir')))) {
+    return solveMolesToMass(question);
+  }
+  
+  // Gaz hajmi
+  if (lowerQ.includes('hajm') && (lowerQ.includes('gaz') || lowerQ.includes('n.sh') || 
+      lowerQ.includes('normal') || lowerQ.includes('litr') || lowerQ.includes('22.4'))) {
+    return solveGasVolume(question);
+  }
+  
+  // Hajmdan mol
+  if ((lowerQ.includes('litr') || lowerQ.includes(' l ')) && 
+      (lowerQ.includes('mol') || lowerQ.includes('massa'))) {
+    return solveVolumeToMoles(question);
+  }
+  
+  // pH
+  if (lowerQ.includes('ph') || lowerQ.includes('poh') || 
+      lowerQ.includes('vodorod ko\'rsatkich') || lowerQ.includes('kislotalik')) {
+    return solvePH(question);
+  }
+  
+  // Konsentratsiya
+  if (lowerQ.includes('konsentratsiya') || lowerQ.includes('molarlik') ||
+      lowerQ.includes('mol/l') || lowerQ.includes('eritma')) {
+    return solveConcentration(question);
+  }
+  
+  // Reaksiya
+  if (lowerQ.includes('reaksiya') || lowerQ.includes('hosil') ||
+      lowerQ.includes('→') || lowerQ.includes('->') || lowerQ.includes('=')) {
+    return solveReaction(question);
+  }
+  
+  // Foiz/ulush
+  if (lowerQ.includes('foiz') || lowerQ.includes('%') || 
+      lowerQ.includes('ulush') || lowerQ.includes('tarkib')) {
+    return solvePercent(question);
+  }
+  
+  // Zarrachalar
+  if (lowerQ.includes('zarracha') || lowerQ.includes('atom') ||
+      lowerQ.includes('molekula') || lowerQ.includes('avogadro')) {
+    return solveParticles(question);
+  }
+  
+  // Elektroliz
+  if (lowerQ.includes('elektroliz') || lowerQ.includes('faradey') ||
+      lowerQ.includes('tok') && lowerQ.includes('vaqt')) {
+    return solveElectrolysis(question);
+  }
+  
+  // Element ma'lumotlari
+  for (const [symbol, data] of Object.entries(elements)) {
+    if (lowerQ.includes(data.name.toLowerCase()) || 
+        (lowerQ.includes(symbol.toLowerCase()) && symbol.length >= 2)) {
+      return solveElementInfo(question);
     }
   }
   
-  // Formulalar haqida ma'lumot
-  if (formulas.length > 0) {
-    const results: string[] = [];
-    for (const formula of formulas) {
-      const { mass, breakdown } = calculateMolarMass(formula);
-      if (mass > 0) {
-        results.push(`📌 ${formula}:\n${breakdown}\nM = ${mass} g/mol`);
-      }
+  // Formula bor - molyar massa
+  const formula = findFormula(question);
+  if (formula) {
+    // Massadan mol tekshirish
+    const massMatch = extractNumberWithUnit(question, ['g', 'gram', 'kg', 'mg']);
+    if (massMatch) {
+      return solveMassToMoles(question);
     }
     
-    if (results.length > 0) {
-      return formatSolution({
-        given: `Formulalar: ${formulas.join(', ')}`,
-        find: "Ma'lumotlar",
-        solution: results.join('\n\n'),
-        answer: "Molyar massalar hisoblandi"
-      });
+    // Moldan massa
+    const molMatch = lowerQ.match(/(\d+[.,]?\d*)\s*mol/);
+    if (molMatch) {
+      return solveMolesToMass(question);
     }
+    
+    // Faqat formula - molyar massa
+    return solveMolarMass(question);
   }
   
-  return formatSolution({
+  // Umumiy javob
+  return formatAnswer({
     given: question,
     find: "Yechim",
     solution: `📝 KIMYOVIY HISOB-KITOBLAR:
 
-🔬 ASOSIY FORMULALAR:
-• n = m/M (mol soni)
-• m = n × M (massa)
-• V = n × 22.4 (gaz hajmi, n.sh.)
-• C = n/V (konsentratsiya)
-• pH = -log[H⁺]
+Quyidagi masala turlarini yecha olaman:
 
-📊 KONSTANTALAR:
+🔹 Molyar massa: "H2SO4 molyar massasi"
+🔹 Mol hisoblash: "10g NaCl da necha mol"
+🔹 Massa hisoblash: "2 mol H2O massasi"
+🔹 Gaz hajmi: "5g O2 hajmi (n.sh.)"
+🔹 pH hisoblash: "0.01M HCl ning pH i"
+🔹 Konsentratsiya: "4g NaOH 500ml da"
+🔹 Reaksiya: "10g Zn + HCl dan qancha H2"
+🔹 Foiz: "H2O da vodorod foizi"
+🔹 Zarrachalar: "2g H2 da qancha molekula"
+🔹 Elektroliz: "2A tok, 1 soat"
+🔹 Element: "Kislorod haqida"
+
+📌 KONSTANTALAR:
 • Nₐ = 6.022 × 10²³ mol⁻¹
 • Vₘ = 22.4 L/mol (n.sh.)
 • R = 8.314 J/(mol·K)
-• F = 96485 C/mol
-
-Savolingizni aniqroq yozing yoki formula kiriting.`,
-    answer: "Masalani batafsil kiriting"
+• F = 96485 C/mol`,
+    answer: "Savolni aniqroq yozing"
   });
 }
 
-// Yechimni formatlash
-function formatSolution(sol: ChemistrySolution): string {
-  let result = "";
+// Javobni formatlash
+function formatAnswer(data: { given: string; find: string; solution: string; answer: string; note?: string }): string {
+  let result = `📋 BERILGAN:\n${data.given}\n\n`;
+  result += `🎯 TOPISH KERAK:\n${data.find}\n\n`;
+  result += `📝 YECHIM:\n${data.solution}\n\n`;
+  result += `✅ JAVOB:\n${data.answer}`;
   
-  result += `📋 BERILGAN:\n${sol.given}\n\n`;
-  result += `🎯 TOPISH KERAK:\n${sol.find}\n\n`;
-  result += `📝 YECHIM:\n${sol.solution}\n\n`;
-  result += `✅ JAVOB:\n${sol.answer}`;
-  
-  if (sol.note) {
-    result += `\n\n💡 ESLATMA:\n${sol.note}`;
+  if (data.note) {
+    result += `\n\n💡 ESLATMA:\n${data.note}`;
   }
   
   return result;
