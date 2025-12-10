@@ -21,9 +21,9 @@ serve(async (req) => {
       );
     }
 
-    const deepseekKey = Deno.env.get("DEEPSEEK_API_KEY");
-    if (!deepseekKey) {
-      throw new Error("DEEPSEEK_API_KEY is not configured");
+    const geminiKey = Deno.env.get("GEMINI_API_KEY");
+    if (!geminiKey) {
+      throw new Error("GEMINI_API_KEY is not configured");
     }
 
 const systemPrompt = `Sen professional kimyo o'qituvchisisan. Test savollarini tuzishda quyidagi qoidalarga amal qil:
@@ -74,34 +74,45 @@ ${chapterContent}
 
 Iltimos, shu matn asosida ${questionCount} ta test savoli tuz. Savollar qiziqarli, o'ylantiradigan va turli qiyinlik darajasida bo'lsin.`;
 
-    console.log('Using DeepSeek API...');
+    console.log('Using Gemini API...');
     
-    const response = await fetch('https://api.deepseek.com/chat/completions', {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${deepseekKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'deepseek-chat',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
+        contents: [
+          {
+            role: 'user',
+            parts: [{ text: systemPrompt }]
+          },
+          {
+            role: 'model',
+            parts: [{ text: 'Tushunarli, men professional kimyo o\'qituvchisi sifatida test savollarini tuzaman.' }]
+          },
+          {
+            role: 'user',
+            parts: [{ text: userPrompt }]
+          }
         ],
-        max_tokens: 4000,
+        generationConfig: {
+          maxOutputTokens: 8000,
+          temperature: 0.7
+        }
       })
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('DeepSeek API error:', errorText);
+      console.error('Gemini API error:', errorText);
       throw new Error('AI xizmati javob bermadi');
     }
 
     const data = await response.json();
-    let content = data.choices?.[0]?.message?.content;
+    let content = data.candidates?.[0]?.content?.parts?.[0]?.text;
     
-    console.log('DeepSeek API response received successfully');
+    console.log('Gemini API response received successfully');
 
     if (!content) {
       throw new Error("No response from AI");

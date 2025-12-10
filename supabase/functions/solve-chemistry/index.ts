@@ -50,44 +50,61 @@ const systemPrompt = `Sen tajribali kimyo o'qituvchisisan. Har qanday kimyoviy m
 
 💡 MUHIM: Javob shunday bo'lsinki, o'quvchi birinchi marta o'qib tushunib olsin!`
 
-async function callDeepSeek(messages: any[], deepseekKey: string, imageData?: string) {
-  const userContent: any[] = []
+async function callGemini(messages: any[], geminiKey: string, imageData?: string) {
+  const parts: any[] = []
   
   if (imageData) {
-    userContent.push({
-      type: "image_url",
-      image_url: { url: imageData }
-    })
+    // Extract base64 data from data URL
+    const base64Match = imageData.match(/^data:image\/(\w+);base64,(.+)$/)
+    if (base64Match) {
+      parts.push({
+        inline_data: {
+          mime_type: `image/${base64Match[1]}`,
+          data: base64Match[2]
+        }
+      })
+    }
   }
   
-  userContent.push({
-    type: "text",
+  parts.push({
     text: messages[messages.length - 1].content
   })
 
-  const response = await fetch('https://api.deepseek.com/chat/completions', {
+  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`, {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${deepseekKey}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: 'deepseek-chat',
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userContent }
+      contents: [
+        {
+          role: 'user',
+          parts: [{ text: systemPrompt }]
+        },
+        {
+          role: 'model',
+          parts: [{ text: 'Tushunarli, men professional kimyo o\'qituvchisi sifatida yordam beraman.' }]
+        },
+        {
+          role: 'user',
+          parts: parts
+        }
       ],
-      max_tokens: 4000
+      generationConfig: {
+        maxOutputTokens: 8000,
+        temperature: 0.7
+      }
     })
   })
 
   if (!response.ok) {
     const errorText = await response.text()
-    throw new Error(`DeepSeek API error (${response.status}): ${errorText}`)
+    console.error('Gemini API error:', errorText)
+    throw new Error(`Gemini API error (${response.status}): ${errorText}`)
   }
 
   const data = await response.json()
-  return data.choices?.[0]?.message?.content
+  return data.candidates?.[0]?.content?.parts?.[0]?.text
 }
 
 serve(async (req) => {
@@ -105,10 +122,10 @@ serve(async (req) => {
       )
     }
 
-    const deepseekKey = Deno.env.get('DEEPSEEK_API_KEY')
+    const geminiKey = Deno.env.get('GEMINI_API_KEY')
     
-    if (!deepseekKey) {
-      throw new Error('DEEPSEEK_API_KEY sozlanmagan')
+    if (!geminiKey) {
+      throw new Error('GEMINI_API_KEY sozlanmagan')
     }
 
     // Prepare content
@@ -116,15 +133,15 @@ serve(async (req) => {
       ? (question || 'Bu rasmda ko\'rsatilgan kimyoviy masalani yeching va batafsil tushuntiring.')
       : `Quyidagi kimyoviy masalani batafsil yeching va tushuntiring:\n\n${question}\n\nYechimni quyidagi formatda bering:\n1. Berilganlar\n2. Topish kerak\n3. Yechim qadamlari\n4. Javob`
 
-    console.log('Using DeepSeek API...')
+    console.log('Using Gemini API...')
     
-    const solution = await callDeepSeek(
+    const solution = await callGemini(
       [{ role: 'user', content: userPrompt }],
-      deepseekKey,
+      geminiKey,
       imageData
     )
     
-    console.log('DeepSeek API success')
+    console.log('Gemini API success')
 
     if (!solution) {
       throw new Error('AI javob bermadi')
