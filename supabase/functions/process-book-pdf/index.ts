@@ -9,7 +9,7 @@ const corsHeaders = {
 const ADMIN_PASSWORD = "admin77";
 
 async function getApiKeys() {
-  let googleApiKey = Deno.env.get('GOOGLE_AI_API_KEY');
+  let googleApiKey = Deno.env.get('GOOGLE_AI_API_KEY') || Deno.env.get('GEMINI_API_KEY');
   let openaiApiKey = Deno.env.get('OPENAI_API_KEY');
 
   if (!googleApiKey || !openaiApiKey) {
