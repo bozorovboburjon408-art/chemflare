@@ -18,10 +18,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Upload, Loader2, Lock, BookPlus, Brain } from "lucide-react";
+import { Upload, Loader2, Lock, BookPlus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Progress } from "@/components/ui/progress";
 
 interface AdminBookUploadProps {
   onUploadSuccess: () => void;
@@ -30,8 +29,6 @@ interface AdminBookUploadProps {
 const AdminBookUpload = ({ onUploadSuccess }: AdminBookUploadProps) => {
   const [open, setOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [uploadStatus, setUploadStatus] = useState("");
   const [adminPassword, setAdminPassword] = useState("");
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [coverImage, setCoverImage] = useState<File | null>(null);
@@ -103,16 +100,11 @@ const AdminBookUpload = ({ onUploadSuccess }: AdminBookUploadProps) => {
     }
 
     setIsUploading(true);
-    setUploadProgress(10);
-    setUploadStatus("PDF fayl tayyorlanmoqda...");
 
     try {
       const timestamp = Date.now();
       
-      // Step 1: Upload PDF to storage first
-      setUploadProgress(20);
-      setUploadStatus("PDF yuklanmoqda...");
-      
+      // Step 1: Upload PDF to storage
       const pdfPath = `pdfs/${timestamp}_${pdfFile.name}`;
       const { error: pdfError } = await supabase.storage
         .from('book-files')
@@ -127,9 +119,6 @@ const AdminBookUpload = ({ onUploadSuccess }: AdminBookUploadProps) => {
       // Step 2: Upload cover image if provided
       let coverUrl = null;
       if (coverImage) {
-        setUploadProgress(30);
-        setUploadStatus("Muqova rasmi yuklanmoqda...");
-        
         const coverPath = `covers/${timestamp}_${coverImage.name}`;
         const { error: coverError } = await supabase.storage
           .from('book-files')
@@ -144,52 +133,24 @@ const AdminBookUpload = ({ onUploadSuccess }: AdminBookUploadProps) => {
         coverUrl = coverUrlData.publicUrl;
       }
 
-      // Step 3: Process PDF with AI to extract chapters and questions
-      setUploadProgress(40);
-      setUploadStatus("AI kitobni tahlil qilmoqda... (2-5 daqiqa)");
+      // Step 3: Insert book into database
+      const { error: insertError } = await supabase
+        .from('chemistry_books')
+        .insert({
+          title: bookTitle,
+          author: bookAuthor || null,
+          topic: bookTopic,
+          description: bookDescription || null,
+          difficulty_level: parseInt(difficultyLevel),
+          pdf_url: pdfUrlData.publicUrl,
+          cover_image_url: coverUrl,
+        });
 
-      const formData = new FormData();
-      formData.append('password', adminPassword);
-      formData.append('pdf', pdfFile);
-      formData.append('title', bookTitle);
-      formData.append('author', bookAuthor || '');
-      formData.append('topic', bookTopic);
-      formData.append('description', bookDescription || '');
-      formData.append('difficulty_level', difficultyLevel);
-
-      const { data: processResult, error: processError } = await supabase.functions.invoke('process-book-pdf', {
-        body: formData,
-      });
-
-      if (processError) {
-        console.error('Process error:', processError);
-        throw new Error(processError.message || 'AI qayta ishlashda xatolik');
-      }
-
-      if (processResult.error) {
-        throw new Error(processResult.error);
-      }
-
-      setUploadProgress(80);
-      setUploadStatus("Ma'lumotlar saqlanmoqda...");
-
-      // Update book with PDF URL and cover URL
-      if (processResult.book?.id) {
-        await supabase
-          .from('chemistry_books')
-          .update({
-            pdf_url: pdfUrlData.publicUrl,
-            cover_image_url: coverUrl,
-          })
-          .eq('id', processResult.book.id);
-      }
-
-      setUploadProgress(100);
-      setUploadStatus("Tayyor!");
+      if (insertError) throw insertError;
 
       toast({
         title: "Muvaffaqiyat!",
-        description: `"${bookTitle}" kitobi ${processResult.chaptersCount} ta bo'lim bilan yuklandi`,
+        description: `"${bookTitle}" kitobi yuklandi`,
       });
 
       // Reset form
@@ -202,8 +163,6 @@ const AdminBookUpload = ({ onUploadSuccess }: AdminBookUploadProps) => {
       setBookTopic("");
       setBookDescription("");
       setDifficultyLevel("1");
-      setUploadProgress(0);
-      setUploadStatus("");
       setOpen(false);
       onUploadSuccess();
     } catch (error: any) {
@@ -215,8 +174,6 @@ const AdminBookUpload = ({ onUploadSuccess }: AdminBookUploadProps) => {
       });
     } finally {
       setIsUploading(false);
-      setUploadProgress(0);
-      setUploadStatus("");
     }
   };
 
@@ -235,24 +192,11 @@ const AdminBookUpload = ({ onUploadSuccess }: AdminBookUploadProps) => {
             Admin - Kitob yuklash
           </DialogTitle>
           <DialogDescription>
-            PDF kitobni yuklang - AI avtomatik bo'limlar va savollar yaratadi
+            PDF kitobni yuklang - foydalanuvchilar yuklab olishi mumkin
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
-          {isUploading && (
-            <div className="space-y-2 p-4 bg-muted/50 rounded-lg">
-              <div className="flex items-center gap-2 text-sm font-medium">
-                <Brain className="w-4 h-4 animate-pulse text-primary" />
-                {uploadStatus}
-              </div>
-              <Progress value={uploadProgress} className="h-2" />
-              <p className="text-xs text-muted-foreground">
-                AI kitobni tahlil qilib, bo'limlar va savollar yaratmoqda...
-              </p>
-            </div>
-          )}
-
           <div className="space-y-2">
             <Label htmlFor="admin-password">Admin paroli *</Label>
             <Input
@@ -378,12 +322,12 @@ const AdminBookUpload = ({ onUploadSuccess }: AdminBookUploadProps) => {
             {isUploading ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                AI tahlil qilmoqda...
+                Yuklanmoqda...
               </>
             ) : (
               <>
                 <Upload className="w-4 h-4 mr-2" />
-                Kitobni yuklash va tahlil qilish
+                Kitobni yuklash
               </>
             )}
           </Button>
