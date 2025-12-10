@@ -14,7 +14,7 @@ serve(async (req) => {
   }
 
   try {
-    const { action, adminCode, settings } = await req.json();
+    const { action, adminCode, settings, keyName } = await req.json();
 
     // Verify admin code
     if (adminCode !== ADMIN_CODE) {
@@ -62,6 +62,31 @@ serve(async (req) => {
           console.error('Error saving setting:', error);
           throw error;
         }
+      }
+
+      return new Response(
+        JSON.stringify({ success: true }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (action === 'delete') {
+      // Delete API setting
+      if (!keyName) {
+        return new Response(
+          JSON.stringify({ error: "keyName majburiy" }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      const { error } = await supabase
+        .from('api_settings')
+        .delete()
+        .eq('key_name', keyName);
+
+      if (error) {
+        console.error('Error deleting setting:', error);
+        throw error;
       }
 
       return new Response(
