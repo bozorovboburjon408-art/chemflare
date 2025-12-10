@@ -21,10 +21,10 @@ serve(async (req) => {
       )
     }
 
-    const googleApiKey = Deno.env.get('GOOGLE_AI_API_KEY')
+    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY')
     
-    if (!googleApiKey) {
-      throw new Error('GOOGLE_AI_API_KEY is not configured')
+    if (!LOVABLE_API_KEY) {
+      throw new Error('LOVABLE_API_KEY is not configured')
     }
 
     const systemPrompt = `Sen professional kimyogar va molekulyar vizualizatsiya mutaxassisisisan.
@@ -140,79 +140,39 @@ Eslatma:
 - Har xil sharoitlardagi turli reaksiyalarni ko'rsating
 - Real kimyoviy qoidalarga rioya qiling`;
 
-    const openaiApiKey = Deno.env.get('OPENAI_API_KEY')
+    console.log('Using Lovable AI...')
     
-    let result: string | undefined
-    let usedProvider = ''
-
-    // Try Google AI first
-    console.log('Trying Google AI...')
-    try {
-      const googleResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${googleApiKey}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          contents: [{
-            parts: [
-              { text: systemPrompt },
-              { text: userPrompt }
-            ]
-          }],
-          generationConfig: {
-            maxOutputTokens: 4000,
-          }
-        })
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'google/gemini-2.5-flash',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ],
       })
+    })
 
-      if (googleResponse.ok) {
-        const googleData = await googleResponse.json()
-        result = googleData.candidates?.[0]?.content?.parts?.[0]?.text
-        if (result) {
-          usedProvider = 'Google AI'
-          console.log('Google AI response received successfully')
-        }
-      } else {
-        const errorText = await googleResponse.text()
-        console.log('Google AI failed, trying OpenAI fallback...', errorText)
+    if (!response.ok) {
+      if (response.status === 429) {
+        throw new Error('Rate limit - biroz kutib qayta urinib ko\'ring')
       }
-    } catch (e) {
-      console.log('Google AI error, trying OpenAI fallback...', e)
+      if (response.status === 402) {
+        throw new Error('Kredit tugagan - hisobni to\'ldiring')
+      }
+      const errorText = await response.text()
+      console.error('Lovable AI error:', errorText)
+      throw new Error('AI xizmati javob bermadi')
     }
 
-    // Fallback to OpenAI if Google AI failed
-    if (!result && openaiApiKey) {
-      console.log('Using OpenAI fallback...')
-      const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${openaiApiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o-mini',
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: userPrompt }
-          ],
-          max_tokens: 4000,
-        })
-      })
-
-      if (openaiResponse.ok) {
-        const openaiData = await openaiResponse.json()
-        result = openaiData.choices?.[0]?.message?.content
-        usedProvider = 'OpenAI'
-        console.log('OpenAI response received successfully')
-      } else {
-        const errorText = await openaiResponse.text()
-        console.error('OpenAI also failed:', errorText)
-        throw new Error('Barcha AI xizmatlari ishlamayapti')
-      }
-    }
-
-    console.log(`Response received from ${usedProvider}`)
+    const data = await response.json()
+    let result = data.choices?.[0]?.message?.content
+    
+    console.log('Lovable AI response received successfully')
     
     if (!result) {
       throw new Error('AI javob bermadi')
