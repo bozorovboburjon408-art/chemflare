@@ -1,3 +1,4 @@
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
@@ -55,10 +56,10 @@ serve(async (req) => {
     
     console.log(`PDF converted to base64, length: ${base64Pdf.length}`);
 
-    const deepseekKey = Deno.env.get('DEEPSEEK_API_KEY');
+    const geminiKey = Deno.env.get('GEMINI_API_KEY');
 
-    if (!deepseekKey) {
-      throw new Error("DEEPSEEK_API_KEY is not configured");
+    if (!geminiKey) {
+      throw new Error("GEMINI_API_KEY is not configured");
     }
 
     const systemPrompt = `Sen kimyo kitoblarini tahlil qiluvchi mutaxassissan. 
@@ -94,35 +95,38 @@ JSON formatda javob ber:
   ]
 }`;
 
-    console.log("Using DeepSeek API...");
+    console.log("Using Gemini API...");
     
-    const response = await fetch('https://api.deepseek.com/chat/completions', {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${deepseekKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'deepseek-chat',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { 
-            role: 'user', 
-            content: `Kitob nomi: "${bookTitle}"\nMavzu: ${bookTopic}\n\nUshbu PDF ni tahlil qilib, kitob formatiga o'tkaz.\n\nPDF content (base64): ${base64Pdf.substring(0, 10000)}...`
+        contents: [
+          {
+            role: 'user',
+            parts: [
+              { text: systemPrompt },
+              { text: `Kitob nomi: "${bookTitle}"\nMavzu: ${bookTopic}\n\nUshbu PDF ni tahlil qilib, kitob formatiga o'tkaz.\n\nPDF content (base64): ${base64Pdf.substring(0, 10000)}...` }
+            ]
           }
         ],
-        max_tokens: 16000,
+        generationConfig: {
+          maxOutputTokens: 16000,
+          temperature: 0.5
+        }
       }),
     });
 
     if (!response.ok) {
       const errText = await response.text();
-      console.log("DeepSeek API failed:", response.status, errText);
-      throw new Error("DeepSeek API xatosi");
+      console.log("Gemini API failed:", response.status, errText);
+      throw new Error("Gemini API xatosi");
     }
 
     const data = await response.json();
-    const text = data.choices?.[0]?.message?.content;
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
     
     if (!text) {
       throw new Error("AI javob bermadi");
@@ -131,7 +135,7 @@ JSON formatda javob ber:
     const cleanedText = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
     const bookData = JSON.parse(cleanedText);
     
-    console.log("DeepSeek API success");
+    console.log("Gemini API success");
 
     if (!bookData || !bookData.chapters) {
       throw new Error("AI PDF ni qayta ishlashda xatolik yuz berdi");
@@ -205,7 +209,7 @@ JSON formatda javob ber:
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: `Kitob muvaffaqiyatli yuklandi (DeepSeek)`,
+        message: `Kitob muvaffaqiyatli yuklandi (Gemini)`,
         book: newBook,
         chaptersCount: bookData.chapters.length
       }),

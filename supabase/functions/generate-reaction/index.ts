@@ -21,10 +21,10 @@ serve(async (req) => {
       )
     }
 
-    const deepseekKey = Deno.env.get('DEEPSEEK_API_KEY')
+    const geminiKey = Deno.env.get('GEMINI_API_KEY')
     
-    if (!deepseekKey) {
-      throw new Error('DEEPSEEK_API_KEY is not configured')
+    if (!geminiKey) {
+      throw new Error('GEMINI_API_KEY is not configured')
     }
 
     const systemPrompt = `Sen professional kimyogar va molekulyar vizualizatsiya mutaxassisisisan.
@@ -140,34 +140,45 @@ Eslatma:
 - Har xil sharoitlardagi turli reaksiyalarni ko'rsating
 - Real kimyoviy qoidalarga rioya qiling`;
 
-    console.log('Using DeepSeek API...')
+    console.log('Using Gemini API...')
     
-    const response = await fetch('https://api.deepseek.com/chat/completions', {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${deepseekKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'deepseek-chat',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
+        contents: [
+          {
+            role: 'user',
+            parts: [{ text: systemPrompt }]
+          },
+          {
+            role: 'model',
+            parts: [{ text: 'Tushunarli, men professional kimyogar sifatida reaksiyalarni tahlil qilaman.' }]
+          },
+          {
+            role: 'user',
+            parts: [{ text: userPrompt }]
+          }
         ],
-        max_tokens: 4000,
+        generationConfig: {
+          maxOutputTokens: 8000,
+          temperature: 0.7
+        }
       })
     })
 
     if (!response.ok) {
       const errorText = await response.text()
-      console.error('DeepSeek API error:', errorText)
+      console.error('Gemini API error:', errorText)
       throw new Error('AI xizmati javob bermadi')
     }
 
     const data = await response.json()
-    let result = data.choices?.[0]?.message?.content
+    let result = data.candidates?.[0]?.content?.parts?.[0]?.text
     
-    console.log('DeepSeek API response received successfully')
+    console.log('Gemini API response received successfully')
     
     if (!result) {
       throw new Error('AI javob bermadi')
