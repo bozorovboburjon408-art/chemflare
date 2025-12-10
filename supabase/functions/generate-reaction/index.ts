@@ -21,10 +21,10 @@ serve(async (req) => {
       )
     }
 
-    const googleApiKey = Deno.env.get('GOOGLE_AI_API_KEY')
+    const deepseekKey = Deno.env.get('DEEPSEEK_API_KEY')
     
-    if (!googleApiKey) {
-      throw new Error('GOOGLE_AI_API_KEY is not configured')
+    if (!deepseekKey) {
+      throw new Error('DEEPSEEK_API_KEY is not configured')
     }
 
     const systemPrompt = `Sen professional kimyogar va molekulyar vizualizatsiya mutaxassisisisan.
@@ -140,36 +140,34 @@ Eslatma:
 - Har xil sharoitlardagi turli reaksiyalarni ko'rsating
 - Real kimyoviy qoidalarga rioya qiling`;
 
-    console.log('Using Google AI...')
+    console.log('Using DeepSeek API...')
     
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${googleApiKey}`, {
+    const response = await fetch('https://api.deepseek.com/chat/completions', {
       method: 'POST',
       headers: {
+        'Authorization': `Bearer ${deepseekKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        contents: [{
-          parts: [
-            { text: systemPrompt },
-            { text: userPrompt }
-          ]
-        }],
-        generationConfig: {
-          maxOutputTokens: 4000,
-        }
+        model: 'deepseek-chat',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ],
+        max_tokens: 4000,
       })
     })
 
     if (!response.ok) {
       const errorText = await response.text()
-      console.error('Google AI error:', errorText)
+      console.error('DeepSeek API error:', errorText)
       throw new Error('AI xizmati javob bermadi')
     }
 
     const data = await response.json()
-    let result = data.candidates?.[0]?.content?.parts?.[0]?.text
+    let result = data.choices?.[0]?.message?.content
     
-    console.log('Google AI response received successfully')
+    console.log('DeepSeek API response received successfully')
     
     if (!result) {
       throw new Error('AI javob bermadi')

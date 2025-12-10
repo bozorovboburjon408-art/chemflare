@@ -50,26 +50,7 @@ const systemPrompt = `Sen tajribali kimyo o'qituvchisisan. Har qanday kimyoviy m
 
 💡 MUHIM: Javob shunday bo'lsinki, o'quvchi birinchi marta o'qib tushunib olsin!`
 
-async function callGeminiAPI(parts: any[], googleApiKey: string) {
-  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${googleApiKey}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      contents: [{ parts }],
-      generationConfig: { maxOutputTokens: 2000 }
-    })
-  })
-  
-  if (!response.ok) {
-    const errorText = await response.text()
-    throw new Error(`Gemini API error (${response.status}): ${errorText}`)
-  }
-  
-  const data = await response.json()
-  return data.candidates?.[0]?.content?.parts?.[0]?.text
-}
-
-async function callOpenAI(messages: any[], openaiKey: string, imageData?: string) {
+async function callDeepSeek(messages: any[], deepseekKey: string, imageData?: string) {
   const userContent: any[] = []
   
   if (imageData) {
@@ -84,25 +65,25 @@ async function callOpenAI(messages: any[], openaiKey: string, imageData?: string
     text: messages[messages.length - 1].content
   })
 
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+  const response = await fetch('https://api.deepseek.com/chat/completions', {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${openaiKey}`,
+      'Authorization': `Bearer ${deepseekKey}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: 'gpt-4o-mini',
+      model: 'deepseek-chat',
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userContent }
       ],
-      max_tokens: 2000
+      max_tokens: 4000
     })
   })
 
   if (!response.ok) {
     const errorText = await response.text()
-    throw new Error(`OpenAI API error (${response.status}): ${errorText}`)
+    throw new Error(`DeepSeek API error (${response.status}): ${errorText}`)
   }
 
   const data = await response.json()
@@ -124,62 +105,26 @@ serve(async (req) => {
       )
     }
 
-    const googleApiKey = Deno.env.get('GOOGLE_AI_API_KEY')
-    const openaiKey = Deno.env.get('OPENAI_API_KEY')
+    const deepseekKey = Deno.env.get('DEEPSEEK_API_KEY')
     
-    if (!googleApiKey && !openaiKey) {
-      throw new Error('Hech qanday AI API kaliti sozlanmagan')
+    if (!deepseekKey) {
+      throw new Error('DEEPSEEK_API_KEY sozlanmagan')
     }
 
-    let solution: string | undefined
-
-    // Prepare content for both APIs
+    // Prepare content
     const userPrompt = imageData 
       ? (question || 'Bu rasmda ko\'rsatilgan kimyoviy masalani yeching va batafsil tushuntiring.')
       : `Quyidagi kimyoviy masalani batafsil yeching va tushuntiring:\n\n${question}\n\nYechimni quyidagi formatda bering:\n1. Berilganlar\n2. Topish kerak\n3. Yechim qadamlari\n4. Javob`
 
-    // Try Gemini first
-    if (googleApiKey) {
-      try {
-        console.log('Trying Gemini API...')
-        const parts: any[] = [{ text: systemPrompt }]
-        
-        if (imageData) {
-          const matches = imageData.match(/^data:([^;]+);base64,(.+)$/)
-          if (matches) {
-            parts.push({
-              inline_data: {
-                mime_type: matches[1],
-                data: matches[2]
-              }
-            })
-          }
-        }
-        parts.push({ text: userPrompt })
-        
-        solution = await callGeminiAPI(parts, googleApiKey)
-        console.log('Gemini API success')
-      } catch (geminiError) {
-        console.error('Gemini API failed:', geminiError)
-        // Will try OpenAI below
-      }
-    }
-
-    // Fallback to OpenAI if Gemini failed or not available
-    if (!solution && openaiKey) {
-      try {
-        console.log('Trying OpenAI API (fallback)...')
-        solution = await callOpenAI(
-          [{ role: 'user', content: userPrompt }],
-          openaiKey,
-          imageData
-        )
-        console.log('OpenAI API success')
-      } catch (openaiError) {
-        console.error('OpenAI API also failed:', openaiError)
-        throw new Error('Barcha AI xizmatlari ishlamayapti. Keyinroq qayta urinib ko\'ring.')
-      }
-    }
+    console.log('Using DeepSeek API...')
+    
+    const solution = await callDeepSeek(
+      [{ role: 'user', content: userPrompt }],
+      deepseekKey,
+      imageData
+    )
+    
+    console.log('DeepSeek API success')
 
     if (!solution) {
       throw new Error('AI javob bermadi')
