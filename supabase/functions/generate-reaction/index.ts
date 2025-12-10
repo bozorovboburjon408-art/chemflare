@@ -21,10 +21,10 @@ serve(async (req) => {
       )
     }
 
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY')
+    const googleApiKey = Deno.env.get('GOOGLE_AI_API_KEY')
     
-    if (!LOVABLE_API_KEY) {
-      throw new Error('LOVABLE_API_KEY is not configured')
+    if (!googleApiKey) {
+      throw new Error('GOOGLE_AI_API_KEY is not configured')
     }
 
     const systemPrompt = `Sen professional kimyogar va molekulyar vizualizatsiya mutaxassisisisan.
@@ -140,39 +140,36 @@ Eslatma:
 - Har xil sharoitlardagi turli reaksiyalarni ko'rsating
 - Real kimyoviy qoidalarga rioya qiling`;
 
-    console.log('Using Lovable AI...')
+    console.log('Using Google AI...')
     
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${googleApiKey}`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
-        ],
+        contents: [{
+          parts: [
+            { text: systemPrompt },
+            { text: userPrompt }
+          ]
+        }],
+        generationConfig: {
+          maxOutputTokens: 4000,
+        }
       })
     })
 
     if (!response.ok) {
-      if (response.status === 429) {
-        throw new Error('Rate limit - biroz kutib qayta urinib ko\'ring')
-      }
-      if (response.status === 402) {
-        throw new Error('Kredit tugagan - hisobni to\'ldiring')
-      }
       const errorText = await response.text()
-      console.error('Lovable AI error:', errorText)
+      console.error('Google AI error:', errorText)
       throw new Error('AI xizmati javob bermadi')
     }
 
     const data = await response.json()
-    let result = data.choices?.[0]?.message?.content
+    let result = data.candidates?.[0]?.content?.parts?.[0]?.text
     
-    console.log('Lovable AI response received successfully')
+    console.log('Google AI response received successfully')
     
     if (!result) {
       throw new Error('AI javob bermadi')
