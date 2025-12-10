@@ -98,7 +98,7 @@ const ChemicalReactions = () => {
     setSubstances(newSubstances);
   };
 
-  const generateReaction = async () => {
+  const generateReaction = () => {
     const filledSubstances = substances.filter(s => s.trim() !== '');
     
     if (filledSubstances.length < 1) {
@@ -113,37 +113,52 @@ const ChemicalReactions = () => {
     setLoading(true);
     setAiResult(null);
 
-    try {
-      const { data, error } = await supabase.functions.invoke('generate-reaction', {
-        body: { substances: filledSubstances }
+    // Search in predefined reactions locally (no API needed)
+    setTimeout(() => {
+      const searchTerms = filledSubstances.map(s => s.toLowerCase().trim());
+      
+      const matchingReactions = predefinedReactions.filter(reaction => {
+        const equationLower = reaction.equation.toLowerCase();
+        const descLower = reaction.description.toLowerCase();
+        const detailLower = (reaction.detailedExplanation || '').toLowerCase();
+        
+        return searchTerms.some(term => 
+          equationLower.includes(term) || 
+          descLower.includes(term) || 
+          detailLower.includes(term)
+        );
       });
 
-      if (error) {
-        throw error;
-      }
-
-      if (data.error) {
-        throw new Error(data.error);
-      }
-
-      setAiResult(data);
-      
-      if (!data.possible) {
+      if (matchingReactions.length > 0) {
+        setAiResult({
+          possible: true,
+          reactions: matchingReactions.map(r => ({
+            equation: r.equation,
+            conditions: { temperature: r.conditions },
+            type: r.type,
+            ionicEquation: undefined,
+            observation: r.observation,
+            explanation: r.detailedExplanation || r.description,
+            products: r.products,
+            molecularAnimation: undefined
+          }))
+        });
         toast({
-          title: "Reaksiya bo'lmaydi",
-          description: data.noReactionReason || "Bu moddalar o'rtasida reaksiya sodir bo'lmaydi",
+          title: "Topildi!",
+          description: `${matchingReactions.length} ta reaksiya topildi`,
+        });
+      } else {
+        setAiResult({
+          possible: false,
+          noReactionReason: `"${filledSubstances.join(', ')}" bo'yicha reaksiya bazadan topilmadi. Kutubxonadan qidiring yoki boshqa moddalarni sinab ko'ring.`
+        });
+        toast({
+          title: "Topilmadi",
+          description: "Mos reaksiya topilmadi. Kutubxonadan qidiring.",
         });
       }
-    } catch (error: any) {
-      console.error('Reaction generation error:', error);
-      toast({
-        title: "Xato",
-        description: error.message || "Reaksiyani tahlil qilishda xatolik yuz berdi",
-        variant: "destructive"
-      });
-    } finally {
       setLoading(false);
-    }
+    }, 300);
   };
 
   // Library functions
