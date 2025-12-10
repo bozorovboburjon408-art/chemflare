@@ -165,20 +165,7 @@ const Learning = () => {
         .order('order_num');
 
       if (error) throw error;
-      
-      // Agar bo'limlar bo'lmasa, kitob uchun umumiy bo'lim yaratamiz
-      if (!data || data.length === 0) {
-        const generalChapter: BookChapter = {
-          id: 'general-' + book.id,
-          book_id: book.id,
-          title: book.title + " - Umumiy test",
-          content: book.description || book.title,
-          order_num: 1
-        };
-        setChapters([generalChapter]);
-      } else {
-        setChapters(data);
-      }
+      setChapters(data || []);
     } catch (error: any) {
       console.error('Error loading chapters:', error);
       toast({

@@ -8,22 +8,11 @@ import { Input } from "@/components/ui/input";
 import { 
   BookOpen, 
   Loader2, 
+  ChevronLeft,
+  ChevronRight,
   Search,
-  Download,
-  FileText,
-  Trash2
+  GraduationCap
 } from "lucide-react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import AdminBookUpload from "@/components/AdminBookUpload";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -37,16 +26,34 @@ interface ChemistryBook {
   cover_image_url: string | null;
   difficulty_level: number | null;
   topic: string;
-  pdf_url: string | null;
+}
+
+interface BookChapter {
+  id: string;
+  book_id: string;
+  title: string;
+  content: string;
+  order_num: number;
+}
+
+interface ChapterQuestion {
+  id: string;
+  chapter_id: string;
+  question_text: string;
+  correct_answer: string;
+  explanation: string | null;
+  order_num: number;
 }
 
 const Library = () => {
   const [user, setUser] = useState<User | null>(null);
   const [books, setBooks] = useState<ChemistryBook[]>([]);
+  const [selectedBook, setSelectedBook] = useState<ChemistryBook | null>(null);
+  const [chapters, setChapters] = useState<BookChapter[]>([]);
+  const [selectedChapter, setSelectedChapter] = useState<BookChapter | null>(null);
+  const [questions, setQuestions] = useState<ChapterQuestion[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const [adminPassword, setAdminPassword] = useState("");
-  const [deletingBookId, setDeletingBookId] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -82,7 +89,7 @@ const Library = () => {
         .order('difficulty_level', { ascending: true, nullsFirst: false });
 
       if (error) throw error;
-      setBooks((data as ChemistryBook[]) || []);
+      setBooks(data || []);
     } catch (error: any) {
       console.error('Error loading books:', error);
       toast({
@@ -95,52 +102,67 @@ const Library = () => {
     }
   };
 
-  const downloadBook = (book: ChemistryBook) => {
-    if (book.pdf_url) {
-      window.open(book.pdf_url, '_blank');
-    } else {
+  const openBook = async (book: ChemistryBook) => {
+    setSelectedBook(book);
+    
+    try {
+      const { data, error } = await supabase
+        .from('book_chapters')
+        .select('*')
+        .eq('book_id', book.id)
+        .order('order_num');
+
+      if (error) throw error;
+      setChapters(data || []);
+      
+      if (data && data.length > 0) {
+        openChapter(data[0]);
+      }
+    } catch (error: any) {
+      console.error('Error loading chapters:', error);
       toast({
         title: "Xato",
-        description: "Bu kitob uchun PDF fayl mavjud emas",
+        description: "Bo'limlarni yuklashda xatolik",
         variant: "destructive",
       });
     }
   };
 
-  const deleteBook = async (bookId: string) => {
-    if (adminPassword !== "admin77") {
-      toast({
-        title: "Xato",
-        description: "Admin paroli noto'g'ri",
-        variant: "destructive",
-      });
-      return;
-    }
+  const openChapter = async (chapter: BookChapter) => {
+    setSelectedChapter(chapter);
 
-    setDeletingBookId(bookId);
     try {
-      const { error } = await supabase
-        .from('chemistry_books')
-        .delete()
-        .eq('id', bookId);
+      const { data, error } = await supabase
+        .from('chapter_questions')
+        .select('*')
+        .eq('chapter_id', chapter.id)
+        .order('order_num');
 
       if (error) throw error;
-
-      toast({
-        title: "Muvaffaqiyat",
-        description: "Kitob o'chirildi",
-      });
-      setAdminPassword("");
-      loadBooks();
+      setQuestions(data || []);
     } catch (error: any) {
-      console.error('Error deleting book:', error);
-      toast({
-        title: "Xato",
-        description: "Kitobni o'chirishda xatolik",
-        variant: "destructive",
-      });
-    } finally {
-      setDeletingBookId(null);
+      console.error('Error loading questions:', error);
+    }
+  };
+
+  const goBack = () => {
+    if (selectedChapter) {
+      setSelectedChapter(null);
+      setQuestions([]);
+    } else if (selectedBook) {
+      setSelectedBook(null);
+      setChapters([]);
+    }
+  };
+
+  const navigateChapter = (direction: 'prev' | 'next') => {
+    if (!selectedChapter) return;
+    
+    const currentIndex = chapters.findIndex(c => c.id === selectedChapter.id);
+    const newIndex = direction === 'prev' ? currentIndex - 1 : currentIndex + 1;
+    
+    if (newIndex >= 0 && newIndex < chapters.length) {
+      openChapter(chapters[newIndex]);
     }
   };
 
@@ -158,6 +180,172 @@ const Library = () => {
     );
   }
 
+  // Chapter reading view
+  if (selectedChapter && selectedBook) {
+    const currentIndex = chapters.findIndex(c => c.id === selectedChapter.id);
+    const hasPrev = currentIndex > 0;
+    const hasNext = currentIndex < chapters.length - 1;
+
+    return (
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        
+        <main className="container mx-auto px-4 pt-24 pb-12">
+          <div className="max-w-4xl mx-auto">
+            <Button variant="ghost" onClick={goBack} className="mb-6">
+              <ChevronLeft className="w-4 h-4 mr-2" />
+              Orqaga
+            </Button>
+
+            <Card className="p-8">
+              <div className="mb-6">
+                <p className="text-sm text-muted-foreground mb-2">{selectedBook.title}</p>
+                <h1 className="text-3xl font-bold mb-2">{selectedChapter.title}</h1>
+                <Badge variant="outline">
+                  {currentIndex + 1}-bob / {chapters.length}
+                </Badge>
+              </div>
+
+              <div className="prose prose-slate dark:prose-invert max-w-none mb-8">
+                <div className="whitespace-pre-wrap leading-relaxed">
+                  {selectedChapter.content}
+                </div>
+              </div>
+
+              {questions.length > 0 && (
+                <div className="border-t pt-6 mt-6">
+                  <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                    <GraduationCap className="w-5 h-5" />
+                    Nazorat savollari
+                  </h3>
+                  <div className="space-y-4">
+                    {questions.map((q, idx) => (
+                      <Card key={q.id} className="p-4 bg-muted/30">
+                        <p className="font-medium mb-2">
+                          {idx + 1}. {q.question_text}
+                        </p>
+                        <details className="text-sm">
+                          <summary className="cursor-pointer text-primary hover:underline">
+                            Javobni ko'rish
+                          </summary>
+                          <div className="mt-2 p-3 bg-background rounded">
+                            <p className="font-semibold text-green-600 dark:text-green-400 mb-1">
+                              {q.correct_answer}
+                            </p>
+                            {q.explanation && (
+                              <p className="text-muted-foreground">{q.explanation}</p>
+                            )}
+                          </div>
+                        </details>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="flex justify-between items-center mt-8 pt-6 border-t">
+                <Button
+                  variant="outline"
+                  onClick={() => navigateChapter('prev')}
+                  disabled={!hasPrev}
+                >
+                  <ChevronLeft className="w-4 h-4 mr-2" />
+                  Oldingi bob
+                </Button>
+                <Button
+                  onClick={() => navigateChapter('next')}
+                  disabled={!hasNext}
+                >
+                  Keyingi bob
+                  <ChevronRight className="w-4 h-4 ml-2" />
+                </Button>
+              </div>
+            </Card>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  // Book chapters view
+  if (selectedBook) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        
+        <main className="container mx-auto px-4 pt-24 pb-12">
+          <div className="max-w-4xl mx-auto">
+            <Button variant="ghost" onClick={goBack} className="mb-6">
+              <ChevronLeft className="w-4 h-4 mr-2" />
+              Kitobxonaga qaytish
+            </Button>
+
+            <Card className="p-8 mb-8">
+              <div className="flex gap-6">
+                <div className="flex-shrink-0">
+                  <div className="w-32 h-48 bg-gradient-to-br from-primary/20 to-primary/5 rounded-lg flex items-center justify-center">
+                    <BookOpen className="w-16 h-16 text-primary" />
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <h1 className="text-3xl font-bold mb-2">{selectedBook.title}</h1>
+                  {selectedBook.author && (
+                    <p className="text-muted-foreground mb-3">
+                      Muallif: {selectedBook.author}
+                    </p>
+                  )}
+                  {selectedBook.description && (
+                    <p className="text-muted-foreground mb-4">
+                      {selectedBook.description}
+                    </p>
+                  )}
+                  <div className="flex gap-2">
+                    <Badge>{selectedBook.topic}</Badge>
+                    {selectedBook.difficulty_level !== null && (
+                      <Badge variant="outline">
+                        Daraja: {selectedBook.difficulty_level}
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </Card>
+
+            <h2 className="text-2xl font-semibold mb-4">Bo'limlar</h2>
+            {chapters.length === 0 ? (
+              <Card className="p-8 text-center">
+                <p className="text-muted-foreground">
+                  Bu kitob uchun bo'limlar hali qo'shilmagan
+                </p>
+              </Card>
+            ) : (
+              <div className="space-y-3">
+                {chapters.map((chapter, idx) => (
+                  <Card
+                    key={chapter.id}
+                    className="p-4 hover:shadow-lg transition-all cursor-pointer"
+                    onClick={() => openChapter(chapter)}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                        <span className="font-semibold text-primary">{idx + 1}</span>
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-semibold">{chapter.title}</h3>
+                      </div>
+                      <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  // Main library view
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
@@ -170,7 +358,7 @@ const Library = () => {
                 Kimyo Kitobxonasi
               </h1>
               <p className="text-muted-foreground">
-                Kimyoni o'rganish uchun kitoblar - yuklab oling va o'qing
+                Kimyoni o'rganish uchun kitoblar va o'quv materiallari
               </p>
             </div>
             <AdminBookUpload onUploadSuccess={loadBooks} />
@@ -200,22 +388,12 @@ const Library = () => {
               {filteredBooks.map((book) => (
                 <Card
                   key={book.id}
-                  className="overflow-hidden hover:shadow-lg transition-all"
+                  className="overflow-hidden hover:shadow-lg transition-all cursor-pointer"
+                  onClick={() => openBook(book)}
                 >
-                  {/* Cover Image */}
-                  <div className="aspect-[3/4] bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center overflow-hidden">
-                    {book.cover_image_url ? (
-                      <img 
-                        src={book.cover_image_url} 
-                        alt={book.title}
-                        className="w-full h-full object-cover"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <BookOpen className="w-20 h-20 text-primary" />
-                    )}
+                  <div className="h-48 bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                    <BookOpen className="w-20 h-20 text-primary" />
                   </div>
-                  
                   <div className="p-6">
                     <h3 className="font-semibold text-lg mb-2">{book.title}</h3>
                     {book.author && (
@@ -228,76 +406,13 @@ const Library = () => {
                         {book.description}
                       </p>
                     )}
-                    <div className="flex gap-2 flex-wrap mb-4">
+                    <div className="flex gap-2 flex-wrap">
                       <Badge variant="outline">{book.topic}</Badge>
                       {book.difficulty_level !== null && (
                         <Badge className="bg-primary/20 text-primary border-primary/30">
                           Daraja {book.difficulty_level}
                         </Badge>
                       )}
-                    </div>
-                    
-                    {/* Action Buttons */}
-                    <div className="flex gap-2">
-                      {book.pdf_url ? (
-                        <Button 
-                          onClick={() => downloadBook(book)}
-                          className="flex-1 gap-2"
-                        >
-                          <Download className="w-4 h-4" />
-                          PDF yuklash
-                        </Button>
-                      ) : (
-                        <Button 
-                          disabled
-                          variant="outline"
-                          className="flex-1 gap-2"
-                        >
-                          <FileText className="w-4 h-4" />
-                          PDF yo'q
-                        </Button>
-                      )}
-                      
-                      {/* Admin Delete Button */}
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="destructive" size="icon">
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Kitobni o'chirish</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              "{book.title}" kitobini o'chirmoqchimisiz? Bu amalni ortga qaytarib bo'lmaydi.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <div className="py-4">
-                            <Input
-                              type="password"
-                              placeholder="Admin parolini kiriting"
-                              value={adminPassword}
-                              onChange={(e) => setAdminPassword(e.target.value)}
-                            />
-                          </div>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel onClick={() => setAdminPassword("")}>
-                              Bekor qilish
-                            </AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() => deleteBook(book.id)}
-                              disabled={deletingBookId === book.id}
-                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                            >
-                              {deletingBookId === book.id ? (
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                              ) : (
-                                "O'chirish"
-                              )}
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
                     </div>
                   </div>
                 </Card>

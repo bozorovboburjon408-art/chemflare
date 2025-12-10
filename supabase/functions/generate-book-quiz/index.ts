@@ -21,33 +21,18 @@ serve(async (req) => {
       );
     }
 
-    const geminiKey = Deno.env.get("GEMINI_API_KEY");
-    if (!geminiKey) {
-      throw new Error("GEMINI_API_KEY is not configured");
+    const googleApiKey = Deno.env.get("GOOGLE_AI_API_KEY");
+    if (!googleApiKey) {
+      throw new Error("GOOGLE_AI_API_KEY is not configured");
     }
 
-const systemPrompt = `Sen professional kimyo o'qituvchisisan. Test savollarini tuzishda quyidagi qoidalarga amal qil:
+    const systemPrompt = `Sen Qwen 2.5 modelsan. Test savollarini tuzishda aniq, qisqa, ilmiy javob ber.
 
 QOIDALAR:
 1. Har bir savol 4 ta variant (A, B, C, D) bilan bo'lsin
-2. Savollar kimyo faniga oid bo'lsin - kimyoviy elementlar, formulalar, reaksiyalar, qonunlar haqida
+2. Savollar matn mazmuniga asoslangan bo'lsin
 3. To'g'ri javob faqat bitta bo'lsin
-4. Variantlar bir-biridan aniq farq qilsin
-5. Savollar turli qiyinlik darajasida bo'lsin (oson, o'rta, qiyin)
-6. Kimyoviy formulalarni to'g'ri yoz (H₂O, CO₂, NaCl va h.k.)
-7. Izohda nima uchun bu javob to'g'ri ekanligini qisqacha tushuntir
-
-MAVZULAR (agar matn kam bo'lsa, shu mavzulardan foydalananing):
-- Atom tuzilishi va elektron konfiguratsiya
-- Davriy jadval va elementlar xossalari
-- Kimyoviy bog'lanishlar (ion, kovalent, metall)
-- Kimyoviy reaksiyalar turlari
-- Oksidlanish-qaytarilish reaksiyalari
-- Kislotalar, asoslar, tuzlar
-- Eritmalar va konsentratsiya
-- Gazlar qonunlari
-- Termoximiya va energiya
-- Organik kimyo asoslari
+4. Testlarda faqat to'g'ri variant va qisqa izoh ber
 
 JSON formatida javob ber:
 {
@@ -74,45 +59,79 @@ ${chapterContent}
 
 Iltimos, shu matn asosida ${questionCount} ta test savoli tuz. Savollar qiziqarli, o'ylantiradigan va turli qiyinlik darajasida bo'lsin.`;
 
-    console.log('Using Gemini API...');
+    const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
     
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        contents: [
-          {
-            role: 'user',
-            parts: [{ text: systemPrompt }]
-          },
-          {
-            role: 'model',
-            parts: [{ text: 'Tushunarli, men professional kimyo o\'qituvchisi sifatida test savollarini tuzaman.' }]
-          },
-          {
-            role: 'user',
-            parts: [{ text: userPrompt }]
-          }
-        ],
-        generationConfig: {
-          maxOutputTokens: 8000,
-          temperature: 0.7
-        }
-      })
-    });
+    let content: string | undefined;
+    let usedProvider = '';
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Gemini API error:', errorText);
-      throw new Error('AI xizmati javob bermadi');
+    // Try Google AI first
+    console.log('Trying Google AI...');
+    try {
+      const googleResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${googleApiKey}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contents: [{
+            parts: [
+              { text: systemPrompt },
+              { text: userPrompt }
+            ]
+          }],
+          generationConfig: {
+            maxOutputTokens: 4000,
+          }
+        }),
+      });
+
+      if (googleResponse.ok) {
+        const googleData = await googleResponse.json();
+        content = googleData.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (content) {
+          usedProvider = 'Google AI';
+          console.log('Google AI response received successfully');
+        }
+      } else {
+        const errorText = await googleResponse.text();
+        console.log('Google AI failed, trying OpenAI fallback...', errorText);
+      }
+    } catch (e) {
+      console.log('Google AI error, trying OpenAI fallback...', e);
     }
 
-    const data = await response.json();
-    let content = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    
-    console.log('Gemini API response received successfully');
+    // Fallback to OpenAI if Google AI failed
+    if (!content && openaiApiKey) {
+      console.log('Using OpenAI fallback...');
+      const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${openaiApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userPrompt }
+          ],
+          max_tokens: 4000,
+        })
+      });
+
+      if (openaiResponse.ok) {
+        const openaiData = await openaiResponse.json();
+        content = openaiData.choices?.[0]?.message?.content;
+        usedProvider = 'OpenAI';
+        console.log('OpenAI response received successfully');
+      } else {
+        const errorText = await openaiResponse.text();
+        console.error('OpenAI also failed:', errorText);
+        throw new Error('Barcha AI xizmatlari ishlamayapti');
+      }
+    }
+
+    console.log(`Response received from ${usedProvider}`);
 
     if (!content) {
       throw new Error("No response from AI");

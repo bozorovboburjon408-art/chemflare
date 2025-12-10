@@ -1,4 +1,3 @@
-import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
@@ -56,10 +55,12 @@ serve(async (req) => {
     
     console.log(`PDF converted to base64, length: ${base64Pdf.length}`);
 
-    const geminiKey = Deno.env.get('GEMINI_API_KEY');
+    // Get API keys
+    const GOOGLE_AI_API_KEY = Deno.env.get('GOOGLE_AI_API_KEY');
+    const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
 
-    if (!geminiKey) {
-      throw new Error("GEMINI_API_KEY is not configured");
+    if (!GOOGLE_AI_API_KEY && !OPENAI_API_KEY) {
+      throw new Error("AI API key is not configured");
     }
 
     const systemPrompt = `Sen kimyo kitoblarini tahlil qiluvchi mutaxassissan. 
@@ -95,47 +96,108 @@ JSON formatda javob ber:
   ]
 }`;
 
-    console.log("Using Gemini API...");
-    
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        contents: [
+    let bookData;
+    let aiUsed = "";
+
+    // Try Google AI first
+    if (GOOGLE_AI_API_KEY) {
+      try {
+        console.log("Attempting Google AI...");
+        const googleResponse = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GOOGLE_AI_API_KEY}`,
           {
-            role: 'user',
-            parts: [
-              { text: systemPrompt },
-              { text: `Kitob nomi: "${bookTitle}"\nMavzu: ${bookTopic}\n\nUshbu PDF ni tahlil qilib, kitob formatiga o'tkaz.\n\nPDF content (base64): ${base64Pdf.substring(0, 10000)}...` }
-            ]
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{
+                parts: [
+                  { text: systemPrompt },
+                  {
+                    inline_data: {
+                      mime_type: "application/pdf",
+                      data: base64Pdf
+                    }
+                  },
+                  { text: `Kitob nomi: "${bookTitle}"\nMavzu: ${bookTopic}\n\nUshbu PDF ni tahlil qilib, kitob formatiga o'tkaz.` }
+                ]
+              }],
+              generationConfig: {
+                temperature: 0.3,
+                maxOutputTokens: 30000,
+              }
+            })
           }
-        ],
-        generationConfig: {
-          maxOutputTokens: 16000,
-          temperature: 0.5
+        );
+
+        if (googleResponse.ok) {
+          const googleData = await googleResponse.json();
+          const text = googleData.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (text) {
+            const cleanedText = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+            bookData = JSON.parse(cleanedText);
+            aiUsed = "Google AI";
+            console.log("Google AI success");
+          }
+        } else {
+          console.log("Google AI failed:", googleResponse.status);
         }
-      }),
-    });
-
-    if (!response.ok) {
-      const errText = await response.text();
-      console.log("Gemini API failed:", response.status, errText);
-      throw new Error("Gemini API xatosi");
+      } catch (e) {
+        console.log("Google AI error:", e);
+      }
     }
 
-    const data = await response.json();
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    
-    if (!text) {
-      throw new Error("AI javob bermadi");
-    }
+    // Fallback to OpenAI if Google AI failed
+    if (!bookData && OPENAI_API_KEY) {
+      try {
+        console.log("Attempting OpenAI...");
+        
+        // For OpenAI, we need to extract text first (simplified approach)
+        const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${OPENAI_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'gpt-4o',
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { 
+                role: 'user', 
+                content: [
+                  { type: "text", text: `Kitob nomi: "${bookTitle}"\nMavzu: ${bookTopic}\n\nUshbu PDF ni tahlil qilib, kitob formatiga o'tkaz.` },
+                  { 
+                    type: "image_url", 
+                    image_url: { 
+                      url: `data:application/pdf;base64,${base64Pdf}`,
+                      detail: "high"
+                    } 
+                  }
+                ]
+              }
+            ],
+            temperature: 0.3,
+            max_tokens: 16000,
+          }),
+        });
 
-    const cleanedText = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-    const bookData = JSON.parse(cleanedText);
-    
-    console.log("Gemini API success");
+        if (openaiResponse.ok) {
+          const openaiData = await openaiResponse.json();
+          const text = openaiData.choices?.[0]?.message?.content;
+          if (text) {
+            const cleanedText = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+            bookData = JSON.parse(cleanedText);
+            aiUsed = "OpenAI";
+            console.log("OpenAI success");
+          }
+        } else {
+          const errText = await openaiResponse.text();
+          console.log("OpenAI failed:", openaiResponse.status, errText);
+        }
+      } catch (e) {
+        console.log("OpenAI error:", e);
+      }
+    }
 
     if (!bookData || !bookData.chapters) {
       throw new Error("AI PDF ni qayta ishlashda xatolik yuz berdi");
@@ -209,7 +271,7 @@ JSON formatda javob ber:
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: `Kitob muvaffaqiyatli yuklandi (Gemini)`,
+        message: `Kitob muvaffaqiyatli yuklandi (${aiUsed})`,
         book: newBook,
         chaptersCount: bookData.chapters.length
       }),

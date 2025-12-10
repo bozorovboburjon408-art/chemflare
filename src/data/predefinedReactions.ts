@@ -10,11 +10,6 @@ export interface PredefinedReaction {
   reactants: string[];
   products: string[];
   category: string;
-  detailedExplanation: string;
-  mechanism?: string;
-  applications?: string[];
-  safetyNotes?: string;
-  energyChange?: string;
 }
 
 export const reactionCategories = [
@@ -27,13 +22,11 @@ export const reactionCategories = [
   "Parchalanish",
   "Organik",
   "Redoks",
-  "Sintez",
-  "Elektroliz",
   "Kompleks"
 ];
 
 export const predefinedReactions: PredefinedReaction[] = [
-  // ==================== KISLOTA + METALL (25 ta) ====================
+  // Kislota + Metall (15 reaksiya)
   {
     id: "hcl-zn",
     equation: "Zn + 2HCl → ZnCl₂ + H₂↑",
@@ -44,158 +37,69 @@ export const predefinedReactions: PredefinedReaction[] = [
     color: "Ko'k-yashil",
     icon: "droplets",
     reactants: ["Zn", "HCl"],
-    products: ["ZnCl₂", "H₂"],
-    category: "Kislota + Metall",
-    detailedExplanation: `
-🔬 REAKSIYA MEXANIZMI:
-Rux (Zn) metallar aktivlik qatorida vodoroddan chap tomonda joylashgan, shuning uchun u kislotadan vodorod ionlarini siqib chiqara oladi.
-
-📝 BOSQICHLAR:
-1. Zn atomlari elektrondalarini yo'qotadi: Zn⁰ → Zn²⁺ + 2e⁻
-2. Vodorod ionlari elektronlarni qabul qiladi: 2H⁺ + 2e⁻ → H₂↑
-3. Sink ionlari xlorid ionlari bilan birikadi: Zn²⁺ + 2Cl⁻ → ZnCl₂
-
-⚡ ENERGETIKA:
-Bu ekzotermik reaksiya - issiqlik ajraladi. Kolba yoki probirkani ushlab tursangiz, isishini his qilasiz.
-
-🧪 LABORATORIYADA:
-Bu reaksiya laboratoriyada vodorod gazi olish uchun eng keng qo'llaniladigan usuldir. Kipp apparatida vodorod olishda aynan shu reaksiya ishlatiladi.
-    `,
-    mechanism: "Oksidlanish-qaytarilish: Zn oksidlanadi (0 → +2), H qaytariladi (+1 → 0)",
-    applications: ["Vodorod gazi olish", "Rux qoplamalarini tozalash", "Galvanik elementlar"],
-    safetyNotes: "Vodorod gazi portlovchi! Ochiq olov yaqinida ishlamang",
-    energyChange: "Ekzotermik (issiqlik ajraladi)"
+    products: ["ZnCl2", "H2"],
+    category: "Kislota + Metall"
   },
   {
     id: "h2so4-zn",
     equation: "Zn + H₂SO₄ → ZnSO₄ + H₂↑",
     type: "Almashtirish",
-    description: "Rux suyultirilgan sulfat kislota bilan reaksiyaga kirib, sink sulfat va vodorod gazi hosil qiladi",
-    conditions: "Xona haroratida, suyultirilgan kislota",
-    observation: "Vodorod gazi pufakchalar shaklida ajralib chiqadi, eritma rangsiz",
+    description: "Rux sulfat kislota bilan reaksiyaga kirib, sink sulfat va vodorod gazi hosil qiladi",
+    conditions: "Xona haroratida",
+    observation: "Vodorod gazi pufakchalar shaklida ajralib chiqadi",
     icon: "droplets",
-    reactants: ["Zn", "H₂SO₄"],
-    products: ["ZnSO₄", "H₂"],
-    category: "Kislota + Metall",
-    detailedExplanation: `
-🔬 REAKSIYA TAVSIFI:
-Suyultirilgan sulfat kislota (H₂SO₄) bilan rux reaksiyasi xlorid kislota bilan reaksiyaga o'xshash ketadi.
-
-📝 MUHIM FARQ:
-Konsentrlangan H₂SO₄ bilan reaksiya boshqacha - SO₂ gazi ajraladi, H₂ emas!
-Konsentr: Zn + 2H₂SO₄(konc) → ZnSO₄ + SO₂↑ + 2H₂O
-
-⚗️ AMALIY QOLLASH:
-Sink sulfat (ZnSO₄) tibbiyotda, qishloq xo'jaligida o'g'it sifatida va galvanik qoplash jarayonlarida ishlatiladi.
-
-🧪 LABORATORIYA TAJRIBASI:
-1. Probirkaga 5-10 ml suyultirilgan H₂SO₄ qo'ying
-2. Rux bo'lagini soling
-3. Gaz pufakchalarini kuzating
-4. Gaz yig'ib, yondirib ko'ring (vodorod "paf" deb yonadi)
-    `,
-    mechanism: "Oddiy almashtirish: Zn atomlari H⁺ ionlarini siqib chiqaradi",
-    applications: ["ZnSO₄ olish", "Vodorod gazi olish", "Galvanik elementlar"],
-    safetyNotes: "Kislota bilan ehtiyotkorlik bilan ishlang, himoya ko'zoynak taqdimang",
-    energyChange: "Ekzotermik"
+    reactants: ["Zn", "H2SO4"],
+    products: ["ZnSO4", "H2"],
+    category: "Kislota + Metall"
   },
   {
     id: "hcl-fe",
     equation: "Fe + 2HCl → FeCl₂ + H₂↑",
     type: "Almashtirish",
-    description: "Temir xlorid kislota bilan reaksiyaga kirib, temir(II) xlorid va vodorod gazi hosil qiladi",
+    description: "Temir xlorid kislota bilan reaksiyaga kirib, temir xlorid va vodorod gazi hosil qiladi",
     conditions: "Xona haroratida",
     observation: "Yashil rangli eritma hosil bo'ladi, vodorod gazi ajraladi",
     color: "Yashil",
     icon: "droplets",
     reactants: ["Fe", "HCl"],
-    products: ["FeCl₂", "H₂"],
-    category: "Kislota + Metall",
-    detailedExplanation: `
-🔬 REAKSIYA TAVSIFI:
-Temir metallar aktivlik qatorida vodoroddan chap tomonda, shuning uchun kislotalar bilan reaksiyaga kirishadi.
-
-⚠️ MUHIM:
-Temir suyultirilgan kislotalarda Fe²⁺ (ikki valentli) holatga o'tadi, Fe³⁺ emas!
-Fe³⁺ olish uchun oksidlovchi kislotalar (HNO₃) yoki Cl₂ kerak.
-
-🎨 RANG FARQLARI:
-• FeCl₂ eritmasi - yashil rang
-• FeCl₃ eritmasi - sariq-jigarrang rang
-Bu farq temir ionlarining valentligiga bog'liq.
-
-🧪 TAJRIBA:
-Temirni xlorid kislotaga tashlaganda, avval sekin, keyin tezroq reaksiya boradi. Temir yuzasidagi oksid qatlami erigandan so'ng reaksiya tezlashadi.
-    `,
-    mechanism: "Fe⁰ → Fe²⁺ + 2e⁻ (oksidlanish), 2H⁺ + 2e⁻ → H₂ (qaytarilish)",
-    applications: ["FeCl₂ olish", "Zanglagan buyumlarni tozalash"],
-    safetyNotes: "Temir xlorid kiyimlarni dog'laydi",
-    energyChange: "Ekzotermik"
+    products: ["FeCl2", "H2"],
+    category: "Kislota + Metall"
   },
   {
     id: "hcl-mg",
     equation: "Mg + 2HCl → MgCl₂ + H₂↑",
     type: "Almashtirish",
     description: "Magniy xlorid kislota bilan jadal reaksiyaga kirib, magniy xlorid va vodorod gazi hosil qiladi",
-    conditions: "Xona haroratida, juda tez",
-    observation: "Magniy jadal eriydi, ko'p miqdorda vodorod gazi ajraladi, eritma qiziydi",
+    conditions: "Xona haroratida, tez",
+    observation: "Magniy eriydi, ko'p miqdorda vodorod gazi ajraladi, eritma qiziydi",
     icon: "flame",
     reactants: ["Mg", "HCl"],
-    products: ["MgCl₂", "H₂"],
-    category: "Kislota + Metall",
-    detailedExplanation: `
-🔬 NIMA UCHUN MAGNIY JUDA TEZ REAKSIYAGA KIRISHADI?
-
-Magniy metallar aktivlik qatorida juda yuqori o'rinda turadi (Ca dan keyin). Bu shuni anglatadiki, u elektron yo'qotishga juda moyil.
-
-⚡ REAKSIYA TEZLIGI:
-Magniy bilan reaksiya sink yoki temirdan 5-10 marta tez ketadi! Buning sababi:
-1. Magniyning ionlanish energiyasi past
-2. Magniy oksidi nozik va himoya qilmaydi
-3. Mg²⁺ ionlari juda barqaror
-
-🌡️ ISSIQLIK:
-Bu reaksiyada juda ko'p issiqlik ajraladi. Katta bo'lak magniy kislota bilan reaksiyaga kirganda, eritma qaynash darajasiga yetishi mumkin!
-
-⚠️ XAVFSIZLIK:
-Tez reaksiya tufayli, katta bo'lak magniy kislotaga tashlaganda, eritma "qaynab" ketishi va sachrab chiqishi mumkin.
-    `,
-    mechanism: "Mg⁰ → Mg²⁺ + 2e⁻ (tez oksidlanish)",
-    applications: ["MgCl₂ olish", "Tibbiyot (magniy preparatlari)", "Qor eritish"],
-    safetyNotes: "Katta bo'laklar bilan ehtiyot bo'ling - jadal reaksiya!",
-    energyChange: "Juda ekzotermik (ko'p issiqlik)"
+    products: ["MgCl2", "H2"],
+    category: "Kislota + Metall"
   },
   {
     id: "hcl-al",
     equation: "2Al + 6HCl → 2AlCl₃ + 3H₂↑",
     type: "Almashtirish",
     description: "Alyuminiy xlorid kislota bilan reaksiyaga kirib, alyuminiy xlorid va vodorod gazi hosil qiladi",
-    conditions: "Xona haroratida, avval sekin, keyin tezlashadi",
+    conditions: "Xona haroratida",
     observation: "Vodorod gazi ajraladi, eritma isiydi",
     icon: "droplets",
     reactants: ["Al", "HCl"],
-    products: ["AlCl₃", "H₂"],
-    category: "Kislota + Metall",
-    detailedExplanation: `
-🔬 ALYUMINIYNING O'ZIGA XOSLIGI:
-
-Alyuminiy yuzasida juda mustahkam Al₂O₃ oksid pardasi bor. Bu parda metallni korroziyadan himoya qiladi, lekin kislota bilan reaksiyani sekinlashtiradi.
-
-📝 REAKSIYA BOSQICHLARI:
-1. Kislota avval Al₂O₃ qatlamini eritadi (sekin)
-2. Sof alyuminiy yuzasi ochilib, tez reaksiya boshlanadi
-3. Issiqlik ajraladi va reaksiya yanada tezlashadi
-
-🧪 QIZIQARLI FAKT:
-Alyuminiy folga bilan reaksiya qilsangiz, avval 10-30 soniya hech narsa bo'lmaydi, keyin birdan jadal reaksiya boshlanadi!
-
-⚗️ AMALIY QOLLASH:
-AlCl₃ organik kimyoda Fridel-Krafts reaksiyalarida katalizator sifatida keng qo'llaniladi.
-    `,
-    mechanism: "Al₂O₃ erishi, keyin Al⁰ → Al³⁺ + 3e⁻",
-    applications: ["AlCl₃ olish", "Organik sintez katalizatori", "Suv tozalash"],
-    safetyNotes: "Reaksiya avval sekin, keyin juda tez - tayyor bo'ling",
-    energyChange: "Ekzotermik"
+    products: ["AlCl3", "H2"],
+    category: "Kislota + Metall"
+  },
+  {
+    id: "h2so4-fe",
+    equation: "Fe + H₂SO₄ → FeSO₄ + H₂↑",
+    type: "Almashtirish",
+    description: "Temir sulfat kislota bilan reaksiyaga kirib, temir sulfat va vodorod gazi hosil qiladi",
+    conditions: "Suyultirilgan kislota",
+    observation: "Yashil eritma, gaz ajraladi",
+    icon: "droplets",
+    reactants: ["Fe", "H2SO4"],
+    products: ["FeSO4", "H2"],
+    category: "Kislota + Metall"
   },
   {
     id: "hno3-cu",
@@ -203,214 +107,60 @@ AlCl₃ organik kimyoda Fridel-Krafts reaksiyalarida katalizator sifatida keng q
     type: "Redoks",
     description: "Mis suyultirilgan nitrat kislota bilan reaksiyaga kirib, mis nitrat va azot oksidi hosil qiladi",
     conditions: "Suyultirilgan HNO₃",
-    observation: "Ko'k eritma, rangsiz gaz (havoda jigarrangga aylanadi)",
+    observation: "Ko'k eritma, jigarrang gaz ajraladi",
     color: "Ko'k",
     icon: "wind",
-    reactants: ["Cu", "HNO₃"],
-    products: ["Cu(NO₃)₂", "NO", "H₂O"],
-    category: "Kislota + Metall",
-    detailedExplanation: `
-🔬 NIMA UCHUN VODOROD AJRALMAYDI?
-
-Mis metallar aktivlik qatorida vodoroddan O'NGDA joylashgan. Bu shuni anglatadiki:
-• Mis oddiy kislotalar (HCl, suyultirilgan H₂SO₄) bilan reaksiyaga KIRMAYDI
-• Faqat OKSIDLOVCHI kislotalar (HNO₃, konc. H₂SO₄) bilan reaksiyaga kiradi
-
-⚗️ NITRAT KISLOTA - OKSIDLOVCHI:
-HNO₃ da vodorod emas, balki AZOT qaytariladi:
-• Suyultirilgan HNO₃: NO ajraladi (rangsiz, havoda NO₂ ga aylanadi)
-• Konsentrlangan HNO₃: NO₂ ajraladi (jigarrang gaz)
-
-📝 REAKSIYA TENGLAMASI (batafsil):
-Oksidlanish: Cu⁰ - 2e⁻ → Cu²⁺
-Qaytarilish: NO₃⁻ + 4H⁺ + 3e⁻ → NO + 2H₂O
-
-🧪 KUZATISH:
-1. Mis parchasi kislotaga tushirilganda, avval hech narsa bo'lmaydi
-2. Keyin rangsiz pufakchalar paydo bo'ladi (NO)
-3. Bu pufakchalar havoga chiqqanda jigarrangga aylanadi (NO₂ ga)
-4. Eritma chiroyli ko'k rangga kiradi
-    `,
-    mechanism: "Cu⁰ → Cu²⁺ (oksidlanish), NO₃⁻ → NO (qaytarilish)",
-    applications: ["Cu(NO₃)₂ olish", "Mis buyumlarni tozalash", "Galvanika"],
-    safetyNotes: "NO₂ gazi zaharli! Yaxshi shamollatilgan joyda ishlang",
-    energyChange: "Ekzotermik"
-  },
-  {
-    id: "hno3-cu-conc",
-    equation: "Cu + 4HNO₃(konc) → Cu(NO₃)₂ + 2NO₂↑ + 2H₂O",
-    type: "Redoks",
-    description: "Mis konsentrlangan nitrat kislota bilan reaksiyaga kirib, jigarrang NO₂ gazi ajraladi",
-    conditions: "Konsentrlangan HNO₃",
-    observation: "Jigarrang gaz ajraladi, ko'k eritma hosil bo'ladi",
-    color: "Ko'k",
-    icon: "wind",
-    reactants: ["Cu", "HNO₃"],
-    products: ["Cu(NO₃)₂", "NO₂", "H₂O"],
-    category: "Kislota + Metall",
-    detailedExplanation: `
-🔬 KONSENTRLANGAN VA SUYULTIRILGAN HNO₃ FARQI:
-
-Suyultirilgan HNO₃: N⁺⁵ → N⁺² (NO ajraladi)
-Konsentrlangan HNO₃: N⁺⁵ → N⁺⁴ (NO₂ ajraladi)
-
-📝 NIMA UCHUN FARQ BOR?
-Konsentrlangan kislotada suv kam, shuning uchun qaytarilish kuchsizroq (faqat 1 elektron)
-Suyultirilgan kislotada suv ko'p, qaytarilish chuqurroq (3 elektron)
-
-⚠️ NO₂ GAZI:
-• Jigarrang rang
-• Keskin hid
-• Juda zaharli
-• Havoni ifloslantiradi
-
-🧪 LABORATORIYADA:
-Bu reaksiyani FAQAT moshka ostida o'tkazing! NO₂ nafas yo'llarini jiddiy shikastlaydi.
-    `,
-    mechanism: "NO₃⁻ + 2H⁺ + e⁻ → NO₂ + H₂O",
-    applications: ["Cu(NO₃)₂ olish", "Mis tozalash"],
-    safetyNotes: "NO₂ juda zaharli! Faqat moshka ostida ishlang!",
-    energyChange: "Ekzotermik"
+    reactants: ["Cu", "HNO3"],
+    products: ["Cu(NO3)2", "NO", "H2O"],
+    category: "Kislota + Metall"
   },
   {
     id: "h2so4-mg",
     equation: "Mg + H₂SO₄ → MgSO₄ + H₂↑",
     type: "Almashtirish",
-    description: "Magniy sulfat kislota bilan jadal reaksiyaga kirib, magniy sulfat va vodorod gazi hosil qiladi",
+    description: "Magniy sulfat kislota bilan reaksiyaga kirib, magniy sulfat va vodorod gazi hosil qiladi",
     conditions: "Xona haroratida",
-    observation: "Jadal reaksiya, ko'p gaz ajraladi, eritma isiydi",
+    observation: "Jadal reaksiya, ko'p gaz ajraladi",
     icon: "flame",
-    reactants: ["Mg", "H₂SO₄"],
-    products: ["MgSO₄", "H₂"],
-    category: "Kislota + Metall",
-    detailedExplanation: `
-🔬 MAGNIY SULFAT (EPSOM TUZI):
-
-MgSO₄ tabiiy manbalardan ham olinadi (Epsom, Angliya shahri yaqinida topilgan).
-
-💊 TIBBIYOTDA:
-• Surgi sifatida
-• Muskul og'riqlarini kamaytirish
-• Magniy tanqisligi davolash
-
-🌿 QISHLOQ XO'JALIGIDA:
-• O'g'it sifatida (Mg o'simliklar uchun zarur)
-• Tuproqni boyitish
-
-🧪 REAKSIYA XUSUSIYATLARI:
-Magniy aktivligi yuqori bo'lgani uchun, reaksiya juda tez va qizg'in ketadi. Katta bo'lak Mg bilan reaksiya qilganda, eritma qaynashi mumkin!
-    `,
-    mechanism: "Mg⁰ → Mg²⁺ + 2e⁻ (tez oksidlanish)",
-    applications: ["Epsom tuzi ishlab chiqarish", "Tibbiyot", "Qishloq xo'jaligi"],
-    safetyNotes: "Jadal reaksiya - kichik porsiyalarda qo'shing",
-    energyChange: "Juda ekzotermik"
+    reactants: ["Mg", "H2SO4"],
+    products: ["MgSO4", "H2"],
+    category: "Kislota + Metall"
   },
   {
     id: "hcl-ca",
     equation: "Ca + 2HCl → CaCl₂ + H₂↑",
     type: "Almashtirish",
-    description: "Kalsiy xlorid kislota bilan jadal reaksiyaga kirib, kalsiy xlorid va vodorod gazi hosil qiladi",
+    description: "Kalsiy xlorid kislota bilan reaksiyaga kirib, kalsiy xlorid va vodorod gazi hosil qiladi",
     conditions: "Xona haroratida",
-    observation: "Juda tez reaksiya, ko'p gaz va issiqlik ajraladi",
-    icon: "flame",
+    observation: "Tez reaksiya, ko'p gaz ajraladi",
+    icon: "droplets",
     reactants: ["Ca", "HCl"],
-    products: ["CaCl₂", "H₂"],
-    category: "Kislota + Metall",
-    detailedExplanation: `
-🔬 KALSIY - FAOL METALL:
-
-Kalsiy ishqoriy-yer metallariga kiradi va juda faol. U hatto sovuq suv bilan ham reaksiyaga kiradi!
-
-⚡ REAKSIYA XUSUSIYATLARI:
-• Juda tez va portlovchi
-• Ko'p issiqlik ajraladi
-• Kalsiy parcha-parcha bo'lib eriydi
-
-💧 KALSIY XLORID (CaCl₂):
-• Qorni eritish uchun
-• Namlikni yutuvchi
-• Oziq-ovqat sanoatida
-
-⚠️ EHTIYOT BO'LING:
-Kalsiy kislota bilan reaksiyaga kirganda, issiqlik shunchalik ko'p ajraladiki, vodorod yonib ketishi mumkin!
-    `,
-    mechanism: "Ca⁰ → Ca²⁺ + 2e⁻ (juda tez)",
-    applications: ["CaCl₂ olish", "Qor eritish tuzi", "Quritgich"],
-    safetyNotes: "Portlash xavfi! Kichik miqdorlarda ishlang",
-    energyChange: "Juda ekzotermik"
+    products: ["CaCl2", "H2"],
+    category: "Kislota + Metall"
+  },
+  {
+    id: "h2so4-al",
+    equation: "2Al + 3H₂SO₄ → Al₂(SO₄)₃ + 3H₂↑",
+    type: "Almashtirish",
+    description: "Alyuminiy sulfat kislota bilan reaksiyaga kirib, alyuminiy sulfat va vodorod gazi hosil qiladi",
+    conditions: "Suyultirilgan kislota",
+    observation: "Vodorod gazi ajraladi",
+    icon: "droplets",
+    reactants: ["Al", "H2SO4"],
+    products: ["Al2(SO4)3", "H2"],
+    category: "Kislota + Metall"
   },
   {
     id: "hcl-na",
     equation: "2Na + 2HCl → 2NaCl + H₂↑",
     type: "Almashtirish",
-    description: "Natriy xlorid kislota bilan portlashli reaksiyaga kirib, osh tuzi va vodorod gazi hosil qiladi",
-    conditions: "Xona haroratida - XAVFLI!",
-    observation: "Portlash, yonish, ko'p issiqlik",
+    description: "Natriy xlorid kislota bilan portlashli reaksiyaga kirib, natriy xlorid va vodorod gazi hosil qiladi",
+    conditions: "Juda ehtiyotkorlik bilan",
+    observation: "Portlash xavfi, ko'p issiqlik",
     icon: "flame",
     reactants: ["Na", "HCl"],
-    products: ["NaCl", "H₂"],
-    category: "Kislota + Metall",
-    detailedExplanation: `
-🔬 ENG FAOL METALLLARDAN BIRI:
-
-Natriy (Na) ishqoriy metallar guruhiga kiradi va ENG FAOL metallardan biridir.
-
-⚠️ XAVF!
-Bu reaksiya portlashli! Natriy:
-• Kislota bilan jadal reaksiyaga kiradi
-• Ko'p issiqlik ajraladi
-• Vodorod darhol yonadi
-• Portlash sodir bo'lishi mumkin
-
-🧪 LABORATORIYADA:
-Bu reaksiya NAMOYISH maqsadida ham kam o'tkaziladi. Agar o'tkazilsa:
-• Juda kichik natriy bo'lagi ishlatiladi
-• Himoya ekran orqasida
-• O't o'chirish vositasi yonida
-
-🧂 MAHSULOT:
-Natijada oddiy osh tuzi (NaCl) hosil bo'ladi - bu juda qiziq!
-    `,
-    mechanism: "Na⁰ → Na⁺ + e⁻ (darhol)",
-    applications: ["Faqat ilmiy maqsadlarda"],
-    safetyNotes: "XAVFLI REAKSIYA! Faqat professional nazoratida!",
-    energyChange: "Portlovchi ekzotermik"
-  },
-  {
-    id: "h2so4-fe",
-    equation: "Fe + H₂SO₃ → FeSO₄ + H₂↑",
-    type: "Almashtirish",
-    description: "Temir suyultirilgan sulfat kislota bilan reaksiyaga kirib, temir sulfat va vodorod gazi hosil qiladi",
-    conditions: "Suyultirilgan kislota, xona harorati",
-    observation: "Yashil eritma hosil bo'ladi, gaz ajraladi",
-    color: "Yashil",
-    icon: "droplets",
-    reactants: ["Fe", "H₂SO₄"],
-    products: ["FeSO₄", "H₂"],
-    category: "Kislota + Metall",
-    detailedExplanation: `
-🔬 TEMIR(II) SULFAT:
-
-FeSO₄ - "yashil vitriol" deb ham ataladi. Ko'hna zamonlardan beri ma'lum.
-
-💊 QOLLASH:
-• Kamqonlikni davolash (Fe tanqisligi)
-• Bo'yoqlar ishlab chiqarish
-• Suv tozalash
-• O'g'it sifatida
-
-🧪 KONSENTRATSIYA MUHIM:
-• Suyultirilgan H₂SO₄: H₂ ajraladi
-• Konsentrlangan H₂SO₄: SO₂ ajraladi
-• Konsentratsiya o'rtacha: aralash mahsulotlar
-
-⚗️ REAKSIYA TEZLIGI:
-Temir yuzasidagi zang qatlami reaksiyani sekinlashtiradi. Toza temir tezroq eriydi.
-    `,
-    mechanism: "Fe⁰ → Fe²⁺ + 2e⁻",
-    applications: ["Yashil vitriol", "Tibbiyot", "Sanoat"],
-    safetyNotes: "Kislota bilan ehtiyotkorlik",
-    energyChange: "Ekzotermik"
+    products: ["NaCl", "H2"],
+    category: "Kislota + Metall"
   },
   {
     id: "hno3-ag",
@@ -418,137 +168,62 @@ Temir yuzasidagi zang qatlami reaksiyani sekinlashtiradi. Toza temir tezroq eriy
     type: "Redoks",
     description: "Kumush suyultirilgan nitrat kislota bilan reaksiyaga kirib, kumush nitrat hosil qiladi",
     conditions: "Suyultirilgan HNO₃",
-    observation: "Rangsiz eritma, gaz ajraladi",
+    observation: "Jigarrang gaz ajraladi",
     icon: "wind",
-    reactants: ["Ag", "HNO₃"],
-    products: ["AgNO₃", "NO", "H₂O"],
-    category: "Kislota + Metall",
-    detailedExplanation: `
-🔬 KUMUSH NITRAT - "LYAPIS":
-
-AgNO₃ juda muhim kimyoviy reaktiv. Tibbiyotda "lyapis" deb ataladi.
-
-📸 FOTOGRAFIYA:
-Kumush nitrat fotografiya tarixida asosiy moddalardan biri bo'lgan. Yorug'lik ta'sirida qoraga aylanadi.
-
-💊 TIBBIYOT:
-• Yaralarni kuydirish
-• Bakterisid sifatida
-• Kuyiklarni davolash
-
-🧪 SIFAT REAKTSIYASI:
-AgNO₃ eritmasi xlorid ionlarini aniqlash uchun ishlatiladi:
-Ag⁺ + Cl⁻ → AgCl↓ (oq cho'kma)
-    `,
-    mechanism: "Ag⁰ → Ag⁺ + e⁻, NO₃⁻ → NO",
-    applications: ["Fotografiya", "Tibbiyot", "Analitik kimyo"],
-    safetyNotes: "AgNO₃ terini qora dog'laydi",
-    energyChange: "Ekzotermik"
+    reactants: ["Ag", "HNO3"],
+    products: ["AgNO3", "NO", "H2O"],
+    category: "Kislota + Metall"
   },
   {
-    id: "h2so4-cu-conc",
-    equation: "Cu + 2H₂SO₄(konc) → CuSO₄ + SO₂↑ + 2H₂O",
-    type: "Redoks",
-    description: "Mis konsentrlangan sulfat kislota bilan reaksiyaga kirib, SO₂ gazi ajraladi",
-    conditions: "Konsentrlangan H₂SO₄, qizdirish",
-    observation: "Ko'k eritma, keskin hidli gaz",
-    color: "Ko'k",
-    icon: "flame",
-    reactants: ["Cu", "H₂SO₄"],
-    products: ["CuSO₄", "SO₂", "H₂O"],
-    category: "Kislota + Metall",
-    detailedExplanation: `
-🔬 KONSENTRLANGAN SULFAT KISLOTA:
-
-Konsentrlangan H₂SO₄ oksidlovchi xossaga ega. Mis bilan reaksiyada vodorod emas, SO₂ ajraladi.
-
-⚠️ SO₂ GAZI:
-• Keskin, bo'g'uvchi hid
-• Zaharli
-• Sulfitlar saqlovchisi
-• Kislotali yomg'ir sababi
-
-🌡️ QIZDIRISH KERAK:
-Bu reaksiya xona haroratida juda sekin ketadi. Qizdirish reaksiyani tezlashtiradi.
-
-💎 MIS SULFAT:
-CuSO₄ · 5H₂O - "ko'k vitriol". Chiroyli ko'k kristallar. Qishloq xo'jaligida fungitsid sifatida ishlatiladi.
-    `,
-    mechanism: "Cu⁰ → Cu²⁺, S⁺⁶ → S⁺⁴ (SO₂)",
-    applications: ["Ko'k vitriol olish", "Sanoat kimyosi"],
-    safetyNotes: "SO₂ zaharli! Qizdirish xavfli!",
-    energyChange: "Ekzotermik (qizdirish kerak)"
-  },
-  {
-    id: "hcl-pb",
-    equation: "Pb + 2HCl → PbCl₂ + H₂↑",
+    id: "h2so4-ca",
+    equation: "Ca + H₂SO₄ → CaSO₄ + H₂↑",
     type: "Almashtirish",
-    description: "Qo'rg'oshin xlorid kislota bilan sekin reaksiyaga kiradi",
-    conditions: "Xona haroratida, juda sekin",
-    observation: "Oq cho'kma qatlami hosil bo'ladi",
+    description: "Kalsiy sulfat kislota bilan reaksiyaga kirib, kalsiy sulfat va vodorod gazi hosil qiladi",
+    conditions: "Xona haroratida",
+    observation: "Oq cho'kma hosil bo'ladi",
     color: "Oq",
+    icon: "sparkles",
+    reactants: ["Ca", "H2SO4"],
+    products: ["CaSO4", "H2"],
+    category: "Kislota + Metall"
+  },
+  {
+    id: "hcl-sn",
+    equation: "Sn + 2HCl → SnCl₂ + H₂↑",
+    type: "Almashtirish",
+    description: "Qalay xlorid kislota bilan reaksiyaga kirib, qalay xlorid va vodorod gazi hosil qiladi",
+    conditions: "Xona haroratida",
+    observation: "Sekin reaksiya, gaz ajraladi",
     icon: "droplets",
-    reactants: ["Pb", "HCl"],
-    products: ["PbCl₂", "H₂"],
-    category: "Kislota + Metall",
-    detailedExplanation: `
-🔬 NIMA UCHUN REAKSIYA SEKIN?
-
-Qo'rg'oshin xlorid (PbCl₂) suvda kam eriydi. U metall yuzasida himoya qatlami hosil qiladi va reaksiyani to'xtatadi.
-
-🧪 QIZIQ FAKT:
-PbCl₂ sovuq suvda kam, issiq suvda yaxshi eriydi. Issiq eritma soviganda, chiroyli ignasimon kristallar hosil bo'ladi!
-
-⚠️ ZAHARLI!
-Qo'rg'oshin va uning barcha birikmalari zaharli. Bu reaktsiyani faqat maxsus laboratoriya sharoitlarida o'tkazish mumkin.
-
-🔋 TARIX:
-Qo'rg'oshin-kislotali akkumulyatorlarda PbSO₄ ishlatiladi (avtomobil akkumulyatorlari).
-    `,
-    mechanism: "Pb⁰ → Pb²⁺ + 2e⁻ (sekin, PbCl₃ passivatsiya)",
-    applications: ["Faqat laboratoriya tadqiqotlari"],
-    safetyNotes: "Qo'rg'oshin zaharli! Himoya vositalari shart!",
-    energyChange: "Kuchsiz ekzotermik"
+    reactants: ["Sn", "HCl"],
+    products: ["SnCl2", "H2"],
+    category: "Kislota + Metall"
+  },
+  {
+    id: "hno3-zn",
+    equation: "4Zn + 10HNO₃ → 4Zn(NO₃)₂ + NH₄NO₃ + 3H₂O",
+    type: "Redoks",
+    description: "Rux juda suyultirilgan nitrat kislota bilan reaksiyaga kirib, ammoniy nitrat hosil qiladi",
+    conditions: "Juda suyultirilgan HNO₃",
+    observation: "Eritma isiydi",
+    icon: "droplets",
+    reactants: ["Zn", "HNO3"],
+    products: ["Zn(NO3)2", "NH4NO3", "H2O"],
+    category: "Kislota + Metall"
   },
 
-  // ==================== KISLOTA + ASOS (25 ta) ====================
+  // Kislota + Asos (20 reaksiya)
   {
     id: "hcl-naoh",
     equation: "HCl + NaOH → NaCl + H₂O",
     type: "Neytrallanish",
-    description: "Eng klassik neytrallanish reaksiyasi - kislota va ishqor o'zaro ta'sirlashib, tuz va suv hosil qiladi",
+    description: "Kislota va asos o'zaro ta'sirlashib, tuz va suv hosil qiladi",
     conditions: "Xona haroratida",
-    observation: "Rang o'zgarmaydi, eritma isiydi, indikator o'zgaradi",
+    observation: "Rang o'zgarmaydi, eritma isiydi, tuz kristallari hosil bo'ladi",
     icon: "droplets",
     reactants: ["HCl", "NaOH"],
-    products: ["NaCl", "H₂O"],
-    category: "Kislota + Asos",
-    detailedExplanation: `
-🔬 NEYTRALLANISH - ASOSIY REAKTSIYA:
-
-Bu kimyodagi eng muhim reaksiya turlaridan biri. Kislota va asos to'liq neytrallanib, tuz va suv hosil bo'ladi.
-
-📝 ION TENGLAMASI:
-H⁺ + OH⁻ → H₂O
-
-Bu barcha neytrallanish reaksiyalarining mohiyati. Qolgan ionlar "tomoshabin ionlar" - ular o'zgarmaydi.
-
-🧪 INDIKATORLAR:
-Neytrallanishni kuzatish uchun indikatorlar ishlatiladi:
-• Fenolftalein: pushti → rangsiz
-• Lakmus: ko'k/qizil → binafsha
-• Metil oranj: qizil → sariq
-
-⚡ ENERGETIKA:
-Neytrallanish har doim ekzotermik. Kuchli kislota + kuchli asos uchun ΔH = -57.3 kJ/mol
-
-🧂 MAHSULOT:
-NaCl - oddiy osh tuzi. Eritma bug'latilsa, toza tuz kristallari olinadi.
-    `,
-    mechanism: "H⁺ + OH⁻ → H₂O (ionli)",
-    applications: ["Titrimetrik analiz", "Tuz olish", "Kislotalilikni nazorat qilish"],
-    safetyNotes: "Aralashtirishda ehtiyot bo'ling - issiqlik ajraladi",
-    energyChange: "Ekzotermik (-57.3 kJ/mol)"
+    products: ["NaCl", "H2O"],
+    category: "Kislota + Asos"
   },
   {
     id: "h2so4-naoh",
@@ -556,2633 +231,1049 @@ NaCl - oddiy osh tuzi. Eritma bug'latilsa, toza tuz kristallari olinadi.
     type: "Neytrallanish",
     description: "Sulfat kislota natriy gidroksid bilan neytrallanib, natriy sulfat va suv hosil qiladi",
     conditions: "Xona haroratida",
-    observation: "Ko'p issiqlik ajraladi, eritma isiydi",
+    observation: "Ko'p issiqlik ajraladi",
     icon: "flame",
-    reactants: ["H₂SO₄", "NaOH"],
-    products: ["Na₂SO₄", "H₂O"],
-    category: "Kislota + Asos",
-    detailedExplanation: `
-🔬 IKKI VALENTLI KISLOTA:
-
-H₂SO₄ ikki valentli kislota, ya'ni 1 mol kislota 2 mol ishqor bilan reaksiyaga kiradi.
-
-📝 BOSQICHLI NEYTRALLANISH:
-1-bosqich: H₂SO₄ + NaOH → NaHSO₄ + H₂O (nordon tuz)
-2-bosqich: NaHSO₄ + NaOH → Na₂SO₄ + H₂O (neytral tuz)
-
-💎 NATRIY SULFAT:
-Na₂SO₄ · 10H₂O - "Glauber tuzi" deb ataladi. 1658-yilda kashf etilgan.
-
-🏭 SANOAT:
-• Shisha ishlab chiqarish
-• Kir yuvish kukunlari
-• Qog'oz sanoati
-• To'qimachilik
-    `,
-    mechanism: "2H⁺ + 2OH⁻ → 2H₂O",
-    applications: ["Glauber tuzi", "Shisha sanoati", "Titrimetriya"],
-    safetyNotes: "Ko'p issiqlik - asta-sekin aralang",
-    energyChange: "Ekzotermik"
+    reactants: ["H2SO4", "NaOH"],
+    products: ["Na2SO4", "H2O"],
+    category: "Kislota + Asos"
   },
   {
     id: "hno3-koh",
     equation: "HNO₃ + KOH → KNO₃ + H₂O",
     type: "Neytrallanish",
-    description: "Nitrat kislota kaliy gidroksid bilan neytrallanib, kaliy nitrat (selitra) hosil qiladi",
+    description: "Nitrat kislota kaliy gidroksid bilan neytrallanib, kaliy nitrat va suv hosil qiladi",
     conditions: "Xona haroratida",
     observation: "Eritma isiydi",
     icon: "droplets",
-    reactants: ["HNO₃", "KOH"],
-    products: ["KNO₃", "H₂O"],
-    category: "Kislota + Asos",
-    detailedExplanation: `
-🔬 KALIY NITRAT - SELITRA:
-
-KNO₃ juda muhim kimyoviy modda. Tarixda "selitra" yoki "choz" deb atalgan.
-
-💥 QORA POROX:
-Klassik qora porox tarkibi:
-• 75% KNO₃ (selitra) - oksidlovchi
-• 15% uglerod - yonuvchi
-• 10% oltingugurt - yonuvchi
-
-🌿 O'G'IT:
-Kaliy nitrat eng yaxshi o'g'itlardan biri:
-• Kaliy - o'simlik uchun zarur
-• Azot - o'sish uchun kerak
-• Tez eriydi
-• Zaharli emas
-
-🧪 XOSSALARI:
-• Oq kristallar
-• Suvda yaxshi eriydi
-• Qizdirilganda parchalanadi: 2KNO₃ → 2KNO₂ + O₂
-    `,
-    mechanism: "H⁺ + OH⁻ → H₂O",
-    applications: ["Porox", "O'g'it", "Pirotexnika", "Oziq-ovqat sanoati"],
-    safetyNotes: "KNO₃ oksidlovchi - yonuvchan moddalardan uzoq saqlang",
-    energyChange: "Ekzotermik"
+    reactants: ["HNO3", "KOH"],
+    products: ["KNO3", "H2O"],
+    category: "Kislota + Asos"
+  },
+  {
+    id: "h3po4-naoh",
+    equation: "H₃PO₄ + 3NaOH → Na₃PO₄ + 3H₂O",
+    type: "Neytrallanish",
+    description: "Fosfat kislota natriy gidroksid bilan neytrallanib, natriy fosfat va suv hosil qiladi",
+    conditions: "Xona haroratida",
+    observation: "Eritma isiydi",
+    icon: "droplets",
+    reactants: ["H3PO4", "NaOH"],
+    products: ["Na3PO4", "H2O"],
+    category: "Kislota + Asos"
+  },
+  {
+    id: "ch3cooh-naoh",
+    equation: "CH₃COOH + NaOH → CH₃COONa + H₂O",
+    type: "Neytrallanish",
+    description: "Sirka kislota natriy gidroksid bilan neytrallanib, natriy atsetat va suv hosil qiladi",
+    conditions: "Xona haroratida",
+    observation: "Kuchsiz issiqlik",
+    icon: "droplets",
+    reactants: ["CH3COOH", "NaOH"],
+    products: ["CH3COONa", "H2O"],
+    category: "Kislota + Asos"
+  },
+  {
+    id: "hcl-koh",
+    equation: "HCl + KOH → KCl + H₂O",
+    type: "Neytrallanish",
+    description: "Xlorid kislota kaliy gidroksid bilan neytrallanib, kaliy xlorid va suv hosil qiladi",
+    conditions: "Xona haroratida",
+    observation: "Eritma isiydi",
+    icon: "droplets",
+    reactants: ["HCl", "KOH"],
+    products: ["KCl", "H2O"],
+    category: "Kislota + Asos"
+  },
+  {
+    id: "h2so4-koh",
+    equation: "H₂SO₄ + 2KOH → K₂SO₄ + 2H₂O",
+    type: "Neytrallanish",
+    description: "Sulfat kislota kaliy gidroksid bilan neytrallanib, kaliy sulfat va suv hosil qiladi",
+    conditions: "Xona haroratida",
+    observation: "Ko'p issiqlik ajraladi",
+    icon: "flame",
+    reactants: ["H2SO4", "KOH"],
+    products: ["K2SO4", "H2O"],
+    category: "Kislota + Asos"
+  },
+  {
+    id: "hcl-ca(oh)2",
+    equation: "2HCl + Ca(OH)₂ → CaCl₂ + 2H₂O",
+    type: "Neytrallanish",
+    description: "Xlorid kislota kalsiy gidroksid bilan neytrallanib, kalsiy xlorid va suv hosil qiladi",
+    conditions: "Xona haroratida",
+    observation: "Eritma isiydi",
+    icon: "droplets",
+    reactants: ["HCl", "Ca(OH)2"],
+    products: ["CaCl2", "H2O"],
+    category: "Kislota + Asos"
+  },
+  {
+    id: "h2so4-ba(oh)2",
+    equation: "H₂SO₄ + Ba(OH)₂ → BaSO₄↓ + 2H₂O",
+    type: "Neytrallanish va cho'kma",
+    description: "Sulfat kislota bariy gidroksid bilan reaksiyaga kirib, bariy sulfat cho'kmasi hosil qiladi",
+    conditions: "Xona haroratida",
+    observation: "Oq cho'kma hosil bo'ladi",
+    color: "Oq",
+    icon: "sparkles",
+    reactants: ["H2SO4", "Ba(OH)2"],
+    products: ["BaSO4", "H2O"],
+    category: "Kislota + Asos"
+  },
+  {
+    id: "hno3-naoh",
+    equation: "HNO₃ + NaOH → NaNO₃ + H₂O",
+    type: "Neytrallanish",
+    description: "Nitrat kislota natriy gidroksid bilan neytrallanib, natriy nitrat va suv hosil qiladi",
+    conditions: "Xona haroratida",
+    observation: "Eritma isiydi",
+    icon: "droplets",
+    reactants: ["HNO3", "NaOH"],
+    products: ["NaNO3", "H2O"],
+    category: "Kislota + Asos"
+  },
+  {
+    id: "h2so4-mg(oh)2",
+    equation: "H₂SO₄ + Mg(OH)₂ → MgSO₄ + 2H₂O",
+    type: "Neytrallanish",
+    description: "Sulfat kislota magniy gidroksid bilan neytrallanib, magniy sulfat va suv hosil qiladi",
+    conditions: "Xona haroratida",
+    observation: "Oq cho'kma eriydi",
+    icon: "droplets",
+    reactants: ["H2SO4", "Mg(OH)2"],
+    products: ["MgSO4", "H2O"],
+    category: "Kislota + Asos"
   },
   {
     id: "hcl-nh3",
     equation: "HCl + NH₃ → NH₄Cl",
     type: "Neytrallanish",
-    description: "Gaz holatdagi xlorid kislota va ammiak o'zaro ta'sirlashib, oq tutun hosil qiladi",
-    conditions: "Xona haroratida, gaz fazada",
+    description: "Xlorid kislota ammiak bilan reaksiyaga kirib, ammoniy xlorid hosil qiladi",
+    conditions: "Xona haroratida",
     observation: "Oq tutun hosil bo'ladi",
     color: "Oq tutun",
     icon: "wind",
-    reactants: ["HCl", "NH₃"],
-    products: ["NH₄Cl"],
-    category: "Kislota + Asos",
-    detailedExplanation: `
-🔬 GAZ FAZADA REAKSIYA:
-
-Bu noyob reaksiya - ikki gaz uchrashib, qattiq modda hosil qiladi!
-
-💨 MEXANIZM:
-1. HCl molekulalari havoda tarqaladi
-2. NH₃ molekulalari ham tarqaladi
-3. Ular uchrashganda NH₄Cl kristallari hosil bo'ladi
-4. Kristallar oq tutun ko'rinishida ko'rinadi
-
-🧪 KLASSIK TAJRIBA:
-1. Ikkita probirkaga: biriga konc. HCl, biriga konc. NH₃·H₂O
-2. Probirka og'izlarini yaqinlashtiring
-3. Oq tutun paydo bo'ladi!
-
-🏭 AMMONIY XLORID:
-NH₄Cl (nishoder):
-• Batareyalarda
-• Lehimlash flyusi
-• Tibbiyotda
-    `,
-    mechanism: "HCl(g) + NH₃(g) → NH₄Cl(s) (to'g'ridan-to'g'ri)",
-    applications: ["Klassik demo tajriba", "Batareyalar", "Lehimlash"],
-    safetyNotes: "Gazlar zaharli - yaxshi shamollatilgan joyda",
-    energyChange: "Ekzotermik"
+    reactants: ["HCl", "NH3"],
+    products: ["NH4Cl"],
+    category: "Kislota + Asos"
   },
   {
-    id: "h2so4-ba(oh)2",
-    equation: "H₂SO₄ + Ba(OH)₂ → BaSO₄↓ + 2H₂O",
-    type: "Neytrallanish + Cho'kma",
-    description: "Sulfat kislota bariy gidroksid bilan reaksiyaga kirib, oq BaSO₄ cho'kmasi hosil qiladi",
+    id: "h2so4-nh3",
+    equation: "H₂SO₄ + 2NH₃ → (NH₄)₂SO₄",
+    type: "Neytrallanish",
+    description: "Sulfat kislota ammiak bilan reaksiyaga kirib, ammoniy sulfat hosil qiladi",
     conditions: "Xona haroratida",
-    observation: "Darhol oq cho'kma hosil bo'ladi",
-    color: "Oq",
-    icon: "sparkles",
-    reactants: ["H₂SO₄", "Ba(OH)₂"],
-    products: ["BaSO₄", "H₂O"],
-    category: "Kislota + Asos",
-    detailedExplanation: `
-🔬 IKKI REAKSIYA BIRGALIKDA:
-
-Bu reaksiyada ikkita jarayon sodir bo'ladi:
-1. Neytrallanish: H⁺ + OH⁻ → H₂O
-2. Cho'kma hosil bo'lishi: Ba²⁺ + SO₄²⁻ → BaSO₄↓
-
-💎 BARIY SULFAT:
-BaSO₄ - eng kam eriydigan tuzlardan biri. Eruvchanligi: 0.0002 g/100ml
-
-🏥 TIBBIYOT:
-"Bariy oshi" - rentgen tekshiruvida ichiladi:
-• BaSO₄ rentgen nurlarini yutadi
-• Oshqozon-ichak trakti ko'rinadi
-• Xavfsiz - chunki erimaydi va so'rilmaydi
-
-🧪 ANALITIK KIMYO:
-BaSO₄ cho'kmasi sulfat ionlarini aniqlash uchun ishlatiladi. Bu klassik gravimetrik analiz.
-    `,
-    mechanism: "Ba²⁺ + SO₄²⁻ → BaSO₄↓ (cho'kma), H⁺ + OH⁻ → H₂O",
-    applications: ["Rentgen kontrast", "Sulfat tahlili", "Bo'yoqlar"],
-    safetyNotes: "Ba(OH)₂ zaharli, BaSO₄ xavfsiz",
-    energyChange: "Ekzotermik"
+    observation: "Eritma isiydi",
+    icon: "droplets",
+    reactants: ["H2SO4", "NH3"],
+    products: ["(NH4)2SO4"],
+    category: "Kislota + Asos"
+  },
+  {
+    id: "hcl-al(oh)3",
+    equation: "3HCl + Al(OH)₃ → AlCl₃ + 3H₂O",
+    type: "Neytrallanish",
+    description: "Xlorid kislota alyuminiy gidroksid bilan reaksiyaga kirib, alyuminiy xlorid va suv hosil qiladi",
+    conditions: "Xona haroratida",
+    observation: "Oq cho'kma eriydi",
+    icon: "droplets",
+    reactants: ["HCl", "Al(OH)3"],
+    products: ["AlCl3", "H2O"],
+    category: "Kislota + Asos"
+  },
+  {
+    id: "h2so4-al(oh)3",
+    equation: "3H₂SO₄ + 2Al(OH)₃ → Al₂(SO₄)₃ + 6H₂O",
+    type: "Neytrallanish",
+    description: "Sulfat kislota alyuminiy gidroksid bilan reaksiyaga kirib, alyuminiy sulfat va suv hosil qiladi",
+    conditions: "Xona haroratida",
+    observation: "Oq cho'kma eriydi",
+    icon: "droplets",
+    reactants: ["H2SO4", "Al(OH)3"],
+    products: ["Al2(SO4)3", "H2O"],
+    category: "Kislota + Asos"
   },
   {
     id: "hcl-fe(oh)3",
     equation: "3HCl + Fe(OH)₃ → FeCl₃ + 3H₂O",
     type: "Neytrallanish",
-    description: "Xlorid kislota temir(III) gidroksid cho'kmasini eritib, sariq-jigarrang FeCl₃ eritmasini hosil qiladi",
+    description: "Xlorid kislota temir gidroksid bilan reaksiyaga kirib, temir xlorid va suv hosil qiladi",
     conditions: "Xona haroratida",
-    observation: "Jigarrang cho'kma eriydi, sariq eritma hosil bo'ladi",
-    color: "Jigarrang → Sariq",
+    observation: "Qizg'ish-jigarrang cho'kma eriydi",
+    color: "Sariq",
     icon: "droplets",
-    reactants: ["HCl", "Fe(OH)₃"],
-    products: ["FeCl₃", "H₂O"],
-    category: "Kislota + Asos",
-    detailedExplanation: `
-🔬 TEMIR(III) BIRIKMALARI:
-
-Fe(OH)₃ - qizg'ish-jigarrang cho'kma. Tabiiy zangning asosiy komponenti.
-
-🎨 RANGLAR:
-• Fe(OH)₃ - qizg'ish-jigarrang (cho'kma)
-• FeCl₃ eritmasi - sariq-yashil
-• Fe³⁺ ionlari - sariq rang
-
-🧪 FeCl₃ QOLLASH:
-• Pechatli platalar ishlab chiqarish
-• Suv tozalash (koagulyant)
-• Laboratoriya reaktivi
-• Tibbiyot (qon to'xtatuvchi)
-
-⚗️ OLISH:
-Fe(OH)₃ ni olish oson:
-FeCl₃ + 3NaOH → Fe(OH)₃↓ + 3NaCl
-    `,
-    mechanism: "Fe(OH)₃ + 3H⁺ → Fe³⁺ + 3H₂O",
-    applications: ["Suv tozalash", "Elektronika", "Tibbiyot"],
-    safetyNotes: "FeCl₃ kiyimlarni dog'laydi",
-    energyChange: "Ekzotermik"
+    reactants: ["HCl", "Fe(OH)3"],
+    products: ["FeCl3", "H2O"],
+    category: "Kislota + Asos"
+  },
+  {
+    id: "hno3-ca(oh)2",
+    equation: "2HNO₃ + Ca(OH)₂ → Ca(NO₃)₂ + 2H₂O",
+    type: "Neytrallanish",
+    description: "Nitrat kislota kalsiy gidroksid bilan neytrallanib, kalsiy nitrat va suv hosil qiladi",
+    conditions: "Xona haroratida",
+    observation: "Eritma isiydi",
+    icon: "droplets",
+    reactants: ["HNO3", "Ca(OH)2"],
+    products: ["Ca(NO3)2", "H2O"],
+    category: "Kislota + Asos"
+  },
+  {
+    id: "h3po4-koh",
+    equation: "H₃PO₄ + 3KOH → K₃PO₄ + 3H₂O",
+    type: "Neytrallanish",
+    description: "Fosfat kislota kaliy gidroksid bilan neytrallanib, kaliy fosfat va suv hosil qiladi",
+    conditions: "Xona haroratida",
+    observation: "Eritma isiydi",
+    icon: "droplets",
+    reactants: ["H3PO4", "KOH"],
+    products: ["K3PO4", "H2O"],
+    category: "Kislota + Asos"
   },
   {
     id: "hcl-cu(oh)2",
     equation: "2HCl + Cu(OH)₂ → CuCl₂ + 2H₂O",
     type: "Neytrallanish",
-    description: "Xlorid kislota mis(II) gidroksid ko'k cho'kmasini eritib, yashil CuCl₂ eritmasini hosil qiladi",
+    description: "Xlorid kislota mis gidroksid bilan reaksiyaga kirib, mis xlorid va suv hosil qiladi",
     conditions: "Xona haroratida",
     observation: "Ko'k cho'kma eriydi, yashil eritma hosil bo'ladi",
     color: "Ko'k → Yashil",
     icon: "droplets",
-    reactants: ["HCl", "Cu(OH)₂"],
-    products: ["CuCl₂", "H₂O"],
-    category: "Kislota + Asos",
-    detailedExplanation: `
-🔬 MIS GIDROKSIDI:
-
-Cu(OH)₂ - chiroyli ko'k rangli cho'kma. U barqaror emas va qizdirilganda qora CuO ga aylanadi.
-
-🎨 RANG O'ZGARISHI:
-Ko'k Cu(OH)₂ → Yashil CuCl₂ eritmasi
-Bu rang o'zgarishi neytrallanishni ko'rsatadi.
-
-💎 MIS XLORID:
-CuCl₂ yashil kristallar hosil qiladi. Suvda yaxshi eriydi.
-
-🧪 OLISH:
-Cu(OH)₂ ni olish:
-CuSO₄ + 2NaOH → Cu(OH)₂↓ + Na₂SO₄
-Yoki: CuCl₂ + 2NaOH → Cu(OH)₂↓ + 2NaCl
-    `,
-    mechanism: "Cu(OH)₂ + 2H⁺ → Cu²⁺ + 2H₂O",
-    applications: ["Laboratoriya reaktivi", "Galvanika"],
-    safetyNotes: "Mis birikmalari yuqori dozada zaharli",
-    energyChange: "Ekzotermik"
+    reactants: ["HCl", "Cu(OH)2"],
+    products: ["CuCl2", "H2O"],
+    category: "Kislota + Asos"
+  },
+  {
+    id: "h2so4-zn(oh)2",
+    equation: "H₂SO₄ + Zn(OH)₂ → ZnSO₄ + 2H₂O",
+    type: "Neytrallanish",
+    description: "Sulfat kislota sink gidroksid bilan reaksiyaga kirib, sink sulfat va suv hosil qiladi",
+    conditions: "Xona haroratida",
+    observation: "Oq cho'kma eriydi",
+    icon: "droplets",
+    reactants: ["H2SO4", "Zn(OH)2"],
+    products: ["ZnSO4", "H2O"],
+    category: "Kislota + Asos"
   },
 
-  // ==================== TUZ + TUZ (20 ta) ====================
+  // Tuz + Tuz (15 reaksiya)
   {
     id: "nacl-agno3",
     equation: "NaCl + AgNO₃ → AgCl↓ + NaNO₃",
     type: "Almashinish",
-    description: "Eng klassik cho'kma reaktsiyasi - kumush xloridning oq cho'kmasi hosil bo'ladi",
+    description: "Kumush xlorid cho'kmasi hosil bo'ladi",
     conditions: "Xona haroratida",
-    observation: "Darhol oq cho'kma, yorug'likda qorayadi",
-    color: "Oq → Kulrang",
+    observation: "Oq rangli cho'kma hosil bo'ladi",
+    color: "Oq",
     icon: "sparkles",
-    reactants: ["NaCl", "AgNO₃"],
-    products: ["AgCl", "NaNO₃"],
-    category: "Tuz + Tuz",
-    detailedExplanation: `
-🔬 KUMUSH XLORID - XLORID IONLARI ANIQLOVCHISI:
-
-Bu reaksiya analitik kimyoda juda muhim. Xlorid ionlarini aniqlash uchun asosiy usul.
-
-📸 FOTOGRAFIYA TARIXI:
-AgCl fotografiyaning asosida turadi:
-• Yorug'lik AgCl ni parchalaydi
-• Kumush ajraladi va qora ko'rinadi
-• Qoramtir joy = ko'p yorug'lik
-
-🧪 SIFAT REAKTSIYASI:
-Eritmada Cl⁻ ionlari bor-yo'qligini bilish uchun:
-1. AgNO₃ eritmasi qo'shiladi
-2. Oq cho'kma = Cl⁻ bor
-3. Cho'kma HNO₃ da erimaydi (farqlash uchun)
-
-💡 QIZIQ:
-AgCl yorug'likda o'zgaradi:
-2AgCl → 2Ag + Cl₂ (sekin)
-Shuning uchun fotoqurilmalar ishlab chiqarilgan!
-    `,
-    mechanism: "Ag⁺ + Cl⁻ → AgCl↓ (ionli almashinish)",
-    applications: ["Xlorid tahlili", "Fotografiya", "Tibbiyot"],
-    safetyNotes: "AgNO₃ terini qora dog'laydi",
-    energyChange: "Neytral"
+    reactants: ["NaCl", "AgNO3"],
+    products: ["AgCl", "NaNO3"],
+    category: "Tuz + Tuz"
   },
   {
     id: "cuso4-naoh",
     equation: "CuSO₄ + 2NaOH → Cu(OH)₂↓ + Na₂SO₄",
     type: "Almashinish",
-    description: "Ko'k vitriol ishqor bilan reaksiyaga kirib, chiroyli ko'k Cu(OH)₂ cho'kmasi hosil qiladi",
+    description: "Mis gidroksid cho'kmasi hosil bo'ladi",
     conditions: "Xona haroratida",
-    observation: "Chiroyli ko'k jelatinsimon cho'kma",
+    observation: "Ko'k rangli cho'kma hosil bo'ladi",
     color: "Ko'k",
     icon: "sparkles",
-    reactants: ["CuSO₄", "NaOH"],
-    products: ["Cu(OH)₂", "Na₂SO₄"],
-    category: "Tuz + Tuz",
-    detailedExplanation: `
-🔬 KLASSIK LABORATORIYA REAKTSIYASI:
-
-Bu reaktsiya kimyo darslarining eng mashhur tajribalaridan biri. Cu²⁺ ionlarini aniqlash uchun ishlatiladi.
-
-🎨 RANG:
-Cu(OH)₂ - juda chiroyli ko'k rang. Jelatinsimon konsistensiya.
-
-🌡️ QIZDIRILGANDA:
-Cu(OH)₂ → CuO + H₂O
-Ko'k cho'kma qora rangga o'tadi (mis oksidi)
-
-🔗 KOMPLEKS HOSIL BO'LISHI:
-Ortiqcha NaOH qo'shilganda:
-Cu(OH)₂ + 2NaOH → Na₂[Cu(OH)₄]
-Ko'k eritma - tetragidroksomediy(II) kompleksi
-
-🧪 BIURET REAKTSIYASI:
-Cu(OH)₂ oqsillarni aniqlash uchun ishlatiladi. Oqsil bilan binafsha rang hosil qiladi.
-    `,
-    mechanism: "Cu²⁺ + 2OH⁻ → Cu(OH)₂↓",
-    applications: ["Cu²⁺ tahlili", "Biuret reaktsiyasi", "Laboratoriya tajribasi"],
-    safetyNotes: "Mis birikmalari yuqori dozada zaharli",
-    energyChange: "Neytral"
+    reactants: ["CuSO4", "NaOH"],
+    products: ["Cu(OH)2", "Na2SO4"],
+    category: "Tuz + Tuz"
   },
   {
     id: "fecl3-naoh",
     equation: "FeCl₃ + 3NaOH → Fe(OH)₃↓ + 3NaCl",
     type: "Almashinish",
-    description: "Temir(III) xlorid ishqor bilan reaksiyaga kirib, qizg'ish-jigarrang cho'kma hosil qiladi",
+    description: "Temir gidroksid cho'kmasi hosil bo'ladi",
     conditions: "Xona haroratida",
-    observation: "Qizg'ish-jigarrang jelatinsimon cho'kma",
+    observation: "Qizg'ish-jigarrang cho'kma hosil bo'ladi",
     color: "Qizg'ish-jigarrang",
     icon: "sparkles",
-    reactants: ["FeCl₃", "NaOH"],
-    products: ["Fe(OH)₃", "NaCl"],
-    category: "Tuz + Tuz",
-    detailedExplanation: `
-🔬 TEMIR GIDROKSIDLARI:
-
-Fe²⁺ → Fe(OH)₂ - yashil-oq cho'kma (havoda tez oksidlanadi)
-Fe³⁺ → Fe(OH)₃ - qizg'ish-jigarrang cho'kma (barqaror)
-
-🎨 RANG FARQI:
-Bu rang farqi Fe²⁺ va Fe³⁺ ni ajratishga yordam beradi.
-
-⚗️ OKSIDLANISH:
-Fe(OH)₂ havoda tez oksidlanadi:
-4Fe(OH)₂ + O₂ + 2H₂O → 4Fe(OH)₃
-Yashil → Jigarrang
-
-🏭 SUVA TOZALASH:
-Fe(OH)₃ suv tozalashda koagulyant sifatida ishlatiladi. U mayda zarralarni yig'ib cho'ktirib tashlaydi.
-
-🧲 MAGNIT:
-Qizdirilganda Fe₂O₃ hosil bo'ladi - magnit xossalarga ega.
-    `,
-    mechanism: "Fe³⁺ + 3OH⁻ → Fe(OH)₃↓",
-    applications: ["Fe³⁺ tahlili", "Suv tozalash", "Pigmentlar"],
-    safetyNotes: "FeCl₃ korroziv, ehtiyot bo'ling",
-    energyChange: "Neytral"
+    reactants: ["FeCl3", "NaOH"],
+    products: ["Fe(OH)3", "NaCl"],
+    category: "Tuz + Tuz"
   },
   {
     id: "bacl2-na2so4",
     equation: "BaCl₂ + Na₂SO₄ → BaSO₄↓ + 2NaCl",
     type: "Almashinish",
-    description: "Bariy xlorid natriy sulfat bilan reaksiyaga kirib, oq BaSO₄ cho'kmasi hosil qiladi",
+    description: "Bariy sulfat cho'kmasi hosil bo'ladi",
     conditions: "Xona haroratida",
-    observation: "Darhol zich oq cho'kma",
+    observation: "Oq rangli cho'kma hosil bo'ladi",
     color: "Oq",
     icon: "sparkles",
-    reactants: ["BaCl₂", "Na₂SO₄"],
-    products: ["BaSO₄", "NaCl"],
-    category: "Tuz + Tuz",
-    detailedExplanation: `
-🔬 ENG KAM ERIYDIGAN TUZLARDAN BIRI:
-
-BaSO₄ suvda deyarli erimaydi. Eruvchanligi: 0.0002 g/100ml (25°C)
-
-🏥 TIBBIYOT:
-"Bariy sulfat suspenziyasi" rentgen tekshiruvida ichiladi. Xavfsiz chunki:
-• Erimaydi
-• So'rilmaydi
-• O'zgarishsiz chiqariladi
-
-🧪 GRAVIMETRIYA:
-Sulfat ionlarini miqdoriy aniqlashda eng aniq usul:
-1. BaCl₂ qo'shiladi
-2. BaSO₄ cho'kadi
-3. Cho'kma yuvilib, quritiladi
-4. Og'irligi o'lchanadi
-
-📊 HISOBLASH:
-m(SO₄²⁻) = m(BaSO₄) × M(SO₄²⁻)/M(BaSO₄)
-    `,
-    mechanism: "Ba²⁺ + SO₄²⁻ → BaSO₄↓",
-    applications: ["Rentgen", "Sulfat tahlili", "Bo'yoqlar"],
-    safetyNotes: "BaCl₂ zaharli! BaSO₄ xavfsiz",
-    energyChange: "Neytral"
+    reactants: ["BaCl2", "Na2SO4"],
+    products: ["BaSO4", "NaCl"],
+    category: "Tuz + Tuz"
   },
   {
     id: "pb(no3)2-ki",
     equation: "Pb(NO₃)₂ + 2KI → PbI₂↓ + 2KNO₃",
     type: "Almashinish",
-    description: "Qo'rg'oshin nitrat kaliy yodid bilan reaksiyaga kirib, chiroyli sariq PbI₂ cho'kmasi hosil qiladi",
+    description: "Qo'rg'oshin yodid cho'kmasi hosil bo'ladi",
     conditions: "Xona haroratida",
-    observation: "Yorqin sariq cho'kma - 'Oltin yomg'ir'",
+    observation: "Sariq rangli cho'kma hosil bo'ladi",
     color: "Sariq",
     icon: "sparkles",
-    reactants: ["Pb(NO₃)₂", "KI"],
-    products: ["PbI₂", "KNO₃"],
-    category: "Tuz + Tuz",
-    detailedExplanation: `
-🔬 "OLTIN YOMG'IR" TAJRIBASI:
-
-Bu eng chiroyli kimyoviy tajribalardan biri! PbI₂ issiq suvda yaxshi, sovuq suvda kam eriydi.
-
-⭐ OLTIN YOMG'IR:
-1. Eritmalari aralashtiriladi - sariq cho'kma
-2. Cho'kma qizdiriladi - eriydi
-3. Sekin soviganida - oltin parchalar yog'adi!
-
-🎨 RANGLAR:
-PbI₂ kristallari oltin-sariq rangda yaltirlab tushadi. Juda chiroyli!
-
-🧪 TAJRIBA TARTIBI:
-1. 0.1M Pb(NO₃)₂ tayyorlang
-2. 0.1M KI tayyorlang
-3. Aralashtirib, qizdiring
-4. Sekin soviting - oltin yomg'irni kuzating!
-
-⚠️ ZAHARLI:
-Qo'rg'oshin birikmalari zaharli. Faqat laboratoriya sharoitlarida!
-    `,
-    mechanism: "Pb²⁺ + 2I⁻ → PbI₂↓",
-    applications: ["Demo tajriba", "Pb²⁺ va I⁻ tahlili"],
-    safetyNotes: "Qo'rg'oshin birikmalari zaharli!",
-    energyChange: "Neytral"
+    reactants: ["Pb(NO3)2", "KI"],
+    products: ["PbI2", "KNO3"],
+    category: "Tuz + Tuz"
   },
   {
-    id: "agno3-nacl-photo",
+    id: "agno3-nacl",
     equation: "AgNO₃ + NaCl → AgCl↓ + NaNO₃",
     type: "Almashinish",
-    description: "Kumush nitrat natriy xlorid bilan reaksiyaga kirib, yorug'likka sezgir AgCl hosil qiladi",
+    description: "Kumush xlorid cho'kmasi hosil bo'ladi",
     conditions: "Xona haroratida",
     observation: "Oq cho'kma, yorug'likda qorayadi",
-    color: "Oq → Qora",
+    color: "Oq",
     icon: "sparkles",
-    reactants: ["AgNO₃", "NaCl"],
-    products: ["AgCl", "NaNO₃"],
-    category: "Tuz + Tuz",
-    detailedExplanation: `
-🔬 FOTOGRAFIYANING KIMYOVIY ASOSI:
-
-AgCl yorug'lik ta'sirida parchalanadi va sof kumush ajraladi. Bu prinsip fotografiyada 150 yildan ortiq ishlatilgan.
-
-📸 JARAYON:
-1. AgCl qatlamli plyonka/qog'oz
-2. Yorug'lik tushadi → AgCl parchalanadi
-3. Qora kumush hosil bo'ladi
-4. Qoramtir joy = ko'p yorug'lik
-
-🧪 TAJRIBA:
-1. AgNO₃ + NaCl → AgCl↓
-2. Cho'kmani qog'ozga surtib quritish
-3. Qog'ozga shablon qo'yib quyoshga tutish
-4. 10-15 daqiqada rasm paydo bo'ladi!
-
-🔬 KIMYOVIY TENGLAMA:
-2AgCl → 2Ag + Cl₂ (yorug'lik ta'sirida)
-    `,
-    mechanism: "Ag⁺ + Cl⁻ → AgCl↓, keyin yorug'lik parchalaydi",
-    applications: ["Fotografiya", "Yorug'lik o'lchash", "Tahlil"],
-    safetyNotes: "AgNO₃ terini dog'laydi",
-    energyChange: "Neytral (cho'kma), endotermik (parchalanish)"
-  },
-
-  // ==================== YONISH REAKSIYALARI (20 ta) ====================
-  {
-    id: "ch4-o2",
-    equation: "CH₄ + 2O₂ → CO₂ + 2H₂O",
-    type: "Yonish",
-    description: "Metan (tabiiy gaz) yonishi - asosiy energiya manbai",
-    conditions: "Alanga yoki uchqun, 600°C dan yuqori",
-    observation: "Ko'k alanga, issiqlik va suv bug'i",
-    icon: "flame",
-    reactants: ["CH₄", "O₂"],
-    products: ["CO₂", "H₂O"],
-    category: "Yonish",
-    detailedExplanation: `
-🔥 TABIIY GAZ YONISHI:
-
-Metan (CH₄) - tabiiy gazning asosiy komponenti. Eng toza yonuvchan gazlardan biri.
-
-⚡ ENERGIYA:
-1 mol CH₄ yonganda 890 kJ issiqlik ajraladi. Bu:
-• Isitish
-• Elektr energiyasi
-• Oziq-ovqat tayyorlash
-
-🌍 EKOLOGIYA:
-Metan eng "toza" yonuvchi uglevodorod:
-• Kam CO₂ ajraladi (ko'mirga nisbatan)
-• Kurum hosil bo'lmaydi
-• SO₂ ajralmaydi
-
-🔵 ALANGA RANGI:
-Toza metanning alangasi ko'k. Sariq alanga = to'liq yonmayapti (xavfli!)
-
-⚠️ XAVF:
-Metan + havo aralashmasi (5-15%) portlovchi! Gazdan hidlanishni sezish uchun maxsus hid qo'shiladi.
-    `,
-    mechanism: "Radikal zanjir reaksiyasi: CH₄ → ·CH₃ → ... → CO₂",
-    applications: ["Uy isitish", "Elektr stansiyalari", "Sanoat"],
-    safetyNotes: "Portlovchi gaz! Yaxshi shamollatish",
-    energyChange: "Juda ekzotermik (-890 kJ/mol)"
+    reactants: ["AgNO3", "NaCl"],
+    products: ["AgCl", "NaNO3"],
+    category: "Tuz + Tuz"
   },
   {
-    id: "c2h5oh-o2",
-    equation: "C₂H₅OH + 3O₂ → 2CO₂ + 3H₂O",
-    type: "Yonish",
-    description: "Etanol (spirt) yonishi - toza va samarali yonish",
-    conditions: "Alanga, xona haroratida yonadi",
-    observation: "Ko'k-rangsiz alanga, kam tutun",
-    icon: "flame",
-    reactants: ["C₂H₅OH", "O₂"],
-    products: ["CO₂", "H₂O"],
-    category: "Yonish",
-    detailedExplanation: `
-🔥 SPIRT YONISHI:
-
-Etanol (ichimlik spirti) yaxshi yonadi. Ko'k, deyarli ko'rinmas alanga bilan.
-
-🚗 BIOYOQILGI:
-Etanol benzin o'rniga ishlatiladi:
-• Braziliyada 25% etanol aralashtiriladi
-• E85 yoqilg'isi (85% etanol)
-• Yangilanadigan energiya manbai
-
-🧪 SPIRT LAMPASI:
-Laboratoriyalarda spirt lampasi ishlatiladi:
-• Toza yonadi
-• Harorat nazoratchan
-• Xavfsiz
-
-⚡ ENERGIYA:
-1 mol etanol yonganda 1367 kJ ajraladi. Bu metandan ko'p, lekin og'irligiga ko'ra benzindan kam.
-
-🎭 ALANGA:
-Etanol alangasi ko'k va deyarli ko'rinmaydi. Shuning uchun xavfli - odamlar ko'rmay qolishi mumkin!
-    `,
-    mechanism: "C₂H₅OH → aldegidlar → CO₂ + H₂O",
-    applications: ["Bioyoqilg'i", "Spirt lampasi", "Dezinfeksiya"],
-    safetyNotes: "Alanga ko'rinmas bo'lishi mumkin!",
-    energyChange: "Ekzotermik (-1367 kJ/mol)"
+    id: "cuso4-na2s",
+    equation: "CuSO₄ + Na₂S → CuS↓ + Na₂SO₄",
+    type: "Almashinish",
+    description: "Mis sulfid cho'kmasi hosil bo'ladi",
+    conditions: "Xona haroratida",
+    observation: "Qora rangli cho'kma hosil bo'ladi",
+    color: "Qora",
+    icon: "sparkles",
+    reactants: ["CuSO4", "Na2S"],
+    products: ["CuS", "Na2SO4"],
+    category: "Tuz + Tuz"
   },
   {
-    id: "c3h8-o2",
-    equation: "C₃H₈ + 5O₂ → 3CO₂ + 4H₂O",
-    type: "Yonish",
-    description: "Propan (suyultirilgan gaz) yonishi - oshxona gazi va avtomobil yoqilg'isi",
-    conditions: "Alanga, yonish nuqtasi -104°C",
-    observation: "Ko'k alanga, ko'p issiqlik",
-    icon: "flame",
-    reactants: ["C₃H₈", "O₂"],
-    products: ["CO₂", "H₂O"],
-    category: "Yonish",
-    detailedExplanation: `
-🔥 SUYULTIRILGAN GAZ:
-
-Propan va butan aralashmasi "suyultirilgan gaz" (LPG) deb ataladi. Ballonlarda sotiladi.
-
-🏠 QOLLASH:
-• Oshxona plitalari
-• Isitish tizimlari
-• Avtomobil yoqilg'isi (avtogas)
-• Kemping jihozlari
-
-⚡ AFZALLIKLARI:
-• Metandan ko'ra ko'proq energiya
-• Oson saqlanadi (suyuq holda)
-• Arzon
-• Toza yonadi
-
-📊 TAQQOSLASH:
-• Propan: 2220 kJ/mol
-• Butan: 2878 kJ/mol
-• Benzin: ~5400 kJ/mol (o'rtacha)
-
-⚠️ XAVF:
-LPG havodan og'ir - pol bo'ylab yig'iladi. Yaxshi shamollatish zarur!
-    `,
-    mechanism: "Propan oksidlanishi",
-    applications: ["Oshxona gazi", "Avtogas", "Sanoat"],
-    safetyNotes: "Havodan og'ir - pol bo'ylab yig'iladi!",
-    energyChange: "Ekzotermik (-2220 kJ/mol)"
+    id: "feso4-naoh",
+    equation: "FeSO₄ + 2NaOH → Fe(OH)₂↓ + Na₂SO₄",
+    type: "Almashinish",
+    description: "Temir(II) gidroksid cho'kmasi hosil bo'ladi",
+    conditions: "Xona haroratida, havosiz",
+    observation: "Yashil cho'kma, havoda qizg'ishga aylanadi",
+    color: "Yashil → Qizg'ish",
+    icon: "sparkles",
+    reactants: ["FeSO4", "NaOH"],
+    products: ["Fe(OH)2", "Na2SO4"],
+    category: "Tuz + Tuz"
   },
   {
-    id: "c-o2",
-    equation: "C + O₂ → CO₂",
-    type: "Yonish",
-    description: "Uglerodning to'liq yonishi - ko'mir, koks yonishi",
-    conditions: "Yuqori harorat, 700°C dan yuqori",
-    observation: "Qizil alanga, uglerod dioksid gazi",
-    icon: "flame",
-    reactants: ["C", "O₂"],
-    products: ["CO₂"],
-    category: "Yonish",
-    detailedExplanation: `
-🔥 KO'MIR YONISHI:
-
-Uglerod (ko'mir, koks, grafid) yonganda CO₂ hosil bo'ladi.
-
-⚠️ TO'LIQ VA TOLA'MAS YONISH:
-To'liq: C + O₂ → CO₂ (yaxshi)
-To'la emas: 2C + O₂ → 2CO (xavfli!)
-
-CO - is gazi, rangsiz, hidsiz, juda zaharli!
-
-🏭 SANOAT:
-Ko'mir yoqilg'isi sifatida:
-• Elektr stansiyalari
-• Metallurgiya
-• Isitish
-
-🌍 EKOLOGIYA:
-Ko'mir yonishi atmosferaga eng ko'p CO₂ chiqaradi. Iqlim o'zgarishining asosiy sabablaridan biri.
-
-🔬 ALLOTROPLAR:
-Turli uglerod shakllari (olmos, grafit, fullerene) ham yonsa, bir xil CO₂ hosil bo'ladi!
-    `,
-    mechanism: "C + O₂ → CO₂ (yuqori haroratda)",
-    applications: ["Energetika", "Metallurgiya", "Isitish"],
-    safetyNotes: "To'la yonmasa CO hosil bo'ladi - zaharli!",
-    energyChange: "Ekzotermik (-393 kJ/mol)"
+    id: "ca(no3)2-na2co3",
+    equation: "Ca(NO₃)₂ + Na₂CO₃ → CaCO₃↓ + 2NaNO₃",
+    type: "Almashinish",
+    description: "Kalsiy karbonat cho'kmasi hosil bo'ladi",
+    conditions: "Xona haroratida",
+    observation: "Oq cho'kma hosil bo'ladi",
+    color: "Oq",
+    icon: "sparkles",
+    reactants: ["Ca(NO3)2", "Na2CO3"],
+    products: ["CaCO3", "NaNO3"],
+    category: "Tuz + Tuz"
   },
   {
-    id: "s-o2",
-    equation: "S + O₂ → SO₂",
-    type: "Yonish",
-    description: "Oltingugurt yonishi - ko'k alanga va keskin hidli gaz",
-    conditions: "Alanga, 250°C dan yuqori",
-    observation: "Ko'k alanga, keskin hidli gaz",
-    icon: "flame",
-    reactants: ["S", "O₂"],
-    products: ["SO₂"],
-    category: "Yonish",
-    detailedExplanation: `
-🔥 OLTINGUGURT YONISHI:
-
-Oltingugurt yonganda chiroyli ko'k alanga hosil bo'ladi va keskin hidli SO₂ gazi ajraladi.
-
-🔵 KO'K ALANGA:
-Oltingugurt alangasi - kimyodagi eng chiroyli ko'k alangalardan biri. Vulqon otilishlarida ko'rish mumkin.
-
-⚠️ SO₂ - ZAHARLI GAZ:
-• Keskin, bo'g'uvchi hid
-• Nafas yo'llarini ta'sirlaydi
-• Kislotali yomg'ir sababi
-• Atmosferani ifloslantiradi
-
-🏭 SANOAT:
-SO₂ sulfat kislota ishlab chiqarishda xom ashyo:
-SO₂ + ½O₂ → SO₃
-SO₃ + H₂O → H₂SO₄
-
-💡 TARIX:
-Qadimda oltingugurt "iblis toshi" deb atalgan - uning yonishi do'zax bilan bog'langan.
-    `,
-    mechanism: "S + O₂ → SO₂",
-    applications: ["H₂SO₄ ishlab chiqarish", "Dezinfeksiya", "Oqartirish"],
-    safetyNotes: "SO₂ zaharli! Yaxshi shamollatish",
-    energyChange: "Ekzotermik (-297 kJ/mol)"
+    id: "znso4-naoh",
+    equation: "ZnSO₄ + 2NaOH → Zn(OH)₂↓ + Na₂SO₄",
+    type: "Almashinish",
+    description: "Sink gidroksid cho'kmasi hosil bo'ladi",
+    conditions: "Xona haroratida",
+    observation: "Oq cho'kma hosil bo'ladi",
+    color: "Oq",
+    icon: "sparkles",
+    reactants: ["ZnSO4", "NaOH"],
+    products: ["Zn(OH)2", "Na2SO4"],
+    category: "Tuz + Tuz"
   },
+  {
+    id: "pb(no3)2-na2so4",
+    equation: "Pb(NO₃)₂ + Na₂SO₄ → PbSO₄↓ + 2NaNO₃",
+    type: "Almashinish",
+    description: "Qo'rg'oshin sulfat cho'kmasi hosil bo'ladi",
+    conditions: "Xona haroratida",
+    observation: "Oq cho'kma hosil bo'ladi",
+    color: "Oq",
+    icon: "sparkles",
+    reactants: ["Pb(NO3)2", "Na2SO4"],
+    products: ["PbSO4", "NaNO3"],
+    category: "Tuz + Tuz"
+  },
+  {
+    id: "agno3-k2cro4",
+    equation: "2AgNO₃ + K₂CrO₄ → Ag₂CrO₄↓ + 2KNO₃",
+    type: "Almashinish",
+    description: "Kumush xromat cho'kmasi hosil bo'ladi",
+    conditions: "Xona haroratida",
+    observation: "Qizil cho'kma hosil bo'ladi",
+    color: "Qizil",
+    icon: "sparkles",
+    reactants: ["AgNO3", "K2CrO4"],
+    products: ["Ag2CrO4", "KNO3"],
+    category: "Tuz + Tuz"
+  },
+  {
+    id: "mgso4-naoh",
+    equation: "MgSO₄ + 2NaOH → Mg(OH)₂↓ + Na₂SO₄",
+    type: "Almashinish",
+    description: "Magniy gidroksid cho'kmasi hosil bo'ladi",
+    conditions: "Xona haroratida",
+    observation: "Oq cho'kma hosil bo'ladi",
+    color: "Oq",
+    icon: "sparkles",
+    reactants: ["MgSO4", "NaOH"],
+    products: ["Mg(OH)2", "Na2SO4"],
+    category: "Tuz + Tuz"
+  },
+  {
+    id: "nicl2-naoh",
+    equation: "NiCl₂ + 2NaOH → Ni(OH)₂↓ + 2NaCl",
+    type: "Almashinish",
+    description: "Nikel gidroksid cho'kmasi hosil bo'ladi",
+    conditions: "Xona haroratida",
+    observation: "Yashil cho'kma hosil bo'ladi",
+    color: "Yashil",
+    icon: "sparkles",
+    reactants: ["NiCl2", "NaOH"],
+    products: ["Ni(OH)2", "NaCl"],
+    category: "Tuz + Tuz"
+  },
+  {
+    id: "cocl2-naoh",
+    equation: "CoCl₂ + 2NaOH → Co(OH)₂↓ + 2NaCl",
+    type: "Almashinish",
+    description: "Kobalt gidroksid cho'kmasi hosil bo'ladi",
+    conditions: "Xona haroratida",
+    observation: "Pushti cho'kma hosil bo'ladi, havoda ko'kka aylanadi",
+    color: "Pushti → Ko'k",
+    icon: "sparkles",
+    reactants: ["CoCl2", "NaOH"],
+    products: ["Co(OH)2", "NaCl"],
+    category: "Tuz + Tuz"
+  },
+
+  // Oksid + Suv (10 reaksiya)
+  {
+    id: "cao-h2o",
+    equation: "CaO + H₂O → Ca(OH)₂",
+    type: "Birikish",
+    description: "Kalsiy oksid suv bilan birikib, kalsiy gidroksid hosil qiladi",
+    conditions: "Xona haroratida",
+    observation: "Ko'p issiqlik ajraladi, oq chang eriydi",
+    icon: "flame",
+    reactants: ["CaO", "H2O"],
+    products: ["Ca(OH)2"],
+    category: "Oksid + Suv"
+  },
+  {
+    id: "so2-h2o",
+    equation: "SO₂ + H₂O → H₂SO₃",
+    type: "Birikish",
+    description: "Oltingugurt dioksid suv bilan birikib, sulfit kislota hosil qiladi",
+    conditions: "Xona haroratida",
+    observation: "Gaz suvda eriydi, kislotali eritma hosil bo'ladi",
+    icon: "droplets",
+    reactants: ["SO2", "H2O"],
+    products: ["H2SO3"],
+    category: "Oksid + Suv"
+  },
+  {
+    id: "so3-h2o",
+    equation: "SO₃ + H₂O → H₂SO₄",
+    type: "Birikish",
+    description: "Oltingugurt trioksid suv bilan birikib, sulfat kislota hosil qiladi",
+    conditions: "Xona haroratida",
+    observation: "Juda ko'p issiqlik ajraladi",
+    icon: "flame",
+    reactants: ["SO3", "H2O"],
+    products: ["H2SO4"],
+    category: "Oksid + Suv"
+  },
+  {
+    id: "co2-h2o",
+    equation: "CO₂ + H₂O → H₂CO₃",
+    type: "Birikish",
+    description: "Karbonat angidrid suv bilan birikib, karbonat kislota hosil qiladi",
+    conditions: "Xona haroratida",
+    observation: "Gaz suvda eriydi, kuchsiz kislotali eritma",
+    icon: "droplets",
+    reactants: ["CO2", "H2O"],
+    products: ["H2CO3"],
+    category: "Oksid + Suv"
+  },
+  {
+    id: "p2o5-h2o",
+    equation: "P₂O₅ + 3H₂O → 2H₃PO₄",
+    type: "Birikish",
+    description: "Fosfor(V) oksid suv bilan birikib, fosfat kislota hosil qiladi",
+    conditions: "Xona haroratida",
+    observation: "Juda ko'p issiqlik ajraladi",
+    icon: "flame",
+    reactants: ["P2O5", "H2O"],
+    products: ["H3PO4"],
+    category: "Oksid + Suv"
+  },
+  {
+    id: "na2o-h2o",
+    equation: "Na₂O + H₂O → 2NaOH",
+    type: "Birikish",
+    description: "Natriy oksid suv bilan birikib, natriy gidroksid hosil qiladi",
+    conditions: "Xona haroratida",
+    observation: "Ko'p issiqlik ajraladi, ishqoriy eritma",
+    icon: "flame",
+    reactants: ["Na2O", "H2O"],
+    products: ["NaOH"],
+    category: "Oksid + Suv"
+  },
+  {
+    id: "k2o-h2o",
+    equation: "K₂O + H₂O → 2KOH",
+    type: "Birikish",
+    description: "Kaliy oksid suv bilan birikib, kaliy gidroksid hosil qiladi",
+    conditions: "Xona haroratida",
+    observation: "Ko'p issiqlik ajraladi, kuchli ishqor",
+    icon: "flame",
+    reactants: ["K2O", "H2O"],
+    products: ["KOH"],
+    category: "Oksid + Suv"
+  },
+  {
+    id: "n2o5-h2o",
+    equation: "N₂O₅ + H₂O → 2HNO₃",
+    type: "Birikish",
+    description: "Azot(V) oksid suv bilan birikib, nitrat kislota hosil qiladi",
+    conditions: "Xona haroratida",
+    observation: "Issiqlik ajraladi, kislotali eritma",
+    icon: "droplets",
+    reactants: ["N2O5", "H2O"],
+    products: ["HNO3"],
+    category: "Oksid + Suv"
+  },
+  {
+    id: "mgo-h2o",
+    equation: "MgO + H₂O → Mg(OH)₂",
+    type: "Birikish",
+    description: "Magniy oksid suv bilan sekin reaksiyaga kirib, magniy gidroksid hosil qiladi",
+    conditions: "Xona haroratida, sekin",
+    observation: "Issiqlik ajraladi, eruvchan emas",
+    icon: "droplets",
+    reactants: ["MgO", "H2O"],
+    products: ["Mg(OH)2"],
+    category: "Oksid + Suv"
+  },
+  {
+    id: "cl2o7-h2o",
+    equation: "Cl₂O₇ + H₂O → 2HClO₄",
+    type: "Birikish",
+    description: "Xlor(VII) oksid suv bilan birikib, perxlorat kislota hosil qiladi",
+    conditions: "Xona haroratida",
+    observation: "Juda ko'p issiqlik, kuchli kislota",
+    icon: "flame",
+    reactants: ["Cl2O7", "H2O"],
+    products: ["HClO4"],
+    category: "Oksid + Suv"
+  },
+
+  // Yonish reaksiyalari (15 reaksiya)
   {
     id: "mg-o2",
     equation: "2Mg + O₂ → 2MgO",
     type: "Yonish",
-    description: "Magniy yonishi - juda yorqin oq alanga",
-    conditions: "Alanga, 650°C dan yuqori",
-    observation: "Juda yorqin oq alanga, ko'zni qamashtiradi",
-    color: "Oq",
+    description: "Magniy kislorodda porlaq oq yorug'lik bilan yonadi",
+    conditions: "Yuqori harorat yoki alanga",
+    observation: "Juda yorqin oq yorug'lik, oq chang hosil bo'ladi",
+    color: "Oq yorug'lik",
     icon: "flame",
-    reactants: ["Mg", "O₂"],
+    reactants: ["Mg", "O2"],
     products: ["MgO"],
-    category: "Yonish",
-    detailedExplanation: `
-🔥 MAGNIY - ENG YORQIN ALANGA:
-
-Magniy yonganda juda yorqin oq nurli alanga hosil bo'ladi. Bu nur UB nurlarini ham o'z ichiga oladi.
-
-👁️ XAVF:
-Magniy alangasiga qarash ko'zni shikastlaydi! Himoya ko'zoynak zarur.
-
-📸 TARIX:
-XIX asrda fotografiyada "magniy yoritgich" (flesh) sifatida ishlatilgan. Hozir elektron flash almashgan.
-
-🎆 PIROTEXNIKA:
-Magniy oq rang uchun:
-• Igna-chaqmoqlar
-• Olovbozlik
-• Signal raketa
-
-💡 TERMIT:
-Mg + Fe₂O₃ aralashmasi "termit" deb ataladi. Yonganda 2500°C gacha qiziydi - temirni eritadi!
-
-🧪 TAJRIBA:
-Magniy lenta yoqib, uning yonishini kuzatish eng mashhur kimyo tajribalaridan biri.
-    `,
-    mechanism: "2Mg + O₂ → 2MgO (tez oksidlanish)",
-    applications: ["Pirotexnika", "Flash", "Termit payvandlash"],
-    safetyNotes: "Ko'zni himoyalang! UB nurlar!",
-    energyChange: "Juda ekzotermik (-602 kJ/mol)"
-  },
-  {
-    id: "fe-o2",
-    equation: "3Fe + 2O₂ → Fe₃O₄",
-    type: "Yonish",
-    description: "Temir yonishi - uchqunlar bilan, magnit oksid hosil bo'ladi",
-    conditions: "Yuqori harorat yoki nozik parchalar",
-    observation: "Uchqunlar sachraydi, qora oksid hosil bo'ladi",
-    color: "Qora",
-    icon: "flame",
-    reactants: ["Fe", "O₂"],
-    products: ["Fe₃O₄"],
-    category: "Yonish",
-    detailedExplanation: `
-🔥 TEMIR YONISHI:
-
-Temir oddiy sharoitda yonmaydi, lekin nozik parchalar (po'lat jun, temir kukuni) yaxshi yonadi.
-
-🎆 UCHQUNLAR:
-Po'lat jun yoqilganda chiroyli uchqunlar sachraydi - bu fotografiyada qiziqarli effektlar yaratish uchun ishlatiladi.
-
-🧲 MAGNIT OKSID:
-Fe₃O₄ (magnetit) - tabiiy magnit. Eng kuchli magnit minerallardan biri.
-
-⚗️ REAKSIYA TURLARI:
-• Sekin oksidlanish: 4Fe + 3O₂ → 2Fe₂O₃ (zang)
-• Yonish: 3Fe + 2O₂ → Fe₃O₄ (yuqori haroratda)
-
-🏭 METALLURGIYA:
-Fe₃O₄ temirning eng muhim rudalaridan biri. Domna pechida qayta ishlanadi.
-    `,
-    mechanism: "Fe oksidlanishi yuqori haroratda",
-    applications: ["Pirotexnika", "Metallurgiya", "Magnit materiallari"],
-    safetyNotes: "Nozik temir parchalarini ehtiyotkorlik bilan ishlating",
-    energyChange: "Ekzotermik"
+    category: "Yonish"
   },
   {
     id: "h2-o2",
     equation: "2H₂ + O₂ → 2H₂O",
     type: "Yonish",
-    description: "Vodorod yonishi - eng toza yonish, faqat suv hosil bo'ladi",
-    conditions: "Uchqun yoki alanga, 500°C dan yuqori",
-    observation: "Rangsiz alanga, faqat suv bug'i",
+    description: "Vodorod kislorodda yonib, suv hosil qiladi",
+    conditions: "Alanga yoki uchqun",
+    observation: "Portlash bilan yonadi, suv tomchilari hosil bo'ladi",
     icon: "flame",
-    reactants: ["H₂", "O₂"],
-    products: ["H₂O"],
-    category: "Yonish",
-    detailedExplanation: `
-🔥 ENG TOZA YONISH:
-
-Vodorod yonganda FAQAT suv hosil bo'ladi - ideal ekologik yoqilg'i!
-
-🚀 KOSMIK RAKETALAR:
-Vodorod-kislorod yoqilg'isi kosmik raketalarda ishlatiladi:
-• NASA Space Shuttle
-• Ariane raketasi
-• SpaceX (qisman)
-
-💥 PORTLASH XAVFI:
-Vodorod-havo aralashmasi (4-75%) juda portlovchi! "Oksivodorod" portlashi juda kuchli.
-
-🔋 KELAJAK YOQILG'ISI:
-Vodorod yoqilg'i elementlari:
-• Elektr va suv bug'i hosil qiladi
-• Ifloslantirmaydi
-• Yangilanadigan
-
-🧪 KLASSIK TAJRIBA:
-Vodorod va kislorod aralashmasi (2:1) yoqilganda "paf" degan ovoz chiqadi va probirkani suv bilan qoplangan holda qoldiradi.
-    `,
-    mechanism: "2H₂ + O₂ → 2H₂O (radikal zanjir)",
-    applications: ["Kosmik raketalar", "Yoqilg'i elementlari", "Payvandlash"],
-    safetyNotes: "Portlovchi aralashma! Juda ehtiyot bo'ling!",
-    energyChange: "Juda ekzotermik (-572 kJ/2mol)"
+    reactants: ["H2", "O2"],
+    products: ["H2O"],
+    category: "Yonish"
+  },
+  {
+    id: "c-o2-co2",
+    equation: "C + O₂ → CO₂",
+    type: "Yonish",
+    description: "Uglerod kislorodda yonib, karbonat angidrid hosil qiladi",
+    conditions: "Yuqori harorat, yetarli kislorod",
+    observation: "Yorqin alanga, rangsiz gaz ajraladi",
+    icon: "flame",
+    reactants: ["C", "O2"],
+    products: ["CO2"],
+    category: "Yonish"
+  },
+  {
+    id: "s-o2",
+    equation: "S + O₂ → SO₂",
+    type: "Yonish",
+    description: "Oltingugurt kislorodda yonib, oltingugurt dioksid hosil qiladi",
+    conditions: "Qizdirilganda",
+    observation: "Ko'k alanga, achchiq hidli gaz ajraladi",
+    color: "Ko'k",
+    icon: "flame",
+    reactants: ["S", "O2"],
+    products: ["SO2"],
+    category: "Yonish"
+  },
+  {
+    id: "p-o2",
+    equation: "4P + 5O₂ → 2P₂O₅",
+    type: "Yonish",
+    description: "Fosfor kislorodda jadal yonib, fosfor(V) oksid hosil qiladi",
+    conditions: "Xona haroratida ham mumkin",
+    observation: "Yorqin oq alanga, oq tutun",
+    color: "Oq",
+    icon: "flame",
+    reactants: ["P", "O2"],
+    products: ["P2O5"],
+    category: "Yonish"
+  },
+  {
+    id: "fe-o2",
+    equation: "3Fe + 2O₂ → Fe₃O₄",
+    type: "Yonish",
+    description: "Temir kislorodda yonib, temir oksid hosil qiladi",
+    conditions: "Yuqori harorat",
+    observation: "Uchqunlar, qora oksid hosil bo'ladi",
+    icon: "flame",
+    reactants: ["Fe", "O2"],
+    products: ["Fe3O4"],
+    category: "Yonish"
+  },
+  {
+    id: "al-o2",
+    equation: "4Al + 3O₂ → 2Al₂O₃",
+    type: "Yonish",
+    description: "Alyuminiy kislorodda yonib, alyuminiy oksid hosil qiladi",
+    conditions: "Yuqori harorat",
+    observation: "Juda yorqin alanga, oq oksid",
+    icon: "flame",
+    reactants: ["Al", "O2"],
+    products: ["Al2O3"],
+    category: "Yonish"
+  },
+  {
+    id: "ca-o2",
+    equation: "2Ca + O₂ → 2CaO",
+    type: "Yonish",
+    description: "Kalsiy kislorodda yonib, kalsiy oksid hosil qiladi",
+    conditions: "Yuqori harorat",
+    observation: "Qizil-oq alanga",
+    icon: "flame",
+    reactants: ["Ca", "O2"],
+    products: ["CaO"],
+    category: "Yonish"
+  },
+  {
+    id: "na-o2",
+    equation: "4Na + O₂ → 2Na₂O",
+    type: "Yonish",
+    description: "Natriy kislorodda yonib, natriy oksid hosil qiladi",
+    conditions: "Xona haroratida ham mumkin",
+    observation: "Sariq alanga",
+    color: "Sariq",
+    icon: "flame",
+    reactants: ["Na", "O2"],
+    products: ["Na2O"],
+    category: "Yonish"
+  },
+  {
+    id: "ch4-o2",
+    equation: "CH₄ + 2O₂ → CO₂ + 2H₂O",
+    type: "Yonish",
+    description: "Metan yonib, karbonat angidrid va suv hosil qiladi",
+    conditions: "Alanga",
+    observation: "Ko'k alanga, ko'p issiqlik",
+    color: "Ko'k",
+    icon: "flame",
+    reactants: ["CH4", "O2"],
+    products: ["CO2", "H2O"],
+    category: "Yonish"
+  },
+  {
+    id: "c2h5oh-o2",
+    equation: "C₂H₅OH + 3O₂ → 2CO₂ + 3H₂O",
+    type: "Yonish",
+    description: "Etanol yonib, karbonat angidrid va suv hosil qiladi",
+    conditions: "Alanga",
+    observation: "Ko'k alanga",
+    color: "Ko'k",
+    icon: "flame",
+    reactants: ["C2H5OH", "O2"],
+    products: ["CO2", "H2O"],
+    category: "Yonish"
+  },
+  {
+    id: "c3h8-o2",
+    equation: "C₃H₈ + 5O₂ → 3CO₂ + 4H₂O",
+    type: "Yonish",
+    description: "Propan yonib, karbonat angidrid va suv hosil qiladi",
+    conditions: "Alanga",
+    observation: "Sariq-ko'k alanga",
+    icon: "flame",
+    reactants: ["C3H8", "O2"],
+    products: ["CO2", "H2O"],
+    category: "Yonish"
+  },
+  {
+    id: "c6h12o6-o2",
+    equation: "C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O",
+    type: "Yonish",
+    description: "Glyukoza yonib, karbonat angidrid va suv hosil qiladi",
+    conditions: "Qizdirilganda",
+    observation: "Ko'mir qarayadi, gaz ajraladi",
+    icon: "flame",
+    reactants: ["C6H12O6", "O2"],
+    products: ["CO2", "H2O"],
+    category: "Yonish"
+  },
+  {
+    id: "c2h2-o2",
+    equation: "2C₂H₂ + 5O₂ → 4CO₂ + 2H₂O",
+    type: "Yonish",
+    description: "Asetilen yonib, karbonat angidrid va suv hosil qiladi",
+    conditions: "Alanga",
+    observation: "Juda issiq oq alanga, kuydiruv uchun ishlatiladi",
+    color: "Oq",
+    icon: "flame",
+    reactants: ["C2H2", "O2"],
+    products: ["CO2", "H2O"],
+    category: "Yonish"
+  },
+  {
+    id: "nh3-o2",
+    equation: "4NH₃ + 3O₂ → 2N₂ + 6H₂O",
+    type: "Yonish",
+    description: "Ammiak yonib, azot va suv hosil qiladi",
+    conditions: "Katalizator mavjudligida",
+    observation: "Yashil-sariq alanga",
+    icon: "flame",
+    reactants: ["NH3", "O2"],
+    products: ["N2", "H2O"],
+    category: "Yonish"
   },
 
-  // ==================== PARCHALANISH REAKSIYALARI (15 ta) ====================
+  // Parchalanish (10 reaksiya)
   {
     id: "h2o2-decomp",
     equation: "2H₂O₂ → 2H₂O + O₂↑",
     type: "Parchalanish",
-    description: "Vodorod peroksid parchalanishi - katalizator bilan juda tez",
-    conditions: "Katalizator (MnO₂, Fe³⁺, katalaza) yoki isitish",
-    observation: "Ko'p pufakchalar, kislorod gazi ajraladi",
-    icon: "sparkles",
-    reactants: ["H₂O₂"],
-    products: ["H₂O", "O₂"],
-    category: "Parchalanish",
-    detailedExplanation: `
-🔬 VODOROD PEROKSID PARCHALANISHI:
-
-H₂O₂ o'z-o'zidan sekin parchalanadi, lekin katalizatorlar bu jarayonni minglab marta tezlashtiradi.
-
-🧪 "FIL TISH PASTASI" TAJRIBASI:
-1. 30% H₂O₂ + suyuq sovun + KI
-2. Jadal ko'pik hosil bo'ladi
-3. Ko'pik "fil tishpasta" ga o'xshaydi
-
-⚗️ KATALIZATORLAR:
-• MnO₂ (qora kukun) - eng samarali
-• KI (kaliy yodid) - tezkor
-• Katalaza fermenti (qon, kartoshka) - tabiiy
-• Fe³⁺ ionlari
-
-💊 TIBBIYOT:
-3% H₂O₂ eritmasi:
-• Yaralarni tozalash
-• Og'iz chayish
-• Oqartirish
-
-🧬 BIOLOGIYA:
-Organizmda H₂O₂ katalaza fermenti bilan parchalanadi. Bu ferment juda tez ishlaydi!
-    `,
-    mechanism: "2H₂O₂ → 2H₂O + O₂ (katalizator yordamida)",
-    applications: ["O₂ olish", "Tibbiyot", "Oqartirish"],
-    safetyNotes: "Konsentrlangan H₂O₂ kuydiradi!",
-    energyChange: "Ekzotermik"
-  },
-  {
-    id: "caco3-decomp",
-    equation: "CaCO₃ → Cite + CO₂↑",
-    type: "Parchalanish",
-    description: "Ohaktosh parchalanishi - so'ndirilmagan ohak olish",
-    conditions: "Qizdirish 900°C dan yuqori",
-    observation: "CO₂ gazi ajraladi, oq kukun qoladi",
-    color: "Oq",
-    icon: "flame",
-    reactants: ["CaCO₃"],
-    products: ["CaO", "CO₂"],
-    category: "Parchalanish",
-    detailedExplanation: `
-🔥 OHAK KUYDIRISH:
-
-Qadimdan ma'lum jarayon - ohaktoshni qizdirib so'ndirilmagan ohak olish.
-
-🏗️ QURILISH:
-CaO (so'ndirilmagan ohak) suv bilan:
-CaO + H₂O → Ca(OH)₂ + issiqlik
-Ca(OH)₂ - so'ndirilgan ohak, ohokor uchun ishlatiladi
-
-🌡️ HARORAT:
-900-1000°C da CaCO₃ parchalanadi. Sanoatda maxsus pechlar ishlatiladi.
-
-🏭 SANOAT:
-• Sement ishlab chiqarish
-• Po'lat metallurgiyasi
-• Kimyo sanoati
-• Qog'oz sanoati
-
-🧪 LABORATORIYA:
-Bu reaksiya karbonatlarni aniqlash uchun ishlatiladi: qizdirilganda CO₂ ajraladi, bu ohak suvini loyqalantiradi.
-    `,
-    mechanism: "CaCO₃ → CaO + CO₂ (termal parchalanish)",
-    applications: ["Ohak olish", "Sement", "Metallurgiya"],
-    safetyNotes: "CaO suv bilan reaksiyaga kirganda kuydiraradi!",
-    energyChange: "Endotermik (issiqlik kerak)"
+    description: "Vodorod peroksid parchalanib, suv va kislorod hosil qiladi",
+    conditions: "Yorug'lik yoki MnO₂ katalizatori",
+    observation: "Pufakchalar ajralib chiqadi",
+    icon: "wind",
+    reactants: ["H2O2"],
+    products: ["H2O", "O2"],
+    category: "Parchalanish"
   },
   {
     id: "kclo3-decomp",
     equation: "2KClO₃ → 2KCl + 3O₂↑",
     type: "Parchalanish",
-    description: "Kaliy xlorat parchalanishi - laboratoriyada kislorod olish",
-    conditions: "Qizdirish 400°C, MnO₂ katalizator bilan 200°C",
-    observation: "Ko'p kislorod gazi ajraladi",
-    icon: "flame",
-    reactants: ["KClO₃"],
-    products: ["KCl", "O₂"],
-    category: "Parchalanish",
-    detailedExplanation: `
-🔬 KISLOROD OLISHNING KLASSIK USULI:
-
-KClO₃ parchalanishi laboratoriyada kislorod olishning eng mashhur usullaridan biri.
-
-🧪 MnO₂ KATALIZATOR:
-MnO₂ qo'shilganda:
-• Harorat 400°C dan 200°C ga tushadi
-• Reaksiya tezlashadi
-• MnO₂ o'zgarmaydi
-
-⚠️ XAVF:
-KClO₃ kuchli oksidlovchi! Yonuvchi moddalar bilan aralashtirilganda portlashi mumkin.
-
-🎆 PIROTEXNIKA:
-KClO₃ oksidlovchi sifatida:
-• Gugurt boshlari
-• Signal o'tlari
-• Olovbozlik
-
-📊 HISOB:
-2 mol KClO₃ → 3 mol O₂
-122.5 g KClO₃ → 33.6 L O₂ (n.sh.)
-    `,
-    mechanism: "2KClO₃ → 2KCl + 3O₂ (termik parchalanish)",
-    applications: ["O₂ olish", "Pirotexnika", "Gugurt ishlab chiqarish"],
-    safetyNotes: "Kuchli oksidlovchi - portlash xavfi!",
-    energyChange: "Ekzotermik"
+    description: "Kaliy xlorat parchalanib, kaliy xlorid va kislorod hosil qiladi",
+    conditions: "Qizdirilganda, MnO₂ katalizatori",
+    observation: "Kislorod gazi ajraladi",
+    icon: "wind",
+    reactants: ["KClO3"],
+    products: ["KCl", "O2"],
+    category: "Parchalanish"
   },
   {
-    id: "h2co3-decomp",
-    equation: "H₂CO₃ → H₂O + CO₂↑",
+    id: "caco3-decomp",
+    equation: "CaCO₃ → CaO + CO₂↑",
     type: "Parchalanish",
-    description: "Karbonat kislota parchalanishi - gazlangan ichimliklar pufakchasi",
-    conditions: "Xona haroratida, o'z-o'zidan",
-    observation: "CO₂ pufakchalari ajraladi",
-    icon: "sparkles",
-    reactants: ["H₂CO₃"],
-    products: ["H₂O", "CO₂"],
-    category: "Parchalanish",
-    detailedExplanation: `
-🔬 KARBONAT KISLOTA - BARQAROR EMAS:
-
-H₂CO₃ faqat eritmalarda mavjud va darhol parchalanadi. Sof holda ajratib bo'lmaydi.
-
-🥤 GAZLANGAN ICHIMLIKLAR:
-Cola, Fanta, Sprite va boshqa ichimliklar CO₂ bilan to'yintirilgan:
-• Bosim ostida CO₂ suvda eriydi
-• Bosim tushganda (ochilganda) CO₂ ajraladi
-• Pufakchalar - CO₂ gazi
-
-🌡️ HARORAT TA'SIRI:
-Issiq ichimlikdan CO₂ tezroq ajraladi:
-• Sovuq kola - ko'proq gaz
-• Issiq kola - "baraban" bo'lib ketadi
-
-🧪 KARBONATLAR:
-Boshqa karbonatlar ham kislota bilan:
-CaCO₃ + 2HCl → CaCl₂ + H₂O + CO₂↑
-Avval H₂CO₃ hosil bo'ladi, keyin darhol parchalanadi.
-    `,
-    mechanism: "H₂CO₃ ⇌ H₂O + CO₂ (muvozanat)",
-    applications: ["Gazlangan ichimliklar", "Karbonatsiya", "Analiz"],
-    safetyNotes: "Xavfsiz reaksiya",
-    energyChange: "Endotermik (juda kichik)"
+    description: "Kalsiy karbonat parchalanib, kalsiy oksid va karbonat angidrid hosil qiladi",
+    conditions: "Yuqori harorat (900°C)",
+    observation: "Gaz ajraladi, oq qoldiq",
+    icon: "flame",
+    reactants: ["CaCO3"],
+    products: ["CaO", "CO2"],
+    category: "Parchalanish"
+  },
+  {
+    id: "cu(oh)2-decomp",
+    equation: "Cu(OH)₂ → CuO + H₂O",
+    type: "Parchalanish",
+    description: "Mis gidroksid parchalanib, mis oksid va suv hosil qiladi",
+    conditions: "Qizdirilganda",
+    observation: "Ko'k cho'kma qoraga aylanadi",
+    color: "Ko'k → Qora",
+    icon: "flame",
+    reactants: ["Cu(OH)2"],
+    products: ["CuO", "H2O"],
+    category: "Parchalanish"
+  },
+  {
+    id: "nh4no3-decomp",
+    equation: "NH₄NO₃ → N₂O↑ + 2H₂O",
+    type: "Parchalanish",
+    description: "Ammoniy nitrat parchalanib, azot oksidi va suv hosil qiladi",
+    conditions: "Qizdirilganda",
+    observation: "Gaz ajraladi",
+    icon: "wind",
+    reactants: ["NH4NO3"],
+    products: ["N2O", "H2O"],
+    category: "Parchalanish"
+  },
+  {
+    id: "hgco3-decomp",
+    equation: "2HgO → 2Hg + O₂↑",
+    type: "Parchalanish",
+    description: "Simob oksid parchalanib, simob va kislorod hosil qiladi",
+    conditions: "Qizdirilganda",
+    observation: "Qizil kukun parchalanadi, kumush simob tomchilari",
+    color: "Qizil → Kumush",
+    icon: "flame",
+    reactants: ["HgO"],
+    products: ["Hg", "O2"],
+    category: "Parchalanish"
+  },
+  {
+    id: "agno3-decomp",
+    equation: "2AgNO₃ → 2Ag + 2NO₂↑ + O₂↑",
+    type: "Parchalanish",
+    description: "Kumush nitrat parchalanib, kumush va gazlar hosil qiladi",
+    conditions: "Qizdirilganda",
+    observation: "Jigarrang gaz, kumush hosil bo'ladi",
+    icon: "flame",
+    reactants: ["AgNO3"],
+    products: ["Ag", "NO2", "O2"],
+    category: "Parchalanish"
+  },
+  {
+    id: "pb(no3)2-decomp",
+    equation: "2Pb(NO₃)₂ → 2PbO + 4NO₂↑ + O₂↑",
+    type: "Parchalanish",
+    description: "Qo'rg'oshin nitrat parchalanib, qo'rg'oshin oksid va gazlar hosil qiladi",
+    conditions: "Qizdirilganda",
+    observation: "Jigarrang gaz ajraladi",
+    icon: "wind",
+    reactants: ["Pb(NO3)2"],
+    products: ["PbO", "NO2", "O2"],
+    category: "Parchalanish"
   },
   {
     id: "nahco3-decomp",
     equation: "2NaHCO₃ → Na₂CO₃ + H₂O + CO₂↑",
     type: "Parchalanish",
-    description: "Ichimlik sodasi parchalanishi - osh pishirishda ko'piklanish",
-    conditions: "Qizdirish 80°C dan yuqori",
-    observation: "CO₂ gazi ajraladi, xamir ko'piklanadi",
-    icon: "sparkles",
-    reactants: ["NaHCO₃"],
-    products: ["Na₂CO₃", "H₂O", "CO₂"],
-    category: "Parchalanish",
-    detailedExplanation: `
-🔬 ICHIMLIK SODASI - OSHXONA SEHRI:
-
-NaHCO₃ (ichimlik sodasi) qizdirilganda parchalanadi va CO₂ ajraladi. Bu xamirni ko'piklantiradadi.
-
-🍰 OSHPAZLIK:
-Non, tort, pechenye tayyorlashda:
-1. NaHCO₃ xamirga qo'shiladi
-2. Pechda qiziganda CO₂ ajraladi
-3. Xamir ichida pufakchalar hosil bo'ladi
-4. Mahsulot yumshoq va bo'shliqli bo'ladi
-
-🧪 KISLOTA BILAN:
-NaHCO₃ + HCl → NaCl + H₂O + CO₂↑
-Bu kislota bilan ham CO₂ ajraladi (sirka, limon bilan)
-
-💊 TIBBIYOT:
-• Oshqozon kislotasini neytrallashtirish
-• Og'iz chayish
-• Teri parvarishi
-
-🧹 UY-RO'ZG'OR:
-• Tozalash
-• Hidlarni yutish
-• Oqartirish
-    `,
-    mechanism: "2NaHCO₃ → Na₂CO₃ + H₂O + CO₂ (termal)",
-    applications: ["Pishirish", "Tibbiyot", "Tozalash"],
-    safetyNotes: "Xavfsiz modda",
-    energyChange: "Endotermik"
-  },
-
-  // ==================== SINTEZ REAKSIYALARI (15 ta) ====================
-  {
-    id: "n2-h2",
-    equation: "N₂ + 3H₂ ⇌ 2NH₃",
-    type: "Sintez",
-    description: "Gaber jarayoni - ammiak sintezi, eng muhim sanoat reaksiyasi",
-    conditions: "400-500°C, 200-300 atm, Fe katalizator",
-    observation: "Rangsiz, keskin hidli gaz",
+    description: "Natriy bikarbonat parchalanib, natriy karbonat, suv va gaz hosil qiladi",
+    conditions: "Qizdirilganda",
+    observation: "Gaz ajraladi, oq qoldiq",
     icon: "wind",
-    reactants: ["N₂", "H₂"],
-    products: ["NH₃"],
-    category: "Sintez",
-    detailedExplanation: `
-🔬 GABER JARAYONI - INSONIYATNI SAQLAB QOLDI:
-
-Fritz Gaber tomonidan 1909-yilda kashf etilgan bu jarayon minglab yillik qishloq xo'jaligi muammosini hal qildi.
-
-🌾 AHAMIYATI:
-• O'g'itlar uchun ammiak
-• Yer yuzidagi insonlarning 50% Gaber jarayoni bilan tiriklamoqda
-• Nobel mukofoti (1918)
-
-⚗️ SHART-SHAROITLAR:
-• 400-500°C (kompromiss harorat)
-• 200-300 atm bosim
-• Fe katalizator
-• Muvozanat reaksiya - chiqimi 15-20%
-
-📊 LE SHATELE PRINSIPI:
-• Yuqori bosim → NH₃ ko'payadi
-• Past harorat → NH₃ ko'payadi (lekin sekin)
-• Optimal sharoit - tezlik va chiqim balans
-
-🏭 SANOAT:
-Dunyo bo'yicha yiliga 180 mln tonna NH₃ ishlab chiqariladi. Bularning aksariyati o'g'itlarga ketadi.
-    `,
-    mechanism: "N≡N + 3H-H → 2NH₃ (Fe yuzasida bosqichma-bosqich)",
-    applications: ["O'g'itlar", "Nitrat kislota", "Portlovchi moddalar"],
-    safetyNotes: "NH₃ zaharli va kuydiradigan gaz",
-    energyChange: "Ekzotermik (-92 kJ/mol)"
+    reactants: ["NaHCO3"],
+    products: ["Na2CO3", "H2O", "CO2"],
+    category: "Parchalanish"
   },
   {
-    id: "so2-o2",
-    equation: "2SO₂ + O₂ ⇌ 2SO₃",
-    type: "Sintez",
-    description: "Kontakt jarayoni - sulfat kislota ishlab chiqarishning asosi",
-    conditions: "400-450°C, V₂O₅ katalizator",
-    observation: "Rangsiz gaz (SO₃) hosil bo'ladi",
-    icon: "wind",
-    reactants: ["SO₂", "O₂"],
-    products: ["SO₃"],
-    category: "Sintez",
-    detailedExplanation: `
-🔬 SULFAT KISLOTA ISHLAB CHIQARISH:
-
-H₂SO₄ - "kimyoning qiroli". Dunyo bo'yicha eng ko'p ishlab chiqariladigan kimyoviy modda.
-
-📊 JARAYON BOSQICHLARI:
-1. S + O₂ → SO₂ (oltingugurt yoqish)
-2. 2SO₂ + O₂ → 2SO₃ (kontakt jarayon)
-3. SO₃ + H₂O → H₂SO₄ (absorbsiya)
-
-⚗️ KATALIZATOR:
-V₂O₅ (vanadiy pentaoksidi):
-• 400-450°C optimal harorat
-• Chiqim 98% gacha
-• Uzoq muddatli
-
-🏭 QOLLASH:
-H₂SO₄ qo'llaniladi:
-• O'g'itlar (fosfor, azot)
-• Metallurgiya
-• Neft qayta ishlash
-• Batareyalar
-• Sintez
-
-📈 IQTISODIYOT:
-"Mamlakat rivojlanganligini uning sulfat kislota ishlab chiqarishiga qarab baholash mumkin" - qadimiy aytim.
-    `,
-    mechanism: "2SO₂ + O₂ ⇌ 2SO₃ (V₂O₅ yuzasida)",
-    applications: ["H₂SO₄ ishlab chiqarish", "O'g'itlar", "Kimyo sanoati"],
-    safetyNotes: "SO₃ juda reaktiv, suv bilan shiddatli reaksiya",
-    energyChange: "Ekzotermik"
-  },
-  {
-    id: "na-cl2",
-    equation: "2Na + Cl₂ → 2NaCl",
-    type: "Sintez",
-    description: "Natriy va xlor sintezi - osh tuzi hosil bo'lishi",
-    conditions: "Xona haroratida, o'z-o'zidan",
-    observation: "Yorqin sariq alanga, oq tuz",
-    color: "Sariq alanga, oq tuz",
-    icon: "flame",
-    reactants: ["Na", "Cl₂"],
-    products: ["NaCl"],
-    category: "Sintez",
-    detailedExplanation: `
-🔬 DRAMMATIK REAKSIYA:
-
-Natriy (faol metall) va xlor (zaharli gaz) birikib, zararsiz osh tuzini hosil qiladi!
-
-🎭 KIMYOVIY SEHRBOZLIK:
-• Na - yumshoq, suv bilan portlaydigan metall
-• Cl₂ - sariq-yashil, o'ldiruvchi gaz
-• NaCl - kundalik iste'mol mahsuloti!
-
-🔥 REAKSIYA:
-Natriy xlor gaziga tashilganda:
-1. Darhol yonadi
-2. Sariq alanga
-3. Oq tutun (NaCl zarrachalari)
-
-⚡ ENERGETIKA:
-Bu reaksiya juda ekzotermik. Ionli bog' hosil bo'lganda ko'p energiya ajraladi.
-
-🧪 ELEKTROLIZ:
-Bu reaksiyaning teskari jarayoni:
-2NaCl → 2Na + Cl₂ (elektroliz)
-Sanoatda Na va Cl₂ olish uchun ishlatiladi.
-    `,
-    mechanism: "2Na⁰ + Cl₂⁰ → 2Na⁺Cl⁻ (ionli bog')",
-    applications: ["Demo tajriba", "NaCl olish"],
-    safetyNotes: "Na va Cl₂ alohida juda xavfli!",
-    energyChange: "Juda ekzotermik"
-  },
-  {
-    id: "fe-s",
-    equation: "Fe + S → FeS",
-    type: "Sintez",
-    description: "Temir va oltingugurt sintezi - klassik laboratoriya tajribasi",
-    conditions: "Qizdirish, 600°C dan yuqori",
-    observation: "Qizil cho'g' tarqaladi, qora modda hosil bo'ladi",
-    color: "Qora",
-    icon: "flame",
-    reactants: ["Fe", "S"],
-    products: ["FeS"],
-    category: "Sintez",
-    detailedExplanation: `
-🔬 KLASSIK TAJRIBA:
-
-Bu tajriba kimyoviy reaksiya va jismoniy aralashma orasidagi farqni ko'rsatadi.
-
-🧲 FARQ:
-Aralashma (Fe + S):
-• Magnit temir zarrasini tortadi
-• Suv S ni suzib ketiradi
-• Osonlik bilan ajratiladi
-
-FeS birikmasi:
-• Magnit tortmaydi
-• Suvda erimaydi
-• Ajratib bo'lmaydi
-
-🔥 TAJRIBA TARTIBI:
-1. Fe va S kukunlarini aralashtiring (7:4)
-2. Probirkaga solib qizdiring
-3. Qizil cho'g' tarqalishini kuzating
-4. Sovigach, qora FeS olasiz
-
-⚠️ GAZ AJRALADI:
-Agar FeS kislotaga tushsa:
-FeS + 2HCl → FeCl₂ + H₂S↑
-H₂S - juda zaharli, chirigan tuxum hidi!
-    `,
-    mechanism: "Fe + S → FeS (qattiq holatda diffuziya)",
-    applications: ["Demo tajriba", "H₂S olish", "Metallurgiya"],
-    safetyNotes: "FeS kislota bilan zaharli H₂S ajratadi!",
-    energyChange: "Ekzotermik"
-  },
-  {
-    id: "cao-h2o",
-    equation: "CaO + H₂O → Ca(OH)₂",
-    type: "Sintez",
-    description: "So'ndirilmagan ohak suv bilan - so'ndirish jarayoni",
-    conditions: "Xona haroratida, darhol",
-    observation: "Ko'p issiqlik, bug' ajraladi, oq kukun",
-    color: "Oq",
-    icon: "flame",
-    reactants: ["CaO", "H₂O"],
-    products: ["Ca(OH)₂"],
-    category: "Sintez",
-    detailedExplanation: `
-🔬 OHAK SO'NDIRISH:
-
-Qadimdan ma'lum jarayon. Qurilishda, qishloq xo'jaligida, kimyoda ishlatiladi.
-
-🔥 ISSIQLIK:
-Bu reaksiya juda ekzotermik:
-• Suv qaynash darajasiga yetadi
-• Bug' ajraladi
-• "Portlash" sodir bo'lishi mumkin
-
-⚠️ XAVF:
-CaO:
-• Suvni jadal yutadi
-• Terini kuydiraradi
-• Ko'zga tushsa og'ir jarohat
-
-🏗️ QURILISH:
-• Ohokor tayyorlash
-• Suvag'
-• Oqlash
-
-🌿 QISHLOQ XO'JALIGI:
-• Tuproq kislotaliligini kamaytirish
-• Dezinfeksiya
-• O'g'it sifatida
-
-🧪 LABORATORIYA:
-Ca(OH)₂ eritmasi - "ohak suvi". CO₂ ni aniqlash uchun ishlatiladi:
-Ca(OH)₂ + CO₂ → CaCO₃↓ (oq loyqalanish)
-    `,
-    mechanism: "CaO + H₂O → Ca(OH)₂ (gidratatsiya)",
-    applications: ["Qurilish", "Qishloq xo'jaligi", "Kimyo"],
-    safetyNotes: "CaO juda kuydiradigan! Himoya vositalari zarur!",
-    energyChange: "Juda ekzotermik (-65 kJ/mol)"
-  },
-
-  // ==================== ELEKTROLIZ (10 ta) ====================
-  {
-    id: "h2o-electrolysis",
-    equation: "2H₂O → 2H₂↑ + O₂↑",
-    type: "Elektroliz",
-    description: "Suvning elektrolizi - vodorod va kislorod olish",
-    conditions: "Elektr toki, elektrolit (NaOH yoki H₂SO₄)",
-    observation: "Katodda H₂, anodda O₂ (2:1 nisbatda)",
-    icon: "sparkles",
-    reactants: ["H₂O"],
-    products: ["H₂", "O₂"],
-    category: "Elektroliz",
-    detailedExplanation: `
-🔬 SUVNI PARCHALASH:
-
-Elektr tokining eng chiroyli qo'llanilishlaridan biri - suvni H₂ va O₂ ga ajratish.
-
-⚡ JARAYON:
-Katod (-): 2H₂O + 2e⁻ → H₂ + 2OH⁻
-Anod (+): 2H₂O → O₂ + 4H⁺ + 4e⁻
-
-📊 NISBAT:
-H₂ : O₂ = 2 : 1 (hajm bo'yicha)
-Bu suvning H₂O formulasini tasdiqlaydi!
-
-🔋 YOQILG'I ELEMENTI:
-Elektrolizning teskari jarayoni:
-2H₂ + O₂ → 2H₂O + elektr energiya
-Bu yoqilg'i elementlarining asosi.
-
-🌍 KELAJAK:
-"Yashil vodorod" - quyosh/shamol energiyasi bilan suv elektrolizi. Toza energiya manbai!
-
-🧪 TAJRIBA:
-Hoffmann apparati bilan elektroliz - klassik laboratoriya tajribasi. Gazlar ikki silindrda yig'iladi.
-    `,
-    mechanism: "H₂O → H₂ + ½O₂ (elektrolitik parchalanish)",
-    applications: ["Vodorod olish", "Kislorod olish", "Yoqilg'i elementlari"],
-    safetyNotes: "H₂ + O₂ aralashmasi portlovchi!",
-    energyChange: "Endotermik (elektr energiya kerak)"
-  },
-  {
-    id: "nacl-electrolysis",
-    equation: "2NaCl → 2Na + Cl₂↑",
-    type: "Elektroliz",
-    description: "Eritilgan osh tuzining elektrolizi - natriy va xlor olish",
-    conditions: "Eritilgan NaCl (801°C), elektr toki",
-    observation: "Katodda Na tomchilari, anodda Cl₂ gazi",
-    icon: "sparkles",
-    reactants: ["NaCl"],
-    products: ["Na", "Cl₂"],
-    category: "Elektroliz",
-    detailedExplanation: `
-🔬 NATRIY VA XLOR OLISH:
-
-Sanoatda natriy va xlor osh tuzidan olinadi - elektroliz yo'li bilan.
-
-⚡ JARAYON:
-Katod (-): Na⁺ + e⁻ → Na (suyuq)
-Anod (+): 2Cl⁻ → Cl₂ + 2e⁻
-
-🌡️ HARORAT:
-NaCl 801°C da eriydi. Shunday yuqori haroratda elektroliz o'tkaziladi.
-
-🏭 DAUNS KAMERASI:
-Sanoatda maxsus kamera ishlatiladi:
-• Natriy yuqoriga suzib chiqadi
-• Xlor gaz sifatida yig'iladi
-• Ikkalasi ajratilgan holda saqlanadi
-
-🧪 MAHSULOTLAR:
-Na - yumshoq metall, neft ostida saqlanadi
-Cl₂ - sariq-yashil gaz, zaharli
-
-⚡ ENERGIYA:
-Juda ko'p elektr energiya kerak. Shuning uchun Na qimmat.
-    `,
-    mechanism: "Na⁺ + e⁻ → Na, 2Cl⁻ → Cl₂ + 2e⁻",
-    applications: ["Natriy olish", "Xlor olish", "Kimyo sanoati"],
-    safetyNotes: "Na va Cl₂ ikkalasi ham xavfli!",
-    energyChange: "Endotermik (elektr energiya kerak)"
-  },
-  {
-    id: "cuso4-electrolysis",
-    equation: "2CuSO₄ + 2H₂O → 2Cu + O₂↑ + 2H₂SO₄",
-    type: "Elektroliz",
-    description: "Mis sulfat eritmasining elektrolizi - mis olish",
-    conditions: "Suvli eritma, elektr toki, mis elektrodlar",
-    observation: "Katodda mis qatlami, anodda O₂",
-    color: "Qizg'ish-jigarrang",
-    icon: "sparkles",
-    reactants: ["CuSO₄", "H₂O"],
-    products: ["Cu", "O₂", "H₂SO₄"],
-    category: "Elektroliz",
-    detailedExplanation: `
-🔬 MIS ELEKTROLITIK TOZALASH:
-
-Bu jarayon sanoatda mis tozalash uchun ishlatiladi. 99.99% toza mis olinadi.
-
-⚡ ELEKTRODLAR:
-Katod (-): Yupqa sof mis plita
-Anod (+): Xom mis plita (tozalanishi kerak)
-
-📝 JARAYON:
-Anod: Cu → Cu²⁺ + 2e⁻ (erib tushadi)
-Katod: Cu²⁺ + 2e⁻ → Cu (o'sib qoladi)
-
-💎 NATIHA:
-• Katodda sof mis qatlami
-• Aralashmalar anod ostida cho'kma (nobla metallar ham!)
-• Elektrolit tarkibi o'zgarmaydi
-
-🏭 SANOAT:
-• Elektr simlari uchun sof mis
-• Elektronika uchun
-• Qimmatbaho metallar ajratish
-
-⚗️ GALVANIKA:
-Shu prinsip galvanik qoplash uchun ham ishlatiladi.
-    `,
-    mechanism: "Cu²⁺ + 2e⁻ → Cu (katodda), Cu → Cu²⁺ + 2e⁻ (anodda)",
-    applications: ["Mis tozalash", "Galvanika", "Elektr sanoati"],
-    safetyNotes: "Elektr toki xavfli!",
-    energyChange: "Endotermik"
-  },
-
-  // ==================== ORGANIK REAKSIYALAR (15 ta) ====================
-  {
-    id: "ch3ch2oh-oxidation",
-    equation: "C₂H₅OH + O₂ → CH₃CHO + H₂O",
-    type: "Oksidlanish",
-    description: "Etanol oksidlanishi - atsetaldegid hosil bo'lishi",
-    conditions: "Cu yoki Pt katalizator, qizdirish",
-    observation: "Keskin mevasimon hid (aldegid)",
-    icon: "wind",
-    reactants: ["C₂H₅OH", "O₂"],
-    products: ["CH₃CHO", "H₂O"],
-    category: "Organik",
-    detailedExplanation: `
-🔬 SPIRTLAR OKSIDLANISHI:
-
-Spirtlar oksidlanishi kimyoda juda muhim reaksiya. Mahsulot spirt turiga bog'liq.
-
-📝 BOSQICHLAR:
-Birlamchi spirt → Aldegid → Karbon kislota
-C₂H₅OH → CH₃CHO → CH₃COOH
-
-🧪 KATALIZATORLAR:
-• Cu (mis) - klassik
-• Pt (platina) - samaraliroq
-• KMnO₄ - laboratoriyada
-• K₂Cr₂O₇ - analitik
-
-🍷 VINODA:
-Sharob "oksidlanganda" sirka kislotasi hosil bo'ladi:
-C₂H₅OH → CH₃COOH (bakteriyalar bilan)
-
-💡 NAFAS TESTI:
-Alkogol testi - spirt oksidlanganda rang o'zgarishi (K₂Cr₂O₇ sariq → yashil).
-
-⚗️ SANOAT:
-Atsetaldegid sirka kislota va boshqa kimyoviy moddalar ishlab chiqarish uchun xom ashyo.
-    `,
-    mechanism: "R-OH → R-CHO (vodorod ajratilishi)",
-    applications: ["Aldegid olish", "Alkogol testi", "Kimyo sanoati"],
-    safetyNotes: "Aldegidlar ko'zlarga ta'sir qiladi",
-    energyChange: "Ekzotermik"
-  },
-  {
-    id: "ch3cooh-nahco3",
-    equation: "CH₃COOH + NaHCO₃ → CH₃COONa + H₂O + CO₂↑",
-    type: "Neytrallanish",
-    description: "Sirka va soda reaksiyasi - oshxonada ishlatiladigan klassik reaksiya",
-    conditions: "Xona haroratida, darhol",
-    observation: "Ko'p pufakchalar, CO₂ ajraladi",
-    icon: "sparkles",
-    reactants: ["CH₃COOH", "NaHCO₃"],
-    products: ["CH₃COONa", "H₂O", "CO₂"],
-    category: "Organik",
-    detailedExplanation: `
-🔬 OSHXONA KIMYOSI:
-
-Bu reaksiya oshxonada juda ko'p ishlatiladi - non yopishda, tozalashda, va hatto vulqon modellarida!
-
-🍞 NON YOPISH:
-1. Sirka + soda xamirga qo'shiladi
-2. CO₂ ajraladi
-3. Xamir ko'tariladi
-4. Yumshoq non hosil bo'ladi
-
-🌋 VULQON MODELI:
-Bolalar tajribasida:
-1. Soda konusga solinadi
-2. Qizil bo'yoqli sirka qo'shiladi
-3. "Lava" otiladi!
-
-🧹 TOZALASH:
-• Qozon toshlarini eritish
-• Drain tozalash
-• Hidlarni yo'qotish
-
-🧪 KIMYOVIY MOHIYAT:
-Sirka kuchsiz kislota bo'lsada, karbonatlarni parchalaydi va CO₂ ajratadi.
-    `,
-    mechanism: "Karbonat kislota hosil bo'lib, darhol parchalanadi",
-    applications: ["Oshpazlik", "Tozalash", "Demo tajriba"],
-    safetyNotes: "Xavfsiz reaksiya, oshxonada ishlatiladi",
-    energyChange: "Kuchsiz ekzotermik"
-  },
-  {
-    id: "esterification",
-    equation: "CH₃COOH + C₂H₅OH ⇌ CH₃COOC₂H₅ + H₂O",
-    type: "Esterifikatsiya",
-    description: "Efir hosil bo'lishi - yoqimli hidli modda",
-    conditions: "H₂SO₄ katalizator, qizdirish",
-    observation: "Yoqimli mevasimon hid (ananas)",
-    icon: "sparkles",
-    reactants: ["CH₃COOH", "C₂H₅OH"],
-    products: ["CH₃COOC₂H₅", "H₂O"],
-    category: "Organik",
-    detailedExplanation: `
-🔬 EFIR HOSIL BO'LISHI:
-
-Kislota + Spirt → Efir + Suv
-Bu reaksiya "esterifikatsiya" deb ataladi.
-
-🍎 MEVA HIDLARI:
-Turli efirlar turli hidlar beradi:
-• Etil atsetat - ananas, olmama
-• Izopentil atsetat - banan
-• Oktil atsetat - apelsin
-• Etil butirat - ananas
-
-🎨 QOLLASH:
-• Parfyumeriya
-• Oziq-ovqat aromatizatorlari
-• Bo'yoqlar erituvchisi
-• Lak ishlab chiqarish
-
-⚗️ SHAROITLAR:
-• H₂SO₄ katalizator
-• 60-80°C qizdirish
-• Muvozanat reaksiya
-• Suvni ajratish orqali chiqimni oshirish
-
-🧪 TAJRIBA:
-1. Sirka kislota + etanol + H₂SO₄ (bir necha tomchi)
-2. 5-10 daqiqa qizdirish
-3. Yoqimli ananas hidini his qiling!
-    `,
-    mechanism: "RCOOH + R'OH ⇌ RCOOR' + H₂O (H⁺ katalizator)",
-    applications: ["Parfyumeriya", "Oziq-ovqat", "Erituvchilar"],
-    safetyNotes: "Efirlar uchuvchi va yonuvchi",
-    energyChange: "Neytral (muvozanat)"
-  },
-  {
-    id: "saponification",
-    equation: "C₃H₅(OOCR)₃ + 3NaOH → C₃H₅(OH)₃ + 3RCOONa",
-    type: "Saponifikatsiya",
-    description: "Sovun tayyorlash - yog' va ishqor reaksiyasi",
-    conditions: "Qizdirish, 80-100°C",
-    observation: "Qalin massa, sovun hosil bo'ladi",
-    icon: "droplets",
-    reactants: ["Yog'", "NaOH"],
-    products: ["Glitserin", "Sovun"],
-    category: "Organik",
-    detailedExplanation: `
-🔬 SOVUN TAYYORLASH:
-
-Qadimdan ma'lum jarayon - yog' va kul (ishqor) dan sovun tayyorlash.
-
-🧼 JARAYON:
-1. Yog' (triglitserid) + NaOH
-2. 80-100°C da qizdirish
-3. Efir bog'lari uziladi
-4. Glitserin va sovun hosil bo'ladi
-
-🧪 KIMYOVIY MOHIYAT:
-Yog' = Glitserin + 3 ta yog' kislotasi
-Ishqor yog' kislotalarini ajratadi
-Sovun = Yog' kislotasi tuzi
-
-💧 SOVUN ISHLASHI:
-Sovun molekulasi:
-• Bir uchi suvga yoqadi (gidrofil)
-• Bir uchi yog'ga yoqadi (gidrofob)
-Bu kir yuvish mexanizmi!
-
-🏠 UY SHAROITIDA:
-1. Yog' (200g) + NaOH (30g) + suv (100ml)
-2. 1-2 soat qaynatish
-3. Tuzli suv qo'shib cho'ktirish
-4. Sovun tayyyor!
-    `,
-    mechanism: "Efir gidrolizi + tuz hosil bo'lishi",
-    applications: ["Sovun ishlab chiqarish", "Glitserin olish"],
-    safetyNotes: "NaOH kuydiradigan - ehtiyot bo'ling!",
-    energyChange: "Ekzotermik"
-  },
-  {
-    id: "ch4-cl2",
-    equation: "CH₄ + Cl₂ → CH₃Cl + HCl",
-    type: "Almashinish",
-    description: "Metanning xlorlanishi - radikal almashinish reaksiyasi",
-    conditions: "UV yorug'lik yoki 300°C",
-    observation: "Rangsiz gaz (CH₃Cl), HCl bug'i",
-    icon: "wind",
-    reactants: ["CH₄", "Cl₂"],
-    products: ["CH₃Cl", "HCl"],
-    category: "Organik",
-    detailedExplanation: `
-🔬 RADIKAL ALMASHINISH:
-
-Bu organik kimyodagi eng muhim reaksiya turlaridan biri. Alkanlar galogenlar bilan shunday reaksiyaga kiradi.
-
-⚡ MEXANIZM:
-1. BOSHLASH: Cl₂ → 2Cl• (UV yorug'lik)
-2. TARQALISH: 
-   Cl• + CH₄ → HCl + •CH₃
-   •CH₃ + Cl₂ → CH₃Cl + Cl•
-3. TUGASH: Cl• + Cl• → Cl₂
-
-📝 MAHSULOTLAR:
-Davom etsa, to'rt xil mahsulot:
-CH₃Cl → CH₂Cl₂ → CHCl₃ → CCl₄
-
-🏭 SANOAT AHAMIYATI:
-• CH₃Cl - metil xlorid (erituvchi)
-• CH₂Cl₂ - dixlormetan (bo'yoq erituvchi)
-• CHCl₃ - xloroform (tarixiy narkoz)
-• CCl₄ - to'rt xlorli uglerod (yong'in o'chiruvchi)
-
-⚠️ XAVF:
-Barcha xlorli uglevodlar zaharli va ekologik xavfli!
-    `,
-    mechanism: "Radikal zanjir reaksiyasi (initiation, propagation, termination)",
-    applications: ["Xloruglevodlar olish", "Sanoat kimyosi"],
-    safetyNotes: "Xlorli uglevodlar zaharli!",
-    energyChange: "Ekzotermik"
-  },
-
-  // ==================== KOMPLEKS REAKSIYALAR (10 ta) ====================
-  {
-    id: "ag-nh3-complex",
-    equation: "AgCl + 2NH₃ → [Ag(NH₃)₂]Cl",
-    type: "Kompleks hosil bo'lishi",
-    description: "Kumush-ammiak kompleksi - AgCl cho'kmasini eritish",
-    conditions: "Ortiqcha ammiak",
-    observation: "Oq cho'kma eriydi, rangsiz eritma",
-    icon: "droplets",
-    reactants: ["AgCl", "NH₃"],
-    products: ["[Ag(NH₃)₂]Cl"],
-    category: "Kompleks",
-    detailedExplanation: `
-🔬 KOMPLEKS BIRIKMALAR:
-
-Ba'zi cho'kmalar ammiak bilan kompleks hosil qilib eriydi. Bu xossa tahlilda ishlatiladi.
-
-🧪 TOLLENS REAKTIVI:
-[Ag(NH₃)₂]⁺ - "kumush oyna" reaktivi
-Aldegidlarni aniqlashda ishlatiladi:
-RCHO + 2[Ag(NH₃)₂]⁺ → RCOO⁻ + 2Ag↓ + 4NH₃ + H⁺
-
-🪞 KUMUSH OYNA:
-Aldegid kumush kompleksini qaytaradi:
-• Probirkada kumush qatlami hosil bo'ladi
-• Oyna kabi yarqiraydi
-• Klassik aldegid testi
-
-📊 KOMPLEKS BARQARORLIGI:
-[Ag(NH₃)₂]⁺ barqaror kompleks:
-Kf = [Ag(NH₃)₂⁺]/[Ag⁺][NH₃]² = 1.7×10⁷
-
-🔬 TAHLIL:
-AgCl + NH₃ → Ag⁺ bor-yo'qligini aniqlash
-Ag⁺ bilan cho'kma, NH₃ bilan eriydi = Ag⁺ tasdiqlandi
-    `,
-    mechanism: "Ag⁺ + 2NH₃ → [Ag(NH₃)₂]⁺ (ligand almashinishi)",
-    applications: ["Tollens reaktivi", "Kumush oyna", "Ag⁺ tahlili"],
-    safetyNotes: "Tollens reaktivi tez foydalanilishi kerak",
-    energyChange: "Kuchsiz ekzotermik"
-  },
-  {
-    id: "cu-nh3-complex",
-    equation: "Cu(OH)₂ + 4NH₃ → [Cu(NH₃)₄](OH)₂",
-    type: "Kompleks hosil bo'lishi",
-    description: "Mis-ammiak kompleksi - chiroyli ko'k rang",
-    conditions: "Ortiqcha ammiak",
-    observation: "Ko'k cho'kma eriydi, to'q ko'k eritma",
-    color: "To'q ko'k",
-    icon: "droplets",
-    reactants: ["Cu(OH)₂", "NH₃"],
-    products: ["[Cu(NH₃)₄](OH)₂"],
-    category: "Kompleks",
-    detailedExplanation: `
-🔬 "SHIVAYTER REAKTIVI":
-
-Bu kompleks tsellyulozani eritadi - sun'iy ipak (rayon) ishlab chiqarishda ishlatilgan.
-
-💙 TO'Q KO'K RANG:
-[Cu(NH₃)₄]²⁺ juda chiroyli to'q ko'k rang beradi. "Ultramarin" ga o'xshash.
-
-🧪 HOSIL QILISH:
-1. CuSO₄ eritmasiga NaOH qo'shish → Cu(OH)₂↓ (ko'k)
-2. NH₃ qo'shish → Ko'k cho'kma eriydi
-3. To'q ko'k eritma hosil bo'ladi
-
-🧵 RAYON IPAK:
-XIX asrda sun'iy ipak ishlab chiqarishda:
-1. Tsellyuloza + [Cu(NH₃)₄]²⁺ → eritma
-2. Kislotaga o'tkazish → ipak tolalari
-
-📊 GEOMETRIYA:
-[Cu(NH₃)₄]²⁺ - kvadrat-planar shakl
-Cu²⁺ atrofida 4 ta NH₃ molekulasi
-    `,
-    mechanism: "Cu²⁺ + 4NH₃ → [Cu(NH₃)₄]²⁺",
-    applications: ["Shivayter reaktivi", "Rayon", "Cu²⁺ tahlili"],
-    safetyNotes: "Ammiak hidini nafas olmang",
-    energyChange: "Ekzotermik"
-  },
-  {
-    id: "fe3-scn",
-    equation: "Fe³⁺ + 3SCN⁻ → Fe(SCN)₃",
-    type: "Kompleks hosil bo'lishi",
-    description: "Temir-tiotsianat kompleksi - qon qizil rang",
-    conditions: "Xona haroratida",
-    observation: "Qon qizil rang hosil bo'ladi",
-    color: "Qon qizil",
-    icon: "sparkles",
-    reactants: ["Fe³⁺", "SCN⁻"],
-    products: ["Fe(SCN)₃"],
-    category: "Kompleks",
-    detailedExplanation: `
-🔬 FE³⁺ NING SIFAT REAKTSIYASI:
-
-Bu reaksiya Fe³⁺ ionlarini aniqlashning eng sezgir usuli.
-
-🩸 QON QIZIL RANG:
-Fe(SCN)₃ yoki [Fe(SCN)]²⁺ qon qizil rang beradi. Juda kam miqdordagi Fe³⁺ ham ko'rinadi!
-
-🧪 TAJRIBA:
-1. FeCl₃ eritmasiga KSCN qo'shing
-2. Darhol qon qizil rang!
-3. Bu Fe³⁺ ning eng yaxshi testi
-
-📊 SEZGIRLIK:
-0.001 mg Fe³⁺ ni aniqlash mumkin!
-
-⚗️ KOMPLEKS TURLARI:
-Nisbatga qarab turli komplekslar:
-[Fe(SCN)]²⁺ - qizil
-[Fe(SCN)₂]⁺ - to'qroq
-Fe(SCN)₃ - eng to'q
-
-🎭 "SOX'TA QON":
-Kinoda "sun'iy qon" sifatida ishlatilgan. FeCl₃ + KSCN = qon rangi!
-    `,
-    mechanism: "Fe³⁺ + SCN⁻ → [Fe(SCN)]²⁺ (tez)",
-    applications: ["Fe³⁺ tahlili", "Sezgir test", "Kino effektlari"],
-    safetyNotes: "KSCN zaharli - og'izga olmang",
-    energyChange: "Neytral"
-  },
-
-  // ==================== QO'SHIMCHA REAKSIYALAR (50+ ta) ====================
-  
-  // GALOGENLAR
-  {
-    id: "cl2-h2",
-    equation: "H₂ + Cl₂ → 2HCl",
-    type: "Sintez",
-    description: "Vodorod va xlor reaksiyasi - xlorid kislota hosil bo'ladi",
-    conditions: "Yorug'lik yoki qizdirish (portlash xavfi!)",
-    observation: "Portlash, rangsiz gaz hosil bo'ladi",
-    icon: "flame",
-    reactants: ["H₂", "Cl₂"],
-    products: ["HCl"],
-    category: "Sintez",
-    detailedExplanation: `
-🔬 VODOROD VA XLOR REAKSIYASI:
-
-Bu reaksiya juda xavfli! "Xlor portlashi" deb ataladi.
-
-⚡ SHAROITLAR:
-• Qorong'ida - reaksiya bo'lmaydi
-• Tarqoq yorug'lik - sekin reaksiya
-• To'g'ridan-to'g'ri quyosh nuri - PORTLASH!
-
-📝 MEXANIZM (radikal zanjir):
-1. Cl₂ → 2Cl• (yorug'lik ta'sirida)
-2. Cl• + H₂ → HCl + H•
-3. H• + Cl₂ → HCl + Cl•
-
-🏭 SANOATDA:
-Bu reaksiya sanoatda xlorid kislota ishlab chiqarishning asosiy usuli.
-    `,
-    mechanism: "Radikal zanjir reaksiyasi",
-    applications: ["HCl ishlab chiqarish", "Sanoat kimyosi"],
-    safetyNotes: "PORTLASH XAVFI! Faqat professional sharoitda!",
-    energyChange: "Juda ekzotermik"
-  },
-  {
-    id: "br2-fe",
-    equation: "2Fe + 3Br₂ → 2FeBr₃",
-    type: "Sintez",
-    description: "Temir va brom reaksiyasi",
-    conditions: "Qizdirish",
-    observation: "Qizil-jigarrang kristallar hosil bo'ladi",
-    icon: "flame",
-    reactants: ["Fe", "Br₂"],
-    products: ["FeBr₃"],
-    category: "Sintez",
-    detailedExplanation: `
-🔬 TEMIR VA BROM:
-
-Temir galogenlar bilan yuqori oksidlanish holatiga o'tadi (+3).
-
-📝 MAHSULOT:
-FeBr₃ - qizil-jigarrang kristall modda
-Suvda yaxshi eriydi
-Organik sintezda katalizator
-    `,
-    mechanism: "2Fe⁰ → 2Fe³⁺ + 6e⁻",
-    applications: ["FeBr₃ olish", "Organik sintez katalizatori"],
-    safetyNotes: "Brom juda zaharli va kuydiradigan!",
-    energyChange: "Ekzotermik"
-  },
-  {
-    id: "i2-starch",
-    equation: "I₂ + kraxmal → ko'k kompleks",
-    type: "Sifat reaktsiyasi",
-    description: "Yod va kraxmal reaksiyasi - ko'k rang hosil bo'ladi",
-    conditions: "Xona haroratida",
-    observation: "To'q ko'k rang hosil bo'ladi",
-    color: "To'q ko'k",
-    icon: "sparkles",
-    reactants: ["I₂", "kraxmal"],
-    products: ["ko'k kompleks"],
-    category: "Kompleks",
-    detailedExplanation: `
-🔬 YOD-KRAXMAL REAKTSIYASI:
-
-Bu eng mashhur sifat reaktsiyalaridan biri!
-
-🧪 MEXANIZM:
-Yod molekulalari kraxmalning spiral tuzilishiga kirib, kompleks hosil qiladi.
-
-💙 RANG:
-• Amyloza (spiral) bilan - to'q ko'k
-• Amilopektin bilan - qizg'ish-binafsha
-• Issiqda rang yo'qoladi, sovuganda qaytadi
-
-📊 QOLLASH:
-• Kraxmal borligini aniqlash
-• Yod borligini aniqlash
-• Titrimetriya (yodometriya)
-    `,
-    mechanism: "Inklyuzion kompleks hosil bo'lishi",
-    applications: ["Kraxmal testi", "Yod testi", "Yodometriya"],
-    safetyNotes: "Yod terini sariq dog'laydi",
-    energyChange: "Neytral"
-  },
-
-  // KARBONATLAR
-  {
-    id: "caco3-heat",
-    equation: "CaCO₃ → CaO + CO₂↑",
+    id: "nh4cl-decomp",
+    equation: "NH₄Cl → NH₃↑ + HCl↑",
     type: "Parchalanish",
-    description: "Kalsiy karbonatning termik parchalanishi - ohak olish",
-    conditions: "900-1000°C",
-    observation: "Oq modda qoladi, gaz ajraladi",
-    icon: "flame",
-    reactants: ["CaCO₃"],
-    products: ["CaO", "CO₂"],
-    category: "Parchalanish",
-    detailedExplanation: `
-🔬 OHAK YOQISH:
-
-Bu jarayon ming yillardan beri ma'lum. Ohaktosh (CaCO₃) ni qizdirib, o'chgan ohak (CaO) olish.
-
-🏗️ QURILISHDA:
-1. Ohaktosh qizdiriladi (900-1000°C)
-2. CaO hosil bo'ladi (kuydirgan ohak)
-3. Suv qo'shiladi: CaO + H₂O → Ca(OH)₂
-4. Ca(OH)₂ - o'chgan ohak (qurilish materiali)
-
-⚡ ENERGIYA:
-Bu endotermik reaksiya - ko'p issiqlik talab qiladi.
-    `,
-    mechanism: "Termik parchalanish - CO₂ molekulasi ajraladi",
-    applications: ["Ohak ishlab chiqarish", "Sement sanoati", "Qurilish"],
-    safetyNotes: "CaO kuydiradigan - kuzov himoyasi kerak",
-    energyChange: "Endotermik (178 kJ/mol)"
+    description: "Ammoniy xlorid parchalanib, ammiak va xlorid kislota gazi hosil qiladi",
+    conditions: "Qizdirilganda",
+    observation: "Oq tutun, achchiq hid",
+    icon: "wind",
+    reactants: ["NH4Cl"],
+    products: ["NH3", "HCl"],
+    category: "Parchalanish"
   },
+
+  // Karbonatlar + Kislota (10 reaksiya)
   {
     id: "na2co3-hcl",
     equation: "Na₂CO₃ + 2HCl → 2NaCl + H₂O + CO₂↑",
-    type: "Almashtirish",
-    description: "Natriy karbonat va xlorid kislota reaksiyasi",
+    type: "Almashinish",
+    description: "Natriy karbonat kislota bilan reaksiyaga kirib, karbonat angidrid gazi ajraladi",
     conditions: "Xona haroratida",
-    observation: "Pufakchalar, gaz ajraladi (CO₂)",
-    icon: "droplets",
-    reactants: ["Na₂CO₃", "HCl"],
-    products: ["NaCl", "H₂O", "CO₂"],
-    category: "Kislota + Asos",
-    detailedExplanation: `
-🔬 SODA VA KISLOTA:
-
-Ichimlik sodasi (NaHCO₃) va kir yuvish sodasi (Na₂CO₃) kislotalar bilan shu reaksiyaga kiradi.
-
-🧪 BOSQICHLAR:
-1. Na₂CO₃ + HCl → NaHCO₃ + NaCl (avval)
-2. NaHCO₃ + HCl → NaCl + H₂O + CO₂ (keyin)
-Jami: Na₂CO₃ + 2HCl → 2NaCl + H₂O + CO₂
-
-🏠 KUNDALIK HAYOT:
-Ichimlik sodasi + sirka = CO₂ pufakchalari
-Bu uy sharoitida vulqon modeli yasashda ishlatiladi!
-    `,
-    mechanism: "Kuchsiz kislota (H₂CO₃) hosil bo'lib, parchalanadi",
-    applications: ["CO₂ olish", "Kislotani neytrallashtirish", "Uy tajribalari"],
-    safetyNotes: "Xavfsiz reaksiya",
-    energyChange: "Ekzotermik"
+    observation: "Ko'p miqdorda gaz pufakchalar ajralib chiqadi",
+    icon: "wind",
+    reactants: ["Na2CO3", "HCl"],
+    products: ["NaCl", "H2O", "CO2"],
+    category: "Kislota + Asos"
+  },
+  {
+    id: "caco3-hcl",
+    equation: "CaCO₃ + 2HCl → CaCl₂ + H₂O + CO₂↑",
+    type: "Almashinish",
+    description: "Kalsiy karbonat (ohaktosh) kislota bilan reaksiyaga kirib, gaz ajraladi",
+    conditions: "Xona haroratida",
+    observation: "Ohaktosh eriydi, gaz pufakchalar ajraladi",
+    icon: "wind",
+    reactants: ["CaCO3", "HCl"],
+    products: ["CaCl2", "H2O", "CO2"],
+    category: "Kislota + Asos"
+  },
+  {
+    id: "k2co3-h2so4",
+    equation: "K₂CO₃ + H₂SO₄ → K₂SO₄ + H₂O + CO₂↑",
+    type: "Almashinish",
+    description: "Kaliy karbonat sulfat kislota bilan reaksiyaga kirib, gaz ajraladi",
+    conditions: "Xona haroratida",
+    observation: "Gaz pufakchalar",
+    icon: "wind",
+    reactants: ["K2CO3", "H2SO4"],
+    products: ["K2SO4", "H2O", "CO2"],
+    category: "Kislota + Asos"
+  },
+  {
+    id: "nahco3-hcl",
+    equation: "NaHCO₃ + HCl → NaCl + H₂O + CO₂↑",
+    type: "Almashinish",
+    description: "Natriy bikarbonat kislota bilan reaksiyaga kirib, gaz ajraladi",
+    conditions: "Xona haroratida",
+    observation: "Tez reaksiya, ko'p gaz",
+    icon: "wind",
+    reactants: ["NaHCO3", "HCl"],
+    products: ["NaCl", "H2O", "CO2"],
+    category: "Kislota + Asos"
+  },
+  {
+    id: "mgco3-hcl",
+    equation: "MgCO₃ + 2HCl → MgCl₂ + H₂O + CO₂↑",
+    type: "Almashinish",
+    description: "Magniy karbonat kislota bilan reaksiyaga kirib, gaz ajraladi",
+    conditions: "Xona haroratida",
+    observation: "Oq kukun eriydi, gaz ajraladi",
+    icon: "wind",
+    reactants: ["MgCO3", "HCl"],
+    products: ["MgCl2", "H2O", "CO2"],
+    category: "Kislota + Asos"
+  },
+  {
+    id: "znco3-h2so4",
+    equation: "ZnCO₃ + H₂SO₄ → ZnSO₄ + H₂O + CO₂↑",
+    type: "Almashinish",
+    description: "Sink karbonat sulfat kislota bilan reaksiyaga kirib, gaz ajraladi",
+    conditions: "Xona haroratida",
+    observation: "Gaz pufakchalar",
+    icon: "wind",
+    reactants: ["ZnCO3", "H2SO4"],
+    products: ["ZnSO4", "H2O", "CO2"],
+    category: "Kislota + Asos"
   },
   {
     id: "baco3-hno3",
     equation: "BaCO₃ + 2HNO₃ → Ba(NO₃)₂ + H₂O + CO₂↑",
-    type: "Almashtirish",
-    description: "Bariy karbonat va nitrat kislota reaksiyasi",
+    type: "Almashinish",
+    description: "Bariy karbonat nitrat kislota bilan reaksiyaga kirib, gaz ajraladi",
     conditions: "Xona haroratida",
     observation: "Oq cho'kma eriydi, gaz ajraladi",
-    icon: "droplets",
-    reactants: ["BaCO₃", "HNO₃"],
-    products: ["Ba(NO₃)₂", "H₂O", "CO₂"],
-    category: "Kislota + Asos",
-    detailedExplanation: `
-🔬 BARIY KARBONAT ERITISH:
-
-BaCO₃ suvda erimaydi, lekin kislotalarda eriydi.
-
-⚗️ BARIY TUZLARI:
-Ba(NO₃)₂ - oq kristall, suvda eriydi
-Pirotexnikada yashil rang berish uchun ishlatiladi
-    `,
-    mechanism: "Karbonat + kislota → tuz + suv + CO₂",
-    applications: ["Ba(NO₃)₂ olish", "Pirotexnika"],
-    safetyNotes: "Bariy tuzlari zaharli!",
-    energyChange: "Ekzotermik"
-  },
-
-  // GIDROKSIDLAR
-  {
-    id: "al-oh-3-heat",
-    equation: "2Al(OH)₃ → Al₂O₃ + 3H₂O",
-    type: "Parchalanish",
-    description: "Alyuminiy gidroksidining termik parchalanishi",
-    conditions: "300-500°C",
-    observation: "Oq kukunga aylanadi",
-    icon: "flame",
-    reactants: ["Al(OH)₃"],
-    products: ["Al₂O₃", "H₂O"],
-    category: "Parchalanish",
-    detailedExplanation: `
-🔬 ALYUMINIY OKSIDI OLISH:
-
-Al₂O₃ (korund) - juda qattiq mineral. Tabiiy korund yoqut va safir tarkibida uchraydi!
-
-💎 QO'LLANILISHI:
-• Abraziv materiallar (silliqlash)
-• Keramika
-• Katalizator tashuvchisi
-• Yoqut lazerlar
-
-🏭 SANOAT:
-Boksitdan alyuminiy olishda Al(OH)₃ olinib, keyin Al₂O₃ ga aylantiriladi.
-    `,
-    mechanism: "Degidratatsiya - suv molekulalari ajraladi",
-    applications: ["Al₂O₃ olish", "Keramika", "Abrazivlar"],
-    safetyNotes: "Al₂O₃ kukuni nafas yo'llarini tirnaydi",
-    energyChange: "Endotermik"
-  },
-  {
-    id: "fe-oh-2-air",
-    equation: "4Fe(OH)₂ + O₂ + 2H₂O → 4Fe(OH)₃",
-    type: "Oksidlanish",
-    description: "Temir(II) gidroksidining oksidlanishi - zang hosil bo'lishi",
-    conditions: "Havoda, xona haroratida",
-    observation: "Yashil cho'kma jigarrang-qizilga aylanadi",
-    color: "Jigarrang-qizil",
     icon: "wind",
-    reactants: ["Fe(OH)₂", "O₂", "H₂O"],
-    products: ["Fe(OH)₃"],
-    category: "Redoks",
-    detailedExplanation: `
-🔬 ZANG HOSIL BO'LISHI:
-
-Temir zanglashining kimyoviy asosi shu reaksiya.
-
-🎨 RANG O'ZGARISHI:
-Fe(OH)₂ - yashil (yangi)
-Fe(OH)₃ - jigarrang-qizil (zang)
-
-⏱️ TEZLIK:
-Havoda bir necha daqiqada yashil cho'kma qizil rangga o'tadi.
-
-🛡️ KORROZIYA:
-Bu jarayon temir buyumlarning zanglashiga sabab.
-    `,
-    mechanism: "Fe²⁺ → Fe³⁺ + e⁻ (oksidlanish)",
-    applications: ["Korroziya jarayonini o'rganish", "Pigmentlar"],
-    safetyNotes: "Xavfsiz kuzatish tajribasi",
-    energyChange: "Ekzotermik"
+    reactants: ["BaCO3", "HNO3"],
+    products: ["Ba(NO3)2", "H2O", "CO2"],
+    category: "Kislota + Asos"
   },
-
-  // OKSIDLAR
   {
-    id: "so2-o2",
-    equation: "2SO₂ + O₂ → 2SO₃",
-    type: "Sintez",
-    description: "Oltingugurt dioksidining oksidlanishi - sulfat kislota olishda asosiy bosqich",
-    conditions: "400-500°C, V₂O₅ katalizator",
-    observation: "Rangsiz gazlar aralashmasi",
+    id: "feco3-hcl",
+    equation: "FeCO₃ + 2HCl → FeCl₂ + H₂O + CO₂↑",
+    type: "Almashinish",
+    description: "Temir karbonat kislota bilan reaksiyaga kirib, gaz ajraladi",
+    conditions: "Xona haroratida",
+    observation: "Yashil eritma, gaz ajraladi",
+    color: "Yashil",
     icon: "wind",
-    reactants: ["SO₂", "O₂"],
-    products: ["SO₃"],
-    category: "Sintez",
-    detailedExplanation: `
-🔬 KONTAKT USULI:
-
-Bu sulfat kislota ishlab chiqarishning asosiy bosqichi.
-
-🏭 SANOAT JARAYONI:
-1. S + O₂ → SO₂ (oltingugurt yoqish)
-2. 2SO₂ + O₂ → 2SO₃ (kontakt usuli)
-3. SO₃ + H₂O → H₂SO₄ (sulfat kislota)
-
-⚗️ KATALIZATOR:
-V₂O₅ (vanadiy pentoksid) katalizator sifatida ishlatiladi.
-Harorat 400-500°C, bosim 1-2 atm.
-
-📊 MUVOZANAT:
-Bu qaytmas reaksiya emas - past harorat va yuqori bosim mahsulot miqdorini oshiradi.
-    `,
-    mechanism: "Katalitik oksidlanish",
-    applications: ["H₂SO₄ ishlab chiqarish", "Sanoat kimyosi"],
-    safetyNotes: "SO₂ va SO₃ zaharli gazlar!",
-    energyChange: "Ekzotermik"
+    reactants: ["FeCO3", "HCl"],
+    products: ["FeCl2", "H2O", "CO2"],
+    category: "Kislota + Asos"
   },
   {
-    id: "no2-h2o",
-    equation: "4NO₂ + O₂ + 2H₂O → 4HNO₃",
-    type: "Sintez",
-    description: "Azot dioksididan nitrat kislota olish",
-    conditions: "Xona haroratida yoki qizdirish",
-    observation: "Jigarrang gaz suvda eriydi",
-    icon: "wind",
-    reactants: ["NO₂", "O₂", "H₂O"],
-    products: ["HNO₃"],
-    category: "Sintez",
-    detailedExplanation: `
-🔬 NITRAT KISLOTA SINTEZI:
-
-Bu reaksiya momaqaldiroq paytida tabiatda ham sodir bo'ladi!
-
-⚡ TABIATDA:
-Chaqmoq azotni oksidlaydi:
-N₂ + O₂ → 2NO → 2NO₂ → HNO₃ (yomg'ir bilan tuproqqa)
-
-🏭 SANOATDA (Ostwald usuli):
-1. 4NH₃ + 5O₂ → 4NO + 6H₂O
-2. 2NO + O₂ → 2NO₂
-3. 4NO₂ + O₂ + 2H₂O → 4HNO₃
-    `,
-    mechanism: "NO₂ + H₂O → HNO₃ + HNO₂ (disproporsiyalanish)",
-    applications: ["HNO₃ ishlab chiqarish", "O'g'itlar"],
-    safetyNotes: "NO₂ juda zaharli!",
-    energyChange: "Ekzotermik"
-  },
-  {
-    id: "co2-naoh",
-    equation: "CO₂ + 2NaOH → Na₂CO₃ + H₂O",
-    type: "Neytrallanish",
-    description: "Karbonat angidridning ishqor bilan reaksiyasi",
+    id: "caco3-h2so4",
+    equation: "CaCO₃ + H₂SO₄ → CaSO₄ + H₂O + CO₂↑",
+    type: "Almashinish",
+    description: "Kalsiy karbonat sulfat kislota bilan reaksiyaga kirib, cho'kma hosil qiladi",
     conditions: "Xona haroratida",
-    observation: "Gaz yutiladi, eritma hosil bo'ladi",
-    icon: "droplets",
-    reactants: ["CO₂", "NaOH"],
-    products: ["Na₂CO₃", "H₂O"],
-    category: "Kislota + Asos",
-    detailedExplanation: `
-🔬 KISLOTALI OKSID + ASOS:
-
-CO₂ kislotali oksid bo'lgani uchun ishqorlar bilan reaksiyaga kirishadi.
-
-📝 MUHIM:
-• Ortiqcha NaOH bilan: Na₂CO₃ hosil bo'ladi
-• Kam NaOH bilan: NaHCO₃ hosil bo'ladi
-
-🧪 LABORATORIYADA:
-Bu reaksiya CO₂ gazini yutish uchun ishlatiladi.
-    `,
-    mechanism: "Kislotali oksid + ishqor → tuz + suv",
-    applications: ["CO₂ yutish", "Na₂CO₃ olish", "Gaz tozalash"],
-    safetyNotes: "NaOH kuydiradigan - ehtiyot bo'ling",
-    energyChange: "Ekzotermik"
-  },
-
-  // TUZLAR REAKSIYALARI
-  {
-    id: "agno3-nacl",
-    equation: "AgNO₃ + NaCl → AgCl↓ + NaNO₃",
-    type: "Almashtirish",
-    description: "Kumush nitrat va natriy xlorid - oq cho'kma hosil bo'ladi",
-    conditions: "Xona haroratida",
-    observation: "Oq tvorogsimon cho'kma tushadi, yorug'likda qoraga aylanadi",
-    color: "Oq",
-    icon: "droplets",
-    reactants: ["AgNO₃", "NaCl"],
-    products: ["AgCl", "NaNO₃"],
-    category: "Tuz + Tuz",
-    detailedExplanation: `
-🔬 XLORID IONLARINI ANIQLASH:
-
-Bu reaksiya Cl⁻ ionlarini aniqlashning klassik usuli.
-
-🧪 TAJRIBA:
-1. Tekshiriladigan eritmaga AgNO₃ qo'shing
-2. Oq cho'kma hosil bo'lsa - xlorid ionlari bor
-3. Cho'kma NH₃ da erisa - AgCl tasdiqlandi
-
-📸 FOTOGRAFIYA:
-AgCl yorug'lik ta'sirida qoraga (Ag) aylanadi.
-Bu xossa fotografiyada ishlatilgan.
-    `,
-    mechanism: "Ag⁺ + Cl⁻ → AgCl↓ (kam eruvchan tuz)",
-    applications: ["Cl⁻ tahlili", "Fotografiya", "Tibbiyot"],
-    safetyNotes: "AgNO₃ terini qora dog'laydi",
-    energyChange: "Neytral"
-  },
-  {
-    id: "bacl2-na2so4",
-    equation: "BaCl₂ + Na₂SO₄ → BaSO₄↓ + 2NaCl",
-    type: "Almashtirish",
-    description: "Bariy xlorid va natriy sulfat - oq cho'kma hosil bo'ladi",
-    conditions: "Xona haroratida",
-    observation: "Oq kristall cho'kma tushadi",
-    color: "Oq",
-    icon: "droplets",
-    reactants: ["BaCl₂", "Na₂SO₄"],
-    products: ["BaSO₄", "NaCl"],
-    category: "Tuz + Tuz",
-    detailedExplanation: `
-🔬 SULFAT IONLARINI ANIQLASH:
-
-Bu reaksiya SO₄²⁻ ionlarini aniqlashning klassik usuli.
-
-🧪 TAJRIBA:
-1. Tekshiriladigan eritmaga BaCl₂ qo'shing
-2. Oq cho'kma hosil bo'lsa - sulfat ionlari bor
-
-📊 XUSUSIYATLARI:
-BaSO₄ juda kam eruvchi (Ksp = 1.1×10⁻¹⁰)
-Hech qanday kislotada erimaydi!
-
-🏥 TIBBIYOT:
-BaSO₄ rentgen tekshiruvi uchun ichiladi (oshqozon-ichak traktini ko'rish).
-    `,
-    mechanism: "Ba²⁺ + SO₄²⁻ → BaSO₄↓",
-    applications: ["SO₄²⁻ tahlili", "Rentgen kontrastlovchi", "Gravimetriya"],
-    safetyNotes: "BaSO₄ xavfsiz, lekin boshqa Ba tuzlari zaharli!",
-    energyChange: "Neytral"
-  },
-  {
-    id: "pb-no3-2-ki",
-    equation: "Pb(NO₃)₂ + 2KI → PbI₂↓ + 2KNO₃",
-    type: "Almashtirish",
-    description: "Qo'rg'oshin nitrat va kaliy yodid - sariq cho'kma (oltin yomg'ir)",
-    conditions: "Xona haroratida",
-    observation: "Yorqin sariq kristall cho'kma (\"oltin yomg'ir\")",
-    color: "Sariq",
+    observation: "Reaksiya sekinlashadi, oq qatlam hosil bo'ladi",
     icon: "sparkles",
-    reactants: ["Pb(NO₃)₂", "KI"],
-    products: ["PbI₂", "KNO₃"],
-    category: "Tuz + Tuz",
-    detailedExplanation: `
-🔬 "OLTIN YOMG'IR" TAJRIBASI:
-
-Bu eng chiroyli kimyoviy tajribalardan biri!
-
-🧪 TAJRIBA:
-1. Pb(NO₃)₂ eritmasini qaynatib turgan suvga qo'shing
-2. KI eritmasini qo'shing
-3. Sekin sovuting
-4. Yorqin sariq kristallar "yomg'ir" kabi tushadi
-
-✨ EFFEKT:
-Issiq suvda PbI₂ eriydi
-Soviganda chiroyli sariq kristallar cho'kadi
-"Oltin pullar" kabi ko'rinadi
-
-🎓 O'QUV:
-Bu tajriba kimyoga qiziqish uyg'otish uchun ishlatiladi.
-    `,
-    mechanism: "Pb²⁺ + 2I⁻ → PbI₂↓",
-    applications: ["Namoyish tajribasi", "Pb²⁺ tahlili", "I⁻ tahlili"],
-    safetyNotes: "Qo'rg'oshin tuzlari zaharli!",
-    energyChange: "Neytral"
+    reactants: ["CaCO3", "H2SO4"],
+    products: ["CaSO4", "H2O", "CO2"],
+    category: "Kislota + Asos"
   },
   {
-    id: "cuso4-naoh",
-    equation: "CuSO₄ + 2NaOH → Cu(OH)₂↓ + Na₂SO₄",
-    type: "Almashtirish",
-    description: "Mis sulfat va natriy gidroksid - ko'k cho'kma hosil bo'ladi",
+    id: "na2co3-ch3cooh",
+    equation: "Na₂CO₃ + 2CH₃COOH → 2CH₃COONa + H₂O + CO₂↑",
+    type: "Almashinish",
+    description: "Natriy karbonat sirka kislota bilan reaksiyaga kirib, gaz ajraladi",
     conditions: "Xona haroratida",
-    observation: "Chiroyli ko'k jelesimon cho'kma tushadi",
-    color: "Ko'k",
-    icon: "droplets",
-    reactants: ["CuSO₄", "NaOH"],
-    products: ["Cu(OH)₂", "Na₂SO₄"],
-    category: "Tuz + Tuz",
-    detailedExplanation: `
-🔬 MIS(II) GIDROKSIDI:
-
-Cu(OH)₂ - chiroyli ko'k rangli cho'kma.
-
-🧪 XUSUSIYATLAR:
-• Amfoter emas - faqat kislotalarda eriydi
-• Qizdirilsa: Cu(OH)₂ → CuO + H₂O (qora)
-• NH₃ bilan: [Cu(NH₃)₄]²⁺ (to'q ko'k)
-
-⚗️ MISHYAK ANALIZDA:
-Cu(OH)₂ + glukoza → Cu₂O + ... (qizil cho'kma)
-Bu aldegidlarni aniqlash usuli (Fehling reaktsiyasi).
-    `,
-    mechanism: "Cu²⁺ + 2OH⁻ → Cu(OH)₂↓",
-    applications: ["Cu²⁺ tahlili", "Fehling reaktivi", "Namoyish"],
-    safetyNotes: "CuSO₄ zaharli - og'izga olmang",
-    energyChange: "Neytral"
+    observation: "Gaz pufakchalar",
+    icon: "wind",
+    reactants: ["Na2CO3", "CH3COOH"],
+    products: ["CH3COONa", "H2O", "CO2"],
+    category: "Kislota + Asos"
   },
+
+  // Organik reaksiyalar (5 reaksiya)
   {
-    id: "fecl3-naoh",
-    equation: "FeCl₃ + 3NaOH → Fe(OH)₃↓ + 3NaCl",
-    type: "Almashtirish",
-    description: "Temir(III) xlorid va natriy gidroksid - jigarrang cho'kma",
+    id: "c2h4-br2",
+    equation: "C₂H₄ + Br₂ → C₂H₄Br₂",
+    type: "Qo'shilish",
+    description: "Etilen brom bilan qo'shilish reaksiyasiga kirib, dibrometan hosil qiladi",
     conditions: "Xona haroratida",
-    observation: "Jigarrang-qizil jelesimon cho'kma tushadi",
-    color: "Jigarrang-qizil",
+    observation: "Qizg'ish-jigarrang brom rangi yo'qoladi",
+    color: "Rangsiz",
     icon: "droplets",
-    reactants: ["FeCl₃", "NaOH"],
-    products: ["Fe(OH)₃", "NaCl"],
-    category: "Tuz + Tuz",
-    detailedExplanation: `
-🔬 TEMIR(III) GIDROKSIDI:
-
-Fe(OH)₃ - jigarrang-qizil cho'kma, zang rangida.
-
-🧪 XUSUSIYATLAR:
-• Amfoter emas
-• Qizdirilsa: 2Fe(OH)₃ → Fe₂O₃ + 3H₂O
-• Fe₂O₃ - qizil temir rudasi (gematit)
-
-🎨 PIGMENTLAR:
-Fe₂O₃ qadimdan qizil bo'yoq sifatida ishlatilgan.
-    `,
-    mechanism: "Fe³⁺ + 3OH⁻ → Fe(OH)₃↓",
-    applications: ["Fe³⁺ tahlili", "Pigmentlar", "Suv tozalash"],
-    safetyNotes: "FeCl₃ kiyimlarni dog'laydi",
-    energyChange: "Ekzotermik"
-  },
-
-  // ORGANIK REAKSIYALAR
-  {
-    id: "ethanol-oxidation",
-    equation: "C₂H₅OH + O₂ → CH₃CHO + H₂O",
-    type: "Oksidlanish",
-    description: "Etanol oksidlanishi - atsetaldegid hosil bo'lishi",
-    conditions: "Cu katalizator, 300°C",
-    observation: "Aldegid xos hidi paydo bo'ladi",
-    icon: "flame",
-    reactants: ["C₂H₅OH", "O₂"],
-    products: ["CH₃CHO", "H₂O"],
-    category: "Organik",
-    detailedExplanation: `
-🔬 SPIRT OKSIDLANISHI:
-
-Birlamchi spirtlar oksidlansa aldegid hosil bo'ladi.
-
-📝 BOSQICHLAR:
-Spirt → Aldegid → Karbon kislota
-C₂H₅OH → CH₃CHO → CH₃COOH
-
-🧪 LABORATORIYADA:
-Qizdirilgan mis simdan spirt bug'i o'tkaziladi.
-Mis oksidlanadi: 2Cu + O₂ → 2CuO
-Keyin qaytariladi: CuO + C₂H₅OH → Cu + CH₃CHO + H₂O
-    `,
-    mechanism: "Dehidrogenlanish - 2H atomlari ajraladi",
-    applications: ["Aldegidlar sintezi", "Sanoat kimyosi"],
-    safetyNotes: "Aldegidlar zaharli va yonuvchan!",
-    energyChange: "Ekzotermik"
+    reactants: ["C2H4", "Br2"],
+    products: ["C2H4Br2"],
+    category: "Organik"
   },
   {
-    id: "acetylene-water",
-    equation: "C₂H₂ + H₂O → CH₃CHO",
-    type: "Gidratasiya",
-    description: "Atsetilenning gidratasiyasi - atsetaldegid hosil bo'lishi (Kucherov reaksiyasi)",
-    conditions: "H₂SO₄, HgSO₄, 80°C",
-    observation: "Aldegid xos hidi paydo bo'ladi",
-    icon: "droplets",
-    reactants: ["C₂H₂", "H₂O"],
-    products: ["CH₃CHO"],
-    category: "Organik",
-    detailedExplanation: `
-🔬 KUCHEROV REAKSIYASI:
-
-Rus kimyogari M.G.Kucherov 1881-yilda kashf etgan.
-
-📝 MEXANIZM:
-1. Hg²⁺ atsitilanga birikadi
-2. H₂O qo'shiladi
-3. Vinil spirti hosil bo'ladi (beqaror)
-4. Aldegidga o'tadi (ketoenol izomeriya)
-
-⚗️ AHAMIYATI:
-Tarixan atsetaldegid olishning asosiy usuli bo'lgan.
-    `,
-    mechanism: "Markovnikov qoidasiga bo'ysunadi",
-    applications: ["Atsetaldegid olish", "Organik sintez"],
-    safetyNotes: "Hg tuzlari juda zaharli!",
-    energyChange: "Ekzotermik"
-  },
-  {
-    id: "benzene-nitration",
-    equation: "C₆H₆ + HNO₃ → C₆H₅NO₂ + H₂O",
-    type: "Nitrolash",
-    description: "Benzolning nitrolanishi - nitrobenzol hosil bo'lishi",
-    conditions: "H₂SO₄ (konts.), 50-60°C",
-    observation: "Sariqish moysimon suyuqlik hosil bo'ladi",
-    color: "Sariq",
-    icon: "droplets",
-    reactants: ["C₆H₆", "HNO₃"],
-    products: ["C₆H₅NO₂", "H₂O"],
-    category: "Organik",
-    detailedExplanation: `
-🔬 ELEKTROFIL ALMASHINISH:
-
-Aromatik halqadagi H atomi NO₂ guruhiga almashadi.
-
-📝 NITROLOVCHI ARALASHMA:
-HNO₃ + H₂SO₄ → NO₂⁺ + HSO₄⁻ + H₂O
-NO₂⁺ - nitroniiy kation (faol zarracha)
-
-🧪 MAHSULOTLAR:
-Nitrobenzol - bodom hidi, zaharli!
-Anilin (C₆H₅NH₂) olish uchun qaytariladi.
-
-💊 AHAMIYATI:
-Anilin - ko'plab dori-darmonlar va bo'yoqlar asosi.
-    `,
-    mechanism: "Elektrofil aromatik almashinish (SEAr)",
-    applications: ["Nitrobenzol olish", "Anilin sintezi", "Portlovchilar"],
-    safetyNotes: "Nitrobenzol juda zaharli! Teridan shimib oladi!",
-    energyChange: "Ekzotermik"
-  },
-  {
-    id: "ester-formation",
-    equation: "CH₃COOH + C₂H₅OH ⇌ CH₃COOC₂H₅ + H₂O",
+    id: "ch3cooh-c2h5oh",
+    equation: "CH₃COOH + C₂H₅OH → CH₃COOC₂H₅ + H₂O",
     type: "Esterifikatsiya",
-    description: "Sirka kislota va etanol - etilasetat (meva hidi) hosil bo'lishi",
-    conditions: "H₂SO₄ (konts.), qizdirish",
-    observation: "Meva xushbo'y hidi paydo bo'ladi",
-    icon: "sparkles",
-    reactants: ["CH₃COOH", "C₂H₅OH"],
-    products: ["CH₃COOC₂H₅", "H₂O"],
-    category: "Organik",
-    detailedExplanation: `
-🔬 ESTERIFIKATSIYA:
-
-Kislota + Spirt → Efir + Suv (qaytmas reaksiya!)
-
-🍎 XID:
-Etilasetat - olma, nok hidiga o'xshash.
-Ko'p mevali hidlar - efirlardur!
-
-📊 MISOLLAR:
-• Metilbutirat - olma
-• Etilbutirat - ananas
-• Izoamilasetat - banan
-• Oktilasetat - apelsin
-
-🧪 MEXANIZM:
-1. H⁺ karbonil kislorodiga birikadi
-2. Spirt hujum qiladi
-3. H₂O ajraladi
-4. Efir hosil bo'ladi
-    `,
-    mechanism: "Nukleofilik qo'shilish-ajralish",
-    applications: ["Xushbo'y hidlar", "Erituvchilar", "Lak-bo'yoq sanoati"],
-    safetyNotes: "Efillar yonuvchan, bug'lari zararli",
-    energyChange: "Neytral (qaytmas)"
+    description: "Sirka kislota etanol bilan reaksiyaga kirib, etil atsetat (efir) hosil qiladi",
+    conditions: "Konsentrlangan H₂SO₄, qizdirilganda",
+    observation: "Mevali hid, ikki qatlam",
+    icon: "droplets",
+    reactants: ["CH3COOH", "C2H5OH"],
+    products: ["CH3COOC2H5", "H2O"],
+    category: "Organik"
   },
   {
-    id: "glucose-fehling",
-    equation: "C₆H₁₂O₆ + 2Cu(OH)₂ → C₆H₁₂O₇ + Cu₂O↓ + 2H₂O",
+    id: "c6h6-hno3",
+    equation: "C₆H₆ + HNO₃ → C₆H₅NO₂ + H₂O",
+    type: "Almashtirish",
+    description: "Benzol nitrat kislota bilan reaksiyaga kirib, nitrobenzol hosil qiladi",
+    conditions: "Konsentrlangan H₂SO₄, 50-60°C",
+    observation: "Sariq moysimon suyuqlik",
+    color: "Sariq",
+    icon: "droplets",
+    reactants: ["C6H6", "HNO3"],
+    products: ["C6H5NO2", "H2O"],
+    category: "Organik"
+  },
+  {
+    id: "c2h5oh-o2-partial",
+    equation: "2C₂H₅OH + O₂ → 2CH₃CHO + 2H₂O",
     type: "Oksidlanish",
-    description: "Glyukoza Fehling reaktivi bilan - qizil cho'kma (aldegid isboti)",
-    conditions: "Qizdirish",
-    observation: "Ko'k eritma qizil cho'kmaga aylanadi",
-    color: "Qizil",
-    icon: "sparkles",
-    reactants: ["C₆H₁₂O₆", "Cu(OH)₂"],
-    products: ["C₆H₁₂O₇", "Cu₂O", "H₂O"],
-    category: "Organik",
-    detailedExplanation: `
-🔬 FEHLING REAKTSIYASI:
-
-Bu aldegidlarni aniqlashning klassik usuli.
-
-🧪 TAJRIBA:
-1. Fehling reaktivi (ko'k) + glyukoza
-2. Qizdirish
-3. Ko'k → yashil → sariq → qizil
-
-🎨 RANG O'ZGARISHI:
-Cu²⁺ (ko'k) → Cu⁺ (qizil, Cu₂O)
-
-📊 QO'LLANILISHI:
-• Qandli diabetni tekshirish (siydikda qand)
-• Oziq-ovqatda qand miqdorini aniqlash
-    `,
-    mechanism: "Aldegid guruh oksidlanadi, Cu²⁺ qaytariladi",
-    applications: ["Aldegid testi", "Diabet diagnostikasi", "Oziq-ovqat tahlili"],
-    safetyNotes: "Qaynoq eritma bilan ehtiyot bo'ling",
-    energyChange: "Ekzotermik"
-  },
-
-  // ELEKTROKIMYOVIY
-  {
-    id: "electrolysis-nacl-melt",
-    equation: "2NaCl → 2Na + Cl₂↑",
-    type: "Elektroliz",
-    description: "Tuzning elektrolizi (suyuqlantirilgan) - natriy va xlor olish",
-    conditions: "800°C, elektroliz",
-    observation: "Katodda kumush rangli metall, anodda sariq-yashil gaz",
-    icon: "sparkles",
-    reactants: ["NaCl"],
-    products: ["Na", "Cl₂"],
-    category: "Elektroliz",
-    detailedExplanation: `
-🔬 SUYUQLANTIRILGAN TUZ ELEKTROLIZI:
-
-Bu sanoatda natriy olishning asosiy usuli.
-
-⚡ ELEKTRODLARDA:
-Katod (-): Na⁺ + e⁻ → Na (metall)
-Anod (+): 2Cl⁻ - 2e⁻ → Cl₂ (gaz)
-
-🏭 DAUNS USULI:
-NaCl + CaCl₂ aralashmasi 580°C da suyultiriladi
-(sof NaCl 801°C da eriydi)
-
-⚠️ XAVFSIZLIK:
-Natriy suv bilan portlaydi!
-Xlor zaharli gaz!
-    `,
-    mechanism: "Oksidlanish-qaytarilish (tok ta'sirida)",
-    applications: ["Na metall olish", "Cl₂ olish", "Sanoat kimyosi"],
-    safetyNotes: "Yuqori harorat va zaharli gazlar!",
-    energyChange: "Endotermik (tok sarflanadi)"
-  },
-  {
-    id: "electrolysis-nacl-solution",
-    equation: "2NaCl + 2H₂O → 2NaOH + H₂↑ + Cl₂↑",
-    type: "Elektroliz",
-    description: "Tuz eritmasining elektrolizi - ishqor, vodorod va xlor olish",
-    conditions: "Elektroliz, xona haroratida",
-    observation: "Katodda pufakchalar (H₂), anodda sariq-yashil gaz (Cl₂)",
-    icon: "sparkles",
-    reactants: ["NaCl", "H₂O"],
-    products: ["NaOH", "H₂", "Cl₂"],
-    category: "Elektroliz",
-    detailedExplanation: `
-🔬 TUZ ERITMASINING ELEKTROLIZI:
-
-Bu sanoatda NaOH, H₂ va Cl₂ olishning asosiy usuli.
-
-⚡ ELEKTRODLARDA:
-Katod (-): 2H₂O + 2e⁻ → H₂ + 2OH⁻
-Anod (+): 2Cl⁻ - 2e⁻ → Cl₂
-
-📝 NIMA UCHUN Na EMAS?
-Suvli eritmalarda H⁺ qaytariladi, Na⁺ emas.
-Chunki H⁺ qaytarilish potensiali Na⁺ dan yuqori.
-
-🏭 XLOR-ISHQOR SANOATI:
-Dunyoda yiliga 60+ million tonna NaOH va Cl₂ shu usulda olinadi.
-    `,
-    mechanism: "Suv elektrolizi + Cl⁻ oksidlanishi",
-    applications: ["NaOH ishlab chiqarish", "Cl₂ olish", "H₂ olish"],
-    safetyNotes: "H₂ va Cl₂ aralashmasi portlovchi!",
-    energyChange: "Endotermik"
-  },
-  {
-    id: "electrolysis-water",
-    equation: "2H₂O → 2H₂↑ + O₂↑",
-    type: "Elektroliz",
-    description: "Suvning elektrolizi - vodorod va kislorod olish",
-    conditions: "Elektroliz, H₂SO₄ yoki NaOH qo'shiladi",
-    observation: "Katodda ko'proq gaz (H₂), anodda kamroq (O₂)",
-    icon: "sparkles",
-    reactants: ["H₂O"],
-    products: ["H₂", "O₂"],
-    category: "Elektroliz",
-    detailedExplanation: `
-🔬 SUV ELEKTROLIZI:
-
-Eng toza vodorod va kislorod olish usuli.
-
-⚡ ELEKTRODLARDA:
-Katod (-): 4H₂O + 4e⁻ → 2H₂ + 4OH⁻
-Anod (+): 2H₂O - 4e⁻ → O₂ + 4H⁺
-
-📊 NISBAT:
-H₂ : O₂ = 2 : 1 (hajm bo'yicha)
-Bu suvning H₂O formulasini tasdiqlaydi!
-
-🔋 KELAJAK ENERGIYA:
-"Yashil vodorod" - quyosh/shamol energiyasi bilan suv elektrolizi.
-Transport uchun toza yoqilg'i!
-    `,
-    mechanism: "Suv molekulasi parchalanadi",
-    applications: ["Toza H₂ olish", "Toza O₂ olish", "Vodorod energetikasi"],
-    safetyNotes: "H₂ + O₂ aralashmasi portlovchi!",
-    energyChange: "Endotermik (286 kJ/mol)"
-  },
-
-  // METALLURGIYA
-  {
-    id: "fe2o3-co",
-    equation: "Fe₂O₃ + 3CO → 2Fe + 3CO₂",
-    type: "Qaytarish",
-    description: "Temir rudaning uglerod oksidi bilan qaytarilishi - temir olish",
-    conditions: "Domna pechi, 900-1200°C",
-    observation: "Qattiq temir hosil bo'ladi",
+    description: "Etanol to'liq bo'lmagan oksidlanib, atsetaldegid hosil qiladi",
+    conditions: "Cu katalizatori, 300°C",
+    observation: "O'tkir hid",
     icon: "flame",
-    reactants: ["Fe₂O₃", "CO"],
-    products: ["Fe", "CO₂"],
-    category: "Redoks",
-    detailedExplanation: `
-🔬 TEMIR ISHLAB CHIQARISH:
-
-Bu metallurgiyaning eng muhim jarayoni.
-
-🏭 DOMNA PECHIDA:
-1. Ruda (Fe₂O₃), koks (C), flyus (CaCite) yuklanadi
-2. 900°C: C + O₂ → CO₂
-3. CO₂ + C → 2CO (bosh qaytaruvchi)
-4. Fe₂O₃ + 3CO → 2Fe + 3CO₂
-
-📊 BOSQICHLAR:
-Fe₂O₃ → Fe₃O₄ → FeO → Fe
-3Fe₂O₃ + CO → 2Fe₃O₄ + CO₂
-Fe₃O₄ + CO → 3FeO + CO₂
-FeO + CO → Fe + CO₂
-
-🌍 AHAMIYAT:
-Jahonda yiliga 1.8 milliard tonna temir ishlab chiqariladi!
-    `,
-    mechanism: "CO - qaytaruvchi, Fe₂O₃ - oksidlovchi",
-    applications: ["Temir metallurgiyasi", "Po'lat ishlab chiqarish"],
-    safetyNotes: "CO zaharli gaz!",
-    energyChange: "Endotermik (yuqori harorat kerak)"
+    reactants: ["C2H5OH", "O2"],
+    products: ["CH3CHO", "H2O"],
+    category: "Organik"
   },
   {
-    id: "al2o3-electrolysis",
-    equation: "2Al₂O₃ → 4Al + 3O₂↑",
-    type: "Elektroliz",
-    description: "Alyuminiy oksidining elektrolizi - alyuminiy olish (Xoll-Eru usuli)",
-    conditions: "960°C, kriolit eritmasida, elektroliz",
-    observation: "Tubida suyuq alyuminiy yig'iladi",
-    icon: "sparkles",
-    reactants: ["Al₂O₃"],
-    products: ["Al", "O₂"],
-    category: "Elektroliz",
-    detailedExplanation: `
-🔬 XOLL-ERU JARAYONI (1886):
-
-Bu alyuminiy ishlab chiqarishning yagona sanoat usuli.
-
-⚗️ JARAYON:
-1. Al₂O₃ (korund) kriolit (Na₃AlF₆) da eritiladi
-2. Harorat: 960°C (sof Al₂O₃ 2050°C da eriydi!)
-3. Elektroliz - Al katodda, O₂ anodda
-
-⚡ ENERGIYA SARFI:
-1 kg Al olish uchun ~15 kWh tok kerak!
-Shuning uchun Al qayta ishlash muhim.
-
-♻️ QAYTA ISHLASH:
-Qayta ishlangan Al olish faqat 5% energiya sarflaydi.
-    `,
-    mechanism: "Al³⁺ + 3e⁻ → Al, 2O²⁻ - 4e⁻ → O₂",
-    applications: ["Alyuminiy ishlab chiqarish"],
-    safetyNotes: "Juda yuqori harorat va tok!",
-    energyChange: "Juda endotermik"
-  },
-
-  // VODOROD BILAN REAKSIYALAR
-  {
-    id: "n2-h2",
-    equation: "N₂ + 3H₂ ⇌ 2NH₃",
-    type: "Sintez",
-    description: "Azot va vodoroddan ammiak sintezi (Gaber-Bosh usuli)",
-    conditions: "400-500°C, 200-300 atm, Fe katalizator",
-    observation: "Keskin hidli rangsiz gaz",
-    icon: "wind",
-    reactants: ["N₂", "H₂"],
-    products: ["NH₃"],
-    category: "Sintez",
-    detailedExplanation: `
-🔬 GABER-BOSH JARAYONI:
-
-XX asrning eng muhim kashfiyoti - sanoatda ammiak sintezi.
-
-📊 MUVOZANAT:
-• Ekzotermik reaksiya
-• Past harorat - ko'p NH₃ (lekin sekin)
-• Yuqori bosim - ko'p NH₃
-• Optimal: 400-500°C, 200-300 atm
-
-🌍 AHAMIYAT:
-• Jahonda yiliga 150+ million tonna NH₃
-• O'g'itlar uchun (azotli)
-• Nitrat kislota uchun
-• Plastmassalar, dori-darmonlar
-
-🏆 NOBEL MUKOFOTI:
-Fritz Gaber - 1918 yil Nobel mukofoti
-Carl Bosch - 1931 yil Nobel mukofoti
-    `,
-    mechanism: "N≡N bog' uzilishi - eng qiyin bosqich",
-    applications: ["O'g'itlar", "HNO₃ ishlab chiqarish", "Kimyo sanoati"],
-    safetyNotes: "Yuqori bosim va harorat! Ammiak zaharli!",
-    energyChange: "Ekzotermik (-92 kJ/mol)"
-  },
-  {
-    id: "cuo-h2",
-    equation: "CuO + H₂ → Cu + H₂O",
-    type: "Qaytarish",
-    description: "Mis oksidining vodorod bilan qaytarilishi",
-    conditions: "300-400°C",
-    observation: "Qora oksid qizil misga aylanadi",
-    color: "Qizil",
-    icon: "flame",
-    reactants: ["CuO", "H₂"],
-    products: ["Cu", "H₂O"],
-    category: "Redoks",
-    detailedExplanation: `
-🔬 METALL QAYTARISH:
-
-Laboratoriyada vodorod bilan metallar olish.
-
-🧪 TAJRIBA:
-1. Probirkaga CuO soling (qora)
-2. Vodorod gazini o'tkazing
-3. Qizdiring (300-400°C)
-4. CuO → Cu (qora → qizil)
-5. Probirkada suv tomchilari hosil
-
-📝 MEXANIZM:
-H₂ - qaytaruvchi (elektron beradi)
-CuO - oksidlovchi (elektron oladi)
-Cu²⁺ + 2e⁻ → Cu⁰
-
-⚠️ XAVFSIZLIK:
-Ortiqcha vodorod yonishi mumkin!
-    `,
-    mechanism: "H₂ - qaytaruvchi, CuO - oksidlovchi",
-    applications: ["Toza Cu olish", "Laboratoriya tajribasi", "Elektronika"],
-    safetyNotes: "Vodorod yonuvchan - ehtiyot bo'ling!",
-    energyChange: "Ekzotermik"
-  },
-
-  // KISLOTALAR BILAN QO'SHIMCHA
-  {
-    id: "h2so4-sugar",
-    equation: "C₁₂H₂₂O₁₁ + H₂SO₄(konts.) → 12C + 11H₂O",
-    type: "Suvsizlantirish",
-    description: "Shakarning sulfat kislota bilan karbonizatsiyasi - qora ko'mir hosil bo'lishi",
-    conditions: "Konsentrlangan H₂SO₄, xona haroratida",
-    observation: "Shakar qorga aylanadi, ko'piklanadi, issiqlik ajraladi",
-    color: "Qora",
-    icon: "flame",
-    reactants: ["C₁₂H₂₂O₁₁", "H₂SO₄"],
-    products: ["C", "H₂O"],
-    category: "Redoks",
-    detailedExplanation: `
-🔬 "QO'NG'IR ILON" TAJRIBASI:
-
-Bu eng ta'sirchan namoyish tajribalaridan biri!
-
-🧪 TAJRIBA:
-1. Stakanga shakar soling
-2. Konts. H₂SO₄ qo'shing
-3. Kuting...
-4. Shakar "o'sib" chiqadi!
-
-📝 NIMA BO'LYAPTI:
-H₂SO₄ suvni "tortib oladi" (dehidratatsiya)
-C₁₂H₂₂O₁₁ → 12C + 11H₂O
-Hosil bo'lgan suv bug'lanadi, ko'mir "o'sadi"
-
-⚠️ XAVF:
-• Juda ko'p issiqlik ajraladi
-• SO₂ gazi ajralishi mumkin
-• Kislota sachraydi
-    `,
-    mechanism: "Dehidratatsiya - H₂SO₄ suvni yutadi",
-    applications: ["Namoyish tajribasi", "Ko'mir olish"],
-    safetyNotes: "JUDA XAVFLI! Faqat moshka ostida!",
-    energyChange: "Juda ekzotermik"
-  },
-  {
-    id: "kmnO4-h2o2-h2so4",
-    equation: "2KMnO₄ + 5H₂O₂ + 3H₂SO₄ → 2MnSO₄ + K₂SO₄ + 5O₂↑ + 8H₂O",
-    type: "Redoks",
-    description: "Kaliy permanganat va vodorod peroksid - kislorod ajraladi",
-    conditions: "Kislotali muhit",
-    observation: "Binafsha rang yo'qoladi, ko'pik va gaz ajraladi",
-    icon: "wind",
-    reactants: ["KMnO₄", "H₂O₂", "H₂SO₄"],
-    products: ["MnSO₄", "K₂SO₄", "O₂", "H₂O"],
-    category: "Redoks",
-    detailedExplanation: `
-🔬 PERMANGANAT - OKSIDLOVCHI:
-
-KMnO₄ eng kuchli oksidlovchilardan biri.
-
-📝 RANG O'ZGARISHI:
-KMnO₄ (binafsha) → Mn²⁺ (rangsiz) - kislotali muhitda
-KMnO₄ (binafsha) → MnO₂ (jigarrang) - neytral muhitda
-KMnO₄ (binafsha) → MnO₄²⁻ (yashil) - ishqoriy muhitda
-
-🧪 BU REAKSIYADA:
-H₂O₂ - qaytaruvchi (O⁻¹ → O⁰)
-Mn⁺⁷ → Mn²⁺ (qaytariladi)
-
-⚗️ TITRIMETRIYA:
-Bu reaksiya oksidlovchi modda miqdorini aniqlashda (permanganatometriya) ishlatiladi.
-    `,
-    mechanism: "Mn⁺⁷ + 5e⁻ → Mn²⁺, H₂O₂ - 2e⁻ → O₂",
-    applications: ["O₂ olish", "Titrimetriya", "Dezinfeksiya"],
-    safetyNotes: "KMnO₄ kuchli oksidlovchi - organik moddalardan uzoq tuting!",
-    energyChange: "Ekzotermik"
+    id: "c2h2-h2o",
+    equation: "C₂H₂ + H₂O → CH₃CHO",
+    type: "Qo'shilish",
+    description: "Asetilen suv bilan qo'shilib, atsetaldegid hosil qiladi",
+    conditions: "HgSO₄ katalizatori",
+    observation: "Gaz suyuqlikka aylanadi",
+    icon: "droplets",
+    reactants: ["C2H2", "H2O"],
+    products: ["CH3CHO"],
+    category: "Organik"
   }
 ];

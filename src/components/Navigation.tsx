@@ -28,7 +28,7 @@ const Navigation = () => {
               className="w-10 h-10 rounded-full object-contain"
             />
             <span className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              ChemFlare
+              ChemLearn
             </span>
           </div>
 
