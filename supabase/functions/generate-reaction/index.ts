@@ -1,9 +1,42 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
+
+async function getApiKeys() {
+  let googleApiKey = Deno.env.get('GOOGLE_AI_API_KEY');
+  let openaiApiKey = Deno.env.get('OPENAI_API_KEY');
+
+  if (!googleApiKey || !openaiApiKey) {
+    try {
+      const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+      const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+      const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+      const { data: settings } = await supabase
+        .from('api_settings')
+        .select('key_name, key_value');
+
+      if (settings) {
+        for (const setting of settings) {
+          if (setting.key_name === 'GOOGLE_AI_API_KEY' && !googleApiKey) {
+            googleApiKey = setting.key_value;
+          }
+          if (setting.key_name === 'OPENAI_API_KEY' && !openaiApiKey) {
+            openaiApiKey = setting.key_value;
+          }
+        }
+      }
+    } catch (e) {
+      console.error('Error fetching API keys from database:', e);
+    }
+  }
+
+  return { googleApiKey, openaiApiKey };
 }
 
 serve(async (req) => {
@@ -21,10 +54,10 @@ serve(async (req) => {
       )
     }
 
-    const googleApiKey = Deno.env.get('GOOGLE_AI_API_KEY')
+    const { googleApiKey, openaiApiKey } = await getApiKeys();
     
-    if (!googleApiKey) {
-      throw new Error('GOOGLE_AI_API_KEY is not configured')
+    if (!googleApiKey && !openaiApiKey) {
+      throw new Error('AI API kaliti sozlanmagan. API Sozlamalaridan kalitlarni kiriting.')
     }
 
     const systemPrompt = `Sen Qwen 2.5 modelsan. Kimyo bo'yicha aniq, qisqa, ilmiy javob ber.
@@ -75,7 +108,7 @@ Eslatma:
 - Har xil sharoitlardagi turli reaksiyalarni ko'rsating
 - Real kimyoviy qoidalarga rioya qiling`;
 
-    const openaiApiKey = Deno.env.get('OPENAI_API_KEY')
+    const openaiApiKeyVal = openaiApiKey;
     
     let result: string | undefined
     let usedProvider = ''
@@ -117,12 +150,12 @@ Eslatma:
     }
 
     // Fallback to OpenAI if Google AI failed
-    if (!result && openaiApiKey) {
+    if (!result && openaiApiKeyVal) {
       console.log('Using OpenAI fallback...')
       const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${openaiApiKey}`,
+          'Authorization': `Bearer ${openaiApiKeyVal}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({

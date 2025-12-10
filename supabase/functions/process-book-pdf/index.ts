@@ -8,6 +8,38 @@ const corsHeaders = {
 
 const ADMIN_PASSWORD = "admin77";
 
+async function getApiKeys() {
+  let googleApiKey = Deno.env.get('GOOGLE_AI_API_KEY');
+  let openaiApiKey = Deno.env.get('OPENAI_API_KEY');
+
+  if (!googleApiKey || !openaiApiKey) {
+    try {
+      const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+      const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+      const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+      const { data: settings } = await supabase
+        .from('api_settings')
+        .select('key_name, key_value');
+
+      if (settings) {
+        for (const setting of settings) {
+          if (setting.key_name === 'GOOGLE_AI_API_KEY' && !googleApiKey) {
+            googleApiKey = setting.key_value;
+          }
+          if (setting.key_name === 'OPENAI_API_KEY' && !openaiApiKey) {
+            openaiApiKey = setting.key_value;
+          }
+        }
+      }
+    } catch (e) {
+      console.error('Error fetching API keys from database:', e);
+    }
+  }
+
+  return { googleApiKey, openaiApiKey };
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -56,11 +88,10 @@ serve(async (req) => {
     console.log(`PDF converted to base64, length: ${base64Pdf.length}`);
 
     // Get API keys
-    const GOOGLE_AI_API_KEY = Deno.env.get('GOOGLE_AI_API_KEY');
-    const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
+    const { googleApiKey: GOOGLE_AI_API_KEY, openaiApiKey: OPENAI_API_KEY } = await getApiKeys();
 
     if (!GOOGLE_AI_API_KEY && !OPENAI_API_KEY) {
-      throw new Error("AI API key is not configured");
+      throw new Error("AI API kaliti sozlanmagan. API Sozlamalaridan kalitlarni kiriting.");
     }
 
     const systemPrompt = `Sen kimyo kitoblarini tahlil qiluvchi mutaxassissan. 

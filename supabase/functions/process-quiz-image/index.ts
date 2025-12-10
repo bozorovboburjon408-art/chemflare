@@ -7,6 +7,38 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+async function getApiKeys() {
+  let googleApiKey = Deno.env.get('GOOGLE_AI_API_KEY');
+  let openaiApiKey = Deno.env.get('OPENAI_API_KEY');
+
+  if (!googleApiKey || !openaiApiKey) {
+    try {
+      const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+      const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+      const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+      const { data: settings } = await supabase
+        .from('api_settings')
+        .select('key_name, key_value');
+
+      if (settings) {
+        for (const setting of settings) {
+          if (setting.key_name === 'GOOGLE_AI_API_KEY' && !googleApiKey) {
+            googleApiKey = setting.key_value;
+          }
+          if (setting.key_name === 'OPENAI_API_KEY' && !openaiApiKey) {
+            openaiApiKey = setting.key_value;
+          }
+        }
+      }
+    } catch (e) {
+      console.error('Error fetching API keys from database:', e);
+    }
+  }
+
+  return { googleApiKey, openaiApiKey };
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -25,11 +57,10 @@ serve(async (req) => {
 
     console.log('Processing quiz images...');
 
-    const googleApiKey = Deno.env.get('GOOGLE_AI_API_KEY');
-    const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
+    const { googleApiKey, openaiApiKey } = await getApiKeys();
     
     if (!googleApiKey && !openaiApiKey) {
-      throw new Error('Hech qanday AI API kaliti sozlanmagan');
+      throw new Error('AI API kaliti sozlanmagan. API Sozlamalaridan kalitlarni kiriting.');
     }
 
     const systemPrompt = `Sen Qwen 2.5 modelsan. Test rasmlarini tahlil qilib, aniq va to'g'ri ma'lumot ber.

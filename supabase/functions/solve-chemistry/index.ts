@@ -1,5 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -20,6 +21,40 @@ FORMATLASH QOIDALARI:
 - Kasrlar uchun: a/b ko'rinishida yoz
 - Reaksiya o'qi uchun: → belgisini ishlat
 - Ionlar: Ca²⁺, SO₄²⁻, OH⁻, H⁺`
+
+async function getApiKeys() {
+  // First try environment variables
+  let googleApiKey = Deno.env.get('GOOGLE_AI_API_KEY');
+  let openaiApiKey = Deno.env.get('OPENAI_API_KEY');
+
+  // If not found, try database
+  if (!googleApiKey || !openaiApiKey) {
+    try {
+      const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+      const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+      const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+      const { data: settings } = await supabase
+        .from('api_settings')
+        .select('key_name, key_value');
+
+      if (settings) {
+        for (const setting of settings) {
+          if (setting.key_name === 'GOOGLE_AI_API_KEY' && !googleApiKey) {
+            googleApiKey = setting.key_value;
+          }
+          if (setting.key_name === 'OPENAI_API_KEY' && !openaiApiKey) {
+            openaiApiKey = setting.key_value;
+          }
+        }
+      }
+    } catch (e) {
+      console.error('Error fetching API keys from database:', e);
+    }
+  }
+
+  return { googleApiKey, openaiApiKey };
+}
 
 async function callGeminiAPI(parts: any[], googleApiKey: string) {
   const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${googleApiKey}`, {
@@ -95,11 +130,10 @@ serve(async (req) => {
       )
     }
 
-    const googleApiKey = Deno.env.get('GOOGLE_AI_API_KEY')
-    const openaiKey = Deno.env.get('OPENAI_API_KEY')
+    const { googleApiKey, openaiApiKey } = await getApiKeys();
     
-    if (!googleApiKey && !openaiKey) {
-      throw new Error('Hech qanday AI API kaliti sozlanmagan')
+    if (!googleApiKey && !openaiApiKey) {
+      throw new Error('Hech qanday AI API kaliti sozlanmagan. API Sozlamalaridan kalitlarni kiriting.')
     }
 
     let solution: string | undefined
@@ -137,12 +171,12 @@ serve(async (req) => {
     }
 
     // Fallback to OpenAI if Gemini failed or not available
-    if (!solution && openaiKey) {
+    if (!solution && openaiApiKey) {
       try {
         console.log('Trying OpenAI API (fallback)...')
         solution = await callOpenAI(
           [{ role: 'user', content: userPrompt }],
-          openaiKey,
+          openaiApiKey,
           imageData
         )
         console.log('OpenAI API success')

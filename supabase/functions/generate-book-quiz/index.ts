@@ -1,10 +1,43 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+
+async function getApiKeys() {
+  let googleApiKey = Deno.env.get('GOOGLE_AI_API_KEY');
+  let openaiApiKey = Deno.env.get('OPENAI_API_KEY');
+
+  if (!googleApiKey || !openaiApiKey) {
+    try {
+      const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+      const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+      const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+      const { data: settings } = await supabase
+        .from('api_settings')
+        .select('key_name, key_value');
+
+      if (settings) {
+        for (const setting of settings) {
+          if (setting.key_name === 'GOOGLE_AI_API_KEY' && !googleApiKey) {
+            googleApiKey = setting.key_value;
+          }
+          if (setting.key_name === 'OPENAI_API_KEY' && !openaiApiKey) {
+            openaiApiKey = setting.key_value;
+          }
+        }
+      }
+    } catch (e) {
+      console.error('Error fetching API keys from database:', e);
+    }
+  }
+
+  return { googleApiKey, openaiApiKey };
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -21,9 +54,10 @@ serve(async (req) => {
       );
     }
 
-    const googleApiKey = Deno.env.get("GOOGLE_AI_API_KEY");
-    if (!googleApiKey) {
-      throw new Error("GOOGLE_AI_API_KEY is not configured");
+    const { googleApiKey, openaiApiKey } = await getApiKeys();
+    
+    if (!googleApiKey && !openaiApiKey) {
+      throw new Error("AI API kaliti sozlanmagan. API Sozlamalaridan kalitlarni kiriting.");
     }
 
     const systemPrompt = `Sen Qwen 2.5 modelsan. Test savollarini tuzishda aniq, qisqa, ilmiy javob ber.
@@ -59,11 +93,8 @@ ${chapterContent}
 
 Iltimos, shu matn asosida ${questionCount} ta test savoli tuz. Savollar qiziqarli, o'ylantiradigan va turli qiyinlik darajasida bo'lsin.`;
 
-    const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
-    
     let content: string | undefined;
     let usedProvider = '';
-
     // Try Google AI first
     console.log('Trying Google AI...');
     try {
