@@ -3,10 +3,10 @@ import Navigation from "@/components/Navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Upload, Send, Loader2, Sparkles, FlaskConical, Calculator as CalcIcon, Beaker } from "lucide-react";
+import { Send, Loader2, Sparkles, FlaskConical, Calculator as CalcIcon, Beaker } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import SolutionRenderer from "@/components/SolutionRenderer";
+import { solveChemistryProblem } from "@/data/chemistrySolver";
 
 const Calculator = () => {
   const [question, setQuestion] = useState("");
@@ -14,44 +14,29 @@ const Calculator = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const { toast } = useToast();
 
-  const solveProblem = async (problemText: string, imageData?: string) => {
+  const solveProblem = (problemText: string) => {
     setIsProcessing(true);
     setSolution("");
 
-    try {
-      const { data, error } = await supabase.functions.invoke('solve-chemistry', {
-        body: { question: problemText, imageData }
-      });
-
-      if (error) {
-        console.error('Supabase function error:', error);
-        throw new Error(error.message || 'Xizmatda xatolik yuz berdi');
+    // Mahalliy bazadan yechish (API siz)
+    setTimeout(() => {
+      try {
+        const result = solveChemistryProblem(problemText);
+        setSolution(result);
+        toast({
+          title: "Muvaffaqiyatli!",
+          description: "Masala yechildi",
+        });
+      } catch (error: any) {
+        toast({
+          title: "Xatolik",
+          description: "Masalani yechishda xatolik. Qaytadan urinib ko'ring.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsProcessing(false);
       }
-
-      if (data.error) {
-        console.error('Response error:', data.error);
-        throw new Error(data.error);
-      }
-
-      if (!data.solution) {
-        throw new Error('Yechim topilmadi');
-      }
-
-      setSolution(data.solution);
-      toast({
-        title: "Muvaffaqiyatli!",
-        description: "Masala yechildi",
-      });
-    } catch (error: any) {
-      console.error('Error solving problem:', error);
-      toast({
-        title: "Xatolik",
-        description: error.message || "Masalani yechishda xatolik yuz berdi. Qaytadan urinib ko'ring.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsProcessing(false);
-    }
+    }, 500);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -60,17 +45,14 @@ const Calculator = () => {
     solveProblem(question);
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const base64Data = reader.result as string;
-      solveProblem(question || "", base64Data);
-    };
-    reader.readAsDataURL(file);
-  };
+  const exampleQuestions = [
+    "H2SO4 ning molyar massasi",
+    "4g H2 dan qancha mol hosil bo'ladi",
+    "NaCl ning tarkibi",
+    "pH = 3 bo'lsa H+ konsentratsiyasi qancha",
+    "2 mol gazning hajmi (n.sh.)",
+    "50g CaCO3 dan qancha CaO hosil bo'ladi",
+  ];
 
   return (
     <div className="min-h-screen bg-background">
@@ -87,7 +69,7 @@ const Calculator = () => {
             </span>
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Har qanday kimyoviy hisob-kitob yoki masalani yuboring - AI yechim topadi
+            Har qanday kimyoviy masalani yuboring - darhol yechim oling (API siz ishlaydi!)
           </p>
         </div>
 
@@ -101,54 +83,44 @@ const Calculator = () => {
                 <Textarea
                   value={question}
                   onChange={(e) => setQuestion(e.target.value)}
-                  placeholder="Masalan: 2H₂ + O₂ → 2H₂O reaksiyasida 4g H₂ dan qancha suv hosil bo'ladi?"
+                  placeholder="Masalan: H2O ning molyar massasi, 10g NaCl dan qancha mol, pH=2 bo'lsa H+ qancha..."
                   className="min-h-[100px] resize-none bg-background/50 border-border/50 focus:border-primary/50"
                   disabled={isProcessing}
                 />
               </div>
 
-              <div className="flex gap-3">
-                <Button
-                  type="submit"
-                  disabled={isProcessing || !question.trim()}
-                  className="flex-1 bg-gradient-hero hover:opacity-90 shadow-elegant transition-all duration-300"
-                >
-                  {isProcessing ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Yechilmoqda...
-                    </>
-                  ) : (
-                    <>
-                      <Send className="w-4 h-4 mr-2" />
-                      Yechish
-                    </>
-                  )}
-                </Button>
-
-                <label htmlFor="image-upload">
+              <div className="flex flex-wrap gap-2 mb-4">
+                {exampleQuestions.map((q, i) => (
                   <Button
+                    key={i}
                     type="button"
                     variant="outline"
-                    disabled={isProcessing}
-                    asChild
-                    className="border-secondary/50 hover:bg-secondary/10 hover:border-secondary transition-all duration-300"
+                    size="sm"
+                    onClick={() => setQuestion(q)}
+                    className="text-xs"
                   >
-                    <span className="cursor-pointer">
-                      <Upload className="w-4 h-4 mr-2" />
-                      Rasm yuklash
-                    </span>
+                    {q}
                   </Button>
-                  <input
-                    id="image-upload"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    className="hidden"
-                    disabled={isProcessing}
-                  />
-                </label>
+                ))}
               </div>
+
+              <Button
+                type="submit"
+                disabled={isProcessing || !question.trim()}
+                className="w-full bg-gradient-hero hover:opacity-90 shadow-elegant transition-all duration-300"
+              >
+                {isProcessing ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Yechilmoqda...
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4 mr-2" />
+                    Yechish
+                  </>
+                )}
+              </Button>
             </form>
           </Card>
 
@@ -170,39 +142,39 @@ const Calculator = () => {
                   </li>
                   <li className="flex items-center gap-2">
                     <div className="w-1.5 h-1.5 rounded-full bg-primary/50" />
-                    Reaksiya tenglamalari
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-primary/50" />
-                    Konsentratsiya hisoblash
+                    Mol soni va massa
                   </li>
                   <li className="flex items-center gap-2">
                     <div className="w-1.5 h-1.5 rounded-full bg-primary/50" />
                     pH va pOH hisoblash
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary/50" />
+                    Gaz hajmi (n.sh.)
                   </li>
                 </ul>
               </div>
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
                   <Beaker className="w-4 h-4 text-secondary" />
-                  <h4 className="font-medium text-secondary">Rasm tahlili</h4>
+                  <h4 className="font-medium text-secondary">Qo'shimcha</h4>
                 </div>
                 <ul className="text-sm text-muted-foreground space-y-2 ml-6">
                   <li className="flex items-center gap-2">
                     <div className="w-1.5 h-1.5 rounded-full bg-secondary/50" />
-                    Strukturaviy formula tahlili
+                    Reaksiya bo'yicha hisob
                   </li>
                   <li className="flex items-center gap-2">
                     <div className="w-1.5 h-1.5 rounded-full bg-secondary/50" />
-                    Grafik va diagram o'qish
+                    Konsentratsiya
                   </li>
                   <li className="flex items-center gap-2">
                     <div className="w-1.5 h-1.5 rounded-full bg-secondary/50" />
-                    Qo'lda yozilgan tenglamalar
+                    Elektroliz (Faradey)
                   </li>
                   <li className="flex items-center gap-2">
                     <div className="w-1.5 h-1.5 rounded-full bg-secondary/50" />
-                    Jadval ma'lumotlarini olish
+                    Element ma'lumotlari
                   </li>
                 </ul>
               </div>
@@ -217,7 +189,7 @@ const Calculator = () => {
                 </div>
                 <div>
                   <h3 className="font-bold text-xl">Yechim</h3>
-                  <p className="text-xs text-muted-foreground">AI tomonidan tayyorlangan batafsil javob</p>
+                  <p className="text-xs text-muted-foreground">Batafsil bosqichma-bosqich javob</p>
                 </div>
               </div>
               <SolutionRenderer solution={solution} />
@@ -228,7 +200,7 @@ const Calculator = () => {
             <Card className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-silver border-0 shadow-sm">
               <Sparkles className="w-4 h-4 text-primary" />
               <p className="text-sm text-muted-foreground">
-                AI yordamida kimyoviy masalalarni yeching
+                100+ element va 150+ birikma bazasi bilan ishlaydi
               </p>
             </Card>
           </div>
