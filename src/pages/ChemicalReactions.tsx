@@ -7,11 +7,11 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Beaker, AlertCircle, Info, Plus, X, Sparkles, Flame, Droplets, Wind, Search } from "lucide-react";
+import { Loader2, Beaker, AlertCircle, Info, Plus, X, Sparkles, Flame, Droplets, Wind, Atom } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Navigation from "@/components/Navigation";
 import { predefinedReactions, reactionCategories, type PredefinedReaction } from "@/data/predefinedReactions";
-
+import ReactionAnimation3D from "@/components/ReactionAnimation3D";
 interface ReactionResult {
   possible: boolean;
   reactions?: Array<{
@@ -444,6 +444,21 @@ const ChemicalReactions = () => {
                   <Button variant="outline" onClick={() => setSelectedReaction(null)}>
                     <X className="w-4 h-4" />
                   </Button>
+                </div>
+
+                <Separator />
+
+                {/* 3D Animation */}
+                <div className="mb-6">
+                  <h4 className="font-semibold mb-3 flex items-center gap-2 text-purple-600 dark:text-purple-400">
+                    <Atom className="w-4 h-4" />
+                    3D Reaksiya Animatsiyasi
+                  </h4>
+                  <ReactionAnimation3D
+                    reactants={selectedReaction.reactants}
+                    products={selectedReaction.products}
+                    equation={selectedReaction.equation}
+                  />
                 </div>
 
                 <Separator />
