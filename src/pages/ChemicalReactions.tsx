@@ -7,61 +7,25 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Beaker, AlertCircle, Info, Plus, X, Sparkles, Flame, Droplets, Wind } from "lucide-react";
+import { Loader2, Beaker, AlertCircle, Info, Plus, X, Sparkles, Flame, Droplets, Wind, Search } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import Navigation from "@/components/Navigation";
-import AnimatedReactionViewer from "@/components/AnimatedReactionViewer";
 import { predefinedReactions, reactionCategories, type PredefinedReaction } from "@/data/predefinedReactions";
-
-interface MoleculeAtom {
-  element: string;
-  position: [number, number, number];
-  color: string;
-  radius: number;
-}
-
-interface MoleculeBond {
-  from: number;
-  to: number;
-  order: number;
-}
-
-interface MoleculeData {
-  formula: string;
-  name: string;
-  atoms: MoleculeAtom[];
-  bonds: MoleculeBond[];
-}
-
-interface AnimationStep {
-  phase: string;
-  description: string;
-}
-
-interface MolecularAnimationData {
-  reactants: MoleculeData[];
-  products: MoleculeData[];
-  animationSteps: AnimationStep[];
-}
 
 interface ReactionResult {
   possible: boolean;
   reactions?: Array<{
     equation: string;
-    conditions: {
-      temperature?: string;
-      pressure?: string;
-      catalyst?: string;
-      medium?: string;
-      concentration?: string;
-    };
+    conditions: string;
     type: string;
-    ionicEquation?: string;
     observation: string;
     explanation: string;
     products: string[];
-    molecularAnimation?: MolecularAnimationData;
+    category: string;
+    applications?: string[];
+    safetyNotes?: string;
+    energyChange?: string;
+    mechanism?: string;
   }>;
   noReactionReason?: string;
 }
@@ -115,17 +79,25 @@ const ChemicalReactions = () => {
 
     // Search in predefined reactions locally (no API needed)
     setTimeout(() => {
-      const searchTerms = filledSubstances.map(s => s.toLowerCase().trim());
+      const searchTerms = filledSubstances.map(s => s.toLowerCase().trim().replace(/\s+/g, ''));
       
       const matchingReactions = predefinedReactions.filter(reaction => {
-        const equationLower = reaction.equation.toLowerCase();
+        const equationLower = reaction.equation.toLowerCase().replace(/\s+/g, '');
         const descLower = reaction.description.toLowerCase();
         const detailLower = (reaction.detailedExplanation || '').toLowerCase();
+        const typeLower = reaction.type.toLowerCase();
+        const reactantsLower = reaction.reactants.join(' ').toLowerCase();
+        const productsLower = reaction.products.join(' ').toLowerCase();
+        const categoryLower = reaction.category.toLowerCase();
         
         return searchTerms.some(term => 
           equationLower.includes(term) || 
           descLower.includes(term) || 
-          detailLower.includes(term)
+          detailLower.includes(term) ||
+          typeLower.includes(term) ||
+          reactantsLower.includes(term) ||
+          productsLower.includes(term) ||
+          categoryLower.includes(term)
         );
       });
 
@@ -134,13 +106,16 @@ const ChemicalReactions = () => {
           possible: true,
           reactions: matchingReactions.map(r => ({
             equation: r.equation,
-            conditions: { temperature: r.conditions },
+            conditions: r.conditions,
             type: r.type,
-            ionicEquation: undefined,
             observation: r.observation,
             explanation: r.detailedExplanation || r.description,
             products: r.products,
-            molecularAnimation: undefined
+            category: r.category,
+            applications: r.applications,
+            safetyNotes: r.safetyNotes,
+            energyChange: r.energyChange,
+            mechanism: r.mechanism
           }))
         });
         toast({
@@ -175,10 +150,14 @@ const ChemicalReactions = () => {
 
   const filteredReactions = predefinedReactions.filter(reaction => {
     const matchesCategory = selectedCategory === "Barchasi" || reaction.category === selectedCategory;
+    const searchLower = searchQuery.toLowerCase().replace(/\s+/g, '');
     const matchesSearch = searchQuery === "" || 
-      reaction.equation.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      reaction.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      reaction.type.toLowerCase().includes(searchQuery.toLowerCase());
+      reaction.equation.toLowerCase().replace(/\s+/g, '').includes(searchLower) ||
+      reaction.description.toLowerCase().includes(searchLower) ||
+      reaction.type.toLowerCase().includes(searchLower) ||
+      reaction.reactants.join(' ').toLowerCase().includes(searchLower) ||
+      reaction.products.join(' ').toLowerCase().includes(searchLower) ||
+      (reaction.detailedExplanation || '').toLowerCase().includes(searchLower);
     return matchesCategory && matchesSearch;
   });
 
@@ -292,19 +271,6 @@ const ChemicalReactions = () => {
                     </div>
                   </div>
 
-                  {/* Molekulyar animatsiya */}
-                  <div>
-                    <h4 className="font-semibold mb-2 flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
-                      <Sparkles className="w-4 h-4" />
-                      Molekulyar Animatsiya
-                    </h4>
-                    <AnimatedReactionViewer 
-                      animationData={reaction.molecularAnimation}
-                      reactants={substances.filter(s => s.trim() !== '')} 
-                      products={reaction.products || []}
-                    />
-                  </div>
-
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
                       <h4 className="font-semibold mb-2 text-purple-600 dark:text-purple-400">
@@ -322,40 +288,51 @@ const ChemicalReactions = () => {
                     </div>
                   </div>
 
-                  {reaction.conditions && Object.keys(reaction.conditions).length > 0 && (
+                  {reaction.conditions && (
                     <div>
                       <h4 className="font-semibold mb-2 text-green-600 dark:text-green-400">
                         Sharoitlar
                       </h4>
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                        {reaction.conditions.temperature && (
-                          <Badge variant="outline">🌡️ {reaction.conditions.temperature}</Badge>
-                        )}
-                        {reaction.conditions.pressure && (
-                          <Badge variant="outline">⚡ {reaction.conditions.pressure}</Badge>
-                        )}
-                        {reaction.conditions.catalyst && (
-                          <Badge variant="outline">⚗️ {reaction.conditions.catalyst}</Badge>
-                        )}
-                        {reaction.conditions.medium && (
-                          <Badge variant="outline">💧 {reaction.conditions.medium}</Badge>
-                        )}
-                        {reaction.conditions.concentration && (
-                          <Badge variant="outline">📊 {reaction.conditions.concentration}</Badge>
-                        )}
+                      <Badge variant="outline">🌡️ {reaction.conditions}</Badge>
+                    </div>
+                  )}
+
+                  {reaction.mechanism && (
+                    <div>
+                      <h4 className="font-semibold mb-2 text-cyan-600 dark:text-cyan-400">
+                        Mexanizm
+                      </h4>
+                      <div className="bg-cyan-50 dark:bg-cyan-900/20 p-3 rounded-lg font-mono text-sm">
+                        {reaction.mechanism}
                       </div>
                     </div>
                   )}
 
-                  {reaction.ionicEquation && (
+                  {reaction.applications && reaction.applications.length > 0 && (
                     <div>
-                      <h4 className="font-semibold mb-2 text-cyan-600 dark:text-cyan-400">
-                        Ionli tenglama
+                      <h4 className="font-semibold mb-2 text-amber-600 dark:text-amber-400">
+                        Qo'llanilishi
                       </h4>
-                      <div className="bg-cyan-50 dark:bg-cyan-900/20 p-3 rounded-lg font-mono text-sm">
-                        {reaction.ionicEquation}
+                      <div className="flex flex-wrap gap-2">
+                        {reaction.applications.map((app, i) => (
+                          <Badge key={i} variant="secondary">{app}</Badge>
+                        ))}
                       </div>
                     </div>
+                  )}
+
+                  {reaction.safetyNotes && (
+                    <div className="bg-red-50 dark:bg-red-900/20 p-3 rounded-lg">
+                      <h4 className="font-semibold mb-1 text-red-600 dark:text-red-400 flex items-center gap-2">
+                        <AlertCircle className="w-4 h-4" />
+                        Xavfsizlik
+                      </h4>
+                      <p className="text-sm text-red-800 dark:text-red-200">{reaction.safetyNotes}</p>
+                    </div>
+                  )}
+
+                  {reaction.energyChange && (
+                    <Badge variant="outline" className="w-fit">⚡ {reaction.energyChange}</Badge>
                   )}
 
                   <Separator />
@@ -482,14 +459,6 @@ const ChemicalReactions = () => {
                     </div>
                   </div>
 
-                  <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
-                    <h5 className="font-medium mb-3">3D Animatsiya</h5>
-                    <AnimatedReactionViewer
-                      reactants={selectedReaction.reactants}
-                      products={selectedReaction.products}
-                    />
-                  </div>
-
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
                       <h4 className="font-semibold mb-2">Sharoitlar</h4>
@@ -500,6 +469,40 @@ const ChemicalReactions = () => {
                       <p className="text-sm text-gray-600 dark:text-gray-400">{selectedReaction.observation}</p>
                     </div>
                   </div>
+
+                  {selectedReaction.mechanism && (
+                    <div>
+                      <h4 className="font-semibold mb-2 text-cyan-600 dark:text-cyan-400">Mexanizm</h4>
+                      <div className="bg-cyan-50 dark:bg-cyan-900/20 p-3 rounded-lg font-mono text-sm">
+                        {selectedReaction.mechanism}
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedReaction.applications && selectedReaction.applications.length > 0 && (
+                    <div>
+                      <h4 className="font-semibold mb-2 text-amber-600 dark:text-amber-400">Qo'llanilishi</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedReaction.applications.map((app, i) => (
+                          <Badge key={i} variant="secondary">{app}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedReaction.safetyNotes && (
+                    <div className="bg-red-50 dark:bg-red-900/20 p-3 rounded-lg">
+                      <h4 className="font-semibold mb-1 text-red-600 dark:text-red-400 flex items-center gap-2">
+                        <AlertCircle className="w-4 h-4" />
+                        Xavfsizlik
+                      </h4>
+                      <p className="text-sm text-red-800 dark:text-red-200">{selectedReaction.safetyNotes}</p>
+                    </div>
+                  )}
+
+                  {selectedReaction.energyChange && (
+                    <Badge variant="outline" className="w-fit">⚡ {selectedReaction.energyChange}</Badge>
+                  )}
 
                   <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
                     <p className="text-sm text-blue-800 dark:text-blue-200">
