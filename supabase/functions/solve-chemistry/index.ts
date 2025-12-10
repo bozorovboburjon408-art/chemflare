@@ -23,8 +23,8 @@ FORMATLASH QOIDALARI:
 - Ionlar: Ca²⁺, SO₄²⁻, OH⁻, H⁺`
 
 async function getApiKeys() {
-  // First try environment variables
-  let googleApiKey = Deno.env.get('GOOGLE_AI_API_KEY');
+  // Check multiple env var names for Google API key
+  let googleApiKey = Deno.env.get('GOOGLE_AI_API_KEY') || Deno.env.get('GEMINI_API_KEY');
   let openaiApiKey = Deno.env.get('OPENAI_API_KEY');
 
   // If not found, try database
