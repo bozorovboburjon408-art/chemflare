@@ -1,5 +1,5 @@
 import { NavLink } from "@/components/NavLink";
-import { Atom, Brain, Calculator, Menu, X, GraduationCap, BookOpen, Beaker, Code2, Settings } from "lucide-react";
+import { Atom, Brain, Calculator, Menu, X, GraduationCap, BookOpen, Beaker, Code2, Sparkles, Send } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import universityLogo from "@/assets/university-logo.jpg";
@@ -14,8 +14,9 @@ const Navigation = () => {
     { to: "/library", icon: BookOpen, label: "Kitobxona" },
     { to: "/quiz", icon: Brain, label: "Test" },
     { to: "/calculator", icon: Calculator, label: "Kalkulyator" },
+    { to: "https://gemini.google.com/app", icon: Sparkles, label: "Gemini", external: true },
+    { to: "https://web.telegram.org/a/", icon: Send, label: "Telegram", external: true },
     { to: "/developers", icon: Code2, label: "Ishlab chiqaruvchilar" },
-    { to: "/api-settings", icon: Settings, label: "API" },
   ];
 
   return (
@@ -35,16 +36,29 @@ const Navigation = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-1">
-            {navItems.map(({ to, icon: Icon, label }) => (
-              <NavLink
-                key={to}
-                to={to}
-                className="px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-primary/5 transition-all duration-200 flex items-center space-x-2 group"
-                activeClassName="!text-primary !bg-primary/10 shadow-sm"
-              >
-                <Icon className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                <span className="font-medium">{label}</span>
-              </NavLink>
+            {navItems.map(({ to, icon: Icon, label, external }) => (
+              external ? (
+                <a
+                  key={to}
+                  href={to}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-primary/5 transition-all duration-200 flex items-center space-x-2 group"
+                >
+                  <Icon className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                  <span className="font-medium">{label}</span>
+                </a>
+              ) : (
+                <NavLink
+                  key={to}
+                  to={to}
+                  className="px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-primary/5 transition-all duration-200 flex items-center space-x-2 group"
+                  activeClassName="!text-primary !bg-primary/10 shadow-sm"
+                >
+                  <Icon className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                  <span className="font-medium">{label}</span>
+                </NavLink>
+              )
             ))}
           </div>
 
@@ -62,17 +76,31 @@ const Navigation = () => {
         {/* Mobile Navigation */}
         {isOpen && (
           <div className="md:hidden py-4 space-y-2 animate-fade-in border-t border-border/50">
-            {navItems.map(({ to, icon: Icon, label }) => (
-              <NavLink
-                key={to}
-                to={to}
-                onClick={() => setIsOpen(false)}
-                className="flex items-center space-x-3 px-4 py-3 rounded-lg text-muted-foreground hover:text-foreground hover:bg-primary/5 transition-colors"
-                activeClassName="!text-primary !bg-primary/10"
-              >
-                <Icon className="w-5 h-5" />
-                <span className="font-medium">{label}</span>
-              </NavLink>
+            {navItems.map(({ to, icon: Icon, label, external }) => (
+              external ? (
+                <a
+                  key={to}
+                  href={to}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center space-x-3 px-4 py-3 rounded-lg text-muted-foreground hover:text-foreground hover:bg-primary/5 transition-colors"
+                >
+                  <Icon className="w-5 h-5" />
+                  <span className="font-medium">{label}</span>
+                </a>
+              ) : (
+                <NavLink
+                  key={to}
+                  to={to}
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center space-x-3 px-4 py-3 rounded-lg text-muted-foreground hover:text-foreground hover:bg-primary/5 transition-colors"
+                  activeClassName="!text-primary !bg-primary/10"
+                >
+                  <Icon className="w-5 h-5" />
+                  <span className="font-medium">{label}</span>
+                </NavLink>
+              )
             ))}
           </div>
         )}
