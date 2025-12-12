@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -13,31 +14,49 @@ import ChemicalReactions from "./pages/ChemicalReactions";
 import Developers from "./pages/Developers";
 import ApiSettings from "./pages/ApiSettings";
 import NotFound from "./pages/NotFound";
+import IntroAnimation from "./components/IntroAnimation";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<PeriodicTable />} />
-          <Route path="/quiz" element={<Quiz />} />
-          <Route path="/calculator" element={<Calculator />} />
-          <Route path="/learning" element={<Learning />} />
-          <Route path="/library" element={<Library />} />
-          <Route path="/reactions" element={<ChemicalReactions />} />
-            <Route path="/developers" element={<Developers />} />
-            <Route path="/api-settings" element={<ApiSettings />} />
-            <Route path="/auth" element={<Auth />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  const [showIntro, setShowIntro] = useState(false);
+
+  useEffect(() => {
+    const hasSeenIntro = sessionStorage.getItem("hasSeenIntro");
+    if (!hasSeenIntro) {
+      setShowIntro(true);
+    }
+  }, []);
+
+  const handleIntroComplete = () => {
+    sessionStorage.setItem("hasSeenIntro", "true");
+    setShowIntro(false);
+  };
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        {showIntro && <IntroAnimation onComplete={handleIntroComplete} />}
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<PeriodicTable />} />
+            <Route path="/quiz" element={<Quiz />} />
+            <Route path="/calculator" element={<Calculator />} />
+            <Route path="/learning" element={<Learning />} />
+            <Route path="/library" element={<Library />} />
+            <Route path="/reactions" element={<ChemicalReactions />} />
+              <Route path="/developers" element={<Developers />} />
+              <Route path="/api-settings" element={<ApiSettings />} />
+              <Route path="/auth" element={<Auth />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;
