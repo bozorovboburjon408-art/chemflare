@@ -16,8 +16,11 @@ import {
   Award,
   BookOpen,
   Brain,
-  Sparkles
+  Sparkles,
+  MessageCircle,
+  Send
 } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
@@ -77,6 +80,12 @@ const Learning = () => {
   const [selectedChapter, setSelectedChapter] = useState<BookChapter | null>(null);
   const [questionCount, setQuestionCount] = useState<number>(10);
   const [difficulty, setDifficulty] = useState<string>('medium');
+  
+  // AI Question state
+  const [showAiChat, setShowAiChat] = useState(false);
+  const [aiQuestion, setAiQuestion] = useState('');
+  const [aiAnswer, setAiAnswer] = useState('');
+  const [isAiLoading, setIsAiLoading] = useState(false);
   
   // Quiz state
   const [quizQuestions, setQuizQuestions] = useState<QuizQuestion[]>([]);
@@ -294,7 +303,11 @@ const Learning = () => {
   };
 
   const goBack = () => {
-    if (quizQuestions.length > 0) {
+    if (showAiChat) {
+      setShowAiChat(false);
+      setAiQuestion('');
+      setAiAnswer('');
+    } else if (quizQuestions.length > 0) {
       resetQuiz();
     } else if (selectedChapter) {
       setSelectedChapter(null);
@@ -304,10 +317,107 @@ const Learning = () => {
     }
   };
 
+  const askAiQuestion = async () => {
+    if (!aiQuestion.trim()) return;
+    
+    setIsAiLoading(true);
+    setAiAnswer('');
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('solve-chemistry', {
+        body: { question: aiQuestion }
+      });
+      
+      if (error) throw error;
+      if (data.error) throw new Error(data.error);
+      
+      setAiAnswer(data.solution || 'Javob topilmadi');
+    } catch (error: any) {
+      console.error('AI error:', error);
+      toast({
+        title: "Xato",
+        description: error.message || "Savolga javob olishda xatolik",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAiLoading(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  // AI Chat view
+  if (showAiChat) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        <main className="container mx-auto px-4 pt-24 pb-12">
+          <div className="max-w-3xl mx-auto">
+            <Button variant="ghost" onClick={goBack} className="mb-6">
+              <ChevronLeft className="w-4 h-4 mr-2" />
+              Orqaga
+            </Button>
+
+            <Card className="p-6 md:p-8">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+                  <Brain className="w-6 h-6 text-primary-foreground" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold">AI Savollar</h2>
+                  <p className="text-sm text-muted-foreground">Kimyo bo'yicha istalgan savolni bering</p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <Textarea
+                  value={aiQuestion}
+                  onChange={(e) => setAiQuestion(e.target.value)}
+                  placeholder="Savolingizni yozing... Masalan: Kislota va asos reaksiyasi qanday sodir bo'ladi?"
+                  className="min-h-[120px] resize-none"
+                  disabled={isAiLoading}
+                />
+                
+                <Button 
+                  onClick={askAiQuestion} 
+                  disabled={isAiLoading || !aiQuestion.trim()}
+                  className="w-full"
+                  size="lg"
+                >
+                  {isAiLoading ? (
+                    <>
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                      Javob izlanmoqda...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-5 h-5 mr-2" />
+                      Savol yuborish
+                    </>
+                  )}
+                </Button>
+              </div>
+
+              {aiAnswer && (
+                <Card className="mt-6 p-4 bg-muted/30 border-primary/20">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Sparkles className="w-5 h-5 text-primary" />
+                    <h4 className="font-semibold">AI Javobi</h4>
+                  </div>
+                  <div className="whitespace-pre-wrap text-sm leading-relaxed">
+                    {aiAnswer}
+                  </div>
+                </Card>
+              )}
+            </Card>
+          </div>
+        </main>
       </div>
     );
   }
@@ -693,6 +803,25 @@ const Learning = () => {
                 </span>
               </div>
               <Progress value={progressPercentage} className="h-3" />
+            </div>
+          </Card>
+
+          {/* AI Questions Card */}
+          <Card 
+            className="p-6 mb-8 bg-gradient-to-br from-accent/10 to-secondary/10 border-accent/30 hover:shadow-lg transition-all cursor-pointer hover:border-accent/50"
+            onClick={() => setShowAiChat(true)}
+          >
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-accent to-primary flex items-center justify-center flex-shrink-0">
+                <MessageCircle className="w-8 h-8 text-primary-foreground" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-xl font-bold mb-1">AI Savollar</h3>
+                <p className="text-muted-foreground">
+                  Kimyo bo'yicha istalgan savolni bering - AI javob beradi
+                </p>
+              </div>
+              <ChevronRight className="w-6 h-6 text-muted-foreground" />
             </div>
           </Card>
 
