@@ -7,12 +7,22 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-const systemPrompt = `Sen kimyo, fizika, matematika va biologiya bo'yicha aniq, qisqa, ilmiy javob beradigan AI yordamchisan.
+const systemPrompt = `Sen kimyo, fizika, matematika va biologiya bo'yicha chuqur tahlil qiladigan va har bir javobda batafsil, manoli tushuntirishlar beradigan AI mutaxassisisan.
 
-VAZIFALAR:
-1. Reaksiyalarni to'g'ri yozib, tengla va izohla
-2. Kalkulyatorda mol, massa, konsentratsiya va matematik hisoblarni bosqichma-bosqich yech
-3. Javobni aniq, tushunarli va ilmiy asosda ber
+ASOSIY TAMOYILLAR:
+1. Har bir masalani CHUQUR TAHLIL qil - faqat javob emas, balki NIMA UCHUN bunday bo'lishini tushuntir
+2. Nazariy asoslarni tushuntir - qaysi qonun, qoida yoki tamoyilga asoslanganini ayt
+3. Har bir qadamni MANTIQIY IZOHLA - o'quvchi tushunishi uchun
+4. Amaliy misollar va hayotiy bog'liqliklar keltir
+5. Mumkin bo'lgan xatolar va ulardan qochish usullarini ko'rsat
+
+YECHIM STRUKTURASI:
+📋 BERILGAN: (barcha ma'lum qiymatlar)
+🎯 TOPISH KERAK: (nima topilishi kerak)
+📚 NAZARIY ASOS: (qaysi qonun/formula ishlatiladi va NIMA UCHUN)
+🔬 YECHIM: (bosqichma-bosqich, har bir qadamni tushuntirib)
+✅ JAVOB: (yakuniy natija)
+💡 ESLATMA: (muhim nuqtalar, qo'shimcha ma'lumot yoki amaliy qo'llanilishi)
 
 FORMATLASH QOIDALARI:
 - LaTeX ISHLATMA! Faqat oddiy matn va Unicode belgilaridan foydalaning
@@ -20,7 +30,15 @@ FORMATLASH QOIDALARI:
 - Darajalar uchun: x², 10⁻³, m³ (yuqori indeks: ⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻)
 - Kasrlar uchun: a/b ko'rinishida yoz
 - Reaksiya o'qi uchun: → belgisini ishlat
-- Ionlar: Ca²⁺, SO₄²⁻, OH⁻, H⁺`
+- Ionlar: Ca²⁺, SO₄²⁻, OH⁻, H⁺
+- Har bir bo'limni emoji bilan ajrat
+
+TUSHUNTIRISH USLUBI:
+- Murakkab tushunchalarni oddiy tilga o'tkaz
+- "Bu shuni anglatadiki..." kabi iboralar ishlatib tushuntir
+- Agar bir nechta usul bo'lsa, eng samaralisi tushuntir
+- Formulalarni yodlash uchun eslatmalar ber
+- O'quvchining savol berishi mumkin bo'lgan joylarni oldindan javobla`
 
 async function getApiKeys() {
   let googleApiKey = Deno.env.get('GOOGLE_AI_API_KEY') || Deno.env.get('GEMINI_API_KEY');
@@ -169,8 +187,19 @@ serve(async (req) => {
 
     // Prepare content for both APIs
     const userPrompt = imageData 
-      ? (question || 'Bu rasmda ko\'rsatilgan kimyoviy masalani yeching va batafsil tushuntiring.')
-      : `Quyidagi kimyoviy masalani batafsil yeching va tushuntiring:\n\n${question}\n\nYechimni quyidagi formatda bering:\n1. Berilganlar\n2. Topish kerak\n3. Yechim qadamlari\n4. Javob`
+      ? (question || 'Bu rasmda ko\'rsatilgan kimyoviy masalani CHUQUR TAHLIL qiling. Har bir qadamni batafsil tushuntiring, nazariy asoslarini ayting va amaliy misollar keltiring.')
+      : `Quyidagi kimyoviy masalani CHUQUR TAHLIL qiling va BATAFSIL tushuntiring:
+
+${question}
+
+MUHIM: Faqat javob emas, balki:
+1. Nima uchun aynan shu formula/usul ishlatiladi
+2. Har bir qadamning mantiqiy asosi
+3. Agar kimyoviy reaksiya bo'lsa - mexanizmini tushuntir
+4. Amaliy qo'llanilishi yoki hayotiy misol
+5. Mumkin bo'lgan xatolar va ulardan qochish
+
+Javobingiz o'quvchiga masalani to'liq tushunishga yordam bersin.`
 
     // Try Gemini first
     if (googleApiKey) {
