@@ -10,8 +10,9 @@ const corsHeaders = {
 async function getApiKeys() {
   let googleApiKey = Deno.env.get('GOOGLE_AI_API_KEY') || Deno.env.get('GEMINI_API_KEY');
   let openaiApiKey = Deno.env.get('OPENAI_API_KEY');
+  let groqApiKey = Deno.env.get('GROQ_API_KEY');
 
-  if (!googleApiKey || !openaiApiKey) {
+  if (!googleApiKey || !openaiApiKey || !groqApiKey) {
     try {
       const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
       const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -29,6 +30,9 @@ async function getApiKeys() {
           if (setting.key_name === 'OPENAI_API_KEY' && !openaiApiKey) {
             openaiApiKey = setting.key_value;
           }
+          if (setting.key_name === 'GROQ_API_KEY' && !groqApiKey) {
+            groqApiKey = setting.key_value;
+          }
         }
       }
     } catch (e) {
@@ -36,7 +40,34 @@ async function getApiKeys() {
     }
   }
 
-  return { googleApiKey, openaiApiKey };
+  return { googleApiKey, openaiApiKey, groqApiKey };
+}
+
+async function callGroqAPI(systemPrompt: string, userPrompt: string, groqApiKey: string) {
+  const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${groqApiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'llama-3.3-70b-versatile',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+      ],
+      max_tokens: 4000,
+      temperature: 0.7
+    })
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Groq API error (${response.status}): ${errorText}`);
+  }
+
+  const data = await response.json();
+  return data.choices?.[0]?.message?.content;
 }
 
 serve(async (req) => {
@@ -54,13 +85,13 @@ serve(async (req) => {
       )
     }
 
-    const { googleApiKey, openaiApiKey } = await getApiKeys();
+    const { googleApiKey, openaiApiKey, groqApiKey } = await getApiKeys();
     
-    if (!googleApiKey && !openaiApiKey) {
+    if (!googleApiKey && !openaiApiKey && !groqApiKey) {
       throw new Error('AI API kaliti sozlanmagan. API Sozlamalaridan kalitlarni kiriting.')
     }
 
-    const systemPrompt = `Sen Qwen 2.5 modelsan. Kimyo bo'yicha aniq, qisqa, ilmiy javob ber.
+    const systemPrompt = `Sen kimyo bo'yicha aniq, qisqa, ilmiy javob beradigan mutaxassissan.
 
 Sizning vazifangiz berilgan moddalar o'rtasida sodir bo'lishi mumkin bo'lgan BARCHA kimyoviy reaksiyalarni aniqlash va tushuntirish.
 
@@ -108,83 +139,100 @@ Eslatma:
 - Har xil sharoitlardagi turli reaksiyalarni ko'rsating
 - Real kimyoviy qoidalarga rioya qiling`;
 
-    const openaiApiKeyVal = openaiApiKey;
-    
     let result: string | undefined
     let usedProvider = ''
 
     // Try Google AI first
-    console.log('Trying Google AI...')
-    try {
-      const googleResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${googleApiKey}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          contents: [{
-            parts: [
-              { text: systemPrompt },
-              { text: userPrompt }
-            ]
-          }],
-          generationConfig: {
-            maxOutputTokens: 4000,
-          }
+    if (googleApiKey) {
+      console.log('Trying Google AI...')
+      try {
+        const googleResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${googleApiKey}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            contents: [{
+              parts: [
+                { text: systemPrompt },
+                { text: userPrompt }
+              ]
+            }],
+            generationConfig: {
+              maxOutputTokens: 4000,
+            }
+          })
         })
-      })
 
-      if (googleResponse.ok) {
-        const googleData = await googleResponse.json()
-        result = googleData.candidates?.[0]?.content?.parts?.[0]?.text
-        if (result) {
-          usedProvider = 'Google AI'
-          console.log('Google AI response received successfully')
+        if (googleResponse.ok) {
+          const googleData = await googleResponse.json()
+          result = googleData.candidates?.[0]?.content?.parts?.[0]?.text
+          if (result) {
+            usedProvider = 'Google AI'
+            console.log('Google AI response received successfully')
+          }
+        } else {
+          const errorText = await googleResponse.text()
+          console.log('Google AI failed:', errorText)
         }
-      } else {
-        const errorText = await googleResponse.text()
-        console.log('Google AI failed, trying OpenAI fallback...', errorText)
+      } catch (e) {
+        console.log('Google AI error:', e)
       }
-    } catch (e) {
-      console.log('Google AI error, trying OpenAI fallback...', e)
     }
 
-    // Fallback to OpenAI if Google AI failed
-    if (!result && openaiApiKeyVal) {
-      console.log('Using OpenAI fallback...')
-      const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${openaiApiKeyVal}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o-mini',
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: userPrompt }
-          ],
-          max_tokens: 4000,
-        })
-      })
-
-      if (openaiResponse.ok) {
-        const openaiData = await openaiResponse.json()
-        result = openaiData.choices?.[0]?.message?.content
-        usedProvider = 'OpenAI'
-        console.log('OpenAI response received successfully')
-      } else {
-        const errorText = await openaiResponse.text()
-        console.error('OpenAI also failed:', errorText)
-        throw new Error('Barcha AI xizmatlari ishlamayapti')
+    // Fallback to Groq
+    if (!result && groqApiKey) {
+      console.log('Trying Groq API (fallback)...')
+      try {
+        result = await callGroqAPI(systemPrompt, userPrompt, groqApiKey)
+        if (result) {
+          usedProvider = 'Groq'
+          console.log('Groq API response received successfully')
+        }
+      } catch (e) {
+        console.log('Groq API error:', e)
       }
+    }
+
+    // Fallback to OpenAI
+    if (!result && openaiApiKey) {
+      console.log('Using OpenAI fallback...')
+      try {
+        const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${openaiApiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'gpt-4o-mini',
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: userPrompt }
+            ],
+            max_tokens: 4000,
+          })
+        })
+
+        if (openaiResponse.ok) {
+          const openaiData = await openaiResponse.json()
+          result = openaiData.choices?.[0]?.message?.content
+          usedProvider = 'OpenAI'
+          console.log('OpenAI response received successfully')
+        } else {
+          const errorText = await openaiResponse.text()
+          console.error('OpenAI also failed:', errorText)
+        }
+      } catch (e) {
+        console.log('OpenAI error:', e)
+      }
+    }
+
+    if (!result) {
+      throw new Error('Barcha AI xizmatlari ishlamayapti. Keyinroq qayta urinib ko\'ring.')
     }
 
     console.log(`Response received from ${usedProvider}`)
-    
-    if (!result) {
-      throw new Error('AI javob bermadi')
-    }
     
     // Clean up JSON from markdown code blocks if present
     result = result.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()

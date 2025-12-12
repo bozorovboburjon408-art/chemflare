@@ -10,8 +10,9 @@ const corsHeaders = {
 async function getApiKeys() {
   let googleApiKey = Deno.env.get('GOOGLE_AI_API_KEY') || Deno.env.get('GEMINI_API_KEY');
   let openaiApiKey = Deno.env.get('OPENAI_API_KEY');
+  let groqApiKey = Deno.env.get('GROQ_API_KEY');
 
-  if (!googleApiKey || !openaiApiKey) {
+  if (!googleApiKey || !openaiApiKey || !groqApiKey) {
     try {
       const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
       const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -29,6 +30,9 @@ async function getApiKeys() {
           if (setting.key_name === 'OPENAI_API_KEY' && !openaiApiKey) {
             openaiApiKey = setting.key_value;
           }
+          if (setting.key_name === 'GROQ_API_KEY' && !groqApiKey) {
+            groqApiKey = setting.key_value;
+          }
         }
       }
     } catch (e) {
@@ -36,7 +40,7 @@ async function getApiKeys() {
     }
   }
 
-  return { googleApiKey, openaiApiKey };
+  return { googleApiKey, openaiApiKey, groqApiKey };
 }
 
 serve(async (req) => {
@@ -57,13 +61,13 @@ serve(async (req) => {
 
     console.log('Processing quiz images...');
 
-    const { googleApiKey, openaiApiKey } = await getApiKeys();
+    const { googleApiKey, openaiApiKey, groqApiKey } = await getApiKeys();
     
-    if (!googleApiKey && !openaiApiKey) {
+    if (!googleApiKey && !openaiApiKey && !groqApiKey) {
       throw new Error('AI API kaliti sozlanmagan. API Sozlamalaridan kalitlarni kiriting.');
     }
 
-    const systemPrompt = `Sen Qwen 2.5 modelsan. Test rasmlarini tahlil qilib, aniq va to'g'ri ma'lumot ber.
+    const systemPrompt = `Sen test rasmlarini tahlil qiluvchi mutaxassissan.
 
 Birinchi rasmda test savollari, ikkinchi rasmda esa to'g'ri javoblar bor.
 
@@ -94,7 +98,7 @@ MUHIM: Faqat JSON formatida javob ber, boshqa matn qo'shma!`;
     let content: string | undefined;
     let usedProvider = '';
 
-    // Try Google AI first
+    // Try Google AI first (supports vision)
     if (googleApiKey) {
       try {
         console.log('Trying Google AI...');
@@ -139,58 +143,63 @@ MUHIM: Faqat JSON formatida javob ber, boshqa matn qo'shma!`;
           }
         } else {
           const errorText = await googleResponse.text();
-          console.log('Google AI failed, trying OpenAI fallback...', errorText);
+          console.log('Google AI failed:', errorText);
         }
       } catch (e) {
-        console.log('Google AI error, trying OpenAI fallback...', e);
+        console.log('Google AI error:', e);
       }
     }
 
-    // Fallback to OpenAI if Google AI failed
+    // Fallback to OpenAI (supports vision)
     if (!content && openaiApiKey) {
       console.log('Using OpenAI fallback...');
-      const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${openaiApiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o-mini',
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { 
-              role: 'user', 
-              content: [
-                { type: 'text', text: 'BIRINCHI RASM - Test savollari:' },
-                { type: 'image_url', image_url: { url: imageBase64 } },
-                { type: 'text', text: 'IKKINCHI RASM - To\'g\'ri javoblar:' },
-                { type: 'image_url', image_url: { url: answersImageBase64 } },
-                { type: 'text', text: 'Ikkala rasmni tahlil qilib, savollarni javoblari bilan birga JSON formatida qaytaring:' }
-              ]
-            }
-          ],
-          max_tokens: 4000,
-        })
-      });
+      try {
+        const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${openaiApiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'gpt-4o-mini',
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { 
+                role: 'user', 
+                content: [
+                  { type: 'text', text: 'BIRINCHI RASM - Test savollari:' },
+                  { type: 'image_url', image_url: { url: imageBase64 } },
+                  { type: 'text', text: 'IKKINCHI RASM - To\'g\'ri javoblar:' },
+                  { type: 'image_url', image_url: { url: answersImageBase64 } },
+                  { type: 'text', text: 'Ikkala rasmni tahlil qilib, savollarni javoblari bilan birga JSON formatida qaytaring:' }
+                ]
+              }
+            ],
+            max_tokens: 4000,
+          })
+        });
 
-      if (openaiResponse.ok) {
-        const openaiData = await openaiResponse.json();
-        content = openaiData.choices?.[0]?.message?.content;
-        usedProvider = 'OpenAI';
-        console.log('OpenAI response received successfully');
-      } else {
-        const errorText = await openaiResponse.text();
-        console.error('OpenAI also failed:', errorText);
-        throw new Error('Barcha AI xizmatlari ishlamayapti');
+        if (openaiResponse.ok) {
+          const openaiData = await openaiResponse.json();
+          content = openaiData.choices?.[0]?.message?.content;
+          usedProvider = 'OpenAI';
+          console.log('OpenAI response received successfully');
+        } else {
+          const errorText = await openaiResponse.text();
+          console.error('OpenAI also failed:', errorText);
+        }
+      } catch (e) {
+        console.log('OpenAI error:', e);
       }
+    }
+
+    // Note: Groq doesn't support vision yet, so we skip it for image processing
+
+    if (!content) {
+      throw new Error('Barcha AI xizmatlari ishlamayapti. Keyinroq qayta urinib ko\'ring.');
     }
 
     console.log(`Response received from ${usedProvider}`);
-
-    if (!content) {
-      throw new Error('No content received from AI');
-    }
 
     let jsonStr = content.trim();
     if (jsonStr.startsWith('```json')) {
