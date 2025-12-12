@@ -13,6 +13,7 @@ import Library from "./pages/Library";
 import ChemicalReactions from "./pages/ChemicalReactions";
 import Developers from "./pages/Developers";
 import ApiSettings from "./pages/ApiSettings";
+import Experiments from "./pages/Experiments";
 import NotFound from "./pages/NotFound";
 import IntroAnimation from "./components/IntroAnimation";
 
@@ -47,9 +48,10 @@ const App = () => {
             <Route path="/learning" element={<Learning />} />
             <Route path="/library" element={<Library />} />
             <Route path="/reactions" element={<ChemicalReactions />} />
-              <Route path="/developers" element={<Developers />} />
-              <Route path="/api-settings" element={<ApiSettings />} />
-              <Route path="/auth" element={<Auth />} />
+            <Route path="/experiments" element={<Experiments />} />
+            <Route path="/developers" element={<Developers />} />
+            <Route path="/api-settings" element={<ApiSettings />} />
+            <Route path="/auth" element={<Auth />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
