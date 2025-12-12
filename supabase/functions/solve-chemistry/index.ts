@@ -23,11 +23,10 @@ FORMATLASH QOIDALARI:
 - Ionlar: Ca²⁺, SO₄²⁻, OH⁻, H⁺`
 
 async function getApiKeys() {
-  // Check multiple env var names for Google API key
   let googleApiKey = Deno.env.get('GOOGLE_AI_API_KEY') || Deno.env.get('GEMINI_API_KEY');
   let openaiApiKey = Deno.env.get('OPENAI_API_KEY');
+  let groqApiKey = Deno.env.get('GROQ_API_KEY');
 
-  // If not found, try database
   if (!googleApiKey || !openaiApiKey) {
     try {
       const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -46,6 +45,9 @@ async function getApiKeys() {
           if (setting.key_name === 'OPENAI_API_KEY' && !openaiApiKey) {
             openaiApiKey = setting.key_value;
           }
+          if (setting.key_name === 'GROQ_API_KEY' && !groqApiKey) {
+            groqApiKey = setting.key_value;
+          }
         }
       }
     } catch (e) {
@@ -53,7 +55,34 @@ async function getApiKeys() {
     }
   }
 
-  return { googleApiKey, openaiApiKey };
+  return { googleApiKey, openaiApiKey, groqApiKey };
+}
+
+async function callGroqAPI(userPrompt: string, groqApiKey: string) {
+  const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${groqApiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'llama-3.3-70b-versatile',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+      ],
+      max_tokens: 2000,
+      temperature: 0.7
+    })
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Groq API error (${response.status}): ${errorText}`);
+  }
+
+  const data = await response.json();
+  return data.choices?.[0]?.message?.content;
 }
 
 async function callGeminiAPI(parts: any[], googleApiKey: string) {
@@ -130,9 +159,9 @@ serve(async (req) => {
       )
     }
 
-    const { googleApiKey, openaiApiKey } = await getApiKeys();
+    const { googleApiKey, openaiApiKey, groqApiKey } = await getApiKeys();
     
-    if (!googleApiKey && !openaiApiKey) {
+    if (!googleApiKey && !openaiApiKey && !groqApiKey) {
       throw new Error('Hech qanday AI API kaliti sozlanmagan. API Sozlamalaridan kalitlarni kiriting.')
     }
 
@@ -170,7 +199,18 @@ serve(async (req) => {
       }
     }
 
-    // Fallback to OpenAI if Gemini failed or not available
+    // Fallback to Groq if Gemini failed or not available
+    if (!solution && groqApiKey) {
+      try {
+        console.log('Trying Groq API (fallback)...')
+        solution = await callGroqAPI(userPrompt, groqApiKey)
+        console.log('Groq API success')
+      } catch (groqError) {
+        console.error('Groq API failed:', groqError)
+      }
+    }
+
+    // Fallback to OpenAI if both failed
     if (!solution && openaiApiKey) {
       try {
         console.log('Trying OpenAI API (fallback)...')
@@ -182,12 +222,11 @@ serve(async (req) => {
         console.log('OpenAI API success')
       } catch (openaiError) {
         console.error('OpenAI API also failed:', openaiError)
-        throw new Error('Barcha AI xizmatlari ishlamayapti. Keyinroq qayta urinib ko\'ring.')
       }
     }
 
     if (!solution) {
-      throw new Error('AI javob bermadi')
+      throw new Error('Barcha AI xizmatlari ishlamayapti. Keyinroq qayta urinib ko\'ring.')
     }
 
     return new Response(
