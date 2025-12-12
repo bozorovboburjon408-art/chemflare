@@ -11,8 +11,9 @@ const ADMIN_PASSWORD = "admin77";
 async function getApiKeys() {
   let googleApiKey = Deno.env.get('GOOGLE_AI_API_KEY') || Deno.env.get('GEMINI_API_KEY');
   let openaiApiKey = Deno.env.get('OPENAI_API_KEY');
+  let groqApiKey = Deno.env.get('GROQ_API_KEY');
 
-  if (!googleApiKey || !openaiApiKey) {
+  if (!googleApiKey || !openaiApiKey || !groqApiKey) {
     try {
       const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
       const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -30,6 +31,9 @@ async function getApiKeys() {
           if (setting.key_name === 'OPENAI_API_KEY' && !openaiApiKey) {
             openaiApiKey = setting.key_value;
           }
+          if (setting.key_name === 'GROQ_API_KEY' && !groqApiKey) {
+            groqApiKey = setting.key_value;
+          }
         }
       }
     } catch (e) {
@@ -37,7 +41,34 @@ async function getApiKeys() {
     }
   }
 
-  return { googleApiKey, openaiApiKey };
+  return { googleApiKey, openaiApiKey, groqApiKey };
+}
+
+async function callGroqAPI(systemPrompt: string, userPrompt: string, groqApiKey: string) {
+  const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${groqApiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'llama-3.3-70b-versatile',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+      ],
+      max_tokens: 8000,
+      temperature: 0.3
+    })
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Groq API error (${response.status}): ${errorText}`);
+  }
+
+  const data = await response.json();
+  return data.choices?.[0]?.message?.content;
 }
 
 serve(async (req) => {
@@ -88,9 +119,9 @@ serve(async (req) => {
     console.log(`PDF converted to base64, length: ${base64Pdf.length}`);
 
     // Get API keys
-    const { googleApiKey: GOOGLE_AI_API_KEY, openaiApiKey: OPENAI_API_KEY } = await getApiKeys();
+    const { googleApiKey: GOOGLE_AI_API_KEY, openaiApiKey: OPENAI_API_KEY, groqApiKey: GROQ_API_KEY } = await getApiKeys();
 
-    if (!GOOGLE_AI_API_KEY && !OPENAI_API_KEY) {
+    if (!GOOGLE_AI_API_KEY && !OPENAI_API_KEY && !GROQ_API_KEY) {
       throw new Error("AI API kaliti sozlanmagan. API Sozlamalaridan kalitlarni kiriting.");
     }
 
@@ -130,7 +161,7 @@ JSON formatda javob ber:
     let bookData;
     let aiUsed = "";
 
-    // Try Google AI first
+    // Try Google AI first (supports PDF)
     if (GOOGLE_AI_API_KEY) {
       try {
         console.log("Attempting Google AI...");
@@ -177,12 +208,14 @@ JSON formatda javob ber:
       }
     }
 
+    // Note: Groq doesn't support PDF/vision, so we skip it for PDF processing
+    // OpenAI's PDF support is also limited, but we try it as fallback
+
     // Fallback to OpenAI if Google AI failed
     if (!bookData && OPENAI_API_KEY) {
       try {
         console.log("Attempting OpenAI...");
         
-        // For OpenAI, we need to extract text first (simplified approach)
         const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
           headers: {
