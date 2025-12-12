@@ -250,7 +250,7 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
               </motion.div>
             </div>
 
-            {/* XIMIYA Text */}
+            {/* KIMYO Text */}
             <motion.h1
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -262,7 +262,7 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
                 fontFamily: "'Inter', 'Arial', sans-serif",
               }}
             >
-              XIMIYA
+              KIMYO
             </motion.h1>
 
             {/* Subtitle */}
