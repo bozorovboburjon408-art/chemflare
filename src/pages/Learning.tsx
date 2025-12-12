@@ -16,9 +16,7 @@ import {
   Award,
   BookOpen,
   Brain,
-  Sparkles,
-  MessageCircle,
-  Send
+  Sparkles
 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
@@ -81,11 +79,11 @@ const Learning = () => {
   const [questionCount, setQuestionCount] = useState<number>(10);
   const [difficulty, setDifficulty] = useState<string>('medium');
   
-  // AI Question state
-  const [showAiChat, setShowAiChat] = useState(false);
-  const [aiQuestion, setAiQuestion] = useState('');
-  const [aiAnswer, setAiAnswer] = useState('');
-  const [isAiLoading, setIsAiLoading] = useState(false);
+  // AI Quiz state
+  const [showAiQuiz, setShowAiQuiz] = useState(false);
+  const [aiTopic, setAiTopic] = useState('');
+  const [aiQuestionCount, setAiQuestionCount] = useState(10);
+  const [aiDifficulty, setAiDifficulty] = useState('medium');
   
   // Quiz state
   const [quizQuestions, setQuizQuestions] = useState<QuizQuestion[]>([]);
@@ -303,12 +301,14 @@ const Learning = () => {
   };
 
   const goBack = () => {
-    if (showAiChat) {
-      setShowAiChat(false);
-      setAiQuestion('');
-      setAiAnswer('');
+    if (showAiQuiz && quizQuestions.length === 0) {
+      setShowAiQuiz(false);
+      setAiTopic('');
     } else if (quizQuestions.length > 0) {
       resetQuiz();
+      if (showAiQuiz) {
+        setShowAiQuiz(false);
+      }
     } else if (selectedChapter) {
       setSelectedChapter(null);
     } else if (selectedBook) {
@@ -317,30 +317,45 @@ const Learning = () => {
     }
   };
 
-  const askAiQuestion = async () => {
-    if (!aiQuestion.trim()) return;
-    
-    setIsAiLoading(true);
-    setAiAnswer('');
-    
+  const generateAiQuiz = async () => {
+    setIsGenerating(true);
     try {
-      const { data, error } = await supabase.functions.invoke('solve-chemistry', {
-        body: { question: aiQuestion }
+      const topicText = aiTopic.trim() || 'Umumiy kimyo - turli mavzular';
+      
+      const response = await supabase.functions.invoke('generate-book-quiz', {
+        body: {
+          bookTitle: 'AI Test',
+          chapterTitle: topicText,
+          chapterContent: `Kimyo bo'yicha "${topicText}" mavzusida test savollarini tuzish. Savollar turli xil bo'lsin: nazariy, amaliy, hisoblash. Kimyoviy reaksiyalar, formulalar, xossalar, qonunlar haqida.`,
+          questionCount: aiQuestionCount,
+          difficulty: aiDifficulty,
+        },
       });
-      
-      if (error) throw error;
-      if (data.error) throw new Error(data.error);
-      
-      setAiAnswer(data.solution || 'Javob topilmadi');
+
+      if (response.error) throw response.error;
+
+      const data = response.data;
+      if (data.questions && data.questions.length > 0) {
+        const shuffled = [...data.questions].sort(() => Math.random() - 0.5);
+        setQuizQuestions(shuffled);
+        setCurrentQuestionIndex(0);
+        setSelectedAnswer(null);
+        setShowResult(false);
+        setScore(0);
+        setQuizComplete(false);
+        setAnswers([]);
+      } else {
+        throw new Error("Savollar yaratilmadi");
+      }
     } catch (error: any) {
-      console.error('AI error:', error);
+      console.error('Error generating AI quiz:', error);
       toast({
         title: "Xato",
-        description: error.message || "Savolga javob olishda xatolik",
+        description: error.message || "Test yaratishda xatolik",
         variant: "destructive",
       });
     } finally {
-      setIsAiLoading(false);
+      setIsGenerating(false);
     }
   };
 
@@ -352,69 +367,100 @@ const Learning = () => {
     );
   }
 
-  // AI Chat view
-  if (showAiChat) {
+  // AI Quiz setup view
+  if (showAiQuiz && quizQuestions.length === 0) {
     return (
       <div className="min-h-screen bg-background">
         <Navigation />
         <main className="container mx-auto px-4 pt-24 pb-12">
-          <div className="max-w-3xl mx-auto">
+          <div className="max-w-2xl mx-auto">
             <Button variant="ghost" onClick={goBack} className="mb-6">
               <ChevronLeft className="w-4 h-4 mr-2" />
               Orqaga
             </Button>
 
             <Card className="p-6 md:p-8">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                  <Brain className="w-6 h-6 text-primary-foreground" />
-                </div>
-                <div>
-                  <h2 className="text-2xl font-bold">AI Savollar</h2>
-                  <p className="text-sm text-muted-foreground">Kimyo bo'yicha istalgan savolni bering</p>
+              <div className="flex items-center gap-3 mb-6 justify-center">
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-accent to-primary flex items-center justify-center">
+                  <Brain className="w-8 h-8 text-primary-foreground" />
                 </div>
               </div>
+              
+              <h2 className="text-2xl font-bold text-center mb-2">AI Test Yaratish</h2>
+              <p className="text-muted-foreground text-center mb-8">
+                AI sizga kimyo bo'yicha test savollarini yaratib beradi
+              </p>
 
-              <div className="space-y-4">
-                <Textarea
-                  value={aiQuestion}
-                  onChange={(e) => setAiQuestion(e.target.value)}
-                  placeholder="Savolingizni yozing... Masalan: Kislota va asos reaksiyasi qanday sodir bo'ladi?"
-                  className="min-h-[120px] resize-none"
-                  disabled={isAiLoading}
-                />
-                
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Mavzu (ixtiyoriy)</label>
+                  <Textarea
+                    value={aiTopic}
+                    onChange={(e) => setAiTopic(e.target.value)}
+                    placeholder="Masalan: Organik kimyo, Metallar, pH va kislotalar, Elektroliz..."
+                    className="min-h-[80px] resize-none"
+                    disabled={isGenerating}
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">Bo'sh qoldirsangiz, turli mavzulardan savollar beriladi</p>
+                </div>
+
+                <div>
+                  <p className="text-sm font-medium mb-3">Qiyinlik darajasi:</p>
+                  <div className="flex flex-wrap justify-center gap-2">
+                    {DIFFICULTY_LEVELS.map((level) => (
+                      <Button
+                        key={level.value}
+                        variant={aiDifficulty === level.value ? "default" : "outline"}
+                        onClick={() => setAiDifficulty(level.value)}
+                        className="min-w-[100px]"
+                        disabled={isGenerating}
+                      >
+                        <div className="text-center">
+                          <div className="font-medium">{level.label}</div>
+                          <div className="text-xs opacity-70">{level.description}</div>
+                        </div>
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-sm font-medium mb-3">Savollar soni:</p>
+                  <div className="flex flex-wrap justify-center gap-2">
+                    {QUESTION_COUNTS.map((count) => (
+                      <Button
+                        key={count}
+                        variant={aiQuestionCount === count ? "default" : "outline"}
+                        onClick={() => setAiQuestionCount(count)}
+                        size="lg"
+                        className="min-w-[50px]"
+                        disabled={isGenerating}
+                      >
+                        {count}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
                 <Button 
-                  onClick={askAiQuestion} 
-                  disabled={isAiLoading || !aiQuestion.trim()}
-                  className="w-full"
+                  onClick={generateAiQuiz} 
+                  disabled={isGenerating}
                   size="lg"
+                  className="w-full"
                 >
-                  {isAiLoading ? (
+                  {isGenerating ? (
                     <>
                       <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                      Javob izlanmoqda...
+                      Test yaratilmoqda...
                     </>
                   ) : (
                     <>
-                      <Send className="w-5 h-5 mr-2" />
-                      Savol yuborish
+                      <Sparkles className="w-5 h-5 mr-2" />
+                      {aiQuestionCount} ta savol bilan testni boshlash
                     </>
                   )}
                 </Button>
               </div>
-
-              {aiAnswer && (
-                <Card className="mt-6 p-4 bg-muted/30 border-primary/20">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Sparkles className="w-5 h-5 text-primary" />
-                    <h4 className="font-semibold">AI Javobi</h4>
-                  </div>
-                  <div className="whitespace-pre-wrap text-sm leading-relaxed">
-                    {aiAnswer}
-                  </div>
-                </Card>
-              )}
             </Card>
           </div>
         </main>
@@ -809,16 +855,16 @@ const Learning = () => {
           {/* AI Questions Card */}
           <Card 
             className="p-6 mb-8 bg-gradient-to-br from-accent/10 to-secondary/10 border-accent/30 hover:shadow-lg transition-all cursor-pointer hover:border-accent/50"
-            onClick={() => setShowAiChat(true)}
+            onClick={() => setShowAiQuiz(true)}
           >
             <div className="flex items-center gap-4">
               <div className="w-16 h-16 rounded-full bg-gradient-to-br from-accent to-primary flex items-center justify-center flex-shrink-0">
-                <MessageCircle className="w-8 h-8 text-primary-foreground" />
+                <Brain className="w-8 h-8 text-primary-foreground" />
               </div>
               <div className="flex-1">
-                <h3 className="text-xl font-bold mb-1">AI Savollar</h3>
+                <h3 className="text-xl font-bold mb-1">AI Test</h3>
                 <p className="text-muted-foreground">
-                  Kimyo bo'yicha istalgan savolni bering - AI javob beradi
+                  AI yordamida istalgan mavzuda test yarating va o'zingizni sinang
                 </p>
               </div>
               <ChevronRight className="w-6 h-6 text-muted-foreground" />
