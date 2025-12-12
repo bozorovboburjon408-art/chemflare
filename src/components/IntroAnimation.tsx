@@ -262,7 +262,7 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
                 fontFamily: "'Inter', 'Arial', sans-serif",
               }}
             >
-              KIMYO
+              CHEMFLARE
             </motion.h1>
 
             {/* Subtitle */}
