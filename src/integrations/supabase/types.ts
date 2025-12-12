@@ -248,6 +248,33 @@ export type Database = {
         }
         Relationships: []
       }
+      experiments: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          thumbnail_url: string | null
+          title: string
+          video_url: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          thumbnail_url?: string | null
+          title: string
+          video_url: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          thumbnail_url?: string | null
+          title?: string
+          video_url?: string
+        }
+        Relationships: []
+      }
       questions: {
         Row: {
           correct_answer: string
