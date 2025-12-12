@@ -57,7 +57,12 @@ interface UserProgress {
   completed_tasks: number;
 }
 
-const QUESTION_COUNTS = [3, 5, 10, 15, 20];
+const QUESTION_COUNTS = [5, 10, 15, 20, 25, 30];
+const DIFFICULTY_LEVELS = [
+  { value: 'easy', label: 'Oson', description: 'Asosiy tushunchalar' },
+  { value: 'medium', label: "O'rtacha", description: 'Amaliy masalalar' },
+  { value: 'hard', label: 'Qiyin', description: 'Murakkab va rasmli' },
+];
 
 const Learning = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -70,7 +75,8 @@ const Learning = () => {
   const [selectedBook, setSelectedBook] = useState<ChemistryBook | null>(null);
   const [chapters, setChapters] = useState<BookChapter[]>([]);
   const [selectedChapter, setSelectedChapter] = useState<BookChapter | null>(null);
-  const [questionCount, setQuestionCount] = useState<number>(5);
+  const [questionCount, setQuestionCount] = useState<number>(10);
+  const [difficulty, setDifficulty] = useState<string>('medium');
   
   // Quiz state
   const [quizQuestions, setQuizQuestions] = useState<QuizQuestion[]>([]);
@@ -187,6 +193,7 @@ const Learning = () => {
           chapterTitle: selectedChapter.title,
           chapterContent: selectedChapter.content,
           questionCount: questionCount,
+          difficulty: difficulty,
         },
       });
 
@@ -511,6 +518,25 @@ const Learning = () => {
                 {selectedChapter.title}
               </p>
 
+              <div className="mb-6">
+                <p className="text-sm text-muted-foreground mb-3">Qiyinlik darajasini tanlang:</p>
+                <div className="flex flex-wrap justify-center gap-2">
+                  {DIFFICULTY_LEVELS.map((level) => (
+                    <Button
+                      key={level.value}
+                      variant={difficulty === level.value ? "default" : "outline"}
+                      onClick={() => setDifficulty(level.value)}
+                      className="min-w-[100px]"
+                    >
+                      <div className="text-center">
+                        <div className="font-medium">{level.label}</div>
+                        <div className="text-xs opacity-70">{level.description}</div>
+                      </div>
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
               <div className="mb-8">
                 <p className="text-sm text-muted-foreground mb-3">Savollar sonini tanlang:</p>
                 <div className="flex flex-wrap justify-center gap-2">
@@ -520,7 +546,7 @@ const Learning = () => {
                       variant={questionCount === count ? "default" : "outline"}
                       onClick={() => setQuestionCount(count)}
                       size="lg"
-                      className="min-w-[60px]"
+                      className="min-w-[50px]"
                     >
                       {count}
                     </Button>

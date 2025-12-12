@@ -76,7 +76,7 @@ serve(async (req) => {
   }
 
   try {
-    const { bookTitle, chapterTitle, chapterContent, questionCount } = await req.json();
+    const { bookTitle, chapterTitle, chapterContent, questionCount, difficulty = 'medium' } = await req.json();
 
     if (!chapterContent || !questionCount) {
       return new Response(
@@ -91,13 +91,36 @@ serve(async (req) => {
       throw new Error("AI API kaliti sozlanmagan. API Sozlamalaridan kalitlarni kiriting.");
     }
 
-    const systemPrompt = `Sen test savollarini tuzishda aniq, qisqa, ilmiy javob beradigan mutaxassissan.
+    // Difficulty level descriptions
+    const difficultyPrompts: Record<string, string> = {
+      easy: `OSON DARAJA: 
+- Asosiy tushunchalar va ta'riflar bo'yicha savollar
+- Oddiy formulalar va reaksiyalar
+- To'g'ridan-to'g'ri matndan javob topiladigan savollar
+- Eslab qolish va tushunish darajasidagi savollar`,
+      medium: `O'RTACHA DARAJA:
+- Tushunchalarni qo'llash bo'yicha savollar
+- Hisob-kitob talab qiladigan masalalar
+- Taqqoslash va tahlil qilish savollar
+- Amaliy vaziyatlarga oid savollar`,
+      hard: `QIYIN DARAJA:
+- Murakkab hisob-kitoblar va ko'p bosqichli masalalar
+- Sintez va baholash darajasidagi savollar
+- Bir nechta tushunchalarni birlashtiruvchi savollar
+- Mantiqiy fikrlashni talab qiladigan savollar
+- MUHIM: Ba'zi savollarni rasmli qiling - masalan: "Quyidagi strukturaviy formulaga ega modda nomini aniqlang: [rasm tavsifi]" yoki "Quyidagi grafik asosida..." kabi`
+    };
+
+    const systemPrompt = `Sen kimyo bo'yicha professional test savollarini tuzadigan mutaxassissan.
 
 QOIDALAR:
 1. Har bir savol 4 ta variant (A, B, C, D) bilan bo'lsin
 2. Savollar matn mazmuniga asoslangan bo'lsin
 3. To'g'ri javob faqat bitta bo'lsin
-4. Testlarda faqat to'g'ri variant va qisqa izoh ber
+4. Variantlar mantiqiy va o'xshash bo'lsin (tasodifiy javob topish qiyin bo'lsin)
+5. Har bir javobga qisqa, lekin MANOLI izoh ber
+
+${difficultyPrompts[difficulty] || difficultyPrompts.medium}
 
 JSON formatida javob ber:
 {
@@ -111,7 +134,7 @@ JSON formatida javob ber:
         "D": "To'rtinchi variant"
       },
       "correct": "A",
-      "explanation": "Qisqa tushuntirish"
+      "explanation": "Tushuntirish - nima uchun bu javob to'g'ri va boshqalari noto'g'ri"
     }
   ]
 }`;
@@ -122,7 +145,15 @@ Bo'lim: "${chapterTitle}"
 Matn:
 ${chapterContent}
 
-Iltimos, shu matn asosida ${questionCount} ta test savoli tuz. Savollar qiziqarli, o'ylantiradigan va turli qiyinlik darajasida bo'lsin.`;
+Iltimos, shu matn asosida AYNAN ${questionCount} ta test savoli tuz. 
+
+Qiyinlik darajasi: ${difficulty === 'easy' ? 'OSON' : difficulty === 'medium' ? "O'RTACHA" : 'QIYIN'}
+
+Savollar:
+- Xilma-xil bo'lsin (nazariy, amaliy, hisoblash)
+- Har xil mavzularni qamrab olsin
+- O'quvchini o'ylashga majbur qilsin
+${difficulty === 'hard' ? "- Qiyin savollar orasida rasmli/grafik tavsifli savollar ham bo'lsin" : ''}`;
 
     let content: string | undefined;
     let usedProvider = '';
