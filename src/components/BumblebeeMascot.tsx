@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect, useMemo } from "react";
+import { useRef, useState, useEffect, useMemo, useCallback } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -12,79 +12,64 @@ const CHROME = "#C0C0C0";
 const BLUE_ENERGY = "#00BFFF";
 const BLUE_CORE = "#4169E1";
 
+// Gesture types
+type GestureType = "idle" | "wave" | "point" | "thumbsUp" | "clap" | "think" | "celebrate" | "salute";
+
 // Page tips configuration
-const pageTips: Record<string, { tips: string[]; position: "left" | "right" }> = {
-  "/": {
-    tips: [
-      "Bu yerda barcha kimyoviy elementlarni ko'rishingiz mumkin!",
-      "Har bir elementni bosib, batafsil ma'lumot oling",
-      "Davriy jadval - kimyoning asosi!",
-      "Element ustiga bosing - atom tuzilishini ko'ring",
-    ],
-    position: "right"
-  },
-  "/reactions": {
-    tips: [
-      "Kimyoviy reaksiyalarni o'rganing!",
-      "Reaksiya turlarini tanlang va kuzating",
-      "3D molekulalar animatsiyasini tomosha qiling",
-      "100+ laboratoriya reaksiyalari mavjud",
-    ],
-    position: "left"
-  },
-  "/learning": {
-    tips: [
-      "O'yin tarzida kimyoni o'rganing!",
-      "Daraja oshirib, bilimingizni sinang",
-      "Kitoblardan savollar ishlang",
-      "AI yordamida test yarating",
-    ],
-    position: "right"
-  },
-  "/library": {
-    tips: [
-      "Kimyo kitoblarini o'qing!",
-      "Har bir bob bo'yicha savollar mavjud",
-      "PDF formatda yuklab oling",
-      "Boshlang'ichdan murakkabgacha",
-    ],
-    position: "left"
-  },
-  "/quiz": {
-    tips: [
-      "Test rasmini yuklang - AI tahlil qiladi!",
-      "Ko'p variantli savollar avtomatik yaratiladi",
-      "Javoblaringizni tekshiring",
-      "Natijalaringizni saqlang",
-    ],
-    position: "right"
-  },
-  "/calculator": {
-    tips: [
-      "Har qanday kimyoviy masalani yeching!",
-      "Rasm yuklang - AI o'qiydi",
-      "Molyar massa, pH, konsentratsiya...",
-      "Batafsil yechim va tushuntirish",
-    ],
-    position: "left"
-  },
-  "/experiments": {
-    tips: [
-      "Kimyoviy tajribalar videolarini tomosha qiling!",
-      "Xavfsiz laboratoriya tajribalari",
-      "Qiziqarli reaksiyalar",
-      "O'rganish uchun eng yaxshi usul!",
-    ],
-    position: "right"
-  },
-  "/developers": {
-    tips: [
-      "Ilova haqida ma'lumot",
-      "Jamoa a'zolari bilan tanishing",
-      "Bizning maqsadimiz - kimyoni osonlashtirish!",
-    ],
-    position: "left"
-  },
+const pageTips: Record<string, string[]> = {
+  "/": [
+    "Bu yerda barcha kimyoviy elementlarni ko'rishingiz mumkin!",
+    "Har bir elementni bosib, batafsil ma'lumot oling",
+    "Davriy jadval - kimyoning asosi!",
+    "Element ustiga bosing - atom tuzilishini ko'ring",
+  ],
+  "/reactions": [
+    "Kimyoviy reaksiyalarni o'rganing!",
+    "Reaksiya turlarini tanlang va kuzating",
+    "3D molekulalar animatsiyasini tomosha qiling",
+    "100+ laboratoriya reaksiyalari mavjud",
+  ],
+  "/learning": [
+    "O'yin tarzida kimyoni o'rganing!",
+    "Daraja oshirib, bilimingizni sinang",
+    "Kitoblardan savollar ishlang",
+    "AI yordamida test yarating",
+  ],
+  "/library": [
+    "Kimyo kitoblarini o'qing!",
+    "Har bir bob bo'yicha savollar mavjud",
+    "PDF formatda yuklab oling",
+    "Boshlang'ichdan murakkabgacha",
+  ],
+  "/quiz": [
+    "Test rasmini yuklang - AI tahlil qiladi!",
+    "Ko'p variantli savollar avtomatik yaratiladi",
+    "Javoblaringizni tekshiring",
+    "Natijalaringizni saqlang",
+  ],
+  "/calculator": [
+    "Har qanday kimyoviy masalani yeching!",
+    "Rasm yuklang - AI o'qiydi",
+    "Molyar massa, pH, konsentratsiya...",
+    "Batafsil yechim va tushuntirish",
+  ],
+  "/experiments": [
+    "Kimyoviy tajribalar videolarini tomosha qiling!",
+    "Xavfsiz laboratoriya tajribalari",
+    "Qiziqarli reaksiyalar",
+    "O'rganish uchun eng yaxshi usul!",
+  ],
+  "/developers": [
+    "Ilova haqida ma'lumot",
+    "Jamoa a'zolari bilan tanishing",
+    "Bizning maqsadimiz - kimyoni osonlashtirish!",
+  ],
+};
+
+// Gesture context to share between components
+const GestureContext = {
+  current: "idle" as GestureType,
+  time: 0,
 };
 
 // Energy Sphere with plasma effect
@@ -112,8 +97,13 @@ const EnergySphere = () => {
 
   useFrame((state) => {
     const time = state.clock.getElapsedTime();
+    const gesture = GestureContext.current;
+    
+    // Scale based on gesture
+    const baseScale = gesture === "celebrate" ? 1.5 : gesture === "thumbsUp" ? 1.2 : 1;
+    
     if (sphereRef.current) {
-      const pulse = 1 + Math.sin(time * 8) * 0.15;
+      const pulse = baseScale + Math.sin(time * 8) * 0.15;
       sphereRef.current.scale.setScalar(pulse);
     }
     if (coreRef.current) {
@@ -160,15 +150,41 @@ const EnergySphere = () => {
   );
 };
 
-// Detailed Bumblebee Head
+// Detailed Bumblebee Head with gestures
 const MovieBumblebeeHead = () => {
   const headRef = useRef<THREE.Group>(null);
 
   useFrame((state) => {
     const time = state.clock.getElapsedTime();
+    const gesture = GestureContext.current;
+    
     if (headRef.current) {
-      headRef.current.rotation.y = Math.sin(time * 0.7) * 0.12;
-      headRef.current.rotation.x = Math.sin(time * 0.4) * 0.05 - 0.1;
+      // Different head movements based on gesture
+      switch (gesture) {
+        case "wave":
+          headRef.current.rotation.y = Math.sin(time * 3) * 0.2;
+          headRef.current.rotation.z = Math.sin(time * 2) * 0.1;
+          break;
+        case "think":
+          headRef.current.rotation.y = 0.3;
+          headRef.current.rotation.x = Math.sin(time * 0.5) * 0.1 - 0.15;
+          break;
+        case "celebrate":
+          headRef.current.rotation.y = Math.sin(time * 4) * 0.25;
+          headRef.current.rotation.z = Math.sin(time * 3) * 0.15;
+          break;
+        case "salute":
+          headRef.current.rotation.y = 0;
+          headRef.current.rotation.x = -0.15;
+          break;
+        case "point":
+          headRef.current.rotation.y = -0.25;
+          headRef.current.rotation.x = -0.1;
+          break;
+        default:
+          headRef.current.rotation.y = Math.sin(time * 0.7) * 0.12;
+          headRef.current.rotation.x = Math.sin(time * 0.4) * 0.05 - 0.1;
+      }
     }
   });
 
@@ -272,7 +288,7 @@ const MovieBumblebeeChest = () => {
   );
 };
 
-// Animated Arms
+// Animated Arms with gesture support
 const MovieBumblebeeArm = ({ side }: { side: "left" | "right" }) => {
   const armRef = useRef<THREE.Group>(null);
   const forearmRef = useRef<THREE.Group>(null);
@@ -280,20 +296,114 @@ const MovieBumblebeeArm = ({ side }: { side: "left" | "right" }) => {
 
   const xPos = side === "left" ? -0.42 : 0.42;
   const mirror = side === "left" ? -1 : 1;
+  const isLeft = side === "left";
 
   useFrame((state) => {
     const time = state.clock.getElapsedTime();
-    if (armRef.current) {
-      const armAngle = Math.sin(time * 2) * 0.08;
-      armRef.current.rotation.z = (side === "left" ? 0.6 : -0.6) + armAngle;
-      armRef.current.rotation.x = -0.4 + Math.sin(time * 1.5) * 0.05;
-    }
-    if (forearmRef.current) {
-      forearmRef.current.rotation.x = 0.8 + Math.sin(time * 2.5) * 0.1;
-    }
-    if (handRef.current) {
-      const openClose = Math.sin(time * 3) * 0.15;
-      handRef.current.rotation.x = 0.3 + openClose;
+    const gesture = GestureContext.current;
+    
+    if (!armRef.current || !forearmRef.current || !handRef.current) return;
+
+    // Gesture-based arm animations
+    switch (gesture) {
+      case "wave":
+        if (isLeft) {
+          // Waving arm
+          armRef.current.rotation.z = -1.2 + Math.sin(time * 8) * 0.3;
+          armRef.current.rotation.x = -0.5;
+          forearmRef.current.rotation.x = 0.4 + Math.sin(time * 10) * 0.2;
+          handRef.current.rotation.z = Math.sin(time * 12) * 0.5;
+        } else {
+          // Relaxed arm
+          armRef.current.rotation.z = -0.4;
+          armRef.current.rotation.x = -0.2;
+          forearmRef.current.rotation.x = 0.5;
+        }
+        break;
+        
+      case "point":
+        if (isLeft) {
+          // Pointing arm
+          armRef.current.rotation.z = -0.8;
+          armRef.current.rotation.x = -0.6;
+          armRef.current.rotation.y = -0.3;
+          forearmRef.current.rotation.x = 0.2;
+          handRef.current.rotation.x = 0;
+        } else {
+          armRef.current.rotation.z = -0.4;
+          armRef.current.rotation.x = -0.2;
+          forearmRef.current.rotation.x = 0.5;
+        }
+        break;
+        
+      case "thumbsUp":
+        if (!isLeft) {
+          // Thumbs up arm
+          armRef.current.rotation.z = -0.6;
+          armRef.current.rotation.x = -0.8 + Math.sin(time * 2) * 0.1;
+          forearmRef.current.rotation.x = 1.2;
+          handRef.current.rotation.x = 0.5;
+          handRef.current.rotation.z = 0.3;
+        } else {
+          armRef.current.rotation.z = 0.4;
+          armRef.current.rotation.x = -0.2;
+          forearmRef.current.rotation.x = 0.5;
+        }
+        break;
+        
+      case "clap":
+        // Both arms come together for clapping
+        const clapPhase = Math.sin(time * 8);
+        armRef.current.rotation.z = (isLeft ? 1 : -1) * (0.5 + clapPhase * 0.3);
+        armRef.current.rotation.x = -0.7;
+        forearmRef.current.rotation.x = 1 + clapPhase * 0.2;
+        handRef.current.rotation.x = 0.3;
+        break;
+        
+      case "think":
+        if (!isLeft) {
+          // Hand on chin thinking
+          armRef.current.rotation.z = -0.3;
+          armRef.current.rotation.x = -0.4;
+          forearmRef.current.rotation.x = 1.8;
+          handRef.current.rotation.x = 0.2;
+        } else {
+          armRef.current.rotation.z = 0.6;
+          armRef.current.rotation.x = -0.4;
+          forearmRef.current.rotation.x = 0.8;
+        }
+        break;
+        
+      case "celebrate":
+        // Both arms up celebrating
+        armRef.current.rotation.z = (isLeft ? 1 : -1) * (-1.3 + Math.sin(time * 5 + (isLeft ? 0 : Math.PI)) * 0.2);
+        armRef.current.rotation.x = -0.3 + Math.sin(time * 3) * 0.1;
+        forearmRef.current.rotation.x = 0.3 + Math.sin(time * 6) * 0.2;
+        handRef.current.rotation.z = Math.sin(time * 8 + (isLeft ? 0 : Math.PI)) * 0.3;
+        break;
+        
+      case "salute":
+        if (!isLeft) {
+          // Saluting
+          armRef.current.rotation.z = -0.7;
+          armRef.current.rotation.x = -0.5;
+          forearmRef.current.rotation.x = 2.2;
+          handRef.current.rotation.x = 0;
+        } else {
+          armRef.current.rotation.z = 0.6;
+          armRef.current.rotation.x = -0.4;
+          forearmRef.current.rotation.x = 0.8;
+        }
+        break;
+        
+      default: // idle
+        const armAngle = Math.sin(time * 2) * 0.08;
+        armRef.current.rotation.z = (isLeft ? 0.6 : -0.6) + armAngle;
+        armRef.current.rotation.x = -0.4 + Math.sin(time * 1.5) * 0.05;
+        armRef.current.rotation.y = 0;
+        forearmRef.current.rotation.x = 0.8 + Math.sin(time * 2.5) * 0.1;
+        handRef.current.rotation.x = 0.3 + Math.sin(time * 3) * 0.15;
+        handRef.current.rotation.z = 0;
     }
   });
 
@@ -340,14 +450,33 @@ const MovieBumblebeeArm = ({ side }: { side: "left" | "right" }) => {
 };
 
 // Main Robot Assembly
-const MovieBumblebeeRobot = () => {
+const MovieBumblebeeRobot = ({ gesture }: { gesture: GestureType }) => {
   const groupRef = useRef<THREE.Group>(null);
 
   useFrame((state) => {
     const time = state.clock.getElapsedTime();
+    GestureContext.current = gesture;
+    GestureContext.time = time;
+    
     if (groupRef.current) {
-      groupRef.current.position.y = Math.sin(time * 1.5) * 0.025;
-      groupRef.current.rotation.y = Math.sin(time * 0.5) * 0.06;
+      // Different body movements based on gesture
+      switch (gesture) {
+        case "celebrate":
+          groupRef.current.position.y = Math.sin(time * 4) * 0.05;
+          groupRef.current.rotation.y = Math.sin(time * 2) * 0.15;
+          break;
+        case "wave":
+          groupRef.current.position.y = Math.sin(time * 2) * 0.02;
+          groupRef.current.rotation.y = 0.1;
+          break;
+        case "think":
+          groupRef.current.position.y = 0;
+          groupRef.current.rotation.y = 0.15;
+          break;
+        default:
+          groupRef.current.position.y = Math.sin(time * 1.5) * 0.025;
+          groupRef.current.rotation.y = Math.sin(time * 0.5) * 0.06;
+      }
     }
   });
 
@@ -363,24 +492,35 @@ const MovieBumblebeeRobot = () => {
 };
 
 // Speech Bubble Component
-const SpeechBubble = ({ text, position }: { text: string; position: "left" | "right" }) => {
+const SpeechBubble = ({ text, position }: { text: string; position: { x: number; y: number } }) => {
+  // Determine bubble direction based on position
+  const isOnRight = position.x > 50;
+  const isOnBottom = position.y > 50;
+  
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.8, y: 10 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.8, y: -10 }}
+      initial={{ opacity: 0, scale: 0.8 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.8 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
-      className={`absolute ${position === "right" ? "right-full mr-3" : "left-full ml-3"} top-1/2 -translate-y-1/2 
-        max-w-[180px] md:max-w-[220px] pointer-events-auto`}
+      className="absolute pointer-events-auto"
+      style={{
+        [isOnRight ? 'right' : 'left']: '100%',
+        [isOnRight ? 'marginRight' : 'marginLeft']: '12px',
+        top: isOnBottom ? 'auto' : '50%',
+        bottom: isOnBottom ? '50%' : 'auto',
+        transform: `translateY(${isOnBottom ? '50%' : '-50%'})`,
+      }}
     >
       <div className="relative bg-gradient-to-br from-primary/95 to-primary/80 backdrop-blur-md 
-        text-primary-foreground text-xs md:text-sm px-3 py-2 rounded-xl shadow-elegant border border-primary/30">
+        text-primary-foreground text-xs md:text-sm px-3 py-2 rounded-xl shadow-elegant border border-primary/30
+        max-w-[160px] md:max-w-[200px]">
         <p className="leading-relaxed">{text}</p>
         
         {/* Speech bubble arrow */}
         <div 
           className={`absolute top-1/2 -translate-y-1/2 w-0 h-0 
-            ${position === "right" 
+            ${isOnRight 
               ? "right-0 translate-x-full border-l-8 border-l-primary/90 border-t-6 border-t-transparent border-b-6 border-b-transparent" 
               : "left-0 -translate-x-full border-r-8 border-r-primary/90 border-t-6 border-t-transparent border-b-6 border-b-transparent"
             }`}
@@ -394,17 +534,79 @@ const SpeechBubble = ({ text, position }: { text: string; position: "left" | "ri
   );
 };
 
+// Random position generator
+const generateRandomPosition = () => {
+  // Keep robot within visible area with padding
+  const padding = 15;
+  const x = padding + Math.random() * (100 - 2 * padding);
+  const y = padding + Math.random() * (100 - 2 * padding);
+  return { x, y };
+};
+
+// List of gestures
+const gestures: GestureType[] = ["idle", "wave", "point", "thumbsUp", "clap", "think", "celebrate", "salute"];
+
 const BumblebeeMascot = () => {
   const location = useLocation();
   const [currentTipIndex, setCurrentTipIndex] = useState(0);
   const [showTip, setShowTip] = useState(true);
+  const [position, setPosition] = useState({ x: 85, y: 15 });
+  const [targetPosition, setTargetPosition] = useState({ x: 85, y: 15 });
   const [isFlying, setIsFlying] = useState(false);
-  const [targetPosition, setTargetPosition] = useState<"left" | "right">("right");
+  const [currentGesture, setCurrentGesture] = useState<GestureType>("idle");
+  const [rotation, setRotation] = useState(0);
 
   // Get current page tips
-  const currentPageTips = pageTips[location.pathname] || pageTips["/"];
-  const tips = currentPageTips.tips;
-  const tipPosition = currentPageTips.position;
+  const tips = pageTips[location.pathname] || pageTips["/"];
+
+  // Random gesture selector
+  const selectRandomGesture = useCallback(() => {
+    const randomGesture = gestures[Math.floor(Math.random() * gestures.length)];
+    setCurrentGesture(randomGesture);
+    
+    // Reset to idle after gesture duration
+    setTimeout(() => {
+      setCurrentGesture("idle");
+    }, 3000);
+  }, []);
+
+  // Fly to random position
+  const flyToRandomPosition = useCallback(() => {
+    const newPos = generateRandomPosition();
+    setTargetPosition(newPos);
+    setIsFlying(true);
+    
+    // Calculate rotation based on direction
+    const dx = newPos.x - position.x;
+    const angle = dx > 0 ? 10 : -10;
+    setRotation(angle);
+    
+    // Smooth transition
+    setTimeout(() => {
+      setPosition(newPos);
+      setIsFlying(false);
+      setRotation(0);
+      selectRandomGesture();
+    }, 1500);
+  }, [position, selectRandomGesture]);
+
+  // Main animation loop - fly around and change gestures
+  useEffect(() => {
+    // Initial delay
+    const initialDelay = setTimeout(() => {
+      flyToRandomPosition();
+    }, 2000);
+
+    // Regular flying interval
+    const flyInterval = setInterval(() => {
+      flyToRandomPosition();
+    }, 8000);
+
+    return () => {
+      clearTimeout(initialDelay);
+      clearInterval(flyInterval);
+    };
+  }, [flyToRandomPosition]);
 
   // Change tip periodically
   useEffect(() => {
@@ -418,40 +620,34 @@ const BumblebeeMascot = () => {
     }, 6000);
 
     return () => clearInterval(interval);
-  }, [tips.length, location.pathname]);
+  }, [tips.length]);
 
-  // Reset tip index when page changes and trigger fly animation
+  // Reset tip index and fly when page changes
   useEffect(() => {
     setCurrentTipIndex(0);
     setShowTip(false);
-    setIsFlying(true);
-    setTargetPosition(tipPosition);
+    flyToRandomPosition();
     
     setTimeout(() => {
-      setIsFlying(false);
       setShowTip(true);
-    }, 800);
-  }, [location.pathname, tipPosition]);
-
-  // Calculate position based on tip position
-  const positionStyles = targetPosition === "right" 
-    ? { right: "8px", left: "auto" }
-    : { left: "8px", right: "auto" };
+    }, 1500);
+  }, [location.pathname]);
 
   return (
     <motion.div
-      className="fixed top-24 z-30 select-none w-[100px] h-[130px] md:w-[110px] md:h-[140px]"
-      style={positionStyles}
-      initial={{ opacity: 0, y: -50 }}
+      className="fixed z-30 select-none w-[100px] h-[130px] md:w-[110px] md:h-[140px]"
       animate={{ 
-        opacity: 1, 
-        y: 0,
-        x: isFlying ? (targetPosition === "right" ? [0, 50, 0] : [0, -50, 0]) : 0,
-        rotate: isFlying ? [0, 5, -5, 0] : 0,
+        left: `${position.x}%`,
+        top: `${position.y}%`,
+        x: "-50%",
+        y: "-50%",
+        rotate: rotation,
+        scale: isFlying ? 1.1 : 1,
       }}
       transition={{ 
-        duration: isFlying ? 0.8 : 0.5,
-        ease: "easeInOut"
+        duration: 1.5,
+        ease: [0.25, 0.1, 0.25, 1],
+        scale: { duration: 0.3 }
       }}
     >
       {/* Speech Bubble */}
@@ -459,10 +655,35 @@ const BumblebeeMascot = () => {
         {showTip && !isFlying && (
           <SpeechBubble 
             text={tips[currentTipIndex]} 
-            position={targetPosition === "right" ? "left" : "right"} 
+            position={position}
           />
         )}
       </AnimatePresence>
+
+      {/* Flying trail effect */}
+      {isFlying && (
+        <motion.div
+          className="absolute inset-0 -z-10"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: [0, 0.5, 0] }}
+          transition={{ duration: 1 }}
+        >
+          {[...Array(5)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute rounded-full bg-primary/30"
+              style={{
+                width: `${20 - i * 3}px`,
+                height: `${20 - i * 3}px`,
+                left: `${50 - i * 10}%`,
+                top: "50%",
+                transform: "translate(-50%, -50%)",
+                opacity: 1 - i * 0.2,
+              }}
+            />
+          ))}
+        </motion.div>
+      )}
 
       {/* 3D Robot Canvas */}
       <div className="w-full h-full pointer-events-none">
@@ -476,14 +697,16 @@ const BumblebeeMascot = () => {
           <directionalLight position={[-3, 2, 4]} intensity={0.6} color={BLUE_ENERGY} />
           <pointLight position={[0, 0, 2]} intensity={0.8} color="#FFE4B5" />
           <spotLight position={[0, 3, 3]} angle={0.5} penumbra={0.8} intensity={1} castShadow />
-          <MovieBumblebeeRobot />
+          <MovieBumblebeeRobot gesture={currentGesture} />
         </Canvas>
       </div>
       
       {/* Glow effect */}
       <div 
         className="absolute inset-0 -z-10 rounded-full blur-3xl opacity-20"
-        style={{ background: `radial-gradient(circle, ${BLUE_ENERGY} 0%, transparent 60%)` }}
+        style={{
+          background: `radial-gradient(circle, ${BLUE_ENERGY} 0%, transparent 70%)`
+        }}
       />
     </motion.div>
   );
