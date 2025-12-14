@@ -24,91 +24,127 @@ const PURPLE_CORE = "#4B0082";
 // Gesture types (expanded)
 type GestureType = "idle" | "wave" | "point" | "thumbsUp" | "think" | "celebrate" | "listen" | "nod" | "raiseHand" | "salute" | "clap" | "walk";
 
-// Bumblebee tips
+// Bumblebee tips - foydali va tushunarli
 const bumblebeeTips: Record<string, string[]> = {
   "/": [
-    "Salom! Men Bumblebee - sizning kimyo yordamchingizman!",
-    "Bu yerda davriy jadvalni ko'rishingiz mumkin!",
-    "Har bir elementni bosib, batafsil ma'lumot oling",
-    "Davriy jadval - kimyoning asosi!",
+    "Salom! Men Bumblebee - kimyo bo'yicha yordamchiman!",
+    "Elementni bosing - proton, neytron, elektron sonini ko'ring",
+    "Metalllar chap tomonda, metalmaslar o'ng tomonda joylashgan",
+    "Davr raqami - elektron qavatlar sonini bildiradi",
+    "Guruh raqami - tashqi qavatdagi elektronlar soni",
+    "Lantanoidlar va aktinoidlar jadval ostida joylashgan",
+    "Atom massasi - proton va neytronlar yig'indisi",
+    "Elektromanfiylk - atomning elektron tortish qobiliyati",
   ],
   "/reactions": [
-    "Kimyoviy reaksiyalarni o'rganing!",
-    "3D molekulalar animatsiyasini tomosha qiling",
-    "100+ laboratoriya reaksiyalari mavjud",
+    "Reaksiya tenglamasini muvozanatlash uchun koeffitsientlar qo'ying",
+    "Oksidlanish - elektron yo'qotish, qaytarilish - elektron olish",
+    "Ekzotermik reaksiya - issiqlik ajratadi, endotermik - yutadi",
+    "Katalizator - reaksiya tezligini oshiradi, o'zi sarf bo'lmaydi",
+    "Neytrallanish: kislota + asos = tuz + suv",
+    "Almashinuv reaksiyasi: AB + CD = AD + CB",
+    "Birikish: A + B = AB, parchalanish: AB = A + B",
   ],
   "/learning": [
-    "O'yin tarzida kimyoni o'rganing!",
-    "Daraja oshirib, bilimingizni sinang",
-    "AI yordamida test yarating",
+    "Har kuni 15 daqiqa o'qish - 1 oyda katta natija!",
+    "Avval nazariyani o'qing, keyin test ishlang",
+    "Xato javoblarni qayta ko'rib chiqing - bu eng muhim!",
+    "Formulalarni yod oling - masalalar oson bo'ladi",
+    "Darajangizni oshirib, yangi mavzularni oching",
+    "AI testlar - sizning bilimingizga moslashtirilgan",
   ],
   "/library": [
-    "Kimyo kitoblarini o'qing!",
-    "Har bir bob bo'yicha savollar mavjud",
-    "PDF formatda yuklab oling",
+    "Boshlang'ich kitobdan boshlang - poydevor muhim!",
+    "Har bir bobni to'liq o'qib, keyin savollarga javob bering",
+    "Murakkab mavzularni bir necha marta o'qing",
+    "PDF yuklab oling - oflayn ham o'qishingiz mumkin",
+    "Tushunmagan joylarni belgilab qo'ying",
   ],
   "/quiz": [
-    "Test rasmini yuklang - AI tahlil qiladi!",
-    "Ko'p variantli savollar avtomatik yaratiladi",
-    "Natijalaringizni saqlang",
+    "Test rasmini yuklang - 10 tagacha rasm",
+    "AI savollarni avtomatik taniydi va formatlaydi",
+    "Javoblar aralashtiriladi - yod olish emas, tushunish muhim!",
+    "Xato javoblarni ko'rib chiqing - tushuntirishni o'qing",
+    "Natijangiz saqlanadi - keyinroq qayta ishlashingiz mumkin",
   ],
   "/calculator": [
-    "Har qanday kimyoviy masalani yeching!",
-    "Rasm yuklang - AI o'qiydi",
-    "Batafsil yechim va tushuntirish",
+    "Molyar massa: M = m/n (g/mol)",
+    "Konsentratsiya: C = n/V (mol/L)",
+    "pH = -log[H⁺], pOH = -log[OH⁻]",
+    "Ideal gaz: PV = nRT",
+    "Faradey qonuni: m = (M·I·t)/(n·F)",
+    "Masala rasmini yuklang - AI yechimni ko'rsatadi",
+    "Bosqichma-bosqich yechim va tushuntirish beriladi",
   ],
   "/experiments": [
-    "Kimyoviy tajribalar videolarini tomosha qiling!",
-    "Xavfsiz laboratoriya tajribalari",
-    "O'rganish uchun eng yaxshi usul!",
+    "Videolarni diqqat bilan tomosha qiling",
+    "Xavfsizlik qoidalariga amal qiling!",
+    "Ko'zoynak va qo'lqop kiyish shart",
+    "Kimyoviy moddalarni hid bilmang!",
+    "Tajribadan keyin qo'llaringizni yuvmang",
   ],
   "/developers": [
-    "Ilova haqida ma'lumot",
-    "Jamoa a'zolari bilan tanishing",
+    "ChemFlare - kimyoni oson o'rganish uchun yaratilgan",
+    "Savollar bo'lsa - Telegram orqali bog'laning",
+    "Ilovani baholang va fikringizni bildiring!",
   ],
 };
 
-// Bird robot tips (sherik)
+// Sparky tips - qo'shimcha foydali ma'lumotlar
 const birdTips: Record<string, string[]> = {
   "/": [
-    "Men Sparky - Bumblebee'ning sherigi!",
-    "Element ustiga bosing - atom tuzilishini ko'ring",
-    "Kimyo juda qiziqarli fan!",
-    "Birga o'rganamiz!",
+    "Men Sparky! Qiziqarli faktlarni aytaman!",
+    "Oltin (Au) - eng cho'ziluvchan metall",
+    "Vodorod - koinotdagi eng ko'p element",
+    "Kislorod - Yer atmosferasining 21%",
+    "Temir - qon tarkibida gemoglobinda bor",
+    "Uglerod - barcha tirik organizmlar asosi",
+    "Azot - havoning 78% ni tashkil qiladi",
+    "Geliy - Quyoshda 2-o'rinda ko'p element",
   ],
   "/reactions": [
-    "Reaksiya turlarini tanlang va kuzating",
-    "Kimyoviy tenglamalarni yodlang!",
-    "Amaliyot - eng yaxshi o'qituvchi!",
+    "Suv - H₂O, eng oddiy oksid!",
+    "Rza - temir oksidlanishi, Fe₂O₃",
+    "Fotosintez: 6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂",
+    "Nafas olish - glyukoza oksidlanishi",
+    "Olov - tez oksidlanish reaksiyasi",
+    "Tuz hosil bo'lishi - ionlar almashadi",
   ],
   "/learning": [
-    "Kitoblardan savollar ishlang",
-    "Har kuni biroz o'rganing!",
-    "Bilim - kuch!",
+    "Bilim - eng katta boylik!",
+    "Xato qilish - o'rganishning bir qismi",
+    "Sabr bilan o'rganing - natija bo'ladi!",
+    "Kuniga 5 ta yangi atama o'rganing",
+    "Davriy jadvalni yodlang - asos shu!",
   ],
   "/library": [
-    "Boshlang'ichdan murakkabgacha kitoblar",
-    "O'qish - aql ozuqasi!",
-    "Yangi bilimlar kashf qiling!",
+    "O'qish - miyani mashq qildiradi",
+    "Kimyo - tabiat sirlarini ochadi",
+    "Har bir kitob - yangi bilim eshigi",
+    "Yozib o'qish - yodda yaxshi qoladi",
   ],
   "/quiz": [
-    "Javoblaringizni tekshiring",
-    "Xatolardan o'rganing!",
-    "Har safar yaxshiroq bo'ling!",
+    "Test - bilimni tekshirish usuli",
+    "Xatolardan qo'rqmang - ular o'rgatadi!",
+    "Vaqtni tejang - tez ishlang",
+    "Ishonchsiz javobni tekshiring",
   ],
   "/calculator": [
-    "Molyar massa, pH, konsentratsiya...",
-    "Formulalarni yodda saqlang!",
-    "Amaliyot qiling!",
+    "n = m/M - mol sonini toping",
+    "1 mol = 6.02×10²³ zarracha",
+    "Avogadro soni - kimyoning asosi",
+    "Standart sharoit: 25°C, 1 atm",
+    "Suv pH=7 - neytral muhit",
   ],
   "/experiments": [
-    "Qiziqarli reaksiyalar",
-    "Xavfsizlikni unutmang!",
-    "Tajriba qiling va o'rganing!",
+    "Xavfsizlik - eng muhim qoida!",
+    "Laboratoriyada ovqat yemang!",
+    "Kimyoviy idishlarni belgilang",
+    "Moddalarni aralashtirmang!",
   ],
   "/developers": [
-    "Bizning maqsadimiz - kimyoni osonlashtirish!",
-    "Sizga yordam berishdan xursandmiz!",
+    "Ilovamizdan foydalanganingiz uchun rahmat!",
+    "Takliflaringizni kutamiz!",
   ],
 };
 
@@ -574,9 +610,10 @@ const BumblebeeRobot = ({ gesture }: { gesture: GestureType }) => {
   );
 };
 
-// Bird Robot Head with more gestures
+// Bird Robot Head - Round design with more gestures
 const BirdHead = ({ gesture }: { gesture: GestureType }) => {
   const headRef = useRef<THREE.Group>(null);
+  const eyeGlowRef = useRef<THREE.PointLight>(null);
 
   useFrame((state) => {
     const time = state.clock.getElapsedTime();
@@ -602,94 +639,244 @@ const BirdHead = ({ gesture }: { gesture: GestureType }) => {
         headRef.current.rotation.x = Math.sin(time * 0.8) * 0.08;
       }
     }
-  });
-
-  return (
-    <group ref={headRef} position={[0, 0.8, 0]}>
-      <mesh>
-        <coneGeometry args={[0.18, 0.3, 6]} />
-        <meshStandardMaterial color={RED_MAIN} metalness={0.95} roughness={0.1} />
-      </mesh>
-      <mesh position={[0, -0.05, 0.2]} rotation={[0.5, 0, 0]}>
-        <coneGeometry args={[0.06, 0.2, 4]} />
-        <meshStandardMaterial color={RED_DARK} metalness={0.9} roughness={0.15} />
-      </mesh>
-      <mesh position={[-0.08, 0.05, 0.12]}>
-        <sphereGeometry args={[0.035, 16, 16]} />
-        <meshStandardMaterial color={PURPLE_ENERGY} emissive={PURPLE_ENERGY} emissiveIntensity={6} />
-      </mesh>
-      <mesh position={[0.08, 0.05, 0.12]}>
-        <sphereGeometry args={[0.035, 16, 16]} />
-        <meshStandardMaterial color={PURPLE_ENERGY} emissive={PURPLE_ENERGY} emissiveIntensity={6} />
-      </mesh>
-      <pointLight position={[0, 0, 0.2]} color={PURPLE_ENERGY} intensity={1} distance={0.5} />
-    </group>
-  );
-};
-
-// Bird Robot Body
-const BirdBody = () => (
-  <group position={[0, 0.35, 0]}>
-    <mesh>
-      <boxGeometry args={[0.4, 0.35, 0.25]} />
-      <meshStandardMaterial color={RED_MAIN} metalness={0.9} roughness={0.12} />
-    </mesh>
-    <mesh position={[0, 0.03, 0.15]}>
-      <circleGeometry args={[0.06, 32]} />
-      <meshStandardMaterial color={PURPLE_ENERGY} emissive={PURPLE_ENERGY} emissiveIntensity={3} />
-    </mesh>
-  </group>
-);
-
-// Bird Robot Wings with more gestures
-const BirdWing = ({ side, gesture }: { side: "left" | "right"; gesture: GestureType }) => {
-  const wingRef = useRef<THREE.Group>(null);
-  const isLeft = side === "left";
-  const xPos = isLeft ? -0.25 : 0.25;
-
-  useFrame((state) => {
-    const time = state.clock.getElapsedTime();
-    if (wingRef.current) {
-      if (gesture === "listen") {
-        wingRef.current.rotation.z = (isLeft ? 1 : -1) * 0.3;
-      } else if (gesture === "celebrate") {
-        const bounce = Math.sin(time * 10) * 0.4;
-        wingRef.current.rotation.z = (isLeft ? 1 : -1) * (0.8 + bounce);
-      } else if (gesture === "clap") {
-        const clapAngle = Math.sin(time * 12) * 0.5;
-        wingRef.current.rotation.z = (isLeft ? 1 : -1) * (0.5 + clapAngle);
-      } else if (gesture === "walk") {
-        const walkFlap = Math.sin(time * 8 + (isLeft ? 0 : Math.PI)) * 0.3;
-        wingRef.current.rotation.z = (isLeft ? 1 : -1) * (0.6 + walkFlap);
-      } else if (gesture === "raiseHand" && isLeft) {
-        wingRef.current.rotation.z = 1.8;
-      } else if (gesture === "wave" && isLeft) {
-        const waveAngle = Math.sin(time * 8) * 0.4;
-        wingRef.current.rotation.z = 1.5 + waveAngle;
-      } else {
-        const baseFlap = Math.sin(time * 8) * 0.3;
-        wingRef.current.rotation.z = (isLeft ? 1 : -1) * (0.5 + baseFlap);
-      }
+    if (eyeGlowRef.current) {
+      eyeGlowRef.current.intensity = 1.5 + Math.sin(time * 2) * 0.3;
     }
   });
 
   return (
-    <group ref={wingRef} position={[xPos, 0.5, 0]}>
-      <mesh rotation={[0, 0, isLeft ? 0.5 : -0.5]}>
-        <boxGeometry args={[0.3, 0.08, 0.15]} />
-        <meshStandardMaterial color={RED_DARK} metalness={0.85} roughness={0.15} />
+    <group ref={headRef} position={[0, 1.0, 0]}>
+      {/* Main round head */}
+      <mesh>
+        <sphereGeometry args={[0.22, 32, 32]} />
+        <meshStandardMaterial color={RED_MAIN} metalness={0.98} roughness={0.05} />
       </mesh>
-      {[0, 1, 2].map((i) => (
-        <mesh key={i} position={[(isLeft ? -1 : 1) * (0.12 + i * 0.08), 0, 0]} rotation={[0, 0, (isLeft ? 1 : -1) * 0.3]}>
-          <boxGeometry args={[0.08, 0.04, 0.1]} />
-          <meshStandardMaterial color={PURPLE_CORE} metalness={0.9} roughness={0.1} />
-        </mesh>
-      ))}
+      
+      {/* Head crest/antenna */}
+      <mesh position={[0, 0.18, 0]}>
+        <sphereGeometry args={[0.05, 16, 16]} />
+        <meshStandardMaterial color={PURPLE_ENERGY} emissive={PURPLE_ENERGY} emissiveIntensity={3} />
+      </mesh>
+      <mesh position={[0, 0.25, 0]}>
+        <sphereGeometry args={[0.03, 12, 12]} />
+        <meshStandardMaterial color={PURPLE_ENERGY} emissive={PURPLE_ENERGY} emissiveIntensity={5} />
+      </mesh>
+      
+      {/* Face plate */}
+      <mesh position={[0, -0.02, 0.16]}>
+        <boxGeometry args={[0.28, 0.14, 0.08]} />
+        <meshStandardMaterial color={RED_DARK} metalness={0.99} roughness={0.02} />
+      </mesh>
+      
+      {/* Left eye - glowing purple */}
+      <mesh position={[-0.07, 0.02, 0.21]}>
+        <sphereGeometry args={[0.032, 20, 20]} />
+        <meshStandardMaterial color={PURPLE_ENERGY} emissive={PURPLE_ENERGY} emissiveIntensity={6} transparent opacity={0.95} />
+      </mesh>
+      <mesh position={[-0.07, 0.02, 0.22]}>
+        <sphereGeometry args={[0.02, 16, 16]} />
+        <meshStandardMaterial color="#FFFFFF" emissive="#FFFFFF" emissiveIntensity={2} />
+      </mesh>
+      
+      {/* Right eye - glowing purple */}
+      <mesh position={[0.07, 0.02, 0.21]}>
+        <sphereGeometry args={[0.032, 20, 20]} />
+        <meshStandardMaterial color={PURPLE_ENERGY} emissive={PURPLE_ENERGY} emissiveIntensity={6} transparent opacity={0.95} />
+      </mesh>
+      <mesh position={[0.07, 0.02, 0.22]}>
+        <sphereGeometry args={[0.02, 16, 16]} />
+        <meshStandardMaterial color="#FFFFFF" emissive="#FFFFFF" emissiveIntensity={2} />
+      </mesh>
+      
+      {/* Side panels */}
+      <mesh position={[-0.2, 0, 0]}>
+        <boxGeometry args={[0.05, 0.12, 0.1]} />
+        <meshStandardMaterial color={RED_MAIN} metalness={0.98} roughness={0.05} />
+      </mesh>
+      <mesh position={[0.2, 0, 0]}>
+        <boxGeometry args={[0.05, 0.12, 0.1]} />
+        <meshStandardMaterial color={RED_MAIN} metalness={0.98} roughness={0.05} />
+      </mesh>
+      
+      <pointLight ref={eyeGlowRef} position={[0, 0, 0.25]} color={PURPLE_ENERGY} intensity={1.5} distance={0.8} />
     </group>
   );
 };
 
-// Bird Robot with walking support
+// Bird Robot Chest
+const BirdChest = () => (
+  <group position={[0, 0.5, 0]}>
+    {/* Main chest */}
+    <mesh>
+      <boxGeometry args={[0.5, 0.4, 0.25]} />
+      <meshStandardMaterial color={RED_MAIN} metalness={0.98} roughness={0.05} />
+    </mesh>
+    
+    {/* Chest detail */}
+    <mesh position={[0, 0, 0.13]}>
+      <boxGeometry args={[0.3, 0.25, 0.02]} />
+      <meshStandardMaterial color={RED_DARK} metalness={0.99} roughness={0.02} />
+    </mesh>
+    
+    {/* Energy core */}
+    <mesh position={[0, 0.02, 0.15]}>
+      <circleGeometry args={[0.07, 32]} />
+      <meshStandardMaterial color={PURPLE_ENERGY} emissive={PURPLE_ENERGY} emissiveIntensity={3} />
+    </mesh>
+    
+    {/* Waist */}
+    <mesh position={[0, -0.22, 0]}>
+      <boxGeometry args={[0.35, 0.08, 0.2]} />
+      <meshStandardMaterial color={RED_DARK} metalness={0.98} roughness={0.05} />
+    </mesh>
+  </group>
+);
+
+// Bird Robot Arm
+const BirdArm = ({ side, gesture }: { side: "left" | "right"; gesture: GestureType }) => {
+  const armRef = useRef<THREE.Group>(null);
+  const forearmRef = useRef<THREE.Group>(null);
+  const isLeft = side === "left";
+  const xPos = isLeft ? -0.38 : 0.38;
+  const mirror = isLeft ? -1 : 1;
+
+  useFrame((state) => {
+    const time = state.clock.getElapsedTime();
+    if (!armRef.current || !forearmRef.current) return;
+
+    if (gesture === "wave" && isLeft) {
+      armRef.current.rotation.z = -1.4 + Math.sin(time * 6) * 0.3;
+      armRef.current.rotation.x = -0.3;
+      forearmRef.current.rotation.x = 0.2 + Math.sin(time * 8) * 0.2;
+    } else if (gesture === "raiseHand" && isLeft) {
+      armRef.current.rotation.z = -2.5;
+      armRef.current.rotation.x = 0;
+      forearmRef.current.rotation.x = 0.3;
+    } else if (gesture === "celebrate") {
+      const bounce = Math.sin(time * 6) * 0.2;
+      armRef.current.rotation.z = (isLeft ? -2.2 : 2.2) + bounce;
+      armRef.current.rotation.x = 0;
+      forearmRef.current.rotation.x = 0.3;
+    } else if (gesture === "walk") {
+      const walkSwing = Math.sin(time * 6 + (isLeft ? 0 : Math.PI)) * 0.5;
+      armRef.current.rotation.z = (isLeft ? 0.3 : -0.3);
+      armRef.current.rotation.x = walkSwing;
+      forearmRef.current.rotation.x = 0.4;
+    } else if (gesture === "listen") {
+      armRef.current.rotation.z = (isLeft ? 0.3 : -0.3);
+      armRef.current.rotation.x = -0.15;
+      forearmRef.current.rotation.x = 0.5;
+    } else {
+      const armAngle = Math.sin(time * 1.5) * 0.04;
+      armRef.current.rotation.z = (isLeft ? 0.4 : -0.4) + armAngle;
+      armRef.current.rotation.x = -0.2;
+      forearmRef.current.rotation.x = 0.6;
+    }
+  });
+
+  return (
+    <group ref={armRef} position={[xPos, 0.65, 0]}>
+      {/* Shoulder */}
+      <mesh position={[mirror * 0.02, 0, 0]}>
+        <sphereGeometry args={[0.06, 16, 16]} />
+        <meshStandardMaterial color={CHROME} metalness={0.99} roughness={0.02} />
+      </mesh>
+      
+      {/* Upper arm */}
+      <mesh position={[mirror * 0.02, -0.1, 0]}>
+        <boxGeometry args={[0.08, 0.18, 0.08]} />
+        <meshStandardMaterial color={RED_MAIN} metalness={0.98} roughness={0.05} />
+      </mesh>
+      
+      {/* Elbow */}
+      <mesh position={[0, -0.2, 0]}>
+        <sphereGeometry args={[0.045, 16, 16]} />
+        <meshStandardMaterial color={CHROME} metalness={0.99} roughness={0.02} />
+      </mesh>
+      
+      {/* Forearm */}
+      <group ref={forearmRef} position={[0, -0.25, 0]}>
+        <mesh position={[0, -0.08, 0]}>
+          <boxGeometry args={[0.07, 0.15, 0.07]} />
+          <meshStandardMaterial color={RED_MAIN} metalness={0.98} roughness={0.05} />
+        </mesh>
+        
+        {/* Hand */}
+        <mesh position={[0, -0.18, 0]}>
+          <boxGeometry args={[0.05, 0.06, 0.035]} />
+          <meshStandardMaterial color={RED_DARK} metalness={0.98} roughness={0.05} />
+        </mesh>
+      </group>
+    </group>
+  );
+};
+
+// Bird Robot Leg
+const BirdLeg = ({ side, gesture }: { side: "left" | "right"; gesture: GestureType }) => {
+  const legRef = useRef<THREE.Group>(null);
+  const lowerLegRef = useRef<THREE.Group>(null);
+  const isLeft = side === "left";
+  const xPos = isLeft ? -0.12 : 0.12;
+
+  useFrame((state) => {
+    const time = state.clock.getElapsedTime();
+    if (!legRef.current || !lowerLegRef.current) return;
+
+    if (gesture === "walk") {
+      const walkPhase = time * 6 + (isLeft ? 0 : Math.PI);
+      const legSwing = Math.sin(walkPhase) * 0.5;
+      const kneeAngle = Math.max(0, Math.sin(walkPhase + 0.5)) * 0.6;
+      
+      legRef.current.rotation.x = legSwing;
+      lowerLegRef.current.rotation.x = kneeAngle;
+    } else if (gesture === "celebrate") {
+      const bounce = Math.sin(time * 8) * 0.15;
+      legRef.current.rotation.x = bounce;
+      lowerLegRef.current.rotation.x = Math.abs(bounce) * 0.5;
+    } else {
+      legRef.current.rotation.x = 0;
+      lowerLegRef.current.rotation.x = 0;
+    }
+  });
+
+  return (
+    <group ref={legRef} position={[xPos, 0.05, 0]}>
+      {/* Hip */}
+      <mesh>
+        <sphereGeometry args={[0.05, 12, 12]} />
+        <meshStandardMaterial color={RED_DARK} metalness={0.98} roughness={0.05} />
+      </mesh>
+      
+      {/* Upper leg */}
+      <mesh position={[0, -0.12, 0]}>
+        <boxGeometry args={[0.08, 0.2, 0.08]} />
+        <meshStandardMaterial color={RED_MAIN} metalness={0.98} roughness={0.05} />
+      </mesh>
+      
+      {/* Knee */}
+      <mesh position={[0, -0.24, 0]}>
+        <sphereGeometry args={[0.04, 12, 12]} />
+        <meshStandardMaterial color={CHROME} metalness={0.99} roughness={0.02} />
+      </mesh>
+      
+      {/* Lower leg */}
+      <group ref={lowerLegRef} position={[0, -0.24, 0]}>
+        <mesh position={[0, -0.12, 0]}>
+          <boxGeometry args={[0.07, 0.2, 0.07]} />
+          <meshStandardMaterial color={RED_MAIN} metalness={0.98} roughness={0.05} />
+        </mesh>
+        
+        {/* Foot */}
+        <mesh position={[0, -0.26, 0.02]}>
+          <boxGeometry args={[0.06, 0.05, 0.1]} />
+          <meshStandardMaterial color={RED_DARK} metalness={0.98} roughness={0.05} />
+        </mesh>
+      </group>
+    </group>
+  );
+};
+
+// Bird Robot - Full body with legs
 const BirdRobot = ({ gesture }: { gesture: GestureType }) => {
   const groupRef = useRef<THREE.Group>(null);
 
@@ -697,24 +884,28 @@ const BirdRobot = ({ gesture }: { gesture: GestureType }) => {
     const time = state.clock.getElapsedTime();
     if (groupRef.current) {
       if (gesture === "walk") {
-        groupRef.current.position.y = Math.abs(Math.sin(time * 8)) * 0.025;
-        groupRef.current.rotation.y = Math.sin(time * 4) * 0.06;
+        groupRef.current.position.y = Math.abs(Math.sin(time * 6)) * 0.02;
+        groupRef.current.rotation.y = Math.sin(time * 3) * 0.04;
+        groupRef.current.rotation.z = Math.sin(time * 6) * 0.02;
       } else if (gesture === "celebrate") {
-        groupRef.current.position.y = Math.abs(Math.sin(time * 10)) * 0.035;
+        groupRef.current.position.y = Math.abs(Math.sin(time * 8)) * 0.04;
         groupRef.current.rotation.y = Math.sin(time * 5) * 0.12;
       } else {
-        groupRef.current.position.y = Math.sin(time * 2) * 0.03;
-        groupRef.current.rotation.y = Math.sin(time * 0.8) * 0.08;
+        groupRef.current.position.y = Math.sin(time * 1.5) * 0.02;
+        groupRef.current.rotation.y = Math.sin(time * 0.6) * 0.06;
+        groupRef.current.rotation.z = 0;
       }
     }
   });
 
   return (
-    <group ref={groupRef} scale={0.6} position={[0, -0.1, 0]}>
+    <group ref={groupRef} scale={0.55} position={[0, 0, 0]}>
       <BirdHead gesture={gesture} />
-      <BirdBody />
-      <BirdWing side="left" gesture={gesture} />
-      <BirdWing side="right" gesture={gesture} />
+      <BirdChest />
+      <BirdArm side="left" gesture={gesture} />
+      <BirdArm side="right" gesture={gesture} />
+      <BirdLeg side="left" gesture={gesture} />
+      <BirdLeg side="right" gesture={gesture} />
       <EnergySphere color={PURPLE_ENERGY} coreColor={PURPLE_CORE} />
     </group>
   );
