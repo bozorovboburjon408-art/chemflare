@@ -20,17 +20,9 @@ import IntroAnimation from "./components/IntroAnimation";
 const queryClient = new QueryClient();
 
 const App = () => {
-  const [showIntro, setShowIntro] = useState(false);
- 
-  useEffect(() => {
-    const hasSeenIntro = localStorage.getItem("hasSeenIntro");
-    if (!hasSeenIntro) {
-      setShowIntro(true);
-    }
-  }, []);
- 
+  const [showIntro, setShowIntro] = useState(true);
+
   const handleIntroComplete = () => {
-    localStorage.setItem("hasSeenIntro", "true");
     setShowIntro(false);
   };
 
