@@ -4,7 +4,7 @@ import { useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import * as THREE from "three";
 
-// Movie-accurate Bumblebee colors
+// Movie-accurate Bumblebee colors (Yellow)
 const YELLOW_MAIN = "#E8B923";
 const YELLOW_DARK = "#B8860B";
 const BLACK_METAL = "#0a0a0a";
@@ -12,8 +12,14 @@ const CHROME = "#C0C0C0";
 const BLUE_ENERGY = "#00BFFF";
 const BLUE_CORE = "#4169E1";
 
+// Aggressive Bird Robot colors (Red-Blue)
+const RED_MAIN = "#DC143C";
+const RED_DARK = "#8B0000";
+const PURPLE_ENERGY = "#9400D3";
+const PURPLE_CORE = "#4B0082";
+
 // Gesture types
-type GestureType = "idle" | "wave" | "point" | "thumbsUp" | "clap" | "think" | "celebrate" | "salute";
+type GestureType = "idle" | "wave" | "point" | "thumbsUp" | "clap" | "think" | "celebrate" | "salute" | "fight" | "shoot" | "dodge";
 
 // Page tips configuration
 const pageTips: Record<string, string[]> = {
@@ -66,6 +72,16 @@ const pageTips: Record<string, string[]> = {
   ],
 };
 
+// App intro tips when user is idle
+const appIntroTips = [
+  "ChemFlare - kimyoni o'rganish uchun eng yaxshi ilova!",
+  "Bu yerda davriy jadval, kalkulyator, testlar va ko'p narsalar bor!",
+  "Men Bumblebee - sizning kimyo yordamchingizman!",
+  "Har qanday savolingizga javob topasiz!",
+  "Tajribalar bo'limida qiziqarli videolar bor!",
+  "Kitobxonada kimyo darsliklarini o'qing!",
+];
+
 // Gesture context to share between components
 const GestureContext = {
   current: "idle" as GestureType,
@@ -73,7 +89,7 @@ const GestureContext = {
 };
 
 // Energy Sphere with plasma effect
-const EnergySphere = () => {
+const EnergySphere = ({ color = BLUE_ENERGY, coreColor = BLUE_CORE }: { color?: string; coreColor?: string }) => {
   const sphereRef = useRef<THREE.Group>(null);
   const coreRef = useRef<THREE.Mesh>(null);
   const ring1Ref = useRef<THREE.Mesh>(null);
@@ -98,9 +114,7 @@ const EnergySphere = () => {
   useFrame((state) => {
     const time = state.clock.getElapsedTime();
     const gesture = GestureContext.current;
-    
-    // Scale based on gesture
-    const baseScale = gesture === "celebrate" ? 1.5 : gesture === "thumbsUp" ? 1.2 : 1;
+    const baseScale = gesture === "celebrate" || gesture === "fight" ? 1.5 : gesture === "shoot" ? 2 : 1;
     
     if (sphereRef.current) {
       const pulse = baseScale + Math.sin(time * 8) * 0.15;
@@ -128,42 +142,49 @@ const EnergySphere = () => {
     <group ref={sphereRef} position={[0, 0.1, 0.35]}>
       <mesh ref={coreRef}>
         <icosahedronGeometry args={[0.08, 2]} />
-        <meshStandardMaterial color={BLUE_CORE} emissive={BLUE_CORE} emissiveIntensity={4} transparent opacity={0.9} />
+        <meshStandardMaterial color={coreColor} emissive={coreColor} emissiveIntensity={4} transparent opacity={0.9} />
       </mesh>
       <mesh>
         <sphereGeometry args={[0.12, 32, 32]} />
-        <meshStandardMaterial color={BLUE_ENERGY} emissive={BLUE_ENERGY} emissiveIntensity={2} transparent opacity={0.4} />
+        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={2} transparent opacity={0.4} />
       </mesh>
       <mesh ref={ring1Ref}>
         <torusGeometry args={[0.14, 0.008, 8, 32]} />
-        <meshStandardMaterial color={BLUE_ENERGY} emissive={BLUE_ENERGY} emissiveIntensity={3} />
+        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={3} />
       </mesh>
       <mesh ref={ring2Ref}>
         <torusGeometry args={[0.16, 0.006, 8, 32]} />
         <meshStandardMaterial color="#ffffff" emissive="#ffffff" emissiveIntensity={2} transparent opacity={0.6} />
       </mesh>
       <points ref={particlesRef} geometry={particleGeometry}>
-        <pointsMaterial color={BLUE_ENERGY} size={0.015} transparent opacity={0.8} sizeAttenuation />
+        <pointsMaterial color={color} size={0.015} transparent opacity={0.8} sizeAttenuation />
       </points>
-      <pointLight color={BLUE_ENERGY} intensity={2} distance={1} />
+      <pointLight color={color} intensity={2} distance={1} />
     </group>
   );
 };
 
 // Detailed Bumblebee Head with gestures
-const MovieBumblebeeHead = () => {
+const MovieBumblebeeHead = ({ gesture }: { gesture: GestureType }) => {
   const headRef = useRef<THREE.Group>(null);
 
   useFrame((state) => {
     const time = state.clock.getElapsedTime();
-    const gesture = GestureContext.current;
     
     if (headRef.current) {
-      // Different head movements based on gesture
       switch (gesture) {
         case "wave":
           headRef.current.rotation.y = Math.sin(time * 3) * 0.2;
           headRef.current.rotation.z = Math.sin(time * 2) * 0.1;
+          break;
+        case "fight":
+        case "shoot":
+          headRef.current.rotation.y = Math.sin(time * 5) * 0.3;
+          headRef.current.rotation.x = -0.2;
+          break;
+        case "dodge":
+          headRef.current.rotation.y = Math.sin(time * 8) * 0.4;
+          headRef.current.rotation.z = Math.cos(time * 6) * 0.2;
           break;
         case "think":
           headRef.current.rotation.y = 0.3;
@@ -172,14 +193,6 @@ const MovieBumblebeeHead = () => {
         case "celebrate":
           headRef.current.rotation.y = Math.sin(time * 4) * 0.25;
           headRef.current.rotation.z = Math.sin(time * 3) * 0.15;
-          break;
-        case "salute":
-          headRef.current.rotation.y = 0;
-          headRef.current.rotation.x = -0.15;
-          break;
-        case "point":
-          headRef.current.rotation.y = -0.25;
-          headRef.current.rotation.x = -0.1;
           break;
         default:
           headRef.current.rotation.y = Math.sin(time * 0.7) * 0.12;
@@ -217,29 +230,13 @@ const MovieBumblebeeHead = () => {
           <cylinderGeometry args={[0.015, 0.025, 0.12, 8]} />
           <meshStandardMaterial color={YELLOW_MAIN} metalness={0.9} roughness={0.15} />
         </mesh>
-        <mesh position={[0, 0.07, 0]}>
-          <sphereGeometry args={[0.018, 8, 8]} />
-          <meshStandardMaterial color={BLUE_ENERGY} emissive={BLUE_ENERGY} emissiveIntensity={2} />
-        </mesh>
       </group>
       <group position={[0.12, 0.22, 0]} rotation={[0.2, 0, -0.25]}>
         <mesh>
           <cylinderGeometry args={[0.015, 0.025, 0.12, 8]} />
           <meshStandardMaterial color={YELLOW_MAIN} metalness={0.9} roughness={0.15} />
         </mesh>
-        <mesh position={[0, 0.07, 0]}>
-          <sphereGeometry args={[0.018, 8, 8]} />
-          <meshStandardMaterial color={BLUE_ENERGY} emissive={BLUE_ENERGY} emissiveIntensity={2} />
-        </mesh>
       </group>
-      <mesh position={[-0.22, 0, 0]} rotation={[0, 0, 0.15]}>
-        <boxGeometry args={[0.04, 0.18, 0.15]} />
-        <meshStandardMaterial color={YELLOW_DARK} metalness={0.85} roughness={0.2} />
-      </mesh>
-      <mesh position={[0.22, 0, 0]} rotation={[0, 0, -0.15]}>
-        <boxGeometry args={[0.04, 0.18, 0.15]} />
-        <meshStandardMaterial color={YELLOW_DARK} metalness={0.85} roughness={0.2} />
-      </mesh>
       <mesh position={[0, -0.12, 0.12]}>
         <boxGeometry args={[0.18, 0.08, 0.08]} />
         <meshStandardMaterial color={CHROME} metalness={0.95} roughness={0.1} />
@@ -248,7 +245,7 @@ const MovieBumblebeeHead = () => {
   );
 };
 
-// Chest with Autobot emblem
+// Chest
 const MovieBumblebeeChest = () => {
   return (
     <group position={[0, 0.6, 0]}>
@@ -264,22 +261,6 @@ const MovieBumblebeeChest = () => {
         <circleGeometry args={[0.08, 32]} />
         <meshStandardMaterial color={BLUE_ENERGY} emissive={BLUE_ENERGY} emissiveIntensity={2} />
       </mesh>
-      <mesh position={[-0.3, 0.08, 0.05]}>
-        <boxGeometry args={[0.06, 0.3, 0.2]} />
-        <meshStandardMaterial color={YELLOW_DARK} metalness={0.85} roughness={0.18} />
-      </mesh>
-      <mesh position={[0.3, 0.08, 0.05]}>
-        <boxGeometry args={[0.06, 0.3, 0.2]} />
-        <meshStandardMaterial color={YELLOW_DARK} metalness={0.85} roughness={0.18} />
-      </mesh>
-      <mesh position={[-0.32, 0.2, 0]}>
-        <sphereGeometry args={[0.08, 16, 16]} />
-        <meshStandardMaterial color={CHROME} metalness={0.95} roughness={0.1} />
-      </mesh>
-      <mesh position={[0.32, 0.2, 0]}>
-        <sphereGeometry args={[0.08, 16, 16]} />
-        <meshStandardMaterial color={CHROME} metalness={0.95} roughness={0.1} />
-      </mesh>
       <mesh position={[0, -0.28, 0]}>
         <boxGeometry args={[0.4, 0.12, 0.22]} />
         <meshStandardMaterial color={BLACK_METAL} metalness={0.9} roughness={0.15} />
@@ -289,7 +270,7 @@ const MovieBumblebeeChest = () => {
 };
 
 // Animated Arms with gesture support
-const MovieBumblebeeArm = ({ side }: { side: "left" | "right" }) => {
+const MovieBumblebeeArm = ({ side, gesture }: { side: "left" | "right"; gesture: GestureType }) => {
   const armRef = useRef<THREE.Group>(null);
   const forearmRef = useRef<THREE.Group>(null);
   const handRef = useRef<THREE.Group>(null);
@@ -300,103 +281,57 @@ const MovieBumblebeeArm = ({ side }: { side: "left" | "right" }) => {
 
   useFrame((state) => {
     const time = state.clock.getElapsedTime();
-    const gesture = GestureContext.current;
     
     if (!armRef.current || !forearmRef.current || !handRef.current) return;
 
-    // Gesture-based arm animations
     switch (gesture) {
       case "wave":
         if (isLeft) {
-          // Waving arm
           armRef.current.rotation.z = -1.2 + Math.sin(time * 8) * 0.3;
           armRef.current.rotation.x = -0.5;
           forearmRef.current.rotation.x = 0.4 + Math.sin(time * 10) * 0.2;
           handRef.current.rotation.z = Math.sin(time * 12) * 0.5;
         } else {
-          // Relaxed arm
           armRef.current.rotation.z = -0.4;
-          armRef.current.rotation.x = -0.2;
           forearmRef.current.rotation.x = 0.5;
         }
         break;
         
-      case "point":
-        if (isLeft) {
-          // Pointing arm
-          armRef.current.rotation.z = -0.8;
-          armRef.current.rotation.x = -0.6;
-          armRef.current.rotation.y = -0.3;
-          forearmRef.current.rotation.x = 0.2;
-          handRef.current.rotation.x = 0;
-        } else {
-          armRef.current.rotation.z = -0.4;
-          armRef.current.rotation.x = -0.2;
-          forearmRef.current.rotation.x = 0.5;
-        }
+      case "fight":
+      case "shoot":
+        // Fighting stance - both arms up for attack
+        armRef.current.rotation.z = (isLeft ? 1 : -1) * (-0.8 + Math.sin(time * 6) * 0.3);
+        armRef.current.rotation.x = -0.9 + Math.sin(time * 8) * 0.2;
+        forearmRef.current.rotation.x = 1.5 + Math.sin(time * 10) * 0.3;
+        handRef.current.rotation.x = Math.sin(time * 12) * 0.4;
+        break;
+        
+      case "dodge":
+        armRef.current.rotation.z = (isLeft ? 1 : -1) * (0.8 + Math.sin(time * 10) * 0.4);
+        armRef.current.rotation.x = -0.3;
+        forearmRef.current.rotation.x = 0.5;
         break;
         
       case "thumbsUp":
         if (!isLeft) {
-          // Thumbs up arm
           armRef.current.rotation.z = -0.6;
           armRef.current.rotation.x = -0.8 + Math.sin(time * 2) * 0.1;
           forearmRef.current.rotation.x = 1.2;
           handRef.current.rotation.x = 0.5;
-          handRef.current.rotation.z = 0.3;
         } else {
           armRef.current.rotation.z = 0.4;
-          armRef.current.rotation.x = -0.2;
           forearmRef.current.rotation.x = 0.5;
         }
         break;
         
-      case "clap":
-        // Both arms come together for clapping
-        const clapPhase = Math.sin(time * 8);
-        armRef.current.rotation.z = (isLeft ? 1 : -1) * (0.5 + clapPhase * 0.3);
-        armRef.current.rotation.x = -0.7;
-        forearmRef.current.rotation.x = 1 + clapPhase * 0.2;
-        handRef.current.rotation.x = 0.3;
-        break;
-        
-      case "think":
-        if (!isLeft) {
-          // Hand on chin thinking
-          armRef.current.rotation.z = -0.3;
-          armRef.current.rotation.x = -0.4;
-          forearmRef.current.rotation.x = 1.8;
-          handRef.current.rotation.x = 0.2;
-        } else {
-          armRef.current.rotation.z = 0.6;
-          armRef.current.rotation.x = -0.4;
-          forearmRef.current.rotation.x = 0.8;
-        }
-        break;
-        
       case "celebrate":
-        // Both arms up celebrating
         armRef.current.rotation.z = (isLeft ? 1 : -1) * (-1.3 + Math.sin(time * 5 + (isLeft ? 0 : Math.PI)) * 0.2);
         armRef.current.rotation.x = -0.3 + Math.sin(time * 3) * 0.1;
         forearmRef.current.rotation.x = 0.3 + Math.sin(time * 6) * 0.2;
         handRef.current.rotation.z = Math.sin(time * 8 + (isLeft ? 0 : Math.PI)) * 0.3;
         break;
         
-      case "salute":
-        if (!isLeft) {
-          // Saluting
-          armRef.current.rotation.z = -0.7;
-          armRef.current.rotation.x = -0.5;
-          forearmRef.current.rotation.x = 2.2;
-          handRef.current.rotation.x = 0;
-        } else {
-          armRef.current.rotation.z = 0.6;
-          armRef.current.rotation.x = -0.4;
-          forearmRef.current.rotation.x = 0.8;
-        }
-        break;
-        
-      default: // idle
+      default:
         const armAngle = Math.sin(time * 2) * 0.08;
         armRef.current.rotation.z = (isLeft ? 0.6 : -0.6) + armAngle;
         armRef.current.rotation.x = -0.4 + Math.sin(time * 1.5) * 0.05;
@@ -449,53 +384,232 @@ const MovieBumblebeeArm = ({ side }: { side: "left" | "right" }) => {
   );
 };
 
-// Main Robot Assembly
+// Bumblebee Robot
 const MovieBumblebeeRobot = ({ gesture }: { gesture: GestureType }) => {
   const groupRef = useRef<THREE.Group>(null);
 
   useFrame((state) => {
     const time = state.clock.getElapsedTime();
     GestureContext.current = gesture;
-    GestureContext.time = time;
     
     if (groupRef.current) {
-      // Different body movements based on gesture
       switch (gesture) {
+        case "fight":
+        case "shoot":
+          groupRef.current.position.y = Math.sin(time * 6) * 0.05;
+          groupRef.current.rotation.y = Math.sin(time * 4) * 0.2;
+          break;
+        case "dodge":
+          groupRef.current.position.y = Math.sin(time * 8) * 0.08;
+          groupRef.current.position.x = Math.sin(time * 6) * 0.05;
+          break;
         case "celebrate":
           groupRef.current.position.y = Math.sin(time * 4) * 0.05;
           groupRef.current.rotation.y = Math.sin(time * 2) * 0.15;
           break;
-        case "wave":
-          groupRef.current.position.y = Math.sin(time * 2) * 0.02;
-          groupRef.current.rotation.y = 0.1;
-          break;
-        case "think":
-          groupRef.current.position.y = 0;
-          groupRef.current.rotation.y = 0.15;
-          break;
         default:
           groupRef.current.position.y = Math.sin(time * 1.5) * 0.025;
           groupRef.current.rotation.y = Math.sin(time * 0.5) * 0.06;
+          groupRef.current.position.x = 0;
       }
     }
   });
 
   return (
     <group ref={groupRef} scale={0.7} position={[0, -0.15, 0]}>
-      <MovieBumblebeeHead />
+      <MovieBumblebeeHead gesture={gesture} />
       <MovieBumblebeeChest />
-      <MovieBumblebeeArm side="left" />
-      <MovieBumblebeeArm side="right" />
-      <EnergySphere />
+      <MovieBumblebeeArm side="left" gesture={gesture} />
+      <MovieBumblebeeArm side="right" gesture={gesture} />
+      <EnergySphere color={BLUE_ENERGY} coreColor={BLUE_CORE} />
     </group>
+  );
+};
+
+// Aggressive Bird Robot Head
+const BirdRobotHead = ({ gesture }: { gesture: GestureType }) => {
+  const headRef = useRef<THREE.Group>(null);
+
+  useFrame((state) => {
+    const time = state.clock.getElapsedTime();
+    
+    if (headRef.current) {
+      switch (gesture) {
+        case "fight":
+        case "shoot":
+          headRef.current.rotation.y = Math.sin(time * 6) * 0.4;
+          headRef.current.rotation.x = -0.3 + Math.sin(time * 8) * 0.2;
+          break;
+        case "dodge":
+          headRef.current.rotation.y = Math.sin(time * 10) * 0.5;
+          headRef.current.rotation.z = Math.cos(time * 8) * 0.3;
+          break;
+        default:
+          headRef.current.rotation.y = Math.sin(time * 1.2) * 0.15;
+          headRef.current.rotation.x = Math.sin(time * 0.8) * 0.08;
+      }
+    }
+  });
+
+  return (
+    <group ref={headRef} position={[0, 0.8, 0]}>
+      {/* Bird-like head shape */}
+      <mesh>
+        <coneGeometry args={[0.18, 0.3, 6]} />
+        <meshStandardMaterial color={RED_MAIN} metalness={0.95} roughness={0.1} />
+      </mesh>
+      {/* Beak */}
+      <mesh position={[0, -0.05, 0.2]} rotation={[0.5, 0, 0]}>
+        <coneGeometry args={[0.06, 0.2, 4]} />
+        <meshStandardMaterial color={RED_DARK} metalness={0.9} roughness={0.15} />
+      </mesh>
+      {/* Angry eyes */}
+      <mesh position={[-0.08, 0.05, 0.12]}>
+        <sphereGeometry args={[0.035, 16, 16]} />
+        <meshStandardMaterial color={PURPLE_ENERGY} emissive={PURPLE_ENERGY} emissiveIntensity={6} />
+      </mesh>
+      <mesh position={[0.08, 0.05, 0.12]}>
+        <sphereGeometry args={[0.035, 16, 16]} />
+        <meshStandardMaterial color={PURPLE_ENERGY} emissive={PURPLE_ENERGY} emissiveIntensity={6} />
+      </mesh>
+      <pointLight position={[0, 0, 0.2]} color={PURPLE_ENERGY} intensity={1} distance={0.5} />
+      {/* Crest */}
+      <mesh position={[0, 0.2, -0.05]} rotation={[-0.3, 0, 0]}>
+        <boxGeometry args={[0.04, 0.15, 0.08]} />
+        <meshStandardMaterial color={PURPLE_CORE} metalness={0.9} roughness={0.1} />
+      </mesh>
+    </group>
+  );
+};
+
+// Bird Robot Body
+const BirdRobotBody = () => {
+  return (
+    <group position={[0, 0.35, 0]}>
+      <mesh>
+        <boxGeometry args={[0.4, 0.35, 0.25]} />
+        <meshStandardMaterial color={RED_MAIN} metalness={0.9} roughness={0.12} />
+      </mesh>
+      <mesh position={[0, 0, 0.13]}>
+        <boxGeometry args={[0.25, 0.28, 0.02]} />
+        <meshStandardMaterial color={BLACK_METAL} metalness={0.95} roughness={0.08} />
+      </mesh>
+      <mesh position={[0, 0.03, 0.15]}>
+        <circleGeometry args={[0.06, 32]} />
+        <meshStandardMaterial color={PURPLE_ENERGY} emissive={PURPLE_ENERGY} emissiveIntensity={3} />
+      </mesh>
+    </group>
+  );
+};
+
+// Bird Robot Wings
+const BirdRobotWing = ({ side, gesture }: { side: "left" | "right"; gesture: GestureType }) => {
+  const wingRef = useRef<THREE.Group>(null);
+  const isLeft = side === "left";
+  const xPos = isLeft ? -0.25 : 0.25;
+
+  useFrame((state) => {
+    const time = state.clock.getElapsedTime();
+    
+    if (wingRef.current) {
+      const baseFlap = Math.sin(time * 8) * 0.3;
+      switch (gesture) {
+        case "fight":
+        case "shoot":
+          wingRef.current.rotation.z = (isLeft ? 1 : -1) * (0.8 + Math.sin(time * 12) * 0.5);
+          wingRef.current.rotation.x = Math.sin(time * 10) * 0.3;
+          break;
+        case "dodge":
+          wingRef.current.rotation.z = (isLeft ? 1 : -1) * (1.2 + Math.sin(time * 15) * 0.4);
+          break;
+        default:
+          wingRef.current.rotation.z = (isLeft ? 1 : -1) * (0.5 + baseFlap);
+      }
+    }
+  });
+
+  return (
+    <group ref={wingRef} position={[xPos, 0.5, 0]}>
+      <mesh rotation={[0, 0, isLeft ? 0.5 : -0.5]}>
+        <boxGeometry args={[0.3, 0.08, 0.15]} />
+        <meshStandardMaterial color={RED_DARK} metalness={0.85} roughness={0.15} />
+      </mesh>
+      {/* Wing feathers */}
+      {[0, 1, 2].map((i) => (
+        <mesh key={i} position={[(isLeft ? -1 : 1) * (0.12 + i * 0.08), 0, 0]} rotation={[0, 0, (isLeft ? 1 : -1) * 0.3]}>
+          <boxGeometry args={[0.08, 0.04, 0.1]} />
+          <meshStandardMaterial color={PURPLE_CORE} metalness={0.9} roughness={0.1} />
+        </mesh>
+      ))}
+    </group>
+  );
+};
+
+// Aggressive Bird Robot
+const AggressiveBirdRobot = ({ gesture }: { gesture: GestureType }) => {
+  const groupRef = useRef<THREE.Group>(null);
+
+  useFrame((state) => {
+    const time = state.clock.getElapsedTime();
+    
+    if (groupRef.current) {
+      switch (gesture) {
+        case "fight":
+        case "shoot":
+          groupRef.current.position.y = Math.sin(time * 8) * 0.06;
+          groupRef.current.rotation.y = Math.sin(time * 5) * 0.25;
+          groupRef.current.rotation.z = Math.sin(time * 6) * 0.1;
+          break;
+        case "dodge":
+          groupRef.current.position.y = Math.sin(time * 10) * 0.08;
+          groupRef.current.position.x = Math.sin(time * 8) * 0.06;
+          break;
+        default:
+          groupRef.current.position.y = Math.sin(time * 2) * 0.03;
+          groupRef.current.rotation.y = Math.sin(time * 0.8) * 0.08;
+      }
+    }
+  });
+
+  return (
+    <group ref={groupRef} scale={0.6} position={[0, -0.1, 0]}>
+      <BirdRobotHead gesture={gesture} />
+      <BirdRobotBody />
+      <BirdRobotWing side="left" gesture={gesture} />
+      <BirdRobotWing side="right" gesture={gesture} />
+      <EnergySphere color={PURPLE_ENERGY} coreColor={PURPLE_CORE} />
+    </group>
+  );
+};
+
+// Projectile/Arrow component
+const Projectile = ({ from, to, color, onComplete }: { from: { x: number; y: number }; to: { x: number; y: number }; color: string; onComplete: () => void }) => {
+  useEffect(() => {
+    const timer = setTimeout(onComplete, 800);
+    return () => clearTimeout(timer);
+  }, [onComplete]);
+
+  return (
+    <motion.div
+      className="fixed z-40 pointer-events-none"
+      initial={{ left: `${from.x}%`, top: `${from.y}%`, opacity: 1, scale: 1 }}
+      animate={{ left: `${to.x}%`, top: `${to.y}%`, opacity: 0, scale: 0.5 }}
+      transition={{ duration: 0.8, ease: "easeOut" }}
+    >
+      <div 
+        className="w-4 h-4 rounded-full"
+        style={{ 
+          background: `radial-gradient(circle, ${color} 0%, transparent 70%)`,
+          boxShadow: `0 0 20px ${color}, 0 0 40px ${color}`
+        }} 
+      />
+    </motion.div>
   );
 };
 
 // Speech Bubble Component
 const SpeechBubble = ({ text, position }: { text: string; position: { x: number; y: number } }) => {
-  // Determine bubble direction based on position
   const isOnRight = position.x > 50;
-  const isOnBottom = position.y > 50;
   
   return (
     <motion.div
@@ -507,27 +621,21 @@ const SpeechBubble = ({ text, position }: { text: string; position: { x: number;
       style={{
         [isOnRight ? 'right' : 'left']: '100%',
         [isOnRight ? 'marginRight' : 'marginLeft']: '12px',
-        top: isOnBottom ? 'auto' : '50%',
-        bottom: isOnBottom ? '50%' : 'auto',
-        transform: `translateY(${isOnBottom ? '50%' : '-50%'})`,
+        top: '50%',
+        transform: 'translateY(-50%)',
       }}
     >
       <div className="relative bg-gradient-to-br from-primary/95 to-primary/80 backdrop-blur-md 
         text-primary-foreground text-xs md:text-sm px-3 py-2 rounded-xl shadow-elegant border border-primary/30
         max-w-[160px] md:max-w-[200px]">
         <p className="leading-relaxed">{text}</p>
-        
-        {/* Speech bubble arrow */}
         <div 
           className={`absolute top-1/2 -translate-y-1/2 w-0 h-0 
             ${isOnRight 
               ? "right-0 translate-x-full border-l-8 border-l-primary/90 border-t-6 border-t-transparent border-b-6 border-b-transparent" 
               : "left-0 -translate-x-full border-r-8 border-r-primary/90 border-t-6 border-t-transparent border-b-6 border-b-transparent"
             }`}
-          style={{
-            borderTopWidth: "6px",
-            borderBottomWidth: "6px",
-          }}
+          style={{ borderTopWidth: "6px", borderBottomWidth: "6px" }}
         />
       </div>
     </motion.div>
@@ -536,179 +644,323 @@ const SpeechBubble = ({ text, position }: { text: string; position: { x: number;
 
 // Random position generator
 const generateRandomPosition = () => {
-  // Keep robot within visible area with padding
   const padding = 15;
   const x = padding + Math.random() * (100 - 2 * padding);
   const y = padding + Math.random() * (100 - 2 * padding);
   return { x, y };
 };
 
-// List of gestures
 const gestures: GestureType[] = ["idle", "wave", "point", "thumbsUp", "clap", "think", "celebrate", "salute"];
+const fightGestures: GestureType[] = ["fight", "shoot", "dodge"];
 
 const BumblebeeMascot = () => {
   const location = useLocation();
   const [currentTipIndex, setCurrentTipIndex] = useState(0);
   const [showTip, setShowTip] = useState(true);
-  const [position, setPosition] = useState({ x: 85, y: 15 });
-  const [targetPosition, setTargetPosition] = useState({ x: 85, y: 15 });
-  const [isFlying, setIsFlying] = useState(false);
-  const [currentGesture, setCurrentGesture] = useState<GestureType>("idle");
-  const [rotation, setRotation] = useState(0);
+  const [bumblebeePos, setBumblebeePos] = useState({ x: 85, y: 15 });
+  const [birdPos, setBirdPos] = useState({ x: 15, y: 25 });
+  const [bumblebeeGesture, setBumblebeeGesture] = useState<GestureType>("idle");
+  const [birdGesture, setBirdGesture] = useState<GestureType>("idle");
+  const [showBird, setShowBird] = useState(false);
+  const [isFighting, setIsFighting] = useState(false);
+  const [projectiles, setProjectiles] = useState<Array<{ id: number; from: { x: number; y: number }; to: { x: number; y: number }; color: string }>>([]);
+  const [isHidden, setIsHidden] = useState(false);
+  const [clickCount, setClickCount] = useState(0);
+  const [isUserActive, setIsUserActive] = useState(true);
+  const [isIntroMode, setIsIntroMode] = useState(false);
+  
+  const clickTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const projectileIdRef = useRef(0);
 
   // Get current page tips
-  const tips = pageTips[location.pathname] || pageTips["/"];
+  const tips = isIntroMode ? appIntroTips : (pageTips[location.pathname] || pageTips["/"]);
 
-  // Random gesture selector
-  const selectRandomGesture = useCallback(() => {
-    const randomGesture = gestures[Math.floor(Math.random() * gestures.length)];
-    setCurrentGesture(randomGesture);
-    
-    // Reset to idle after gesture duration
-    setTimeout(() => {
-      setCurrentGesture("idle");
-    }, 3000);
-  }, []);
-
-  // Fly to random position
-  const flyToRandomPosition = useCallback(() => {
-    const newPos = generateRandomPosition();
-    setTargetPosition(newPos);
-    setIsFlying(true);
-    
-    // Calculate rotation based on direction
-    const dx = newPos.x - position.x;
-    const angle = dx > 0 ? 10 : -10;
-    setRotation(angle);
-    
-    // Smooth transition
-    setTimeout(() => {
-      setPosition(newPos);
-      setIsFlying(false);
-      setRotation(0);
-      selectRandomGesture();
-    }, 1500);
-  }, [position, selectRandomGesture]);
-
-  // Main animation loop - fly around and change gestures
+  // Track user activity
   useEffect(() => {
-    // Initial delay
-    const initialDelay = setTimeout(() => {
-      flyToRandomPosition();
-    }, 2000);
+    let timeout: NodeJS.Timeout;
+    
+    const resetActivity = () => {
+      setIsUserActive(true);
+      setIsIntroMode(false);
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        setIsUserActive(false);
+        setIsIntroMode(true);
+      }, 10000); // 10 seconds of inactivity
+    };
 
-    // Regular flying interval
-    const flyInterval = setInterval(() => {
-      flyToRandomPosition();
-    }, 8000);
+    const events = ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart'];
+    events.forEach(event => window.addEventListener(event, resetActivity));
+    
+    resetActivity();
 
     return () => {
-      clearTimeout(initialDelay);
-      clearInterval(flyInterval);
+      events.forEach(event => window.removeEventListener(event, resetActivity));
+      clearTimeout(timeout);
     };
-  }, [flyToRandomPosition]);
+  }, []);
+
+  // Show bird after 4-5 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!isHidden) {
+        setShowBird(true);
+      }
+    }, 4500);
+    return () => clearTimeout(timer);
+  }, [isHidden]);
+
+  // Random fighting
+  useEffect(() => {
+    if (!showBird || isHidden) return;
+
+    const fightInterval = setInterval(() => {
+      if (Math.random() > 0.6) {
+        startFight();
+      }
+    }, 12000);
+
+    return () => clearInterval(fightInterval);
+  }, [showBird, isHidden]);
+
+  const startFight = useCallback(() => {
+    setIsFighting(true);
+    
+    // Random fight gestures
+    const randomFightGesture = fightGestures[Math.floor(Math.random() * fightGestures.length)];
+    setBumblebeeGesture(randomFightGesture);
+    setBirdGesture(fightGestures[Math.floor(Math.random() * fightGestures.length)]);
+    
+    // Shoot projectiles
+    const shootProjectiles = () => {
+      // Bumblebee shoots
+      setProjectiles(prev => [...prev, {
+        id: projectileIdRef.current++,
+        from: bumblebeePos,
+        to: birdPos,
+        color: BLUE_ENERGY
+      }]);
+      
+      // Bird shoots back after delay
+      setTimeout(() => {
+        setProjectiles(prev => [...prev, {
+          id: projectileIdRef.current++,
+          from: birdPos,
+          to: bumblebeePos,
+          color: PURPLE_ENERGY
+        }]);
+      }, 400);
+    };
+
+    shootProjectiles();
+    setTimeout(shootProjectiles, 1000);
+    setTimeout(shootProjectiles, 2000);
+
+    // End fight
+    setTimeout(() => {
+      setIsFighting(false);
+      setBumblebeeGesture("idle");
+      setBirdGesture("idle");
+    }, 3500);
+  }, [bumblebeePos, birdPos]);
+
+  const removeProjectile = useCallback((id: number) => {
+    setProjectiles(prev => prev.filter(p => p.id !== id));
+  }, []);
+
+  // Handle click - single click = fly away, double click = hide permanently
+  const handleClick = useCallback(() => {
+    setClickCount(prev => prev + 1);
+    
+    if (clickTimerRef.current) {
+      clearTimeout(clickTimerRef.current);
+    }
+
+    clickTimerRef.current = setTimeout(() => {
+      if (clickCount === 0) {
+        // Single click - fly to new position
+        setBumblebeePos(generateRandomPosition());
+        if (showBird) {
+          setBirdPos(generateRandomPosition());
+        }
+      }
+      setClickCount(0);
+    }, 300);
+
+    if (clickCount === 1) {
+      // Double click - hide permanently
+      clearTimeout(clickTimerRef.current!);
+      setIsHidden(true);
+      setClickCount(0);
+    }
+  }, [clickCount, showBird]);
+
+  // Flying animation
+  useEffect(() => {
+    if (isHidden) return;
+
+    const flyInterval = setInterval(() => {
+      if (!isFighting) {
+        setBumblebeePos(generateRandomPosition());
+        if (showBird) {
+          setBirdPos(generateRandomPosition());
+        }
+        
+        // Random gesture for Bumblebee
+        const randomGesture = gestures[Math.floor(Math.random() * gestures.length)];
+        setBumblebeeGesture(randomGesture);
+        setTimeout(() => setBumblebeeGesture("idle"), 3000);
+      }
+    }, 8000);
+
+    return () => clearInterval(flyInterval);
+  }, [showBird, isFighting, isHidden]);
 
   // Change tip periodically
   useEffect(() => {
     const interval = setInterval(() => {
       setShowTip(false);
-      
       setTimeout(() => {
         setCurrentTipIndex((prev) => (prev + 1) % tips.length);
         setShowTip(true);
       }, 500);
     }, 6000);
-
     return () => clearInterval(interval);
   }, [tips.length]);
 
-  // Reset tip index and fly when page changes
+  // Reset on page change
   useEffect(() => {
     setCurrentTipIndex(0);
-    setShowTip(false);
-    flyToRandomPosition();
-    
-    setTimeout(() => {
-      setShowTip(true);
-    }, 1500);
+    setShowTip(true);
   }, [location.pathname]);
 
+  if (isHidden) return null;
+
   return (
-    <motion.div
-      className="fixed z-30 select-none w-[100px] h-[130px] md:w-[110px] md:h-[140px]"
-      animate={{ 
-        left: `${position.x}%`,
-        top: `${position.y}%`,
-        x: "-50%",
-        y: "-50%",
-        rotate: rotation,
-        scale: isFlying ? 1.1 : 1,
-      }}
-      transition={{ 
-        duration: 1.5,
-        ease: [0.25, 0.1, 0.25, 1],
-        scale: { duration: 0.3 }
-      }}
-    >
-      {/* Speech Bubble */}
-      <AnimatePresence mode="wait">
-        {showTip && !isFlying && (
-          <SpeechBubble 
-            text={tips[currentTipIndex]} 
-            position={position}
-          />
+    <>
+      {/* Projectiles */}
+      {projectiles.map(p => (
+        <Projectile 
+          key={p.id} 
+          from={p.from} 
+          to={p.to} 
+          color={p.color} 
+          onComplete={() => removeProjectile(p.id)} 
+        />
+      ))}
+
+      {/* Bumblebee */}
+      <motion.div
+        className="fixed z-30 select-none w-[90px] h-[120px] md:w-[100px] md:h-[130px] cursor-pointer"
+        onClick={handleClick}
+        animate={{ 
+          left: `${bumblebeePos.x}%`,
+          top: `${bumblebeePos.y}%`,
+          x: "-50%",
+          y: "-50%",
+          rotate: isFighting ? [0, 5, -5, 0] : 0,
+          scale: isFighting ? 1.1 : 1,
+        }}
+        transition={{ 
+          duration: 1.5,
+          ease: [0.25, 0.1, 0.25, 1],
+        }}
+      >
+        <AnimatePresence mode="wait">
+          {showTip && !isFighting && (
+            <SpeechBubble text={tips[currentTipIndex]} position={bumblebeePos} />
+          )}
+        </AnimatePresence>
+
+        <div className="w-full h-full pointer-events-none">
+          <Canvas
+            camera={{ position: [0, 0.2, 2.2], fov: 50 }}
+            style={{ background: "transparent" }}
+            gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}
+          >
+            <ambientLight intensity={0.3} />
+            <directionalLight position={[3, 5, 2]} intensity={1.2} color="#ffffff" />
+            <directionalLight position={[-3, 2, 4]} intensity={0.6} color={BLUE_ENERGY} />
+            <pointLight position={[0, 0, 2]} intensity={0.8} color="#FFE4B5" />
+            <spotLight position={[0, 3, 3]} angle={0.5} penumbra={0.8} intensity={1} />
+            <MovieBumblebeeRobot gesture={bumblebeeGesture} />
+          </Canvas>
+        </div>
+        
+        <div 
+          className="absolute inset-0 -z-10 rounded-full blur-3xl opacity-20"
+          style={{ background: `radial-gradient(circle, ${BLUE_ENERGY} 0%, transparent 70%)` }}
+        />
+      </motion.div>
+
+      {/* Aggressive Bird Robot */}
+      <AnimatePresence>
+        {showBird && (
+          <motion.div
+            className="fixed z-30 select-none w-[80px] h-[100px] md:w-[90px] md:h-[110px] cursor-pointer"
+            onClick={handleClick}
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ 
+              opacity: 1,
+              scale: 1,
+              left: `${birdPos.x}%`,
+              top: `${birdPos.y}%`,
+              x: "-50%",
+              y: "-50%",
+              rotate: isFighting ? [0, -8, 8, 0] : 0,
+            }}
+            exit={{ opacity: 0, scale: 0 }}
+            transition={{ 
+              duration: 1.5,
+              ease: [0.25, 0.1, 0.25, 1],
+            }}
+          >
+            <div className="w-full h-full pointer-events-none">
+              <Canvas
+                camera={{ position: [0, 0.2, 2.2], fov: 50 }}
+                style={{ background: "transparent" }}
+                gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}
+              >
+                <ambientLight intensity={0.3} />
+                <directionalLight position={[3, 5, 2]} intensity={1.2} color="#ffffff" />
+                <directionalLight position={[-3, 2, 4]} intensity={0.6} color={PURPLE_ENERGY} />
+                <pointLight position={[0, 0, 2]} intensity={0.8} color="#FFB6C1" />
+                <spotLight position={[0, 3, 3]} angle={0.5} penumbra={0.8} intensity={1} />
+                <AggressiveBirdRobot gesture={birdGesture} />
+              </Canvas>
+            </div>
+            
+            <div 
+              className="absolute inset-0 -z-10 rounded-full blur-3xl opacity-25"
+              style={{ background: `radial-gradient(circle, ${PURPLE_ENERGY} 0%, transparent 70%)` }}
+            />
+          </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Flying trail effect */}
-      {isFlying && (
-        <motion.div
-          className="absolute inset-0 -z-10"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: [0, 0.5, 0] }}
-          transition={{ duration: 1 }}
-        >
-          {[...Array(5)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute rounded-full bg-primary/30"
+      {/* Fight explosion effect */}
+      <AnimatePresence>
+        {isFighting && (
+          <motion.div
+            className="fixed inset-0 pointer-events-none z-20"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <div 
+              className="absolute w-20 h-20 rounded-full blur-2xl"
               style={{
-                width: `${20 - i * 3}px`,
-                height: `${20 - i * 3}px`,
-                left: `${50 - i * 10}%`,
-                top: "50%",
-                transform: "translate(-50%, -50%)",
-                opacity: 1 - i * 0.2,
+                left: `${(bumblebeePos.x + birdPos.x) / 2}%`,
+                top: `${(bumblebeePos.y + birdPos.y) / 2}%`,
+                transform: 'translate(-50%, -50%)',
+                background: `radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%)`,
+                animation: 'pulse 0.5s ease-in-out infinite'
               }}
             />
-          ))}
-        </motion.div>
-      )}
-
-      {/* 3D Robot Canvas */}
-      <div className="w-full h-full pointer-events-none">
-        <Canvas
-          camera={{ position: [0, 0.2, 2.2], fov: 50 }}
-          style={{ background: "transparent" }}
-          gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}
-        >
-          <ambientLight intensity={0.3} />
-          <directionalLight position={[3, 5, 2]} intensity={1.2} color="#ffffff" />
-          <directionalLight position={[-3, 2, 4]} intensity={0.6} color={BLUE_ENERGY} />
-          <pointLight position={[0, 0, 2]} intensity={0.8} color="#FFE4B5" />
-          <spotLight position={[0, 3, 3]} angle={0.5} penumbra={0.8} intensity={1} castShadow />
-          <MovieBumblebeeRobot gesture={currentGesture} />
-        </Canvas>
-      </div>
-      
-      {/* Glow effect */}
-      <div 
-        className="absolute inset-0 -z-10 rounded-full blur-3xl opacity-20"
-        style={{
-          background: `radial-gradient(circle, ${BLUE_ENERGY} 0%, transparent 70%)`
-        }}
-      />
-    </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 };
 
