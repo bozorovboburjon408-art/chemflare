@@ -1457,6 +1457,384 @@ const SpeechBubble = ({ text, isRight }: { text: string; isRight: boolean }) => 
   </motion.div>
 );
 
+// Bumblebee as Camaro Car (Yellow sports car)
+const BumblebeeCar = ({ transformProgress }: { transformProgress: number }) => {
+  const carRef = useRef<THREE.Group>(null);
+  const wheelFL = useRef<THREE.Mesh>(null);
+  const wheelFR = useRef<THREE.Mesh>(null);
+  const wheelBL = useRef<THREE.Mesh>(null);
+  const wheelBR = useRef<THREE.Mesh>(null);
+
+  useFrame((state) => {
+    const time = state.clock.getElapsedTime();
+    // Wheels rotation
+    if (wheelFL.current) wheelFL.current.rotation.x = time * 8;
+    if (wheelFR.current) wheelFR.current.rotation.x = time * 8;
+    if (wheelBL.current) wheelBL.current.rotation.x = time * 8;
+    if (wheelBR.current) wheelBR.current.rotation.x = time * 8;
+    
+    // Car hover
+    if (carRef.current) {
+      carRef.current.position.y = Math.sin(time * 2) * 0.02;
+      carRef.current.rotation.y = Math.sin(time * 0.5) * 0.05;
+    }
+  });
+
+  return (
+    <group ref={carRef} scale={0.4}>
+      {/* Car body - main */}
+      <mesh position={[0, 0.15, 0]}>
+        <boxGeometry args={[1.6, 0.35, 0.7]} />
+        <meshStandardMaterial color={YELLOW_MAIN} metalness={0.9} roughness={0.1} />
+      </mesh>
+      
+      {/* Car hood - front slope */}
+      <mesh position={[0.55, 0.18, 0]} rotation={[0, 0, -0.2]}>
+        <boxGeometry args={[0.5, 0.12, 0.68]} />
+        <meshStandardMaterial color={YELLOW_MAIN} metalness={0.9} roughness={0.1} />
+      </mesh>
+      
+      {/* Car roof cabin */}
+      <mesh position={[-0.15, 0.45, 0]}>
+        <boxGeometry args={[0.7, 0.25, 0.6]} />
+        <meshStandardMaterial color={YELLOW_MAIN} metalness={0.9} roughness={0.1} />
+      </mesh>
+      
+      {/* Windshield */}
+      <mesh position={[0.22, 0.4, 0]} rotation={[0, 0, -0.5]}>
+        <boxGeometry args={[0.35, 0.02, 0.55]} />
+        <meshStandardMaterial color={BLUE_ENERGY} metalness={0.3} roughness={0.1} transparent opacity={0.7} />
+      </mesh>
+      
+      {/* Rear window */}
+      <mesh position={[-0.5, 0.4, 0]} rotation={[0, 0, 0.4]}>
+        <boxGeometry args={[0.25, 0.02, 0.55]} />
+        <meshStandardMaterial color={BLUE_ENERGY} metalness={0.3} roughness={0.1} transparent opacity={0.7} />
+      </mesh>
+      
+      {/* Racing stripes */}
+      <mesh position={[0, 0.34, 0]}>
+        <boxGeometry args={[1.55, 0.02, 0.15]} />
+        <meshStandardMaterial color={BLACK_METAL} metalness={0.95} roughness={0.1} />
+      </mesh>
+      <mesh position={[0, 0.34, 0.18]}>
+        <boxGeometry args={[1.55, 0.02, 0.05]} />
+        <meshStandardMaterial color={BLACK_METAL} metalness={0.95} roughness={0.1} />
+      </mesh>
+      <mesh position={[0, 0.34, -0.18]}>
+        <boxGeometry args={[1.55, 0.02, 0.05]} />
+        <meshStandardMaterial color={BLACK_METAL} metalness={0.95} roughness={0.1} />
+      </mesh>
+      
+      {/* Headlights */}
+      <mesh position={[0.8, 0.15, 0.25]}>
+        <sphereGeometry args={[0.06, 12, 12]} />
+        <meshStandardMaterial color="#FFFFFF" emissive="#FFFFFF" emissiveIntensity={2} />
+      </mesh>
+      <mesh position={[0.8, 0.15, -0.25]}>
+        <sphereGeometry args={[0.06, 12, 12]} />
+        <meshStandardMaterial color="#FFFFFF" emissive="#FFFFFF" emissiveIntensity={2} />
+      </mesh>
+      
+      {/* Taillights */}
+      <mesh position={[-0.8, 0.15, 0.25]}>
+        <boxGeometry args={[0.03, 0.08, 0.12]} />
+        <meshStandardMaterial color={AUTOBOT_RED} emissive={AUTOBOT_RED} emissiveIntensity={1} />
+      </mesh>
+      <mesh position={[-0.8, 0.15, -0.25]}>
+        <boxGeometry args={[0.03, 0.08, 0.12]} />
+        <meshStandardMaterial color={AUTOBOT_RED} emissive={AUTOBOT_RED} emissiveIntensity={1} />
+      </mesh>
+      
+      {/* Grille */}
+      <mesh position={[0.81, 0.08, 0]}>
+        <boxGeometry args={[0.02, 0.12, 0.4]} />
+        <meshStandardMaterial color={BLACK_METAL} metalness={0.98} roughness={0.05} />
+      </mesh>
+      
+      {/* Wheels */}
+      <mesh ref={wheelFL} position={[0.5, -0.05, 0.38]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.12, 0.12, 0.08, 16]} />
+        <meshStandardMaterial color={BLACK_METAL} metalness={0.8} roughness={0.3} />
+      </mesh>
+      <mesh position={[0.5, -0.05, 0.38]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.08, 0.08, 0.09, 8]} />
+        <meshStandardMaterial color={CHROME} metalness={0.99} roughness={0.02} />
+      </mesh>
+      
+      <mesh ref={wheelFR} position={[0.5, -0.05, -0.38]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.12, 0.12, 0.08, 16]} />
+        <meshStandardMaterial color={BLACK_METAL} metalness={0.8} roughness={0.3} />
+      </mesh>
+      <mesh position={[0.5, -0.05, -0.38]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.08, 0.08, 0.09, 8]} />
+        <meshStandardMaterial color={CHROME} metalness={0.99} roughness={0.02} />
+      </mesh>
+      
+      <mesh ref={wheelBL} position={[-0.5, -0.05, 0.38]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.12, 0.12, 0.08, 16]} />
+        <meshStandardMaterial color={BLACK_METAL} metalness={0.8} roughness={0.3} />
+      </mesh>
+      <mesh position={[-0.5, -0.05, 0.38]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.08, 0.08, 0.09, 8]} />
+        <meshStandardMaterial color={CHROME} metalness={0.99} roughness={0.02} />
+      </mesh>
+      
+      <mesh ref={wheelBR} position={[-0.5, -0.05, -0.38]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.12, 0.12, 0.08, 16]} />
+        <meshStandardMaterial color={BLACK_METAL} metalness={0.8} roughness={0.3} />
+      </mesh>
+      <mesh position={[-0.5, -0.05, -0.38]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.08, 0.08, 0.09, 8]} />
+        <meshStandardMaterial color={CHROME} metalness={0.99} roughness={0.02} />
+      </mesh>
+      
+      {/* Autobot emblem on hood */}
+      <mesh position={[0.3, 0.35, 0]}>
+        <circleGeometry args={[0.06, 6]} />
+        <meshStandardMaterial color={AUTOBOT_RED} emissive={AUTOBOT_RED} emissiveIntensity={0.5} />
+      </mesh>
+    </group>
+  );
+};
+
+// Optimus Prime as Semi Truck (Red/Blue truck)
+const OptimusTruck = ({ transformProgress }: { transformProgress: number }) => {
+  const truckRef = useRef<THREE.Group>(null);
+  const wheelFL = useRef<THREE.Mesh>(null);
+  const wheelFR = useRef<THREE.Mesh>(null);
+  const wheelBL = useRef<THREE.Mesh>(null);
+  const wheelBR = useRef<THREE.Mesh>(null);
+
+  useFrame((state) => {
+    const time = state.clock.getElapsedTime();
+    if (wheelFL.current) wheelFL.current.rotation.x = time * 6;
+    if (wheelFR.current) wheelFR.current.rotation.x = time * 6;
+    if (wheelBL.current) wheelBL.current.rotation.x = time * 6;
+    if (wheelBR.current) wheelBR.current.rotation.x = time * 6;
+    
+    if (truckRef.current) {
+      truckRef.current.position.y = Math.sin(time * 1.5) * 0.015;
+      truckRef.current.rotation.y = Math.sin(time * 0.4) * 0.04;
+    }
+  });
+
+  return (
+    <group ref={truckRef} scale={0.35}>
+      {/* Truck cab - main body red */}
+      <mesh position={[0.3, 0.35, 0]}>
+        <boxGeometry args={[0.9, 0.6, 0.75]} />
+        <meshStandardMaterial color={OPTIMUS_RED} metalness={0.9} roughness={0.1} />
+      </mesh>
+      
+      {/* Truck cab roof */}
+      <mesh position={[0.1, 0.72, 0]}>
+        <boxGeometry args={[0.6, 0.15, 0.7]} />
+        <meshStandardMaterial color={OPTIMUS_RED} metalness={0.9} roughness={0.1} />
+      </mesh>
+      
+      {/* Windshield */}
+      <mesh position={[0.58, 0.5, 0]} rotation={[0, 0, -0.3]}>
+        <boxGeometry args={[0.35, 0.02, 0.6]} />
+        <meshStandardMaterial color={OPTIMUS_ENERGY} metalness={0.3} roughness={0.1} transparent opacity={0.7} />
+      </mesh>
+      
+      {/* Blue flame stripes on sides */}
+      <mesh position={[0.3, 0.25, 0.38]}>
+        <boxGeometry args={[0.85, 0.2, 0.02]} />
+        <meshStandardMaterial color={OPTIMUS_BLUE} metalness={0.9} roughness={0.1} />
+      </mesh>
+      <mesh position={[0.3, 0.25, -0.38]}>
+        <boxGeometry args={[0.85, 0.2, 0.02]} />
+        <meshStandardMaterial color={OPTIMUS_BLUE} metalness={0.9} roughness={0.1} />
+      </mesh>
+      
+      {/* Truck hood/engine - blue */}
+      <mesh position={[0.7, 0.15, 0]}>
+        <boxGeometry args={[0.35, 0.25, 0.7]} />
+        <meshStandardMaterial color={OPTIMUS_BLUE} metalness={0.9} roughness={0.1} />
+      </mesh>
+      
+      {/* Truck bed/chassis */}
+      <mesh position={[-0.5, 0.12, 0]}>
+        <boxGeometry args={[1.0, 0.18, 0.65]} />
+        <meshStandardMaterial color={OPTIMUS_BLUE} metalness={0.9} roughness={0.1} />
+      </mesh>
+      
+      {/* Chrome exhaust stacks */}
+      <mesh position={[-0.15, 0.6, 0.4]}>
+        <cylinderGeometry args={[0.04, 0.04, 0.45, 12]} />
+        <meshStandardMaterial color={OPTIMUS_CHROME} metalness={0.99} roughness={0.02} />
+      </mesh>
+      <mesh position={[-0.15, 0.6, -0.4]}>
+        <cylinderGeometry args={[0.04, 0.04, 0.45, 12]} />
+        <meshStandardMaterial color={OPTIMUS_CHROME} metalness={0.99} roughness={0.02} />
+      </mesh>
+      
+      {/* Chrome grille */}
+      <mesh position={[0.88, 0.2, 0]}>
+        <boxGeometry args={[0.02, 0.3, 0.5]} />
+        <meshStandardMaterial color={OPTIMUS_CHROME} metalness={0.99} roughness={0.02} />
+      </mesh>
+      
+      {/* Headlights */}
+      <mesh position={[0.88, 0.25, 0.25]}>
+        <sphereGeometry args={[0.06, 12, 12]} />
+        <meshStandardMaterial color="#FFFFFF" emissive="#FFFFFF" emissiveIntensity={2} />
+      </mesh>
+      <mesh position={[0.88, 0.25, -0.25]}>
+        <sphereGeometry args={[0.06, 12, 12]} />
+        <meshStandardMaterial color="#FFFFFF" emissive="#FFFFFF" emissiveIntensity={2} />
+      </mesh>
+      
+      {/* Wheels */}
+      <mesh ref={wheelFL} position={[0.55, -0.02, 0.42]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.14, 0.14, 0.1, 16]} />
+        <meshStandardMaterial color={BLACK_METAL} metalness={0.8} roughness={0.3} />
+      </mesh>
+      <mesh position={[0.55, -0.02, 0.42]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.09, 0.09, 0.11, 8]} />
+        <meshStandardMaterial color={OPTIMUS_CHROME} metalness={0.99} roughness={0.02} />
+      </mesh>
+      
+      <mesh ref={wheelFR} position={[0.55, -0.02, -0.42]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.14, 0.14, 0.1, 16]} />
+        <meshStandardMaterial color={BLACK_METAL} metalness={0.8} roughness={0.3} />
+      </mesh>
+      <mesh position={[0.55, -0.02, -0.42]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.09, 0.09, 0.11, 8]} />
+        <meshStandardMaterial color={OPTIMUS_CHROME} metalness={0.99} roughness={0.02} />
+      </mesh>
+      
+      <mesh ref={wheelBL} position={[-0.6, -0.02, 0.38]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.14, 0.14, 0.1, 16]} />
+        <meshStandardMaterial color={BLACK_METAL} metalness={0.8} roughness={0.3} />
+      </mesh>
+      <mesh position={[-0.6, -0.02, 0.38]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.09, 0.09, 0.11, 8]} />
+        <meshStandardMaterial color={OPTIMUS_CHROME} metalness={0.99} roughness={0.02} />
+      </mesh>
+      
+      <mesh ref={wheelBR} position={[-0.6, -0.02, -0.38]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.14, 0.14, 0.1, 16]} />
+        <meshStandardMaterial color={BLACK_METAL} metalness={0.8} roughness={0.3} />
+      </mesh>
+      <mesh position={[-0.6, -0.02, -0.38]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.09, 0.09, 0.11, 8]} />
+        <meshStandardMaterial color={OPTIMUS_CHROME} metalness={0.99} roughness={0.02} />
+      </mesh>
+      
+      {/* Autobot emblem */}
+      <mesh position={[0.4, 0.66, 0.36]}>
+        <circleGeometry args={[0.06, 6]} />
+        <meshStandardMaterial color={AUTOBOT_RED} emissive={AUTOBOT_RED} emissiveIntensity={0.5} />
+      </mesh>
+    </group>
+  );
+};
+
+// Transformation effect particles
+const TransformParticles = ({ isTransforming }: { isTransforming: boolean }) => {
+  const particlesRef = useRef<THREE.Points>(null);
+
+  const particleGeometry = useMemo(() => {
+    const positions = new Float32Array(100 * 3);
+    for (let i = 0; i < 100; i++) {
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.random() * Math.PI;
+      const r = 0.3 + Math.random() * 0.5;
+      positions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+      positions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+      positions[i * 3 + 2] = r * Math.cos(phi);
+    }
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    return geometry;
+  }, []);
+
+  useFrame((state) => {
+    if (particlesRef.current && isTransforming) {
+      particlesRef.current.rotation.y = state.clock.getElapsedTime() * 3;
+      particlesRef.current.rotation.x = state.clock.getElapsedTime() * 2;
+    }
+  });
+
+  if (!isTransforming) return null;
+
+  return (
+    <points ref={particlesRef} geometry={particleGeometry}>
+      <pointsMaterial color={BLUE_ENERGY} size={0.03} transparent opacity={0.8} sizeAttenuation />
+    </points>
+  );
+};
+
+// Transforming Bumblebee (car to robot)
+const TransformingBumblebee = ({ gesture, isTalking, isTransformed, transformProgress }: { 
+  gesture: GestureType; 
+  isTalking?: boolean;
+  isTransformed: boolean;
+  transformProgress: number;
+}) => {
+  const groupRef = useRef<THREE.Group>(null);
+
+  useFrame((state) => {
+    if (groupRef.current) {
+      // Rotation during transformation
+      if (transformProgress > 0 && transformProgress < 1) {
+        groupRef.current.rotation.y = transformProgress * Math.PI * 2;
+        groupRef.current.position.y = Math.sin(transformProgress * Math.PI) * 0.3;
+      } else {
+        groupRef.current.rotation.y = 0;
+        groupRef.current.position.y = 0;
+      }
+    }
+  });
+
+  return (
+    <group ref={groupRef}>
+      <TransformParticles isTransforming={transformProgress > 0 && transformProgress < 1} />
+      {isTransformed ? (
+        <BumblebeeRobot gesture={gesture} isTalking={isTalking} />
+      ) : (
+        <BumblebeeCar transformProgress={transformProgress} />
+      )}
+    </group>
+  );
+};
+
+// Transforming Optimus Prime (truck to robot)
+const TransformingOptimus = ({ gesture, isTalking, isTransformed, transformProgress }: { 
+  gesture: GestureType; 
+  isTalking?: boolean;
+  isTransformed: boolean;
+  transformProgress: number;
+}) => {
+  const groupRef = useRef<THREE.Group>(null);
+
+  useFrame((state) => {
+    if (groupRef.current) {
+      if (transformProgress > 0 && transformProgress < 1) {
+        groupRef.current.rotation.y = transformProgress * Math.PI * 2;
+        groupRef.current.position.y = Math.sin(transformProgress * Math.PI) * 0.3;
+      } else {
+        groupRef.current.rotation.y = 0;
+        groupRef.current.position.y = 0;
+      }
+    }
+  });
+
+  return (
+    <group ref={groupRef}>
+      <TransformParticles isTransforming={transformProgress > 0 && transformProgress < 1} />
+      {isTransformed ? (
+        <OptimusRobot gesture={gesture} isTalking={isTalking} />
+      ) : (
+        <OptimusTruck transformProgress={transformProgress} />
+      )}
+    </group>
+  );
+};
+
 const BumblebeeMascot = () => {
   const location = useLocation();
   const [currentTipIndex, setCurrentTipIndex] = useState(0);
@@ -1472,6 +1850,12 @@ const BumblebeeMascot = () => {
   const [currentSpeaker, setCurrentSpeaker] = useState<"bumblebee" | "bird">("bumblebee");
   const [isFirstMessage, setIsFirstMessage] = useState(true);
   const [shuffledKnowledge, setShuffledKnowledge] = useState<string[]>([]);
+  
+  // Transformation states
+  const [bumblebeeTransformed, setBumblebeeTransformed] = useState(false);
+  const [optimusTransformed, setOptimusTransformed] = useState(false);
+  const [bumblebeeTransformProgress, setBumblebeeTransformProgress] = useState(0);
+  const [optimusTransformProgress, setOptimusTransformProgress] = useState(0);
   
   const [bumblebeeTarget, setBumblebeeTarget] = useState({ x: 85, y: 20 });
   const [birdTarget, setBirdTarget] = useState({ x: 15, y: 25 });
@@ -1489,7 +1873,72 @@ const BumblebeeMascot = () => {
     setBumblebeeGesture("wave");
     setBirdGesture("listen");
     setShowTip(true);
+    
+    // Reset transformation states
+    setBumblebeeTransformed(false);
+    setOptimusTransformed(false);
+    setBumblebeeTransformProgress(0);
+    setOptimusTransformProgress(0);
   }, [location.pathname]);
+  
+  // Transformation animation for Bumblebee
+  useEffect(() => {
+    if (isUserActive || isHidden) return;
+    
+    // Start as car, transform after 2 seconds
+    const transformTimer = setTimeout(() => {
+      // Animate transformation progress
+      const duration = 1500; // 1.5 seconds transformation
+      const startTime = Date.now();
+      
+      const animateTransform = () => {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        setBumblebeeTransformProgress(progress);
+        
+        if (progress >= 0.5 && !bumblebeeTransformed) {
+          setBumblebeeTransformed(true);
+        }
+        
+        if (progress < 1) {
+          requestAnimationFrame(animateTransform);
+        }
+      };
+      
+      requestAnimationFrame(animateTransform);
+    }, 2000);
+    
+    return () => clearTimeout(transformTimer);
+  }, [isUserActive, isHidden, bumblebeeTransformed]);
+  
+  // Transformation animation for Optimus Prime
+  useEffect(() => {
+    if (isUserActive || isHidden || !showBird) return;
+    
+    // Start as truck, transform after 2 seconds of appearing
+    const transformTimer = setTimeout(() => {
+      const duration = 1500;
+      const startTime = Date.now();
+      
+      const animateTransform = () => {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        setOptimusTransformProgress(progress);
+        
+        if (progress >= 0.5 && !optimusTransformed) {
+          setOptimusTransformed(true);
+        }
+        
+        if (progress < 1) {
+          requestAnimationFrame(animateTransform);
+        }
+      };
+      
+      requestAnimationFrame(animateTransform);
+    }, 2000);
+    
+    return () => clearTimeout(transformTimer);
+  }, [showBird, isUserActive, isHidden, optimusTransformed]);
 
   // Track user activity
   useEffect(() => {
@@ -1676,7 +2125,12 @@ const BumblebeeMascot = () => {
                 <directionalLight position={[2, 4, 3]} intensity={1.5} />
                 <directionalLight position={[-2, 3, 2]} intensity={0.8} />
                 <pointLight position={[0, 0, 2]} intensity={0.6} color="#FFFFFF" />
-                <BumblebeeRobot gesture={bumblebeeGesture} isTalking={showTip && currentSpeaker === "bumblebee"} />
+                <TransformingBumblebee 
+                  gesture={bumblebeeGesture} 
+                  isTalking={showTip && currentSpeaker === "bumblebee"} 
+                  isTransformed={bumblebeeTransformed}
+                  transformProgress={bumblebeeTransformProgress}
+                />
               </Canvas>
             </div>
             
@@ -1724,7 +2178,12 @@ const BumblebeeMascot = () => {
                     <directionalLight position={[2, 4, 3]} intensity={1.5} />
                     <directionalLight position={[-2, 3, 2]} intensity={0.8} />
                     <pointLight position={[0, 0, 2]} intensity={0.6} color="#FFFFFF" />
-                    <OptimusRobot gesture={birdGesture} isTalking={showTip && currentSpeaker === "bird"} />
+                    <TransformingOptimus 
+                      gesture={birdGesture} 
+                      isTalking={showTip && currentSpeaker === "bird"} 
+                      isTransformed={optimusTransformed}
+                      transformProgress={optimusTransformProgress}
+                    />
                   </Canvas>
                 </div>
                 
