@@ -1149,7 +1149,7 @@ const BumblebeeMascot = () => {
 
           {/* Bumblebee */}
           <motion.div
-            className="fixed z-30 select-none w-[180px] h-[220px] md:w-[220px] md:h-[280px] cursor-pointer"
+            className="fixed z-30 select-none w-[320px] h-[380px] md:w-[360px] md:h-[420px] cursor-pointer"
             onClick={handleClick}
             initial={{ opacity: 0, scale: 0 }}
             animate={{ 
@@ -1211,7 +1211,7 @@ const BumblebeeMascot = () => {
           <AnimatePresence>
             {showBird && (
               <motion.div
-                className="fixed z-30 select-none w-[180px] h-[220px] md:w-[220px] md:h-[280px] cursor-pointer"
+                className="fixed z-30 select-none w-[320px] h-[380px] md:w-[360px] md:h-[420px] cursor-pointer"
                 onClick={handleClick}
                 initial={{ opacity: 0, scale: 0 }}
                 animate={{ 
