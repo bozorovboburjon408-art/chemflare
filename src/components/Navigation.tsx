@@ -1,5 +1,5 @@
 import { NavLink } from "@/components/NavLink";
-import { Atom, Brain, Calculator, Menu, X, GraduationCap, BookOpen, Beaker, Code2, Sparkles, Send, FlaskConical } from "lucide-react";
+import { Atom, Brain, Calculator, Menu, X, GraduationCap, BookOpen, Beaker, Info, Sparkles, Send, FlaskConical } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import universityLogo from "@/assets/university-logo.jpg";
@@ -17,7 +17,7 @@ const Navigation = () => {
     { to: "/experiments", icon: FlaskConical, label: "Tajriba" },
     { to: "https://gemini.google.com/app", icon: Sparkles, label: "Gemini", external: true },
     { to: "https://web.telegram.org/a/", icon: Send, label: "Telegram", external: true },
-    { to: "/developers", icon: Code2, label: "Ishlab chiqaruvchilar" },
+    { to: "/developers", icon: Info, label: "Ilova haqida" },
   ];
 
   return (
