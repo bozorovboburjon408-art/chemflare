@@ -60,6 +60,30 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
     size: 80 + i * 20,
   })), []);
 
+  // Flying crystals
+  const crystals = useMemo(() => Array.from({ length: 12 }, (_, i) => ({
+    id: i,
+    startX: -20 + Math.random() * 140,
+    startY: Math.random() * 100,
+    size: 20 + Math.random() * 30,
+    duration: 8 + Math.random() * 6,
+    delay: Math.random() * 5,
+    color: ["#00d4ff", "#a78bfa", "#ff6b6b", "#4ade80", "#fbbf24", "#f59e0b"][i % 6],
+    rotation: Math.random() * 360,
+  })), []);
+
+  // Flying 3D molecules
+  const flyingMolecules = useMemo(() => Array.from({ length: 8 }, (_, i) => ({
+    id: i,
+    startX: i % 2 === 0 ? -10 : 110,
+    startY: 10 + (i * 12) % 80,
+    endX: i % 2 === 0 ? 110 : -10,
+    endY: 20 + ((i + 3) * 11) % 60,
+    duration: 12 + i * 2,
+    delay: i * 0.8,
+    type: i % 4, // 0: H2O, 1: CO2, 2: CH4, 3: NH3
+  })), []);
+
   // Periodic table elements floating
   const elements = [
     { symbol: "H", name: "Vodorod", number: 1, color: "#00d4ff" },
@@ -285,6 +309,136 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
               <motion.circle cx="90" cy="80" r="6" fill="#ff6b6b" initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 2.5 }} style={{ filter: "drop-shadow(0 0 6px #ff6b6b)" }} />
             </svg>
           </motion.div>
+
+          {/* Flying Crystals */}
+          {crystals.map((crystal) => (
+            <motion.div
+              key={`crystal-${crystal.id}`}
+              className="absolute pointer-events-none"
+              style={{
+                left: `${crystal.startX}%`,
+                top: `${crystal.startY}%`,
+              }}
+              animate={{
+                x: [0, 100, -50, 150, 0],
+                y: [0, -80, 40, -60, 0],
+                rotate: [crystal.rotation, crystal.rotation + 360],
+                scale: [0.8, 1.2, 0.9, 1.1, 0.8],
+              }}
+              transition={{
+                duration: crystal.duration,
+                repeat: Infinity,
+                delay: crystal.delay,
+                ease: "easeInOut",
+              }}
+            >
+              <svg width={crystal.size} height={crystal.size} viewBox="0 0 50 50">
+                {/* Diamond/Crystal shape */}
+                <motion.polygon
+                  points="25,0 50,25 25,50 0,25"
+                  fill={`${crystal.color}30`}
+                  stroke={crystal.color}
+                  strokeWidth="1.5"
+                  style={{ filter: `drop-shadow(0 0 8px ${crystal.color})` }}
+                  animate={{
+                    opacity: [0.5, 1, 0.5],
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                  }}
+                />
+                {/* Inner crystal facets */}
+                <motion.line x1="25" y1="0" x2="25" y2="50" stroke={`${crystal.color}60`} strokeWidth="0.5" />
+                <motion.line x1="0" y1="25" x2="50" y2="25" stroke={`${crystal.color}60`} strokeWidth="0.5" />
+                <motion.polygon
+                  points="25,10 40,25 25,40 10,25"
+                  fill={`${crystal.color}20`}
+                  stroke={`${crystal.color}40`}
+                  strokeWidth="0.5"
+                />
+              </svg>
+            </motion.div>
+          ))}
+
+          {/* Flying 3D Molecules */}
+          {flyingMolecules.map((mol) => (
+            <motion.div
+              key={`flying-mol-${mol.id}`}
+              className="absolute pointer-events-none"
+              style={{
+                left: `${mol.startX}%`,
+                top: `${mol.startY}%`,
+              }}
+              animate={{
+                x: mol.startX < 50 ? [0, 800] : [0, -800],
+                y: [0, (mol.endY - mol.startY) * 3],
+                rotate: [0, 360],
+              }}
+              transition={{
+                duration: mol.duration,
+                repeat: Infinity,
+                delay: mol.delay,
+                ease: "linear",
+              }}
+            >
+              <svg width="80" height="80" viewBox="0 0 80 80">
+                {mol.type === 0 && (
+                  // H2O molecule
+                  <g>
+                    <motion.circle cx="40" cy="30" r="12" fill="#ff6b6b" style={{ filter: "drop-shadow(0 0 8px #ff6b6b)" }} animate={{ scale: [1, 1.1, 1] }} transition={{ duration: 1, repeat: Infinity }} />
+                    <motion.circle cx="20" cy="55" r="8" fill="#00d4ff" style={{ filter: "drop-shadow(0 0 6px #00d4ff)" }} />
+                    <motion.circle cx="60" cy="55" r="8" fill="#00d4ff" style={{ filter: "drop-shadow(0 0 6px #00d4ff)" }} />
+                    <line x1="35" y1="38" x2="24" y2="50" stroke="rgba(255,255,255,0.5)" strokeWidth="2" />
+                    <line x1="45" y1="38" x2="56" y2="50" stroke="rgba(255,255,255,0.5)" strokeWidth="2" />
+                    <text x="37" y="34" fill="white" fontSize="8" fontWeight="bold">O</text>
+                    <text x="17" y="58" fill="white" fontSize="6">H</text>
+                    <text x="57" y="58" fill="white" fontSize="6">H</text>
+                  </g>
+                )}
+                {mol.type === 1 && (
+                  // CO2 molecule
+                  <g>
+                    <motion.circle cx="40" cy="40" r="12" fill="#4ade80" style={{ filter: "drop-shadow(0 0 8px #4ade80)" }} animate={{ scale: [1, 1.1, 1] }} transition={{ duration: 1, repeat: Infinity }} />
+                    <motion.circle cx="15" cy="40" r="9" fill="#ff6b6b" style={{ filter: "drop-shadow(0 0 6px #ff6b6b)" }} />
+                    <motion.circle cx="65" cy="40" r="9" fill="#ff6b6b" style={{ filter: "drop-shadow(0 0 6px #ff6b6b)" }} />
+                    <line x1="28" y1="40" x2="22" y2="40" stroke="rgba(255,255,255,0.5)" strokeWidth="3" />
+                    <line x1="52" y1="40" x2="58" y2="40" stroke="rgba(255,255,255,0.5)" strokeWidth="3" />
+                    <text x="36" y="44" fill="white" fontSize="8" fontWeight="bold">C</text>
+                    <text x="12" y="44" fill="white" fontSize="6">O</text>
+                    <text x="62" y="44" fill="white" fontSize="6">O</text>
+                  </g>
+                )}
+                {mol.type === 2 && (
+                  // CH4 molecule (methane)
+                  <g>
+                    <motion.circle cx="40" cy="40" r="14" fill="#4ade80" style={{ filter: "drop-shadow(0 0 8px #4ade80)" }} animate={{ scale: [1, 1.1, 1] }} transition={{ duration: 1, repeat: Infinity }} />
+                    <motion.circle cx="40" cy="15" r="7" fill="#00d4ff" style={{ filter: "drop-shadow(0 0 5px #00d4ff)" }} />
+                    <motion.circle cx="15" cy="45" r="7" fill="#00d4ff" style={{ filter: "drop-shadow(0 0 5px #00d4ff)" }} />
+                    <motion.circle cx="65" cy="45" r="7" fill="#00d4ff" style={{ filter: "drop-shadow(0 0 5px #00d4ff)" }} />
+                    <motion.circle cx="40" cy="68" r="7" fill="#00d4ff" style={{ filter: "drop-shadow(0 0 5px #00d4ff)" }} />
+                    <line x1="40" y1="26" x2="40" y2="22" stroke="rgba(255,255,255,0.4)" strokeWidth="2" />
+                    <line x1="26" y1="42" x2="22" y2="44" stroke="rgba(255,255,255,0.4)" strokeWidth="2" />
+                    <line x1="54" y1="42" x2="58" y2="44" stroke="rgba(255,255,255,0.4)" strokeWidth="2" />
+                    <line x1="40" y1="54" x2="40" y2="61" stroke="rgba(255,255,255,0.4)" strokeWidth="2" />
+                  </g>
+                )}
+                {mol.type === 3 && (
+                  // NH3 molecule (ammonia)
+                  <g>
+                    <motion.circle cx="40" cy="35" r="13" fill="#a78bfa" style={{ filter: "drop-shadow(0 0 8px #a78bfa)" }} animate={{ scale: [1, 1.1, 1] }} transition={{ duration: 1, repeat: Infinity }} />
+                    <motion.circle cx="20" cy="60" r="7" fill="#00d4ff" style={{ filter: "drop-shadow(0 0 5px #00d4ff)" }} />
+                    <motion.circle cx="40" cy="68" r="7" fill="#00d4ff" style={{ filter: "drop-shadow(0 0 5px #00d4ff)" }} />
+                    <motion.circle cx="60" cy="60" r="7" fill="#00d4ff" style={{ filter: "drop-shadow(0 0 5px #00d4ff)" }} />
+                    <line x1="32" y1="45" x2="25" y2="55" stroke="rgba(255,255,255,0.4)" strokeWidth="2" />
+                    <line x1="40" y1="48" x2="40" y2="61" stroke="rgba(255,255,255,0.4)" strokeWidth="2" />
+                    <line x1="48" y1="45" x2="55" y2="55" stroke="rgba(255,255,255,0.4)" strokeWidth="2" />
+                    <text x="36" y="39" fill="white" fontSize="8" fontWeight="bold">N</text>
+                  </g>
+                )}
+              </svg>
+            </motion.div>
+          ))}
 
 
           {/* Floating molecules in background */}
