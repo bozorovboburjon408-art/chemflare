@@ -9,7 +9,7 @@ const Navigation = () => {
 
   const navItems = [
     { to: "/", icon: Atom, label: "Davriy Jadval" },
-    { to: "/reactions", icon: Beaker, label: "Reaksiyalar" },
+    { to: "/reactions", icon: Beaker, label: "Reaksiya" },
     { to: "/learning", icon: GraduationCap, label: "O'rganish" },
     { to: "/library", icon: BookOpen, label: "Kitoblar" },
     { to: "/quiz", icon: Brain, label: "Test" },
