@@ -30,11 +30,17 @@ type GestureType =
   | "pushUp" | "sitUp" | "squat" | "lunge" | "bow" | "handstand" | "backflip"
   | "moonwalk" | "robot" | "disco" | "breakdance" | "victory" | "tired" | "confused" | "angry";
 
-// Bumblebee - faqat kirishda tanishadi
-const bumblebeeIntro = "Salom! Men Bumblebee! Avtobotlarning eng sodiq jangchisiman!";
+// Bumblebee - kirish ketma-ketligi (3 bosqich)
+const bumblebeeIntroSequence = [
+  "Salom! Men Bumblebee! Avtobotlarning eng sodiq jangchisiman!",
+  "Sening bilim olishing biz uchun jangdan muhim! Keling, birga o'rganamiz!",
+];
 
-// Optimus Prime - faqat kirishda tanishadi  
-const optimusIntro = "Men Optimus Prime! Avtobotlar lideri! Bilim - eng kuchli qurolimiz!";
+// Optimus Prime - kirish ketma-ketligi (3 bosqich)
+const optimusIntroSequence = [
+  "Men Optimus Prime! Avtobotlar lideri! Bilim - eng kuchli qurolimiz!",
+  "Sening bilim olishing biz uchun jangdan muhim! Biz senga yordam beramiz!",
+];
 
 // Umumiy bilimlar bazasi - barcha sahifalar uchun aralashtiriladi (kengaytirilgan)
 const knowledgeBase: string[] = [
@@ -3213,6 +3219,7 @@ const BumblebeeMascot = () => {
   const [isUserActive, setIsUserActive] = useState(true);
   const [currentSpeaker, setCurrentSpeaker] = useState<"bumblebee" | "bird">("bumblebee");
   const [isFirstMessage, setIsFirstMessage] = useState(true);
+  const [introStep, setIntroStep] = useState(0); // 0 = tanishuv, 1 = motivatsiya, 2+ = o'rgatish
   const [shuffledKnowledge, setShuffledKnowledge] = useState<string[]>([]);
   const [cameraEnabled, setCameraEnabled] = useState(() => {
     return localStorage.getItem('robot_camera_enabled') === 'true';
@@ -3449,6 +3456,7 @@ const BumblebeeMascot = () => {
     setShuffledKnowledge(combinedTips);
     setCurrentTipIndex(0);
     setIsFirstMessage(true);
+    setIntroStep(0); // Reset intro step on page change
     setCurrentSpeaker("bumblebee");
     setBumblebeeGesture("wave");
     setBirdGesture("listen");
@@ -3562,32 +3570,55 @@ const BumblebeeMascot = () => {
       setShowTip(false);
       
       setTimeout(() => {
-        // Switch speaker
-        const nextSpeaker = currentSpeaker === "bumblebee" ? "bird" : "bumblebee";
-        setCurrentSpeaker(nextSpeaker);
-        
-        // If switching to bird for first time, keep isFirstMessage true for bird's intro
-        // Only set isFirstMessage to false after both have introduced
-        if (isFirstMessage && nextSpeaker === "bird") {
-          // Keep isFirstMessage true so bird can introduce
-        } else if (isFirstMessage && nextSpeaker === "bumblebee") {
-          setIsFirstMessage(false);
+        // Handle intro sequence
+        if (isFirstMessage) {
+          // Increment intro step
+          const nextStep = introStep + 1;
+          
+          if (currentSpeaker === "bumblebee") {
+            // Bumblebee finished current step
+            if (nextStep >= bumblebeeIntroSequence.length) {
+              // Bumblebee done, switch to Bird
+              setCurrentSpeaker("bird");
+              setIntroStep(0);
+              setBumblebeeGesture("listen");
+              setBirdGesture("wave");
+            } else {
+              // Continue Bumblebee intro
+              setIntroStep(nextStep);
+              setBumblebeeGesture(getRandomSpeakerGesture());
+            }
+          } else {
+            // Bird finished current step
+            if (nextStep >= optimusIntroSequence.length) {
+              // Both done with intro, start teaching
+              setIsFirstMessage(false);
+              setIntroStep(0);
+              setCurrentSpeaker("bumblebee");
+              setBumblebeeGesture(getRandomSpeakerGesture());
+              setBirdGesture("listen");
+            } else {
+              // Continue Bird intro
+              setIntroStep(nextStep);
+              setBirdGesture(getRandomSpeakerGesture());
+            }
+          }
         } else {
-          setIsFirstMessage(false);
-        }
-        
-        // Update gestures - speaker gets random gesture, listener listens
-        const newGesture = getRandomSpeakerGesture();
-        if (nextSpeaker === "bird") {
-          setBumblebeeGesture("listen");
-          setBirdGesture(newGesture);
-        } else {
-          setBumblebeeGesture(newGesture);
-          setBirdGesture("listen");
-        }
-        
-        // Change tip index - use shuffled knowledge
-        if (!isFirstMessage || (isFirstMessage && nextSpeaker === "bumblebee")) {
+          // Normal teaching mode - alternate speakers
+          const nextSpeaker = currentSpeaker === "bumblebee" ? "bird" : "bumblebee";
+          setCurrentSpeaker(nextSpeaker);
+          
+          // Update gestures - speaker gets random gesture, listener listens
+          const newGesture = getRandomSpeakerGesture();
+          if (nextSpeaker === "bird") {
+            setBumblebeeGesture("listen");
+            setBirdGesture(newGesture);
+          } else {
+            setBumblebeeGesture(newGesture);
+            setBirdGesture("listen");
+          }
+          
+          // Change tip index - use shuffled knowledge
           setCurrentTipIndex(prev => (prev + 1) % shuffledKnowledge.length);
         }
         
@@ -3596,7 +3627,7 @@ const BumblebeeMascot = () => {
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [isUserActive, currentSpeaker, shuffledKnowledge.length, getRandomSpeakerGesture, isFirstMessage]);
+  }, [isUserActive, currentSpeaker, shuffledKnowledge.length, getRandomSpeakerGesture, isFirstMessage, introStep]);
 
   // Fixed landing positions - robots sit in center area for better visibility
   const landingSpots = useMemo(() => ({
@@ -3755,16 +3786,28 @@ const BumblebeeMascot = () => {
       return robotResponse;
     }
     
+    // Intro sequence: step 0 = tanishuv, step 1 = motivatsiya, then tips
     if (isFirstMessage) {
-      return currentSpeaker === "bumblebee" ? bumblebeeIntro : optimusIntro;
+      if (currentSpeaker === "bumblebee") {
+        // Bumblebee intro sequence
+        if (introStep < bumblebeeIntroSequence.length) {
+          return bumblebeeIntroSequence[introStep];
+        }
+      } else {
+        // Bird (Optimus) intro sequence
+        if (introStep < optimusIntroSequence.length) {
+          return optimusIntroSequence[introStep];
+        }
+      }
     }
+    
     // If camera enabled and user visible - ONLY show conversation messages
     if (isUserVisible && shuffledConversation.length > 0) {
       return shuffledConversation[conversationIndex % shuffledConversation.length];
     }
     if (shuffledKnowledge.length === 0) return knowledgeBase[0];
     return shuffledKnowledge[currentTipIndex % shuffledKnowledge.length];
-  }, [isFirstMessage, currentSpeaker, isUserVisible, shuffledConversation, conversationIndex, shuffledKnowledge, currentTipIndex, robotResponse]);
+  }, [isFirstMessage, currentSpeaker, introStep, isUserVisible, shuffledConversation, conversationIndex, shuffledKnowledge, currentTipIndex, robotResponse]);
 
   // Update conversation index when speaker changes (for camera mode)
   useEffect(() => {
