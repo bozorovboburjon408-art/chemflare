@@ -838,6 +838,19 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
                       <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </span>
                   </motion.a>
+
+                  {/* Feedback text */}
+                  <motion.p
+                    className="text-xs text-center max-w-xs"
+                    style={{
+                      color: "rgba(167, 139, 250, 0.7)",
+                    }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.5 }}
+                  >
+                    O'z fikrlaringizni yozib qoldiring — biz ularni albatta o'qiymiz!
+                  </motion.p>
                 </motion.div>
               )}
             </AnimatePresence>
