@@ -33,6 +33,33 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
     duration: 15 + (i * 1.2),
   })), []);
 
+  // Shooting stars
+  const shootingStars = useMemo(() => Array.from({ length: 6 }, (_, i) => ({
+    id: i,
+    startX: Math.random() * 100,
+    startY: Math.random() * 50,
+    delay: i * 1.5,
+  })), []);
+
+  // Floating particles
+  const particles = useMemo(() => Array.from({ length: 30 }, (_, i) => ({
+    id: i,
+    x: Math.random() * 100,
+    y: Math.random() * 100,
+    size: 2 + Math.random() * 4,
+    duration: 3 + Math.random() * 4,
+    delay: Math.random() * 2,
+  })), []);
+
+  // Glowing orbs
+  const orbs = useMemo(() => Array.from({ length: 5 }, (_, i) => ({
+    id: i,
+    x: 20 + i * 15,
+    y: 30 + (i % 2) * 40,
+    color: ["#00d4ff", "#a78bfa", "#ff6b6b", "#4ade80", "#fbbf24"][i],
+    size: 80 + i * 20,
+  })), []);
+
   // Periodic table elements floating
   const elements = [
     { symbol: "H", name: "Vodorod", number: 1, color: "#00d4ff" },
@@ -77,6 +104,188 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
               backgroundSize: "50px 50px",
             }}
           />
+
+          {/* Glowing orbs in background */}
+          {orbs.map((orb) => (
+            <motion.div
+              key={`orb-${orb.id}`}
+              className="absolute rounded-full pointer-events-none"
+              style={{
+                left: `${orb.x}%`,
+                top: `${orb.y}%`,
+                width: orb.size,
+                height: orb.size,
+                background: `radial-gradient(circle, ${orb.color}30 0%, transparent 70%)`,
+                filter: "blur(40px)",
+              }}
+              animate={{
+                scale: [1, 1.3, 1],
+                opacity: [0.3, 0.6, 0.3],
+              }}
+              transition={{
+                duration: 4 + orb.id,
+                repeat: Infinity,
+                delay: orb.id * 0.5,
+              }}
+            />
+          ))}
+
+          {/* Shooting stars */}
+          {shootingStars.map((star) => (
+            <motion.div
+              key={`star-${star.id}`}
+              className="absolute pointer-events-none"
+              style={{
+                left: `${star.startX}%`,
+                top: `${star.startY}%`,
+              }}
+              initial={{ opacity: 0, x: 0, y: 0 }}
+              animate={{
+                opacity: [0, 1, 0],
+                x: [0, 200],
+                y: [0, 100],
+              }}
+              transition={{
+                duration: 1,
+                repeat: Infinity,
+                repeatDelay: 3,
+                delay: star.delay,
+              }}
+            >
+              <div
+                style={{
+                  width: 100,
+                  height: 2,
+                  background: "linear-gradient(90deg, transparent, #fff, transparent)",
+                  borderRadius: 2,
+                  transform: "rotate(45deg)",
+                  boxShadow: "0 0 10px #fff, 0 0 20px #00d4ff",
+                }}
+              />
+            </motion.div>
+          ))}
+
+          {/* Floating particles */}
+          {particles.map((particle) => (
+            <motion.div
+              key={`particle-${particle.id}`}
+              className="absolute rounded-full pointer-events-none"
+              style={{
+                left: `${particle.x}%`,
+                top: `${particle.y}%`,
+                width: particle.size,
+                height: particle.size,
+                background: particle.id % 3 === 0 ? "#00d4ff" : particle.id % 3 === 1 ? "#a78bfa" : "#ff6b6b",
+                boxShadow: `0 0 ${particle.size * 2}px ${particle.id % 3 === 0 ? "#00d4ff" : particle.id % 3 === 1 ? "#a78bfa" : "#ff6b6b"}`,
+              }}
+              animate={{
+                y: [0, -30, 0],
+                opacity: [0.2, 0.8, 0.2],
+                scale: [1, 1.2, 1],
+              }}
+              transition={{
+                duration: particle.duration,
+                repeat: Infinity,
+                delay: particle.delay,
+              }}
+            />
+          ))}
+
+          {/* Rotating atom orbits */}
+          <motion.div
+            className="absolute top-1/4 left-1/4 pointer-events-none hidden md:block"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+          >
+            <svg width="120" height="120" viewBox="0 0 120 120">
+              <ellipse cx="60" cy="60" rx="55" ry="20" fill="none" stroke="rgba(0, 212, 255, 0.3)" strokeWidth="1" />
+              <motion.circle
+                cx="115"
+                cy="60"
+                r="4"
+                fill="#00d4ff"
+                style={{ filter: "drop-shadow(0 0 6px #00d4ff)" }}
+              />
+            </svg>
+          </motion.div>
+
+          <motion.div
+            className="absolute bottom-1/4 right-1/4 pointer-events-none hidden md:block"
+            animate={{ rotate: -360 }}
+            transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+          >
+            <svg width="100" height="100" viewBox="0 0 100 100">
+              <ellipse cx="50" cy="50" rx="45" ry="15" fill="none" stroke="rgba(167, 139, 250, 0.3)" strokeWidth="1" transform="rotate(60 50 50)" />
+              <motion.circle
+                cx="95"
+                cy="50"
+                r="3"
+                fill="#a78bfa"
+                style={{ filter: "drop-shadow(0 0 6px #a78bfa)" }}
+              />
+            </svg>
+          </motion.div>
+
+          {/* Hexagonal patterns */}
+          <motion.div
+            className="absolute top-10 right-10 pointer-events-none opacity-30 hidden lg:block"
+            initial={{ opacity: 0, rotate: 0 }}
+            animate={{ opacity: 0.3, rotate: 360 }}
+            transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+          >
+            <svg width="200" height="200" viewBox="0 0 200 200">
+              {[0, 1, 2].map((ring) => (
+                <polygon
+                  key={ring}
+                  points="100,10 180,55 180,145 100,190 20,145 20,55"
+                  fill="none"
+                  stroke={`rgba(0, 212, 255, ${0.3 - ring * 0.1})`}
+                  strokeWidth="1"
+                  transform={`scale(${1 - ring * 0.25}) translate(${ring * 33}, ${ring * 33})`}
+                />
+              ))}
+            </svg>
+          </motion.div>
+
+          {/* Chemical bonds animation */}
+          <motion.div
+            className="absolute bottom-20 left-10 pointer-events-none hidden lg:block"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1 }}
+          >
+            <svg width="150" height="100" viewBox="0 0 150 100">
+              <motion.line
+                x1="20" y1="50" x2="60" y2="50"
+                stroke="#00d4ff"
+                strokeWidth="3"
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: 1, delay: 1.5 }}
+              />
+              <motion.line
+                x1="60" y1="50" x2="90" y2="20"
+                stroke="#a78bfa"
+                strokeWidth="3"
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: 1, delay: 2 }}
+              />
+              <motion.line
+                x1="60" y1="50" x2="90" y2="80"
+                stroke="#ff6b6b"
+                strokeWidth="3"
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: 1, delay: 2.5 }}
+              />
+              <motion.circle cx="20" cy="50" r="8" fill="#00d4ff" initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 1 }} style={{ filter: "drop-shadow(0 0 6px #00d4ff)" }} />
+              <motion.circle cx="60" cy="50" r="10" fill="#4ade80" initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 1.5 }} style={{ filter: "drop-shadow(0 0 6px #4ade80)" }} />
+              <motion.circle cx="90" cy="20" r="6" fill="#a78bfa" initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 2 }} style={{ filter: "drop-shadow(0 0 6px #a78bfa)" }} />
+              <motion.circle cx="90" cy="80" r="6" fill="#ff6b6b" initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 2.5 }} style={{ filter: "drop-shadow(0 0 6px #ff6b6b)" }} />
+            </svg>
+          </motion.div>
+
 
           {/* Floating molecules in background */}
           {molecules.map((mol) => (
