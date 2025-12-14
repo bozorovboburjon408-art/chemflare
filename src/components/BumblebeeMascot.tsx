@@ -19,7 +19,7 @@ const PURPLE_ENERGY = "#9400D3";
 const PURPLE_CORE = "#4B0082";
 
 // Gesture types
-type GestureType = "idle" | "wave" | "point" | "thumbsUp" | "clap" | "think" | "celebrate" | "salute" | "fight" | "shoot" | "dodge";
+type GestureType = "idle" | "wave" | "point" | "thumbsUp" | "clap" | "think" | "celebrate" | "salute" | "fight" | "shoot" | "dodge" | "sad" | "victory";
 
 // Page tips configuration
 const pageTips: Record<string, string[]> = {
@@ -82,14 +82,8 @@ const appIntroTips = [
   "Kitobxonada kimyo darsliklarini o'qing!",
 ];
 
-// Gesture context to share between components
-const GestureContext = {
-  current: "idle" as GestureType,
-  time: 0,
-};
-
 // Energy Sphere with plasma effect
-const EnergySphere = ({ color = BLUE_ENERGY, coreColor = BLUE_CORE }: { color?: string; coreColor?: string }) => {
+const EnergySphere = ({ color = BLUE_ENERGY, coreColor = BLUE_CORE, gesture }: { color?: string; coreColor?: string; gesture: GestureType }) => {
   const sphereRef = useRef<THREE.Group>(null);
   const coreRef = useRef<THREE.Mesh>(null);
   const ring1Ref = useRef<THREE.Mesh>(null);
@@ -113,8 +107,21 @@ const EnergySphere = ({ color = BLUE_ENERGY, coreColor = BLUE_CORE }: { color?: 
 
   useFrame((state) => {
     const time = state.clock.getElapsedTime();
-    const gesture = GestureContext.current;
-    const baseScale = gesture === "celebrate" || gesture === "fight" ? 1.5 : gesture === "shoot" ? 2 : 1;
+    let baseScale = 1;
+    
+    switch (gesture) {
+      case "celebrate":
+      case "victory":
+        baseScale = 1.8;
+        break;
+      case "fight":
+      case "shoot":
+        baseScale = 1.5;
+        break;
+      case "sad":
+        baseScale = 0.5;
+        break;
+    }
     
     if (sphereRef.current) {
       const pulse = baseScale + Math.sin(time * 8) * 0.15;
@@ -142,11 +149,11 @@ const EnergySphere = ({ color = BLUE_ENERGY, coreColor = BLUE_CORE }: { color?: 
     <group ref={sphereRef} position={[0, 0.1, 0.35]}>
       <mesh ref={coreRef}>
         <icosahedronGeometry args={[0.08, 2]} />
-        <meshStandardMaterial color={coreColor} emissive={coreColor} emissiveIntensity={4} transparent opacity={0.9} />
+        <meshStandardMaterial color={coreColor} emissive={coreColor} emissiveIntensity={gesture === "sad" ? 1 : 4} transparent opacity={0.9} />
       </mesh>
       <mesh>
         <sphereGeometry args={[0.12, 32, 32]} />
-        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={2} transparent opacity={0.4} />
+        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={gesture === "sad" ? 0.5 : 2} transparent opacity={0.4} />
       </mesh>
       <mesh ref={ring1Ref}>
         <torusGeometry args={[0.14, 0.008, 8, 32]} />
@@ -159,7 +166,7 @@ const EnergySphere = ({ color = BLUE_ENERGY, coreColor = BLUE_CORE }: { color?: 
       <points ref={particlesRef} geometry={particleGeometry}>
         <pointsMaterial color={color} size={0.015} transparent opacity={0.8} sizeAttenuation />
       </points>
-      <pointLight color={color} intensity={2} distance={1} />
+      <pointLight color={color} intensity={gesture === "sad" ? 0.5 : 2} distance={1} />
     </group>
   );
 };
@@ -186,17 +193,21 @@ const MovieBumblebeeHead = ({ gesture }: { gesture: GestureType }) => {
           headRef.current.rotation.y = Math.sin(time * 8) * 0.4;
           headRef.current.rotation.z = Math.cos(time * 6) * 0.2;
           break;
-        case "think":
-          headRef.current.rotation.y = 0.3;
-          headRef.current.rotation.x = Math.sin(time * 0.5) * 0.1 - 0.15;
+        case "sad":
+          headRef.current.rotation.x = 0.4; // Looking down
+          headRef.current.rotation.y = Math.sin(time * 0.5) * 0.05;
+          headRef.current.rotation.z = Math.sin(time * 0.3) * 0.03;
           break;
+        case "victory":
         case "celebrate":
-          headRef.current.rotation.y = Math.sin(time * 4) * 0.25;
-          headRef.current.rotation.z = Math.sin(time * 3) * 0.15;
+          headRef.current.rotation.y = Math.sin(time * 5) * 0.3;
+          headRef.current.rotation.z = Math.sin(time * 4) * 0.2;
+          headRef.current.rotation.x = -0.2;
           break;
         default:
           headRef.current.rotation.y = Math.sin(time * 0.7) * 0.12;
           headRef.current.rotation.x = Math.sin(time * 0.4) * 0.05 - 0.1;
+          headRef.current.rotation.z = 0;
       }
     }
   });
@@ -217,14 +228,14 @@ const MovieBumblebeeHead = ({ gesture }: { gesture: GestureType }) => {
       </mesh>
       <mesh position={[-0.07, 0.03, 0.22]}>
         <sphereGeometry args={[0.028, 16, 16]} />
-        <meshStandardMaterial color={BLUE_ENERGY} emissive={BLUE_ENERGY} emissiveIntensity={5} />
+        <meshStandardMaterial color={gesture === "sad" ? "#666666" : BLUE_ENERGY} emissive={gesture === "sad" ? "#333333" : BLUE_ENERGY} emissiveIntensity={gesture === "sad" ? 1 : 5} />
       </mesh>
       <mesh position={[0.07, 0.03, 0.22]}>
         <sphereGeometry args={[0.028, 16, 16]} />
-        <meshStandardMaterial color={BLUE_ENERGY} emissive={BLUE_ENERGY} emissiveIntensity={5} />
+        <meshStandardMaterial color={gesture === "sad" ? "#666666" : BLUE_ENERGY} emissive={gesture === "sad" ? "#333333" : BLUE_ENERGY} emissiveIntensity={gesture === "sad" ? 1 : 5} />
       </mesh>
-      <pointLight position={[-0.07, 0.03, 0.25]} color={BLUE_ENERGY} intensity={0.5} distance={0.5} />
-      <pointLight position={[0.07, 0.03, 0.25]} color={BLUE_ENERGY} intensity={0.5} distance={0.5} />
+      <pointLight position={[-0.07, 0.03, 0.25]} color={BLUE_ENERGY} intensity={gesture === "sad" ? 0.1 : 0.5} distance={0.5} />
+      <pointLight position={[0.07, 0.03, 0.25]} color={BLUE_ENERGY} intensity={gesture === "sad" ? 0.1 : 0.5} distance={0.5} />
       <group position={[-0.12, 0.22, 0]} rotation={[0.2, 0, 0.25]}>
         <mesh>
           <cylinderGeometry args={[0.015, 0.025, 0.12, 8]} />
@@ -299,7 +310,6 @@ const MovieBumblebeeArm = ({ side, gesture }: { side: "left" | "right"; gesture:
         
       case "fight":
       case "shoot":
-        // Fighting stance - both arms up for attack
         armRef.current.rotation.z = (isLeft ? 1 : -1) * (-0.8 + Math.sin(time * 6) * 0.3);
         armRef.current.rotation.x = -0.9 + Math.sin(time * 8) * 0.2;
         forearmRef.current.rotation.x = 1.5 + Math.sin(time * 10) * 0.3;
@@ -312,6 +322,23 @@ const MovieBumblebeeArm = ({ side, gesture }: { side: "left" | "right"; gesture:
         forearmRef.current.rotation.x = 0.5;
         break;
         
+      case "sad":
+        // Arms hanging down sadly
+        armRef.current.rotation.z = (isLeft ? 0.3 : -0.3);
+        armRef.current.rotation.x = 0.2;
+        forearmRef.current.rotation.x = 0.2;
+        handRef.current.rotation.x = 0;
+        break;
+        
+      case "victory":
+      case "celebrate":
+        // Victory pose - arms up celebrating
+        armRef.current.rotation.z = (isLeft ? 1 : -1) * (-1.5 + Math.sin(time * 6 + (isLeft ? 0 : Math.PI)) * 0.3);
+        armRef.current.rotation.x = -0.4 + Math.sin(time * 4) * 0.15;
+        forearmRef.current.rotation.x = 0.2 + Math.sin(time * 8) * 0.25;
+        handRef.current.rotation.z = Math.sin(time * 10 + (isLeft ? 0 : Math.PI)) * 0.4;
+        break;
+        
       case "thumbsUp":
         if (!isLeft) {
           armRef.current.rotation.z = -0.6;
@@ -322,13 +349,6 @@ const MovieBumblebeeArm = ({ side, gesture }: { side: "left" | "right"; gesture:
           armRef.current.rotation.z = 0.4;
           forearmRef.current.rotation.x = 0.5;
         }
-        break;
-        
-      case "celebrate":
-        armRef.current.rotation.z = (isLeft ? 1 : -1) * (-1.3 + Math.sin(time * 5 + (isLeft ? 0 : Math.PI)) * 0.2);
-        armRef.current.rotation.x = -0.3 + Math.sin(time * 3) * 0.1;
-        forearmRef.current.rotation.x = 0.3 + Math.sin(time * 6) * 0.2;
-        handRef.current.rotation.z = Math.sin(time * 8 + (isLeft ? 0 : Math.PI)) * 0.3;
         break;
         
       default:
@@ -390,7 +410,6 @@ const MovieBumblebeeRobot = ({ gesture }: { gesture: GestureType }) => {
 
   useFrame((state) => {
     const time = state.clock.getElapsedTime();
-    GestureContext.current = gesture;
     
     if (groupRef.current) {
       switch (gesture) {
@@ -403,14 +422,22 @@ const MovieBumblebeeRobot = ({ gesture }: { gesture: GestureType }) => {
           groupRef.current.position.y = Math.sin(time * 8) * 0.08;
           groupRef.current.position.x = Math.sin(time * 6) * 0.05;
           break;
+        case "sad":
+          groupRef.current.position.y = -0.05 + Math.sin(time * 0.5) * 0.01;
+          groupRef.current.rotation.y = 0;
+          groupRef.current.rotation.z = Math.sin(time * 0.3) * 0.02;
+          break;
+        case "victory":
         case "celebrate":
-          groupRef.current.position.y = Math.sin(time * 4) * 0.05;
-          groupRef.current.rotation.y = Math.sin(time * 2) * 0.15;
+          groupRef.current.position.y = Math.sin(time * 5) * 0.08;
+          groupRef.current.rotation.y = Math.sin(time * 3) * 0.2;
+          groupRef.current.rotation.z = Math.sin(time * 4) * 0.05;
           break;
         default:
           groupRef.current.position.y = Math.sin(time * 1.5) * 0.025;
           groupRef.current.rotation.y = Math.sin(time * 0.5) * 0.06;
           groupRef.current.position.x = 0;
+          groupRef.current.rotation.z = 0;
       }
     }
   });
@@ -421,7 +448,7 @@ const MovieBumblebeeRobot = ({ gesture }: { gesture: GestureType }) => {
       <MovieBumblebeeChest />
       <MovieBumblebeeArm side="left" gesture={gesture} />
       <MovieBumblebeeArm side="right" gesture={gesture} />
-      <EnergySphere color={BLUE_ENERGY} coreColor={BLUE_CORE} />
+      <EnergySphere color={BLUE_ENERGY} coreColor={BLUE_CORE} gesture={gesture} />
     </group>
   );
 };
@@ -444,36 +471,43 @@ const BirdRobotHead = ({ gesture }: { gesture: GestureType }) => {
           headRef.current.rotation.y = Math.sin(time * 10) * 0.5;
           headRef.current.rotation.z = Math.cos(time * 8) * 0.3;
           break;
+        case "sad":
+          headRef.current.rotation.x = 0.5;
+          headRef.current.rotation.y = Math.sin(time * 0.3) * 0.03;
+          break;
+        case "victory":
+        case "celebrate":
+          headRef.current.rotation.y = Math.sin(time * 6) * 0.4;
+          headRef.current.rotation.x = -0.25;
+          headRef.current.rotation.z = Math.sin(time * 5) * 0.15;
+          break;
         default:
           headRef.current.rotation.y = Math.sin(time * 1.2) * 0.15;
           headRef.current.rotation.x = Math.sin(time * 0.8) * 0.08;
+          headRef.current.rotation.z = 0;
       }
     }
   });
 
   return (
     <group ref={headRef} position={[0, 0.8, 0]}>
-      {/* Bird-like head shape */}
       <mesh>
         <coneGeometry args={[0.18, 0.3, 6]} />
         <meshStandardMaterial color={RED_MAIN} metalness={0.95} roughness={0.1} />
       </mesh>
-      {/* Beak */}
       <mesh position={[0, -0.05, 0.2]} rotation={[0.5, 0, 0]}>
         <coneGeometry args={[0.06, 0.2, 4]} />
         <meshStandardMaterial color={RED_DARK} metalness={0.9} roughness={0.15} />
       </mesh>
-      {/* Angry eyes */}
       <mesh position={[-0.08, 0.05, 0.12]}>
         <sphereGeometry args={[0.035, 16, 16]} />
-        <meshStandardMaterial color={PURPLE_ENERGY} emissive={PURPLE_ENERGY} emissiveIntensity={6} />
+        <meshStandardMaterial color={gesture === "sad" ? "#444444" : PURPLE_ENERGY} emissive={gesture === "sad" ? "#222222" : PURPLE_ENERGY} emissiveIntensity={gesture === "sad" ? 1 : 6} />
       </mesh>
       <mesh position={[0.08, 0.05, 0.12]}>
         <sphereGeometry args={[0.035, 16, 16]} />
-        <meshStandardMaterial color={PURPLE_ENERGY} emissive={PURPLE_ENERGY} emissiveIntensity={6} />
+        <meshStandardMaterial color={gesture === "sad" ? "#444444" : PURPLE_ENERGY} emissive={gesture === "sad" ? "#222222" : PURPLE_ENERGY} emissiveIntensity={gesture === "sad" ? 1 : 6} />
       </mesh>
-      <pointLight position={[0, 0, 0.2]} color={PURPLE_ENERGY} intensity={1} distance={0.5} />
-      {/* Crest */}
+      <pointLight position={[0, 0, 0.2]} color={PURPLE_ENERGY} intensity={gesture === "sad" ? 0.2 : 1} distance={0.5} />
       <mesh position={[0, 0.2, -0.05]} rotation={[-0.3, 0, 0]}>
         <boxGeometry args={[0.04, 0.15, 0.08]} />
         <meshStandardMaterial color={PURPLE_CORE} metalness={0.9} roughness={0.1} />
@@ -512,7 +546,6 @@ const BirdRobotWing = ({ side, gesture }: { side: "left" | "right"; gesture: Ges
     const time = state.clock.getElapsedTime();
     
     if (wingRef.current) {
-      const baseFlap = Math.sin(time * 8) * 0.3;
       switch (gesture) {
         case "fight":
         case "shoot":
@@ -522,8 +555,19 @@ const BirdRobotWing = ({ side, gesture }: { side: "left" | "right"; gesture: Ges
         case "dodge":
           wingRef.current.rotation.z = (isLeft ? 1 : -1) * (1.2 + Math.sin(time * 15) * 0.4);
           break;
+        case "sad":
+          wingRef.current.rotation.z = (isLeft ? 1 : -1) * 0.2;
+          wingRef.current.rotation.x = 0.3;
+          break;
+        case "victory":
+        case "celebrate":
+          wingRef.current.rotation.z = (isLeft ? 1 : -1) * (1.0 + Math.sin(time * 10) * 0.6);
+          wingRef.current.rotation.x = Math.sin(time * 8) * 0.2;
+          break;
         default:
+          const baseFlap = Math.sin(time * 8) * 0.3;
           wingRef.current.rotation.z = (isLeft ? 1 : -1) * (0.5 + baseFlap);
+          wingRef.current.rotation.x = 0;
       }
     }
   });
@@ -534,7 +578,6 @@ const BirdRobotWing = ({ side, gesture }: { side: "left" | "right"; gesture: Ges
         <boxGeometry args={[0.3, 0.08, 0.15]} />
         <meshStandardMaterial color={RED_DARK} metalness={0.85} roughness={0.15} />
       </mesh>
-      {/* Wing feathers */}
       {[0, 1, 2].map((i) => (
         <mesh key={i} position={[(isLeft ? -1 : 1) * (0.12 + i * 0.08), 0, 0]} rotation={[0, 0, (isLeft ? 1 : -1) * 0.3]}>
           <boxGeometry args={[0.08, 0.04, 0.1]} />
@@ -564,9 +607,21 @@ const AggressiveBirdRobot = ({ gesture }: { gesture: GestureType }) => {
           groupRef.current.position.y = Math.sin(time * 10) * 0.08;
           groupRef.current.position.x = Math.sin(time * 8) * 0.06;
           break;
+        case "sad":
+          groupRef.current.position.y = -0.08 + Math.sin(time * 0.4) * 0.01;
+          groupRef.current.rotation.z = 0.1;
+          break;
+        case "victory":
+        case "celebrate":
+          groupRef.current.position.y = Math.sin(time * 6) * 0.08;
+          groupRef.current.rotation.y = Math.sin(time * 4) * 0.25;
+          groupRef.current.rotation.z = Math.sin(time * 5) * 0.08;
+          break;
         default:
           groupRef.current.position.y = Math.sin(time * 2) * 0.03;
           groupRef.current.rotation.y = Math.sin(time * 0.8) * 0.08;
+          groupRef.current.position.x = 0;
+          groupRef.current.rotation.z = 0;
       }
     }
   });
@@ -577,7 +632,7 @@ const AggressiveBirdRobot = ({ gesture }: { gesture: GestureType }) => {
       <BirdRobotBody />
       <BirdRobotWing side="left" gesture={gesture} />
       <BirdRobotWing side="right" gesture={gesture} />
-      <EnergySphere color={PURPLE_ENERGY} coreColor={PURPLE_CORE} />
+      <EnergySphere color={PURPLE_ENERGY} coreColor={PURPLE_CORE} gesture={gesture} />
     </group>
   );
 };
@@ -642,14 +697,6 @@ const SpeechBubble = ({ text, position }: { text: string; position: { x: number;
   );
 };
 
-// Random position generator
-const generateRandomPosition = () => {
-  const padding = 15;
-  const x = padding + Math.random() * (100 - 2 * padding);
-  const y = padding + Math.random() * (100 - 2 * padding);
-  return { x, y };
-};
-
 const gestures: GestureType[] = ["idle", "wave", "point", "thumbsUp", "clap", "think", "celebrate", "salute"];
 const fightGestures: GestureType[] = ["fight", "shoot", "dodge"];
 
@@ -668,72 +715,137 @@ const BumblebeeMascot = () => {
   const [clickCount, setClickCount] = useState(0);
   const [isUserActive, setIsUserActive] = useState(true);
   const [isIntroMode, setIsIntroMode] = useState(false);
+  const [winner, setWinner] = useState<"bumblebee" | "bird" | null>(null);
+  
+  // Smooth flying positions
+  const [bumblebeeTarget, setBumblebeeTarget] = useState({ x: 85, y: 15 });
+  const [birdTarget, setBirdTarget] = useState({ x: 15, y: 25 });
   
   const clickTimerRef = useRef<NodeJS.Timeout | null>(null);
   const projectileIdRef = useRef(0);
+  const activityTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Get current page tips
   const tips = isIntroMode ? appIntroTips : (pageTips[location.pathname] || pageTips["/"]);
 
-  // Track user activity
+  // Track user activity - hide when active, show after 3 seconds of inactivity
   useEffect(() => {
-    let timeout: NodeJS.Timeout;
-    
-    const resetActivity = () => {
+    const handleActivity = () => {
+      // User is active - hide robots
       setIsUserActive(true);
-      setIsIntroMode(false);
-      clearTimeout(timeout);
-      timeout = setTimeout(() => {
+      
+      if (activityTimeoutRef.current) {
+        clearTimeout(activityTimeoutRef.current);
+      }
+      
+      // After 3 seconds of inactivity, show robots again
+      activityTimeoutRef.current = setTimeout(() => {
         setIsUserActive(false);
         setIsIntroMode(true);
-      }, 10000); // 10 seconds of inactivity
+      }, 3000);
     };
 
-    const events = ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart'];
-    events.forEach(event => window.addEventListener(event, resetActivity));
+    const events = ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart', 'click'];
+    events.forEach(event => window.addEventListener(event, handleActivity));
     
-    resetActivity();
+    // Initial state - show robots after 3 seconds
+    activityTimeoutRef.current = setTimeout(() => {
+      setIsUserActive(false);
+    }, 3000);
 
     return () => {
-      events.forEach(event => window.removeEventListener(event, resetActivity));
-      clearTimeout(timeout);
+      events.forEach(event => window.removeEventListener(event, handleActivity));
+      if (activityTimeoutRef.current) {
+        clearTimeout(activityTimeoutRef.current);
+      }
     };
   }, []);
 
-  // Show bird after 4-5 seconds
+  // Show bird after initial delay when robots are visible
   useEffect(() => {
+    if (isUserActive || isHidden) return;
+    
     const timer = setTimeout(() => {
-      if (!isHidden) {
-        setShowBird(true);
-      }
+      setShowBird(true);
     }, 4500);
+    
     return () => clearTimeout(timer);
-  }, [isHidden]);
+  }, [isUserActive, isHidden]);
+
+  // Smooth continuous flying animation
+  useEffect(() => {
+    if (isUserActive || isHidden) return;
+
+    const flyInterval = setInterval(() => {
+      if (!isFighting) {
+        // Generate new targets for smooth flying
+        const newBumblebeeTarget = {
+          x: 15 + Math.random() * 70,
+          y: 10 + Math.random() * 70
+        };
+        const newBirdTarget = {
+          x: 15 + Math.random() * 70,
+          y: 10 + Math.random() * 70
+        };
+        
+        setBumblebeeTarget(newBumblebeeTarget);
+        if (showBird) {
+          setBirdTarget(newBirdTarget);
+        }
+        
+        // Random gesture for Bumblebee
+        const randomGesture = gestures[Math.floor(Math.random() * gestures.length)];
+        setBumblebeeGesture(randomGesture);
+        setTimeout(() => {
+          if (!isFighting) setBumblebeeGesture("idle");
+        }, 3000);
+      }
+    }, 6000);
+
+    return () => clearInterval(flyInterval);
+  }, [showBird, isFighting, isUserActive, isHidden]);
+
+  // Smooth position update
+  useEffect(() => {
+    if (isUserActive) return;
+    
+    const animationInterval = setInterval(() => {
+      setBumblebeePos(prev => ({
+        x: prev.x + (bumblebeeTarget.x - prev.x) * 0.02,
+        y: prev.y + (bumblebeeTarget.y - prev.y) * 0.02
+      }));
+      setBirdPos(prev => ({
+        x: prev.x + (birdTarget.x - prev.x) * 0.02,
+        y: prev.y + (birdTarget.y - prev.y) * 0.02
+      }));
+    }, 50);
+
+    return () => clearInterval(animationInterval);
+  }, [bumblebeeTarget, birdTarget, isUserActive]);
 
   // Random fighting
   useEffect(() => {
-    if (!showBird || isHidden) return;
+    if (!showBird || isHidden || isUserActive) return;
 
     const fightInterval = setInterval(() => {
-      if (Math.random() > 0.6) {
+      if (Math.random() > 0.5 && !isFighting) {
         startFight();
       }
-    }, 12000);
+    }, 15000);
 
     return () => clearInterval(fightInterval);
-  }, [showBird, isHidden]);
+  }, [showBird, isHidden, isUserActive, isFighting]);
 
   const startFight = useCallback(() => {
     setIsFighting(true);
+    setWinner(null);
     
     // Random fight gestures
-    const randomFightGesture = fightGestures[Math.floor(Math.random() * fightGestures.length)];
-    setBumblebeeGesture(randomFightGesture);
-    setBirdGesture(fightGestures[Math.floor(Math.random() * fightGestures.length)]);
+    setBumblebeeGesture("fight");
+    setBirdGesture("fight");
     
     // Shoot projectiles
     const shootProjectiles = () => {
-      // Bumblebee shoots
       setProjectiles(prev => [...prev, {
         id: projectileIdRef.current++,
         from: bumblebeePos,
@@ -741,7 +853,6 @@ const BumblebeeMascot = () => {
         color: BLUE_ENERGY
       }]);
       
-      // Bird shoots back after delay
       setTimeout(() => {
         setProjectiles(prev => [...prev, {
           id: projectileIdRef.current++,
@@ -756,11 +867,27 @@ const BumblebeeMascot = () => {
     setTimeout(shootProjectiles, 1000);
     setTimeout(shootProjectiles, 2000);
 
-    // End fight
+    // Determine winner and end fight
     setTimeout(() => {
-      setIsFighting(false);
-      setBumblebeeGesture("idle");
-      setBirdGesture("idle");
+      const bumblebeeWins = Math.random() > 0.5;
+      setWinner(bumblebeeWins ? "bumblebee" : "bird");
+      
+      // Winner celebrates, loser gets sad
+      if (bumblebeeWins) {
+        setBumblebeeGesture("victory");
+        setBirdGesture("sad");
+      } else {
+        setBumblebeeGesture("sad");
+        setBirdGesture("victory");
+      }
+      
+      // Reset after celebration
+      setTimeout(() => {
+        setIsFighting(false);
+        setBumblebeeGesture("idle");
+        setBirdGesture("idle");
+        setWinner(null);
+      }, 3000);
     }, 3500);
   }, [bumblebeePos, birdPos]);
 
@@ -778,10 +905,16 @@ const BumblebeeMascot = () => {
 
     clickTimerRef.current = setTimeout(() => {
       if (clickCount === 0) {
-        // Single click - fly to new position
-        setBumblebeePos(generateRandomPosition());
+        // Single click - fly to new random position
+        setBumblebeeTarget({
+          x: 15 + Math.random() * 70,
+          y: 10 + Math.random() * 70
+        });
         if (showBird) {
-          setBirdPos(generateRandomPosition());
+          setBirdTarget({
+            x: 15 + Math.random() * 70,
+            y: 10 + Math.random() * 70
+          });
         }
       }
       setClickCount(0);
@@ -795,29 +928,10 @@ const BumblebeeMascot = () => {
     }
   }, [clickCount, showBird]);
 
-  // Flying animation
-  useEffect(() => {
-    if (isHidden) return;
-
-    const flyInterval = setInterval(() => {
-      if (!isFighting) {
-        setBumblebeePos(generateRandomPosition());
-        if (showBird) {
-          setBirdPos(generateRandomPosition());
-        }
-        
-        // Random gesture for Bumblebee
-        const randomGesture = gestures[Math.floor(Math.random() * gestures.length)];
-        setBumblebeeGesture(randomGesture);
-        setTimeout(() => setBumblebeeGesture("idle"), 3000);
-      }
-    }, 8000);
-
-    return () => clearInterval(flyInterval);
-  }, [showBird, isFighting, isHidden]);
-
   // Change tip periodically
   useEffect(() => {
+    if (isUserActive) return;
+    
     const interval = setInterval(() => {
       setShowTip(false);
       setTimeout(() => {
@@ -826,7 +940,7 @@ const BumblebeeMascot = () => {
       }, 500);
     }, 6000);
     return () => clearInterval(interval);
-  }, [tips.length]);
+  }, [tips.length, isUserActive]);
 
   // Reset on page change
   useEffect(() => {
@@ -834,87 +948,52 @@ const BumblebeeMascot = () => {
     setShowTip(true);
   }, [location.pathname]);
 
+  // Don't render if hidden or user is active
   if (isHidden) return null;
 
   return (
-    <>
-      {/* Projectiles */}
-      {projectiles.map(p => (
-        <Projectile 
-          key={p.id} 
-          from={p.from} 
-          to={p.to} 
-          color={p.color} 
-          onComplete={() => removeProjectile(p.id)} 
-        />
-      ))}
+    <AnimatePresence>
+      {!isUserActive && (
+        <>
+          {/* Projectiles */}
+          {projectiles.map(p => (
+            <Projectile 
+              key={p.id} 
+              from={p.from} 
+              to={p.to} 
+              color={p.color} 
+              onComplete={() => removeProjectile(p.id)} 
+            />
+          ))}
 
-      {/* Bumblebee */}
-      <motion.div
-        className="fixed z-30 select-none w-[90px] h-[120px] md:w-[100px] md:h-[130px] cursor-pointer"
-        onClick={handleClick}
-        animate={{ 
-          left: `${bumblebeePos.x}%`,
-          top: `${bumblebeePos.y}%`,
-          x: "-50%",
-          y: "-50%",
-          rotate: isFighting ? [0, 5, -5, 0] : 0,
-          scale: isFighting ? 1.1 : 1,
-        }}
-        transition={{ 
-          duration: 1.5,
-          ease: [0.25, 0.1, 0.25, 1],
-        }}
-      >
-        <AnimatePresence mode="wait">
-          {showTip && !isFighting && (
-            <SpeechBubble text={tips[currentTipIndex]} position={bumblebeePos} />
-          )}
-        </AnimatePresence>
-
-        <div className="w-full h-full pointer-events-none">
-          <Canvas
-            camera={{ position: [0, 0.2, 2.2], fov: 50 }}
-            style={{ background: "transparent" }}
-            gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}
-          >
-            <ambientLight intensity={0.3} />
-            <directionalLight position={[3, 5, 2]} intensity={1.2} color="#ffffff" />
-            <directionalLight position={[-3, 2, 4]} intensity={0.6} color={BLUE_ENERGY} />
-            <pointLight position={[0, 0, 2]} intensity={0.8} color="#FFE4B5" />
-            <spotLight position={[0, 3, 3]} angle={0.5} penumbra={0.8} intensity={1} />
-            <MovieBumblebeeRobot gesture={bumblebeeGesture} />
-          </Canvas>
-        </div>
-        
-        <div 
-          className="absolute inset-0 -z-10 rounded-full blur-3xl opacity-20"
-          style={{ background: `radial-gradient(circle, ${BLUE_ENERGY} 0%, transparent 70%)` }}
-        />
-      </motion.div>
-
-      {/* Aggressive Bird Robot */}
-      <AnimatePresence>
-        {showBird && (
+          {/* Bumblebee */}
           <motion.div
-            className="fixed z-30 select-none w-[80px] h-[100px] md:w-[90px] md:h-[110px] cursor-pointer"
+            className="fixed z-30 select-none w-[90px] h-[120px] md:w-[100px] md:h-[130px] cursor-pointer"
             onClick={handleClick}
             initial={{ opacity: 0, scale: 0 }}
             animate={{ 
               opacity: 1,
-              scale: 1,
-              left: `${birdPos.x}%`,
-              top: `${birdPos.y}%`,
+              scale: winner === "bumblebee" ? 1.2 : winner === "bird" ? 0.9 : 1,
+              left: `${bumblebeePos.x}%`,
+              top: `${bumblebeePos.y}%`,
               x: "-50%",
               y: "-50%",
-              rotate: isFighting ? [0, -8, 8, 0] : 0,
+              rotate: isFighting && !winner ? [0, 5, -5, 0] : 0,
             }}
-            exit={{ opacity: 0, scale: 0 }}
+            exit={{ opacity: 0, scale: 0, transition: { duration: 0.5 } }}
             transition={{ 
-              duration: 1.5,
-              ease: [0.25, 0.1, 0.25, 1],
+              duration: 0.5,
+              ease: "easeOut",
+              left: { duration: 2, ease: "linear" },
+              top: { duration: 2, ease: "linear" },
             }}
           >
+            <AnimatePresence mode="wait">
+              {showTip && !isFighting && (
+                <SpeechBubble text={tips[currentTipIndex]} position={bumblebeePos} />
+              )}
+            </AnimatePresence>
+
             <div className="w-full h-full pointer-events-none">
               <Canvas
                 camera={{ position: [0, 0.2, 2.2], fov: 50 }}
@@ -923,44 +1002,113 @@ const BumblebeeMascot = () => {
               >
                 <ambientLight intensity={0.3} />
                 <directionalLight position={[3, 5, 2]} intensity={1.2} color="#ffffff" />
-                <directionalLight position={[-3, 2, 4]} intensity={0.6} color={PURPLE_ENERGY} />
-                <pointLight position={[0, 0, 2]} intensity={0.8} color="#FFB6C1" />
+                <directionalLight position={[-3, 2, 4]} intensity={0.6} color={BLUE_ENERGY} />
+                <pointLight position={[0, 0, 2]} intensity={0.8} color="#FFE4B5" />
                 <spotLight position={[0, 3, 3]} angle={0.5} penumbra={0.8} intensity={1} />
-                <AggressiveBirdRobot gesture={birdGesture} />
+                <MovieBumblebeeRobot gesture={bumblebeeGesture} />
               </Canvas>
             </div>
             
             <div 
-              className="absolute inset-0 -z-10 rounded-full blur-3xl opacity-25"
-              style={{ background: `radial-gradient(circle, ${PURPLE_ENERGY} 0%, transparent 70%)` }}
+              className="absolute inset-0 -z-10 rounded-full blur-3xl opacity-20"
+              style={{ background: `radial-gradient(circle, ${BLUE_ENERGY} 0%, transparent 70%)` }}
             />
+            
+            {/* Winner crown effect */}
+            {winner === "bumblebee" && (
+              <motion.div
+                className="absolute -top-4 left-1/2 -translate-x-1/2 text-2xl"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                👑
+              </motion.div>
+            )}
           </motion.div>
-        )}
-      </AnimatePresence>
 
-      {/* Fight explosion effect */}
-      <AnimatePresence>
-        {isFighting && (
-          <motion.div
-            className="fixed inset-0 pointer-events-none z-20"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <div 
-              className="absolute w-20 h-20 rounded-full blur-2xl"
-              style={{
-                left: `${(bumblebeePos.x + birdPos.x) / 2}%`,
-                top: `${(bumblebeePos.y + birdPos.y) / 2}%`,
-                transform: 'translate(-50%, -50%)',
-                background: `radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%)`,
-                animation: 'pulse 0.5s ease-in-out infinite'
-              }}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
+          {/* Aggressive Bird Robot */}
+          <AnimatePresence>
+            {showBird && (
+              <motion.div
+                className="fixed z-30 select-none w-[80px] h-[100px] md:w-[90px] md:h-[110px] cursor-pointer"
+                onClick={handleClick}
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ 
+                  opacity: 1,
+                  scale: winner === "bird" ? 1.2 : winner === "bumblebee" ? 0.9 : 1,
+                  left: `${birdPos.x}%`,
+                  top: `${birdPos.y}%`,
+                  x: "-50%",
+                  y: "-50%",
+                  rotate: isFighting && !winner ? [0, -8, 8, 0] : 0,
+                }}
+                exit={{ opacity: 0, scale: 0, transition: { duration: 0.5 } }}
+                transition={{ 
+                  duration: 0.5,
+                  ease: "easeOut",
+                  left: { duration: 2, ease: "linear" },
+                  top: { duration: 2, ease: "linear" },
+                }}
+              >
+                <div className="w-full h-full pointer-events-none">
+                  <Canvas
+                    camera={{ position: [0, 0.2, 2.2], fov: 50 }}
+                    style={{ background: "transparent" }}
+                    gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}
+                  >
+                    <ambientLight intensity={0.3} />
+                    <directionalLight position={[3, 5, 2]} intensity={1.2} color="#ffffff" />
+                    <directionalLight position={[-3, 2, 4]} intensity={0.6} color={PURPLE_ENERGY} />
+                    <pointLight position={[0, 0, 2]} intensity={0.8} color="#FFB6C1" />
+                    <spotLight position={[0, 3, 3]} angle={0.5} penumbra={0.8} intensity={1} />
+                    <AggressiveBirdRobot gesture={birdGesture} />
+                  </Canvas>
+                </div>
+                
+                <div 
+                  className="absolute inset-0 -z-10 rounded-full blur-3xl opacity-25"
+                  style={{ background: `radial-gradient(circle, ${PURPLE_ENERGY} 0%, transparent 70%)` }}
+                />
+                
+                {/* Winner crown effect */}
+                {winner === "bird" && (
+                  <motion.div
+                    className="absolute -top-4 left-1/2 -translate-x-1/2 text-2xl"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                  >
+                    👑
+                  </motion.div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Fight explosion effect */}
+          <AnimatePresence>
+            {isFighting && !winner && (
+              <motion.div
+                className="fixed inset-0 pointer-events-none z-20"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                <div 
+                  className="absolute w-20 h-20 rounded-full blur-2xl"
+                  style={{
+                    left: `${(bumblebeePos.x + birdPos.x) / 2}%`,
+                    top: `${(bumblebeePos.y + birdPos.y) / 2}%`,
+                    transform: 'translate(-50%, -50%)',
+                    background: `radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%)`,
+                    animation: 'pulse 0.5s ease-in-out infinite'
+                  }}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </>
+      )}
+    </AnimatePresence>
   );
 };
 
