@@ -33,8 +33,8 @@ const App = () => {
         <Toaster />
         <Sonner />
         {showIntro && <IntroAnimation onComplete={handleIntroComplete} />}
-        {!showIntro && <BumblebeeMascot />}
         <BrowserRouter>
+          {!showIntro && <BumblebeeMascot />}
           <Routes>
             <Route path="/" element={<PeriodicTable />} />
             <Route path="/quiz" element={<Quiz />} />
