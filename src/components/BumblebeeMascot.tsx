@@ -24,68 +24,107 @@ const OPTIMUS_ENERGY = "#60A5FA"; // Blue energy glow
 // Gesture types (expanded)
 type GestureType = "idle" | "wave" | "point" | "thumbsUp" | "think" | "celebrate" | "listen" | "nod" | "raiseHand" | "salute" | "clap" | "walk";
 
-// Bumblebee tips - avval o'zini tanishtiradi
-const bumblebeeTips: Record<string, string[]> = {
-  "/": [
-    "Salom! Men Bumblebee! Avtobotlarning eng sodiq jangchisiman! Sizga kimyoni o'rgatishga tayyorman!",
-    "Elementni bosing - proton, neytron, elektron sonini ko'ring",
-    "Metalllar chap tomonda, metalmaslar o'ng tomonda joylashgan",
-    "Davr raqami - elektron qavatlar sonini bildiradi",
-    "Guruh raqami - tashqi qavatdagi elektronlar soni",
-    "Lantanoidlar va aktinoidlar jadval ostida joylashgan",
-    "Atom massasi - proton va neytronlar yig'indisi",
-    "Elektromanfiylk - atomning elektron tortish qobiliyati",
-  ],
-  "/reactions": [
-    "Men Bumblebee! Reaksiyalar dunyosiga xush kelibsiz!",
-    "Reaksiya tenglamasini muvozanatlash uchun koeffitsientlar qo'ying",
-    "Oksidlanish - elektron yo'qotish, qaytarilish - elektron olish",
-    "Ekzotermik reaksiya - issiqlik ajratadi, endotermik - yutadi",
-    "Katalizator - reaksiya tezligini oshiradi, o'zi sarf bo'lmaydi",
-    "Neytrallanish: kislota + asos = tuz + suv",
-  ],
-  "/learning": [
-    "Bumblebee sizga yordam beradi! O'rganishni boshlaymiz!",
-    "Har kuni 15 daqiqa o'qish - 1 oyda katta natija!",
-    "Avval nazariyani o'qing, keyin test ishlang",
-    "Xato javoblarni qayta ko'rib chiqing - bu eng muhim!",
-    "Formulalarni yod oling - masalalar oson bo'ladi",
-    "Darajangizni oshirib, yangi mavzularni oching",
-  ],
-  "/library": [
-    "Bumblebee kutubxonaga xush kelibsiz deydi!",
-    "Boshlang'ich kitobdan boshlang - poydevor muhim!",
-    "Har bir bobni to'liq o'qib, keyin savollarga javob bering",
-    "Murakkab mavzularni bir necha marta o'qing",
-    "PDF yuklab oling - oflayn ham o'qishingiz mumkin",
-  ],
-  "/quiz": [
-    "Bumblebee test yechishda yordam beradi!",
-    "Test rasmini yuklang - 10 tagacha rasm",
-    "AI savollarni avtomatik taniydi va formatlaydi",
-    "Javoblar aralashtiriladi - yod olish emas, tushunish muhim!",
-    "Xato javoblarni ko'rib chiqing - tushuntirishni o'qing",
-  ],
-  "/calculator": [
-    "Bumblebee kalkulyator bilan yordam beradi!",
-    "Molyar massa: M = m/n (g/mol)",
-    "Konsentratsiya: C = n/V (mol/L)",
-    "pH = -log[H⁺], pOH = -log[OH⁻]",
-    "Ideal gaz: PV = nRT",
-    "Faradey qonuni: m = (M·I·t)/(n·F)",
-  ],
-  "/experiments": [
-    "Bumblebee tajribalar bo'limiga xush kelibsiz deydi!",
-    "Videolarni diqqat bilan tomosha qiling",
-    "Xavfsizlik qoidalariga amal qiling!",
-    "Ko'zoynak va qo'lqop kiyish shart",
-  ],
-  "/developers": [
-    "Bumblebee ChemFlare jamoasini tanishtiradi!",
-    "ChemFlare - kimyoni oson o'rganish uchun yaratilgan",
-    "Savollar bo'lsa - Telegram orqali bog'laning",
-  ],
-};
+// Bumblebee - faqat kirishda tanishadi
+const bumblebeeIntro = "Salom! Men Bumblebee! Avtobotlarning eng sodiq jangchisiman!";
+
+// Optimus Prime - faqat kirishda tanishadi  
+const optimusIntro = "Men Optimus Prime! Avtobotlar lideri! Bilim - eng kuchli qurolimiz!";
+
+// Umumiy bilimlar bazasi - barcha sahifalar uchun aralashtiriladi
+const knowledgeBase: string[] = [
+  // Elementlar
+  "H - Vodorod, eng yengil element, atom massasi 1",
+  "He - Geliy, inert gaz, shamlar uchun ishlatiladi",
+  "Li - Litiy, eng yengil metall, batareyalarda",
+  "C - Uglerod, olmos va grafitda mavjud",
+  "N - Azot, havoning 78 foizi",
+  "O - Kislorod, nafas olish uchun zarur",
+  "Na - Natriy, suv bilan portlaydi!",
+  "Cl - Xlor, tuz tarkibida NaCl",
+  "Fe - Temir, qon tarkibida, magnit xususiyatli",
+  "Au - Oltin, eng choziluvchan metall",
+  "Ag - Kumush, eng yaxshi elektr otkazuvchi",
+  "Cu - Mis, simlar uchun ishlatiladi",
+  "Ca - Kalsiy, suyaklar tarkibida",
+  "K - Kaliy, osimliklar uchun zarur",
+  "Mg - Magniy, xlorofil tarkibida",
+  "S - Oltingugurt, vulqonlarda topiladi",
+  "P - Fosfor, gugurt ishlab chiqarishda",
+  "Zn - Rux, korroziyadan himoya",
+  "Al - Alyuminiy, samolyotlarda ishlatiladi",
+  "Si - Kremniy, kompyuter chiplari asosi",
+  
+  // Formulalar va qonunlar
+  "Molyar massa: M = m/n (g/mol)",
+  "Konsentratsiya: C = n/V (mol/L)",
+  "pH = -log[H+], pOH = -log[OH-]",
+  "Ideal gaz: PV = nRT",
+  "Faradey qonuni: m = (M·I·t)/(n·F)",
+  "Massa ulushi: w = m(element)/m(modda)",
+  "Zichlik: p = m/V (g/ml)",
+  "Hajm (gaz): V = n × 22.4 L",
+  "Issiqlik: Q = m × c × dT",
+  "Avogadro soni: 6.02×10 darajada 23",
+  
+  // Reaksiyalar
+  "2H2 + O2 = 2H2O - suv hosil bolishi",
+  "2Na + 2H2O = 2NaOH + H2 - natriy va suv",
+  "CaCO3 = CaO + CO2 - ohak yonishi",
+  "Zn + 2HCl = ZnCl2 + H2 - metall va kislota",
+  "NaOH + HCl = NaCl + H2O - neytrallanish",
+  "Fe + CuSO4 = FeSO4 + Cu - orin olish",
+  "CH4 + 2O2 = CO2 + 2H2O - metan yonishi",
+  "2KMnO4 = K2MnO4 + MnO2 + O2",
+  
+  // Tushunchalar
+  "Valentlik - atomning bog hosil qilish qobiliyati",
+  "Ion - zaryadlangan atom yoki molekula",
+  "Kation (+) va anion (-) - ion turlari",
+  "Molekula - atomlarning birikishi",
+  "Kristall panjara - qattiq modda tuzilishi",
+  "Elektrolitlar - eritma tok otkazadi",
+  "Indikatorlar - muhit pH ini aniqlaydi",
+  "Lakmus - kislotada qizil, asosda kok",
+  "Fenolftalein - asosda pushti rang",
+  "Metil oranj - kislotada qizil",
+  
+  // Qiziqarli faktlar
+  "Mendeleev 1869-yilda davriy jadvalni yaratdi",
+  "Olmos va grafit bir xil element - uglerod!",
+  "Suv 0°C da muzlaydi, 100°C da qaynaydi",
+  "Oltingugurt yonganida kok olov chiqadi",
+  "Magniy yonganida yorqin oq nur hosil boladi",
+  "Natriy xlorid - oddiy osh tuzi",
+  "Vodorod - Quyosh asosiy elementi",
+  "Kislorod havoning 21 foizi",
+  "Azot havoning 78 foizi",
+  "Argon - havoda 3-chi koplik element",
+  
+  // Amaliy bilimlar
+  "Soda + sirka = vulqon tajribasi!",
+  "Yod + kraxmal = kok rang hosil boladi",
+  "Mis sulfat + temir = mis chokadi",
+  "Limon kislotasi - tabiiy kislota",
+  "Sut - kolloid eritma misoli",
+  "Tuz suvda eriganda ion hosil boladi",
+  "Muzlash - ekzotermik jarayon",
+  "Buglanish - endotermik jarayon",
+  
+  // Xavfsizlik
+  "Laboratoriyada kozoynak kiyish shart!",
+  "Kimyoviy moddalarni tatib korib bulmaydi!",
+  "Kislotalarni suv ustiga quyish kerak",
+  "Tajribadan keyin qollarni yuvish zarur",
+  "Isitish vaqtida probirkani yuzga qaratmang",
+  
+  // Maslahatlar
+  "Har kuni 15 daqiqa oqish - katta natija!",
+  "Avval nazariyani oqing, keyin test ishlang",
+  "Xato javoblarni qayta korib chiqing",
+  "Formulalarni yod oling - oson boladi",
+  "Davriy jadvalni yodlashdan boshlang",
+  "Kimyoviy tenglamalarni muvozanatlashni organing",
+];
 
 // Optimus Prime tips - avval o'zini tanishtiradi
 const optimusTips: Record<string, string[]> = {
@@ -963,13 +1002,15 @@ const BumblebeeMascot = () => {
   const [showTip, setShowTip] = useState(true);
   const [bumblebeePos, setBumblebeePos] = useState({ x: 85, y: 20 });
   const [birdPos, setBirdPos] = useState({ x: 15, y: 25 });
-  const [bumblebeeGesture, setBumblebeeGesture] = useState<GestureType>("idle");
+  const [bumblebeeGesture, setBumblebeeGesture] = useState<GestureType>("wave");
   const [birdGesture, setBirdGesture] = useState<GestureType>("listen");
   const [showBird, setShowBird] = useState(false);
   const [isHidden, setIsHidden] = useState(false);
   const [clickCount, setClickCount] = useState(0);
   const [isUserActive, setIsUserActive] = useState(true);
   const [currentSpeaker, setCurrentSpeaker] = useState<"bumblebee" | "bird">("bumblebee");
+  const [isFirstMessage, setIsFirstMessage] = useState(true);
+  const [shuffledKnowledge, setShuffledKnowledge] = useState<string[]>([]);
   
   const [bumblebeeTarget, setBumblebeeTarget] = useState({ x: 85, y: 20 });
   const [birdTarget, setBirdTarget] = useState({ x: 15, y: 25 });
@@ -977,9 +1018,17 @@ const BumblebeeMascot = () => {
   const clickTimerRef = useRef<NodeJS.Timeout | null>(null);
   const activityTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Get tips for current page
-  const currentBumblebeeTips = bumblebeeTips[location.pathname] || bumblebeeTips["/"];
-  const currentOptimusTips = optimusTips[location.pathname] || optimusTips["/"];
+  // Shuffle knowledge base on mount and page change
+  useEffect(() => {
+    const shuffled = [...knowledgeBase].sort(() => Math.random() - 0.5);
+    setShuffledKnowledge(shuffled);
+    setCurrentTipIndex(0);
+    setIsFirstMessage(true);
+    setCurrentSpeaker("bumblebee");
+    setBumblebeeGesture("wave");
+    setBirdGesture("listen");
+    setShowTip(true);
+  }, [location.pathname]);
 
   // Track user activity
   useEffect(() => {
@@ -1025,6 +1074,7 @@ const BumblebeeMascot = () => {
       setTimeout(() => {
         // Switch speaker
         setCurrentSpeaker(prev => prev === "bumblebee" ? "bird" : "bumblebee");
+        setIsFirstMessage(false);
         
         // Update gestures - speaker gets random gesture, listener listens
         const newGesture = getRandomSpeakerGesture();
@@ -1036,18 +1086,15 @@ const BumblebeeMascot = () => {
           setBirdGesture("listen");
         }
         
-        // Change tip index
-        setCurrentTipIndex(prev => {
-          const tips = currentSpeaker === "bumblebee" ? currentOptimusTips : currentBumblebeeTips;
-          return (prev + 1) % tips.length;
-        });
+        // Change tip index - use shuffled knowledge
+        setCurrentTipIndex(prev => (prev + 1) % shuffledKnowledge.length);
         
         setShowTip(true);
       }, 500);
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [isUserActive, currentSpeaker, currentBumblebeeTips, currentOptimusTips, getRandomSpeakerGesture]);
+  }, [isUserActive, currentSpeaker, shuffledKnowledge.length, getRandomSpeakerGesture]);
 
   // Smooth flying
   useEffect(() => {
@@ -1102,20 +1149,17 @@ const BumblebeeMascot = () => {
     }
   }, [clickCount, showBird]);
 
-  // Reset on page change
-  useEffect(() => {
-    setCurrentTipIndex(0);
-    setShowTip(true);
-    setCurrentSpeaker("bumblebee");
-    setBumblebeeGesture("wave");
-    setBirdGesture("listen");
-  }, [location.pathname]);
-
   if (isHidden) return null;
 
-  const currentTip = currentSpeaker === "bumblebee" 
-    ? currentBumblebeeTips[currentTipIndex % currentBumblebeeTips.length]
-    : currentOptimusTips[currentTipIndex % currentOptimusTips.length];
+  // Get current tip - intro on first message, then shuffled knowledge
+  const getCurrentTip = () => {
+    if (isFirstMessage) {
+      return currentSpeaker === "bumblebee" ? bumblebeeIntro : optimusIntro;
+    }
+    return shuffledKnowledge[currentTipIndex % shuffledKnowledge.length] || knowledgeBase[0];
+  };
+
+  const currentTip = getCurrentTip();
 
   return (
     <AnimatePresence>
