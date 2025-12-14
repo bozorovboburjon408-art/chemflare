@@ -439,22 +439,40 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
                     </span>
                   </motion.button>
 
-                  {/* Telegram Link */}
+                  {/* Telegram Link Button */}
                   <motion.a
                     href="https://t.me/ndktu_iqtidorlilar"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-sm"
+                    className="group relative px-6 py-3 rounded-xl font-medium text-sm overflow-hidden"
                     style={{
-                      color: "rgba(167, 139, 250, 0.9)",
+                      background: "linear-gradient(135deg, rgba(167, 139, 250, 0.15), rgba(255, 107, 107, 0.15))",
+                      border: "2px solid rgba(167, 139, 250, 0.4)",
+                      color: "#fff",
+                      boxShadow: "0 0 20px rgba(167, 139, 250, 0.2)",
                     }}
-                    whileHover={{ scale: 1.05 }}
+                    whileHover={{ 
+                      scale: 1.05,
+                      boxShadow: "0 0 40px rgba(167, 139, 250, 0.4)",
+                    }}
+                    whileTap={{ scale: 0.95 }}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.3 }}
                   >
-                    <MessageCircle className="w-4 h-4" />
-                    <span>Fikr va mulohazalar uchun biz bilan suhbatlashing</span>
+                    <motion.div
+                      className="absolute inset-0"
+                      style={{
+                        background: "linear-gradient(135deg, rgba(167, 139, 250, 0.3), rgba(255, 107, 107, 0.3))",
+                      }}
+                      initial={{ x: "-100%" }}
+                      whileHover={{ x: "0%" }}
+                      transition={{ duration: 0.3 }}
+                    />
+                    <span className="relative flex items-center gap-2">
+                      <MessageCircle className="w-4 h-4" />
+                      Fikr va mulohazalar uchun suhbatlashing
+                    </span>
                   </motion.a>
                 </motion.div>
               )}
