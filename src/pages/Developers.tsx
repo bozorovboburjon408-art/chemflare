@@ -3,7 +3,7 @@ import Navigation from "@/components/Navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Heart, Users, Lightbulb, MessageCircle, ExternalLink, Loader2, Upload, Camera, CameraOff } from "lucide-react";
+import { Heart, Users, Lightbulb, MessageCircle, ExternalLink, Loader2, Upload, Camera, CameraOff, Rocket, Sparkles, Mail, UserPlus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -245,27 +245,64 @@ const Developers = () => {
         {/* Hero Section */}
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent mb-4">
-            ISHLAB CHIQARUVCHILAR
+            ILOVA HAQIDA
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Bu loyiha — intilish, mehnat va ilmga bo'lgan muhabbatimiz samarasidir
+            6 ta do'st tomonidan yaratilgan — ixtirolar va startaplar bilan shug'ullanuvchi yosh innovatorlar
           </p>
         </div>
 
-        {/* Mission Section */}
+        {/* About Us Section */}
         <Card className="mb-8 bg-gradient-to-br from-primary/5 to-accent/5 border-primary/20">
           <CardContent className="p-6 md:p-8">
             <div className="flex items-start gap-4">
               <div className="p-3 rounded-full bg-primary/10">
-                <Lightbulb className="w-6 h-6 text-primary" />
+                <Sparkles className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <h2 className="text-xl font-semibold text-foreground mb-3">Biz Haqimizda</h2>
+                <p className="text-muted-foreground leading-relaxed">
+                  Biz — <span className="text-primary font-medium">6 ta do'st</span>, bir-birimizni yaxshi tushunadigan va birgalikda katta maqsadlar sari intiladigan jamoa. Biz <span className="text-accent font-medium">ixtirolar</span>, <span className="text-accent font-medium">startaplar</span> va <span className="text-accent font-medium">innovatsiyalar</span> bilan qiziqamiz.
+                </p>
+                <p className="text-muted-foreground leading-relaxed mt-3">
+                  ChemFlare — bu bizning birinchi katta loyihamiz emas. Biz doimo yangi g'oyalar ustida ishlaymiz va ularni hayotga tatbiq etishga harakat qilamiz. Bu ilova ham — bizning mehnatimiz, do'stligimiz va ilmga bo'lgan qiziqishimiz samarasidir.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Mission Section */}
+        <Card className="mb-8 bg-gradient-to-br from-accent/5 to-primary/5 border-accent/20">
+          <CardContent className="p-6 md:p-8">
+            <div className="flex items-start gap-4">
+              <div className="p-3 rounded-full bg-accent/10">
+                <Lightbulb className="w-6 h-6 text-accent" />
               </div>
               <div>
                 <h2 className="text-xl font-semibold text-foreground mb-3">Bizning Maqsadimiz</h2>
                 <p className="text-muted-foreground leading-relaxed">
                   Kimyoni <span className="text-primary font-medium">bepul</span>, <span className="text-primary font-medium">sodda</span>, <span className="text-primary font-medium">tushunarli</span> va eng muhimi <span className="text-primary font-medium">mukammal</span> tarzda o'rgatuvchi ilova yaratish edi. Bugun esa shu maqsadimiz ro'yobga chiqdi.
                 </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Startup & Innovation Section */}
+        <Card className="mb-8 bg-gradient-to-br from-orange-500/5 to-yellow-500/5 border-orange-500/20">
+          <CardContent className="p-6 md:p-8">
+            <div className="flex items-start gap-4">
+              <div className="p-3 rounded-full bg-orange-500/10">
+                <Rocket className="w-6 h-6 text-orange-500" />
+              </div>
+              <div>
+                <h2 className="text-xl font-semibold text-foreground mb-3">Startaplar va Ixtirolar</h2>
+                <p className="text-muted-foreground leading-relaxed">
+                  Biz nafaqat dasturiy ta'minot, balki <span className="text-orange-500 font-medium">turli xil ixtirolar</span> va <span className="text-orange-500 font-medium">startap loyihalar</span> ustida ishlaymiz. Bizning jamoamiz doimo yangi imkoniyatlarni izlaydi va innovatsion yechimlar yaratadi.
+                </p>
                 <p className="text-muted-foreground leading-relaxed mt-3">
-                  Bu dastur — ustozlarimizning ilhomi, bizning mehnatimiz va sizning ilmga bo'lgan qiziqishingizdan tug'ilgan katta loyiha.
+                  Agar sizda ham qiziqarli g'oya bo'lsa — biz bilan bog'laning! Birgalikda yanada kattaroq muvaffaqiyatlarga erishishimiz mumkin.
                 </p>
               </div>
             </div>
@@ -404,6 +441,68 @@ const Developers = () => {
           </CardContent>
         </Card>
 
+        {/* Join Our Team Section */}
+        <Card className="mb-8 bg-gradient-to-br from-green-500/5 to-emerald-500/5 border-green-500/20">
+          <CardContent className="p-6 md:p-8">
+            <div className="flex items-start gap-4">
+              <div className="p-3 rounded-full bg-green-500/10">
+                <UserPlus className="w-6 h-6 text-green-500" />
+              </div>
+              <div className="flex-1">
+                <h2 className="text-xl font-semibold text-foreground mb-3">Jamoaga Qo'shiling!</h2>
+                <p className="text-muted-foreground leading-relaxed mb-4">
+                  Agar siz ham <span className="text-green-500 font-medium">ixtirolar</span>, <span className="text-green-500 font-medium">startaplar</span> va <span className="text-green-500 font-medium">innovatsiyalar</span> bilan qiziqsangiz — jamoamizga qo'shiling! Biz yangi a'zolarni kutib olamiz.
+                </p>
+                <a 
+                  href="https://t.me/ndktu_iqtidorlilar" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                >
+                  <Button className="gap-2 bg-green-500 hover:bg-green-600 text-white">
+                    <MessageCircle className="w-4 h-4" />
+                    Telegram Guruhimiz
+                    <ExternalLink className="w-3 h-3" />
+                  </Button>
+                </a>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Custom App Offer Section */}
+        <Card className="mb-8 bg-gradient-to-br from-purple-500/5 to-pink-500/5 border-purple-500/20">
+          <CardContent className="p-6 md:p-8">
+            <div className="flex items-start gap-4">
+              <div className="p-3 rounded-full bg-purple-500/10">
+                <Mail className="w-6 h-6 text-purple-500" />
+              </div>
+              <div className="flex-1">
+                <h2 className="text-xl font-semibold text-foreground mb-3">Shaxsiy Ilova Kerakmi?</h2>
+                <p className="text-muted-foreground leading-relaxed mb-3">
+                  Agar sizga <span className="text-purple-500 font-medium">shaxsiy ilova</span> kerak bo'lsa yoki bizga <span className="text-purple-500 font-medium">takliflaringiz</span> bo'lsa — biz yordam berishga tayyormiz!
+                </p>
+                <p className="text-muted-foreground leading-relaxed mb-4">
+                  Bizning jamoa sizning g'oyangizni hayotga tatbiq etishga tayyor. O'z loyihangiz, biznes g'oyangiz yoki shunchaki qiziqarli fikringiz bo'lsa — yozing!
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <Badge variant="outline" className="bg-purple-500/10 text-purple-600 border-purple-500/20">
+                    Mobil ilovalar
+                  </Badge>
+                  <Badge variant="outline" className="bg-purple-500/10 text-purple-600 border-purple-500/20">
+                    Web saytlar
+                  </Badge>
+                  <Badge variant="outline" className="bg-purple-500/10 text-purple-600 border-purple-500/20">
+                    Telegram botlar
+                  </Badge>
+                  <Badge variant="outline" className="bg-purple-500/10 text-purple-600 border-purple-500/20">
+                    AI loyihalar
+                  </Badge>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Contact Section */}
         <Card className="bg-gradient-to-br from-accent/5 to-primary/5 border-accent/20">
           <CardContent className="p-6 md:p-8">
@@ -414,10 +513,22 @@ const Developers = () => {
               <div>
                 <h2 className="text-xl font-semibold text-foreground mb-3">Bog'lanish</h2>
                 <p className="text-muted-foreground leading-relaxed">
-                  Taklif va fikr-mulohazalar uchun biz bilan bemalol bog'lanishingiz mumkin. Telegram username'larimiz yuqorida ko'rsatilgan.
+                  Taklif va fikr-mulohazalar uchun biz bilan bemalol bog'lanishingiz mumkin. Telegram username'larimiz yuqorida ko'rsatilgan yoki guruhimizga qo'shiling:
                 </p>
+                <div className="mt-4 flex flex-wrap gap-3">
+                  <a 
+                    href="https://t.me/ndktu_iqtidorlilar" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                  >
+                    <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 hover:bg-primary/10 cursor-pointer transition-colors">
+                      @ndktu_iqtidorlilar
+                      <ExternalLink className="w-3 h-3 ml-1" />
+                    </Badge>
+                  </a>
+                </div>
                 <div className="mt-4">
-                  <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20">
+                  <Badge variant="outline" className="bg-accent/5 text-accent border-accent/20">
                     Oldinda yanada ko'proq g'oyalar, yangilanishlar va imkoniyatlar kutmoqda!
                   </Badge>
                 </div>
@@ -429,7 +540,7 @@ const Developers = () => {
         {/* Footer */}
         <div className="text-center mt-12 text-muted-foreground">
           <p className="text-sm">
-            Biz bilan qoling — bilim sari birga intilamiz! 🚀
+            6 ta do'st — bitta jamoa. Biz bilan birga o'sib boring! 🚀
           </p>
         </div>
       </main>
