@@ -3079,6 +3079,10 @@ const BumblebeeMascot = () => {
   const [currentSpeaker, setCurrentSpeaker] = useState<"bumblebee" | "bird">("bumblebee");
   const [isFirstMessage, setIsFirstMessage] = useState(true);
   const [shuffledKnowledge, setShuffledKnowledge] = useState<string[]>([]);
+  const [cameraEnabled, setCameraEnabled] = useState(() => {
+    return localStorage.getItem('robot_camera_enabled') === 'true';
+  });
+  const [isUserVisible, setIsUserVisible] = useState(false);
   
   // Transformation states
   const [bumblebeeTransformed, setBumblebeeTransformed] = useState(false);
@@ -3091,6 +3095,52 @@ const BumblebeeMascot = () => {
   
   const clickTimerRef = useRef<NodeJS.Timeout | null>(null);
   const activityTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+
+  // Listen for camera status changes
+  useEffect(() => {
+    const handleCameraChange = (event: CustomEvent<{ enabled: boolean }>) => {
+      setCameraEnabled(event.detail.enabled);
+    };
+    
+    window.addEventListener('cameraStatusChanged', handleCameraChange as EventListener);
+    return () => {
+      window.removeEventListener('cameraStatusChanged', handleCameraChange as EventListener);
+    };
+  }, []);
+
+  // Handle camera stream for robot "vision"
+  useEffect(() => {
+    if (cameraEnabled && !streamRef.current) {
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+          streamRef.current = stream;
+          setIsUserVisible(true);
+          
+          // Create hidden video element
+          const video = document.createElement('video');
+          video.srcObject = stream;
+          video.play();
+          videoRef.current = video;
+        })
+        .catch(err => {
+          console.error('Camera error:', err);
+          setIsUserVisible(false);
+        });
+    } else if (!cameraEnabled && streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+      videoRef.current = null;
+      setIsUserVisible(false);
+    }
+    
+    return () => {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, [cameraEnabled]);
 
   // Shuffle knowledge base on mount and page change
   useEffect(() => {
@@ -3332,10 +3382,23 @@ const BumblebeeMascot = () => {
 
   if (isHidden) return null;
 
+  // Camera-aware messages
+  const cameraMessages = [
+    "Sizni ko'ryapman! Salom!",
+    "O'h, chiroyli odamsiz!",
+    "Kimyoni birga o'rganamiz!",
+    "Men sizni ko'ryapman!",
+    "Siz ham meni ko'rasizmi?",
+  ];
+
   // Get current tip - intro on first message for each robot, then shuffled knowledge
   const getCurrentTip = () => {
     if (isFirstMessage) {
       return currentSpeaker === "bumblebee" ? bumblebeeIntro : optimusIntro;
+    }
+    // If camera enabled and user visible, sometimes show camera-aware messages
+    if (isUserVisible && Math.random() < 0.3) {
+      return cameraMessages[Math.floor(Math.random() * cameraMessages.length)];
     }
     if (shuffledKnowledge.length === 0) return knowledgeBase[0];
     return shuffledKnowledge[currentTipIndex % shuffledKnowledge.length];
