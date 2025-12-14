@@ -21,16 +21,16 @@ const queryClient = new QueryClient();
 
 const App = () => {
   const [showIntro, setShowIntro] = useState(false);
-
+ 
   useEffect(() => {
-    const hasSeenIntro = sessionStorage.getItem("hasSeenIntro");
+    const hasSeenIntro = localStorage.getItem("hasSeenIntro");
     if (!hasSeenIntro) {
       setShowIntro(true);
     }
   }, []);
-
+ 
   const handleIntroComplete = () => {
-    sessionStorage.setItem("hasSeenIntro", "true");
+    localStorage.setItem("hasSeenIntro", "true");
     setShowIntro(false);
   };
 
