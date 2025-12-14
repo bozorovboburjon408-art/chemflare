@@ -835,6 +835,7 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
                     <span className="relative flex items-center gap-2">
                       <MessageCircle className="w-4 h-4" />
                       Fikr va mulohazalar uchun suhbatlashing
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </span>
                   </motion.a>
                 </motion.div>
