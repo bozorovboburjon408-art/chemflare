@@ -637,26 +637,162 @@ const AggressiveBirdRobot = ({ gesture }: { gesture: GestureType }) => {
   );
 };
 
-// Projectile/Arrow component
-const Projectile = ({ from, to, color, onComplete }: { from: { x: number; y: number }; to: { x: number; y: number }; color: string; onComplete: () => void }) => {
+// Weapon types
+type WeaponType = "laser" | "rocket" | "plasma";
+
+// Explosion Effect Component
+const Explosion = ({ position, color, onComplete }: { position: { x: number; y: number }; color: string; onComplete: () => void }) => {
   useEffect(() => {
-    const timer = setTimeout(onComplete, 800);
+    const timer = setTimeout(onComplete, 600);
     return () => clearTimeout(timer);
   }, [onComplete]);
 
   return (
     <motion.div
-      className="fixed z-40 pointer-events-none"
-      initial={{ left: `${from.x}%`, top: `${from.y}%`, opacity: 1, scale: 1 }}
-      animate={{ left: `${to.x}%`, top: `${to.y}%`, opacity: 0, scale: 0.5 }}
-      transition={{ duration: 0.8, ease: "easeOut" }}
+      className="fixed z-50 pointer-events-none"
+      style={{ left: `${position.x}%`, top: `${position.y}%`, transform: 'translate(-50%, -50%)' }}
+      initial={{ opacity: 1, scale: 0 }}
+      animate={{ opacity: 0, scale: 3 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
     >
+      {/* Main explosion */}
       <div 
-        className="w-4 h-4 rounded-full"
+        className="w-16 h-16 rounded-full"
         style={{ 
-          background: `radial-gradient(circle, ${color} 0%, transparent 70%)`,
-          boxShadow: `0 0 20px ${color}, 0 0 40px ${color}`
+          background: `radial-gradient(circle, white 0%, ${color} 30%, transparent 70%)`,
+          boxShadow: `0 0 30px ${color}, 0 0 60px ${color}, 0 0 90px ${color}`
         }} 
+      />
+      {/* Explosion particles */}
+      {[...Array(8)].map((_, i) => (
+        <motion.div
+          key={i}
+          className="absolute w-3 h-3 rounded-full"
+          style={{ 
+            background: color,
+            left: '50%',
+            top: '50%',
+            boxShadow: `0 0 10px ${color}`
+          }}
+          initial={{ x: 0, y: 0, opacity: 1 }}
+          animate={{ 
+            x: Math.cos(i * Math.PI / 4) * 50,
+            y: Math.sin(i * Math.PI / 4) * 50,
+            opacity: 0,
+            scale: 0
+          }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+        />
+      ))}
+    </motion.div>
+  );
+};
+
+// Projectile Component with different weapon types
+const Projectile = ({ 
+  from, 
+  to, 
+  color, 
+  weaponType,
+  onComplete,
+  onHit
+}: { 
+  from: { x: number; y: number }; 
+  to: { x: number; y: number }; 
+  color: string;
+  weaponType: WeaponType;
+  onComplete: () => void;
+  onHit: (position: { x: number; y: number }) => void;
+}) => {
+  const duration = weaponType === "laser" ? 0.3 : weaponType === "rocket" ? 1.2 : 0.6;
+  
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onHit(to);
+      onComplete();
+    }, duration * 1000);
+    return () => clearTimeout(timer);
+  }, [onComplete, onHit, to, duration]);
+
+  // Laser beam
+  if (weaponType === "laser") {
+    const angle = Math.atan2(to.y - from.y, to.x - from.x) * 180 / Math.PI;
+    const distance = Math.sqrt(Math.pow(to.x - from.x, 2) + Math.pow(to.y - from.y, 2));
+    
+    return (
+      <motion.div
+        className="fixed z-40 pointer-events-none origin-left"
+        style={{ 
+          left: `${from.x}%`, 
+          top: `${from.y}%`,
+          transform: `rotate(${angle}deg)`,
+          height: '4px',
+          background: `linear-gradient(90deg, ${color}, white, ${color})`,
+          boxShadow: `0 0 10px ${color}, 0 0 20px ${color}`,
+          borderRadius: '2px'
+        }}
+        initial={{ width: 0, opacity: 1 }}
+        animate={{ width: `${distance}vw`, opacity: [1, 1, 0] }}
+        transition={{ duration, ease: "easeOut" }}
+      />
+    );
+  }
+
+  // Rocket
+  if (weaponType === "rocket") {
+    return (
+      <motion.div
+        className="fixed z-40 pointer-events-none"
+        initial={{ left: `${from.x}%`, top: `${from.y}%`, opacity: 1, scale: 1, rotate: 0 }}
+        animate={{ 
+          left: `${to.x}%`, 
+          top: `${to.y}%`, 
+          opacity: 1, 
+          scale: 1.2,
+          rotate: [0, 10, -10, 5, -5, 0]
+        }}
+        transition={{ duration, ease: "easeInOut" }}
+      >
+        <div className="relative">
+          {/* Rocket body */}
+          <div 
+            className="w-6 h-3 rounded-full"
+            style={{ 
+              background: `linear-gradient(90deg, ${color}, white)`,
+              boxShadow: `0 0 15px ${color}`
+            }} 
+          />
+          {/* Rocket trail */}
+          <motion.div
+            className="absolute -left-4 top-1/2 -translate-y-1/2 w-8 h-2"
+            style={{ 
+              background: `linear-gradient(90deg, transparent, orange, yellow)`,
+              filter: 'blur(2px)'
+            }}
+            animate={{ opacity: [0.5, 1, 0.5], scaleX: [0.8, 1.2, 0.8] }}
+            transition={{ duration: 0.2, repeat: Infinity }}
+          />
+        </div>
+      </motion.div>
+    );
+  }
+
+  // Plasma ball (default)
+  return (
+    <motion.div
+      className="fixed z-40 pointer-events-none"
+      initial={{ left: `${from.x}%`, top: `${from.y}%`, opacity: 1, scale: 0.5 }}
+      animate={{ left: `${to.x}%`, top: `${to.y}%`, opacity: 1, scale: 1 }}
+      transition={{ duration, ease: "easeOut" }}
+    >
+      <motion.div 
+        className="w-6 h-6 rounded-full"
+        style={{ 
+          background: `radial-gradient(circle, white 0%, ${color} 40%, transparent 70%)`,
+          boxShadow: `0 0 20px ${color}, 0 0 40px ${color}, 0 0 60px ${color}`
+        }}
+        animate={{ scale: [1, 1.3, 1], opacity: [1, 0.8, 1] }}
+        transition={{ duration: 0.2, repeat: Infinity }}
       />
     </motion.div>
   );
@@ -710,7 +846,8 @@ const BumblebeeMascot = () => {
   const [birdGesture, setBirdGesture] = useState<GestureType>("idle");
   const [showBird, setShowBird] = useState(false);
   const [isFighting, setIsFighting] = useState(false);
-  const [projectiles, setProjectiles] = useState<Array<{ id: number; from: { x: number; y: number }; to: { x: number; y: number }; color: string }>>([]);
+  const [projectiles, setProjectiles] = useState<Array<{ id: number; from: { x: number; y: number }; to: { x: number; y: number }; color: string; weaponType: WeaponType }>>([]);
+  const [explosions, setExplosions] = useState<Array<{ id: number; position: { x: number; y: number }; color: string }>>([]);
   const [isHidden, setIsHidden] = useState(false);
   const [clickCount, setClickCount] = useState(0);
   const [isUserActive, setIsUserActive] = useState(true);
@@ -823,17 +960,27 @@ const BumblebeeMascot = () => {
     return () => clearInterval(animationInterval);
   }, [bumblebeeTarget, birdTarget, isUserActive]);
 
-  // Random fighting
+  // Random fighting - every 30 seconds to 2 minutes
   useEffect(() => {
     if (!showBird || isHidden || isUserActive) return;
 
-    const fightInterval = setInterval(() => {
-      if (Math.random() > 0.5 && !isFighting) {
-        startFight();
-      }
-    }, 15000);
+    // Random interval between 30 seconds and 2 minutes
+    const getRandomFightInterval = () => 30000 + Math.random() * 90000;
+    
+    let fightTimeout: NodeJS.Timeout;
+    
+    const scheduleFight = () => {
+      fightTimeout = setTimeout(() => {
+        if (!isFighting) {
+          startFight();
+        }
+        scheduleFight();
+      }, getRandomFightInterval());
+    };
+    
+    scheduleFight();
 
-    return () => clearInterval(fightInterval);
+    return () => clearTimeout(fightTimeout);
   }, [showBird, isHidden, isUserActive, isFighting]);
 
   const startFight = useCallback(() => {
@@ -844,28 +991,46 @@ const BumblebeeMascot = () => {
     setBumblebeeGesture("fight");
     setBirdGesture("fight");
     
-    // Shoot projectiles - both shoot at the same time
+    // Random weapon types
+    const weapons: WeaponType[] = ["laser", "rocket", "plasma"];
+    
+    // Calculate hand positions (offset from robot center)
+    const bumblebeeHandPos = { 
+      x: bumblebeePos.x + (birdPos.x > bumblebeePos.x ? 3 : -3), 
+      y: bumblebeePos.y + 2 
+    };
+    const birdHandPos = { 
+      x: birdPos.x + (bumblebeePos.x > birdPos.x ? 3 : -3), 
+      y: birdPos.y + 2 
+    };
+    
+    // Shoot projectiles - both shoot at the same time with random weapons
     const shootProjectiles = () => {
+      const bumblebeeWeapon = weapons[Math.floor(Math.random() * weapons.length)];
+      const birdWeapon = weapons[Math.floor(Math.random() * weapons.length)];
+      
       setProjectiles(prev => [
         ...prev,
         {
           id: projectileIdRef.current++,
-          from: bumblebeePos,
+          from: bumblebeeHandPos,
           to: birdPos,
-          color: BLUE_ENERGY
+          color: BLUE_ENERGY,
+          weaponType: bumblebeeWeapon
         },
         {
           id: projectileIdRef.current++,
-          from: birdPos,
+          from: birdHandPos,
           to: bumblebeePos,
-          color: PURPLE_ENERGY
+          color: PURPLE_ENERGY,
+          weaponType: birdWeapon
         }
       ]);
     };
 
     shootProjectiles();
-    setTimeout(shootProjectiles, 1000);
-    setTimeout(shootProjectiles, 2000);
+    setTimeout(shootProjectiles, 1200);
+    setTimeout(shootProjectiles, 2400);
 
     // Determine winner and end fight
     setTimeout(() => {
@@ -893,6 +1058,15 @@ const BumblebeeMascot = () => {
 
   const removeProjectile = useCallback((id: number) => {
     setProjectiles(prev => prev.filter(p => p.id !== id));
+  }, []);
+
+  const addExplosion = useCallback((position: { x: number; y: number }, color: string) => {
+    const id = Date.now();
+    setExplosions(prev => [...prev, { id, position, color }]);
+  }, []);
+
+  const removeExplosion = useCallback((id: number) => {
+    setExplosions(prev => prev.filter(e => e.id !== id));
   }, []);
 
   // Handle click - single click = fly away, double click = hide permanently
@@ -955,14 +1129,26 @@ const BumblebeeMascot = () => {
     <AnimatePresence>
       {!isUserActive && (
         <>
+          {/* Explosions */}
+          {explosions.map(e => (
+            <Explosion
+              key={e.id}
+              position={e.position}
+              color={e.color}
+              onComplete={() => removeExplosion(e.id)}
+            />
+          ))}
+
           {/* Projectiles */}
           {projectiles.map(p => (
             <Projectile 
               key={p.id} 
               from={p.from} 
               to={p.to} 
-              color={p.color} 
-              onComplete={() => removeProjectile(p.id)} 
+              color={p.color}
+              weaponType={p.weaponType}
+              onComplete={() => removeProjectile(p.id)}
+              onHit={(position) => addExplosion(position, p.color)}
             />
           ))}
 
