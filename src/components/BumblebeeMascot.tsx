@@ -3247,20 +3247,21 @@ const BumblebeeMascot = () => {
     return () => clearInterval(interval);
   }, [isUserActive, currentSpeaker, shuffledKnowledge.length, getRandomSpeakerGesture, isFirstMessage]);
 
-  // Calculate safe position - prefer center area for better visibility
-  const getSafePosition = useCallback((robotType: 'bumblebee' | 'bird') => {
-    // Prefer center area for better mobile visibility
-    // Speech bubble appears above robot so position robot in lower-center area
+  // Calculate safe position - prefer center area, keep robots apart
+  const getSafePosition = useCallback((robotType: 'bumblebee' | 'bird', otherRobotPos?: { x: number; y: number }) => {
+    // Bumblebee stays on left side, Optimus stays on right side
+    const safeZones = robotType === 'bumblebee' 
+      ? [
+          { x: 15, y: 45, w: 20, h: 25 }, // Left center
+          { x: 20, y: 55, w: 15, h: 20 }, // Left bottom
+          { x: 18, y: 35, w: 18, h: 15 }, // Left top
+        ]
+      : [
+          { x: 60, y: 45, w: 20, h: 25 }, // Right center
+          { x: 65, y: 55, w: 15, h: 20 }, // Right bottom
+          { x: 62, y: 35, w: 18, h: 15 }, // Right top
+        ];
     
-    // Define center-focused safe zones
-    const safeZones = [
-      { x: 30, y: 50, w: 20, h: 25 }, // Center left
-      { x: 50, y: 50, w: 20, h: 25 }, // Center right
-      { x: 35, y: 60, w: 30, h: 20 }, // Bottom center
-      { x: 35, y: 40, w: 30, h: 15 }, // Middle center
-    ];
-    
-    // Pick random safe zone
     const zone = safeZones[Math.floor(Math.random() * safeZones.length)];
     
     return {
@@ -3269,7 +3270,7 @@ const BumblebeeMascot = () => {
     };
   }, []);
 
-  // Smooth flying - avoid speech bubble zones
+  // Smooth flying - keep robots on separate sides
   useEffect(() => {
     if (isUserActive || isHidden) return;
 
@@ -3278,12 +3279,7 @@ const BumblebeeMascot = () => {
       setBumblebeeTarget(beePos);
       if (showBird) {
         const birdNewPos = getSafePosition('bird');
-        // Ensure bird doesn't go to same area as bumblebee
-        const adjustedBird = {
-          x: birdNewPos.x < 50 ? birdNewPos.x : birdNewPos.x - 40,
-          y: birdNewPos.y
-        };
-        setBirdTarget(adjustedBird);
+        setBirdTarget(birdNewPos);
       }
     }, 8000);
 
