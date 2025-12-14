@@ -21,8 +21,14 @@ const OPTIMUS_BLUE = "#42A5F5"; // Yorqin ko'k
 const OPTIMUS_CHROME = "#FAFAFA"; // Juda yorqin kumush
 const OPTIMUS_ENERGY = "#81D4FA"; // Yorqin moviy
 
-// Gesture types (expanded)
-type GestureType = "idle" | "wave" | "point" | "thumbsUp" | "think" | "celebrate" | "listen" | "nod" | "raiseHand" | "salute" | "clap" | "walk" | "dance" | "jump" | "stretch" | "punch" | "flex";
+// Gesture types (20+ expanded movements)
+type GestureType = 
+  | "idle" | "wave" | "point" | "thumbsUp" | "think" | "celebrate" | "listen" | "nod" 
+  | "raiseHand" | "salute" | "clap" | "walk" | "dance" | "jump" | "stretch" | "punch" | "flex"
+  // New gestures (20+)
+  | "fly" | "run" | "spin" | "swim" | "kick" | "crouch" | "hover" | "land"
+  | "pushUp" | "sitUp" | "squat" | "lunge" | "bow" | "handstand" | "backflip"
+  | "moonwalk" | "robot" | "disco" | "breakdance" | "victory" | "tired" | "confused" | "angry";
 
 // Bumblebee - faqat kirishda tanishadi
 const bumblebeeIntro = "Salom! Men Bumblebee! Avtobotlarning eng sodiq jangchisiman!";
@@ -562,27 +568,154 @@ const BumblebeeArm = ({ side, gesture }: { side: "left" | "right"; gesture: Gest
       armRef.current.rotation.x = Math.sin(dancePhase * 0.5) * 0.4;
       forearmRef.current.rotation.x = 0.5 + Math.sin(dancePhase * 1.5) * 0.4;
     } else if (gesture === "jump") {
-      // Jump animation - arms swing up
       const jumpPhase = Math.sin(time * 5);
       armRef.current.rotation.z = (isLeft ? -1.8 : 1.8) + jumpPhase * 0.3;
       armRef.current.rotation.x = -0.2;
       forearmRef.current.rotation.x = 0.3;
     } else if (gesture === "stretch") {
-      // Stretching animation
       armRef.current.rotation.z = isLeft ? -2.8 : 2.8;
       armRef.current.rotation.x = 0 + Math.sin(time * 2) * 0.1;
       forearmRef.current.rotation.x = 0.2 + Math.sin(time * 3) * 0.15;
     } else if (gesture === "punch" && !isLeft) {
-      // Punching animation (right arm only)
       const punchPhase = Math.sin(time * 12);
       armRef.current.rotation.z = -0.2;
       armRef.current.rotation.x = -1.4 + punchPhase * 0.3;
       forearmRef.current.rotation.x = 0.1;
     } else if (gesture === "flex") {
-      // Flexing muscles animation
       armRef.current.rotation.z = (isLeft ? -1.6 : 1.6);
       armRef.current.rotation.x = -0.3 + Math.sin(time * 4) * 0.1;
       forearmRef.current.rotation.x = 1.4 + Math.sin(time * 5) * 0.1;
+    } 
+    // NEW GESTURES - 20+ movements
+    else if (gesture === "fly") {
+      // Flying - arms spread like superman
+      armRef.current.rotation.z = (isLeft ? -2.5 : 2.5) + Math.sin(time * 3) * 0.1;
+      armRef.current.rotation.x = -0.3 + Math.sin(time * 2) * 0.15;
+      forearmRef.current.rotation.x = 0.1 + Math.sin(time * 4) * 0.1;
+    } else if (gesture === "run") {
+      // Running - fast alternating arm pumps
+      const runPhase = time * 12 + (isLeft ? 0 : Math.PI);
+      armRef.current.rotation.z = (isLeft ? 0.2 : -0.2);
+      armRef.current.rotation.x = Math.sin(runPhase) * 1.2;
+      forearmRef.current.rotation.x = 0.8 + Math.abs(Math.sin(runPhase)) * 0.4;
+    } else if (gesture === "spin") {
+      // Spinning - arms out for balance
+      armRef.current.rotation.z = (isLeft ? -2.2 : 2.2);
+      armRef.current.rotation.x = Math.sin(time * 6) * 0.3;
+      forearmRef.current.rotation.x = 0.3;
+    } else if (gesture === "swim") {
+      // Swimming strokes
+      const swimPhase = time * 4 + (isLeft ? 0 : Math.PI);
+      armRef.current.rotation.z = (isLeft ? -1.5 : 1.5) + Math.sin(swimPhase) * 0.8;
+      armRef.current.rotation.x = Math.cos(swimPhase) * 0.6;
+      forearmRef.current.rotation.x = 0.4 + Math.sin(swimPhase * 2) * 0.3;
+    } else if (gesture === "kick") {
+      // Kicking stance - arms guard position
+      armRef.current.rotation.z = (isLeft ? -0.8 : 0.8);
+      armRef.current.rotation.x = -0.5;
+      forearmRef.current.rotation.x = 1.2;
+    } else if (gesture === "crouch") {
+      // Crouching - arms forward for balance
+      armRef.current.rotation.z = (isLeft ? 0.3 : -0.3);
+      armRef.current.rotation.x = -0.8;
+      forearmRef.current.rotation.x = 0.6;
+    } else if (gesture === "hover") {
+      // Hovering - gentle floating arms
+      armRef.current.rotation.z = (isLeft ? -1.8 : 1.8) + Math.sin(time * 1.5) * 0.2;
+      armRef.current.rotation.x = Math.sin(time * 2) * 0.15;
+      forearmRef.current.rotation.x = 0.4 + Math.sin(time * 2.5) * 0.15;
+    } else if (gesture === "land") {
+      // Landing impact - arms down for balance
+      const landPhase = Math.abs(Math.sin(time * 6));
+      armRef.current.rotation.z = (isLeft ? 0.6 : -0.6) - landPhase * 0.3;
+      armRef.current.rotation.x = 0.3 + landPhase * 0.2;
+      forearmRef.current.rotation.x = 0.3;
+    } else if (gesture === "pushUp") {
+      // Push-up position
+      armRef.current.rotation.z = (isLeft ? 0.1 : -0.1);
+      armRef.current.rotation.x = -1.5 + Math.sin(time * 4) * 0.3;
+      forearmRef.current.rotation.x = Math.sin(time * 4) * 0.4;
+    } else if (gesture === "sitUp") {
+      // Sit-up - arms behind head
+      armRef.current.rotation.z = (isLeft ? -1.2 : 1.2);
+      armRef.current.rotation.x = 0.5 + Math.sin(time * 3) * 0.2;
+      forearmRef.current.rotation.x = 1.8;
+    } else if (gesture === "squat") {
+      // Squat - arms forward for balance
+      armRef.current.rotation.z = (isLeft ? 0.2 : -0.2);
+      armRef.current.rotation.x = -1.2 + Math.sin(time * 3) * 0.1;
+      forearmRef.current.rotation.x = 0.3;
+    } else if (gesture === "lunge") {
+      // Lunge position
+      armRef.current.rotation.z = (isLeft ? 0.4 : -0.4);
+      armRef.current.rotation.x = isLeft ? -0.6 : 0.3;
+      forearmRef.current.rotation.x = 0.5;
+    } else if (gesture === "bow") {
+      // Bowing - arms at sides
+      armRef.current.rotation.z = (isLeft ? 0.2 : -0.2);
+      armRef.current.rotation.x = 0.3;
+      forearmRef.current.rotation.x = 0.2;
+    } else if (gesture === "handstand") {
+      // Handstand - arms supporting body
+      armRef.current.rotation.z = (isLeft ? 0.1 : -0.1);
+      armRef.current.rotation.x = -2.8 + Math.sin(time * 2) * 0.05;
+      forearmRef.current.rotation.x = 0.1;
+    } else if (gesture === "backflip") {
+      // Backflip rotation
+      const flipPhase = (time * 3) % (Math.PI * 2);
+      armRef.current.rotation.z = (isLeft ? -1.5 : 1.5);
+      armRef.current.rotation.x = Math.sin(flipPhase) * 1.5;
+      forearmRef.current.rotation.x = 0.5 + Math.abs(Math.sin(flipPhase)) * 0.5;
+    } else if (gesture === "moonwalk") {
+      // Moonwalk - smooth arm swing
+      const moonPhase = time * 3;
+      armRef.current.rotation.z = (isLeft ? 0.3 : -0.3);
+      armRef.current.rotation.x = Math.sin(moonPhase + (isLeft ? 0 : Math.PI)) * 0.4;
+      forearmRef.current.rotation.x = 0.6 + Math.sin(moonPhase) * 0.2;
+    } else if (gesture === "robot") {
+      // Robot dance - stiff jerky movements
+      const robotPhase = Math.floor(time * 4) % 4;
+      armRef.current.rotation.z = (isLeft ? -1.0 : 1.0) + (robotPhase % 2) * 0.5;
+      armRef.current.rotation.x = -0.5 + (robotPhase > 1 ? 0.8 : 0);
+      forearmRef.current.rotation.x = (robotPhase % 2) * 1.2;
+    } else if (gesture === "disco") {
+      // Disco pointing
+      const discoPhase = time * 6;
+      armRef.current.rotation.z = (isLeft ? -2.5 : 2.5) + Math.sin(discoPhase + (isLeft ? Math.PI : 0)) * 0.5;
+      armRef.current.rotation.x = -0.2 + Math.sin(discoPhase * 0.5) * 0.3;
+      forearmRef.current.rotation.x = 0.2;
+    } else if (gesture === "breakdance") {
+      // Breakdance moves
+      const breakPhase = time * 5;
+      armRef.current.rotation.z = (isLeft ? -1.8 : 1.8) + Math.sin(breakPhase) * 0.8;
+      armRef.current.rotation.x = Math.cos(breakPhase) * 0.7;
+      forearmRef.current.rotation.x = 0.3 + Math.abs(Math.sin(breakPhase * 2)) * 0.8;
+    } else if (gesture === "victory") {
+      // Victory pose - both arms up in V
+      armRef.current.rotation.z = (isLeft ? -2.5 : 2.5);
+      armRef.current.rotation.x = -0.2 + Math.sin(time * 3) * 0.1;
+      forearmRef.current.rotation.x = 0.1;
+    } else if (gesture === "tired") {
+      // Tired - arms hanging
+      armRef.current.rotation.z = (isLeft ? 0.1 : -0.1);
+      armRef.current.rotation.x = 0.2 + Math.sin(time * 0.5) * 0.05;
+      forearmRef.current.rotation.x = 0.1;
+    } else if (gesture === "confused") {
+      // Confused - scratching head
+      if (!isLeft) {
+        armRef.current.rotation.z = 1.2;
+        armRef.current.rotation.x = 0.3 + Math.sin(time * 3) * 0.15;
+        forearmRef.current.rotation.x = 1.8;
+      } else {
+        armRef.current.rotation.z = 0.3;
+        armRef.current.rotation.x = 0;
+        forearmRef.current.rotation.x = 0.4;
+      }
+    } else if (gesture === "angry") {
+      // Angry - fists clenched, arms tense
+      armRef.current.rotation.z = (isLeft ? -0.6 : 0.6);
+      armRef.current.rotation.x = -0.4 + Math.sin(time * 8) * 0.05;
+      forearmRef.current.rotation.x = 1.4;
     } else {
       // Standing at attention - subtle idle motion
       const armAngle = Math.sin(time * 1.5) * 0.04;
@@ -747,18 +880,135 @@ const BumblebeeLeg = ({ side, gesture }: { side: "left" | "right"; gesture: Gest
       legRef.current.rotation.x = -0.4 - jumpPhase * 0.3;
       lowerLegRef.current.rotation.x = 0.6 + jumpPhase * 0.4;
     } else if (gesture === "stretch") {
-      // Stretching - slight bend
       legRef.current.rotation.x = isLeft ? 0.3 : -0.1;
       lowerLegRef.current.rotation.x = 0.2;
     } else if (gesture === "punch") {
-      // Stable stance for punch
       legRef.current.rotation.x = isLeft ? 0.3 : -0.2;
       legRef.current.rotation.z = isLeft ? -0.15 : 0.15;
       lowerLegRef.current.rotation.x = 0.2;
     } else if (gesture === "flex") {
-      // Power stance for flexing
       legRef.current.rotation.z = isLeft ? -0.2 : 0.2;
       lowerLegRef.current.rotation.x = 0.15;
+    }
+    // NEW LEG GESTURES - 20+ movements
+    else if (gesture === "fly") {
+      // Flying - legs straight back
+      legRef.current.rotation.x = 0.4 + Math.sin(time * 2) * 0.1;
+      legRef.current.rotation.z = isLeft ? 0.1 : -0.1;
+      lowerLegRef.current.rotation.x = 0.1;
+    } else if (gesture === "run") {
+      // Running - fast alternating leg pumps
+      const runPhase = time * 12 + (isLeft ? 0 : Math.PI);
+      legRef.current.rotation.x = Math.sin(runPhase) * 0.9;
+      lowerLegRef.current.rotation.x = Math.max(0, Math.sin(runPhase + 0.8)) * 1.2;
+    } else if (gesture === "spin") {
+      // Spinning - legs together
+      legRef.current.rotation.x = Math.sin(time * 6) * 0.2;
+      legRef.current.rotation.z = isLeft ? 0.05 : -0.05;
+      lowerLegRef.current.rotation.x = 0.1;
+    } else if (gesture === "swim") {
+      // Swimming kick
+      const swimPhase = time * 6 + (isLeft ? 0 : Math.PI);
+      legRef.current.rotation.x = Math.sin(swimPhase) * 0.5;
+      lowerLegRef.current.rotation.x = Math.abs(Math.sin(swimPhase * 1.5)) * 0.4;
+    } else if (gesture === "kick") {
+      // High kick - one leg kicks
+      if (isLeft) {
+        const kickPhase = Math.abs(Math.sin(time * 6));
+        legRef.current.rotation.x = -1.2 - kickPhase * 0.5;
+        lowerLegRef.current.rotation.x = 0.2;
+      } else {
+        legRef.current.rotation.x = 0.2;
+        lowerLegRef.current.rotation.x = 0.3;
+      }
+    } else if (gesture === "crouch") {
+      // Crouching position
+      legRef.current.rotation.x = -0.8;
+      legRef.current.rotation.z = isLeft ? -0.2 : 0.2;
+      lowerLegRef.current.rotation.x = 1.4;
+    } else if (gesture === "hover") {
+      // Hovering - legs dangle
+      legRef.current.rotation.x = 0.2 + Math.sin(time * 1.5 + (isLeft ? 0 : 0.5)) * 0.15;
+      lowerLegRef.current.rotation.x = 0.3 + Math.sin(time * 2) * 0.1;
+    } else if (gesture === "land") {
+      // Landing impact - bent legs absorb impact
+      const landPhase = Math.abs(Math.sin(time * 6));
+      legRef.current.rotation.x = -0.3 - landPhase * 0.4;
+      legRef.current.rotation.z = isLeft ? -0.15 : 0.15;
+      lowerLegRef.current.rotation.x = 0.8 + landPhase * 0.4;
+    } else if (gesture === "pushUp") {
+      // Push-up - legs straight back
+      legRef.current.rotation.x = 0.1;
+      lowerLegRef.current.rotation.x = 0;
+    } else if (gesture === "sitUp") {
+      // Sit-up - legs bent, feet flat
+      legRef.current.rotation.x = -0.8 + Math.sin(time * 3) * 0.2;
+      lowerLegRef.current.rotation.x = 1.0;
+    } else if (gesture === "squat") {
+      // Deep squat
+      const squatPhase = Math.sin(time * 3);
+      legRef.current.rotation.x = -0.6 - squatPhase * 0.3;
+      legRef.current.rotation.z = isLeft ? -0.25 : 0.25;
+      lowerLegRef.current.rotation.x = 1.2 + squatPhase * 0.3;
+    } else if (gesture === "lunge") {
+      // Lunge - one leg forward, one back
+      legRef.current.rotation.x = isLeft ? -0.8 : 0.5;
+      lowerLegRef.current.rotation.x = isLeft ? 1.0 : 0.3;
+    } else if (gesture === "bow") {
+      // Bowing - slight knee bend
+      legRef.current.rotation.x = -0.15;
+      lowerLegRef.current.rotation.x = 0.3;
+    } else if (gesture === "handstand") {
+      // Handstand - legs up in air
+      legRef.current.rotation.x = 0.1 + Math.sin(time * 2) * 0.1;
+      legRef.current.rotation.z = isLeft ? 0.1 : -0.1;
+      lowerLegRef.current.rotation.x = 0.05;
+    } else if (gesture === "backflip") {
+      // Backflip rotation
+      const flipPhase = (time * 3) % (Math.PI * 2);
+      legRef.current.rotation.x = Math.cos(flipPhase) * 0.8;
+      lowerLegRef.current.rotation.x = Math.abs(Math.sin(flipPhase)) * 0.6;
+    } else if (gesture === "moonwalk") {
+      // Moonwalk - sliding back
+      const moonPhase = time * 3 + (isLeft ? 0 : Math.PI);
+      legRef.current.rotation.x = Math.sin(moonPhase) * 0.3;
+      lowerLegRef.current.rotation.x = 0.2 + Math.abs(Math.sin(moonPhase)) * 0.2;
+    } else if (gesture === "robot") {
+      // Robot dance - stiff jerky leg movements
+      const robotPhase = Math.floor(time * 4) % 4;
+      legRef.current.rotation.x = isLeft ? (robotPhase % 2) * -0.5 : ((robotPhase + 1) % 2) * -0.5;
+      lowerLegRef.current.rotation.x = (robotPhase > 1) ? 0.4 : 0;
+    } else if (gesture === "disco") {
+      // Disco moves
+      const discoPhase = time * 6 + (isLeft ? 0 : Math.PI);
+      legRef.current.rotation.x = Math.sin(discoPhase) * 0.4;
+      legRef.current.rotation.z = Math.sin(discoPhase * 0.5) * 0.2;
+      lowerLegRef.current.rotation.x = Math.abs(Math.sin(discoPhase)) * 0.5;
+    } else if (gesture === "breakdance") {
+      // Breakdance moves
+      const breakPhase = time * 5;
+      legRef.current.rotation.x = Math.sin(breakPhase + (isLeft ? 0 : Math.PI)) * 0.8;
+      legRef.current.rotation.z = Math.cos(breakPhase * 0.5) * 0.3;
+      lowerLegRef.current.rotation.x = Math.abs(Math.sin(breakPhase * 1.5)) * 0.8;
+    } else if (gesture === "victory") {
+      // Victory stance - stable
+      legRef.current.rotation.z = isLeft ? -0.15 : 0.15;
+      lowerLegRef.current.rotation.x = 0.1;
+    } else if (gesture === "tired") {
+      // Tired - slouching stance
+      legRef.current.rotation.x = -0.1;
+      legRef.current.rotation.z = isLeft ? -0.1 : 0.1;
+      lowerLegRef.current.rotation.x = 0.2;
+    } else if (gesture === "confused") {
+      // Confused - weight shifting
+      legRef.current.rotation.x = isLeft ? -0.1 : 0.05;
+      legRef.current.rotation.z = Math.sin(time * 2) * 0.05;
+      lowerLegRef.current.rotation.x = 0.15;
+    } else if (gesture === "angry") {
+      // Angry - aggressive stance
+      legRef.current.rotation.z = isLeft ? -0.25 : 0.25;
+      legRef.current.rotation.x = -0.1;
+      lowerLegRef.current.rotation.x = 0.2;
     } else {
       // Standing still
       legRef.current.rotation.x = 0;
@@ -851,21 +1101,122 @@ const BumblebeeRobot = ({ gesture, isTalking }: { gesture: GestureType; isTalkin
     const time = state.clock.getElapsedTime();
     if (groupRef.current) {
       if (gesture === "walk") {
-        // Walking body movement
         groupRef.current.position.y = Math.abs(Math.sin(time * 6)) * 0.02;
         groupRef.current.rotation.y = Math.sin(time * 3) * 0.03;
         groupRef.current.rotation.z = Math.sin(time * 6) * 0.02;
       } else if (gesture === "celebrate") {
-        // Bouncing celebration
         groupRef.current.position.y = Math.abs(Math.sin(time * 8)) * 0.04;
         groupRef.current.rotation.y = Math.sin(time * 4) * 0.1;
+      } else if (gesture === "fly") {
+        // Flying - body tilted forward, rising and falling
+        groupRef.current.position.y = 0.15 + Math.sin(time * 2) * 0.08;
+        groupRef.current.rotation.x = -0.4;
+        groupRef.current.rotation.y = Math.sin(time * 1) * 0.1;
+        groupRef.current.rotation.z = Math.sin(time * 1.5) * 0.05;
+      } else if (gesture === "run") {
+        // Running - fast bounce with lean
+        groupRef.current.position.y = Math.abs(Math.sin(time * 12)) * 0.035;
+        groupRef.current.rotation.x = -0.15;
+        groupRef.current.rotation.y = Math.sin(time * 6) * 0.04;
+        groupRef.current.rotation.z = Math.sin(time * 12) * 0.03;
+      } else if (gesture === "spin") {
+        // Spinning fast
+        groupRef.current.rotation.y = time * 8;
+        groupRef.current.position.y = Math.sin(time * 3) * 0.03;
+      } else if (gesture === "swim") {
+        // Swimming motion
+        groupRef.current.position.y = Math.sin(time * 2) * 0.05;
+        groupRef.current.rotation.x = -0.2 + Math.sin(time * 2) * 0.1;
+        groupRef.current.rotation.z = Math.sin(time * 3) * 0.1;
+      } else if (gesture === "kick") {
+        // Kicking stance
+        groupRef.current.rotation.x = 0.1;
+        groupRef.current.rotation.z = 0.15;
+        groupRef.current.position.y = Math.abs(Math.sin(time * 6)) * 0.02;
+      } else if (gesture === "crouch") {
+        // Crouching - body lowered
+        groupRef.current.position.y = -0.08;
+        groupRef.current.rotation.x = 0.2;
+      } else if (gesture === "hover") {
+        // Hovering - gentle float
+        groupRef.current.position.y = 0.1 + Math.sin(time * 1.5) * 0.04;
+        groupRef.current.rotation.y = Math.sin(time * 0.8) * 0.08;
+      } else if (gesture === "land") {
+        // Landing impact
+        const landPhase = Math.abs(Math.sin(time * 6));
+        groupRef.current.position.y = -0.05 + landPhase * 0.05;
+        groupRef.current.rotation.x = 0.15 - landPhase * 0.1;
+      } else if (gesture === "pushUp") {
+        // Push-up - body goes up and down
+        groupRef.current.position.y = -0.1 + Math.sin(time * 4) * 0.04;
+        groupRef.current.rotation.x = -1.4;
+      } else if (gesture === "sitUp") {
+        // Sit-up motion
+        groupRef.current.rotation.x = -0.8 + Math.sin(time * 3) * 0.5;
+        groupRef.current.position.y = -0.05;
+      } else if (gesture === "squat") {
+        // Squat - body goes down
+        const squatPhase = Math.sin(time * 3);
+        groupRef.current.position.y = -0.06 - squatPhase * 0.04;
+        groupRef.current.rotation.x = 0.1;
+      } else if (gesture === "lunge") {
+        // Lunge position
+        groupRef.current.rotation.x = 0.1;
+        groupRef.current.rotation.z = 0.1;
+        groupRef.current.position.y = -0.04;
+      } else if (gesture === "bow") {
+        // Bowing motion
+        groupRef.current.rotation.x = 0.6 + Math.sin(time * 2) * 0.1;
+        groupRef.current.position.y = -0.03;
+      } else if (gesture === "handstand") {
+        // Handstand - upside down
+        groupRef.current.rotation.x = Math.PI;
+        groupRef.current.position.y = 0.2 + Math.sin(time * 2) * 0.02;
+      } else if (gesture === "backflip") {
+        // Backflip rotation
+        groupRef.current.rotation.x = (time * 3) % (Math.PI * 2);
+        groupRef.current.position.y = Math.abs(Math.sin(time * 3)) * 0.15;
+      } else if (gesture === "moonwalk") {
+        // Moonwalk - smooth glide back
+        groupRef.current.rotation.y = Math.PI;
+        groupRef.current.position.y = Math.sin(time * 3) * 0.01;
+        groupRef.current.rotation.z = Math.sin(time * 2) * 0.03;
+      } else if (gesture === "robot") {
+        // Robot dance - stiff jerky
+        const robotPhase = Math.floor(time * 4) % 4;
+        groupRef.current.rotation.y = (robotPhase / 4) * Math.PI * 0.5;
+        groupRef.current.position.y = (robotPhase % 2) * 0.02;
+      } else if (gesture === "disco") {
+        // Disco moves
+        groupRef.current.rotation.y = Math.sin(time * 3) * 0.3;
+        groupRef.current.position.y = Math.abs(Math.sin(time * 6)) * 0.03;
+        groupRef.current.rotation.z = Math.sin(time * 6) * 0.1;
+      } else if (gesture === "breakdance") {
+        // Breakdance
+        groupRef.current.rotation.z = Math.sin(time * 5) * 0.4;
+        groupRef.current.rotation.x = Math.cos(time * 3) * 0.3;
+        groupRef.current.position.y = Math.abs(Math.sin(time * 5)) * 0.06;
+      } else if (gesture === "victory") {
+        // Victory pose
+        groupRef.current.position.y = 0.02;
+        groupRef.current.rotation.y = Math.sin(time * 2) * 0.1;
+      } else if (gesture === "tired") {
+        // Tired slouch
+        groupRef.current.rotation.x = 0.15;
+        groupRef.current.position.y = -0.02 + Math.sin(time * 0.5) * 0.01;
+      } else if (gesture === "confused") {
+        // Confused - tilting
+        groupRef.current.rotation.z = Math.sin(time * 2) * 0.15;
+        groupRef.current.rotation.y = Math.sin(time * 1.5) * 0.1;
+      } else if (gesture === "angry") {
+        // Angry shake
+        groupRef.current.rotation.z = Math.sin(time * 15) * 0.03;
+        groupRef.current.position.y = Math.sin(time * 10) * 0.005;
       } else if (isTalking) {
-        // Talking body movement - slight forward lean and energy
         groupRef.current.position.y = Math.sin(time * 3) * 0.01;
         groupRef.current.rotation.y = Math.sin(time * 2) * 0.05;
         groupRef.current.rotation.x = -0.05 + Math.sin(time * 4) * 0.02;
       } else {
-        // Subtle heroic idle - very slight motion
         groupRef.current.position.y = Math.sin(time * 1.2) * 0.015;
         groupRef.current.rotation.y = Math.sin(time * 0.4) * 0.03;
         groupRef.current.rotation.z = 0;
