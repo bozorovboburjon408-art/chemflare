@@ -426,6 +426,25 @@ const BumblebeeHead = ({ gesture, isTalking }: { gesture: GestureType; isTalking
 // Bumblebee Chest - with Autobot insignia (BAQUVAT - kattaroq)
 const BumblebeeChest = () => (
   <group position={[0, 0.55, 0]}>
+    {/* NECK - bo'yin qismi */}
+    <group position={[0, 0.38, 0]}>
+      {/* Neck cylinder */}
+      <mesh>
+        <cylinderGeometry args={[0.08, 0.1, 0.18, 12]} />
+        <meshStandardMaterial color={BLACK_METAL} metalness={0.98} roughness={0.05} />
+      </mesh>
+      {/* Neck joint ball - bosh ulash joyi */}
+      <mesh position={[0, 0.12, 0]}>
+        <sphereGeometry args={[0.09, 16, 16]} />
+        <meshStandardMaterial color={CHROME} metalness={0.99} roughness={0.02} />
+      </mesh>
+      {/* Neck detail rings */}
+      <mesh position={[0, 0, 0]}>
+        <torusGeometry args={[0.085, 0.015, 8, 16]} />
+        <meshStandardMaterial color={CHROME_DARK} metalness={0.98} roughness={0.05} />
+      </mesh>
+    </group>
+    
     {/* Main chest plate - kattaroq */}
     <mesh>
       <boxGeometry args={[0.75, 0.6, 0.4]} />
@@ -547,10 +566,15 @@ const BumblebeeArm = ({ side, gesture }: { side: "left" | "right"; gesture: Gest
 
   return (
     <group ref={armRef} position={[xPos, 0.85, 0]}>
-      {/* Shoulder joint - kattaroq */}
-      <mesh position={[mirror * 0.03, 0, 0]}>
-        <sphereGeometry args={[0.1, 16, 16]} />
+      {/* Shoulder ball joint - dumaloq ulash joyi */}
+      <mesh position={[mirror * 0.03, 0.02, 0]}>
+        <sphereGeometry args={[0.12, 20, 20]} />
         <meshStandardMaterial color={CHROME} metalness={0.99} roughness={0.02} />
+      </mesh>
+      {/* Shoulder joint ring */}
+      <mesh position={[mirror * 0.03, 0.02, 0]} rotation={[0, 0, Math.PI / 2]}>
+        <torusGeometry args={[0.1, 0.02, 8, 16]} />
+        <meshStandardMaterial color={CHROME_DARK} metalness={0.98} roughness={0.05} />
       </mesh>
       
       {/* Upper arm - qalin */}
@@ -634,10 +658,15 @@ const BumblebeeLeg = ({ side, gesture }: { side: "left" | "right"; gesture: Gest
 
   return (
     <group ref={legRef} position={[xPos, 0, 0]}>
-      {/* Hip joint - kattaroq */}
+      {/* Hip ball joint - dumaloq ulash joyi */}
       <mesh>
-        <sphereGeometry args={[0.09, 12, 12]} />
-        <meshStandardMaterial color={BLACK_METAL} metalness={0.98} roughness={0.05} />
+        <sphereGeometry args={[0.11, 20, 20]} />
+        <meshStandardMaterial color={CHROME} metalness={0.99} roughness={0.02} />
+      </mesh>
+      {/* Hip joint ring */}
+      <mesh rotation={[Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[0.09, 0.018, 8, 16]} />
+        <meshStandardMaterial color={CHROME_DARK} metalness={0.98} roughness={0.05} />
       </mesh>
       
       {/* Upper leg - qalin muskulli */}
@@ -879,6 +908,25 @@ const OptimusHead = ({ gesture, isTalking }: { gesture: GestureType; isTalking?:
 // Optimus Prime Chest - BAQUVAT
 const OptimusChest = () => (
   <group position={[0, 0.45, 0]}>
+    {/* NECK - bo'yin qismi */}
+    <group position={[0, 0.32, 0]}>
+      {/* Neck cylinder */}
+      <mesh>
+        <cylinderGeometry args={[0.07, 0.09, 0.16, 12]} />
+        <meshStandardMaterial color={OPTIMUS_BLUE} metalness={0.98} roughness={0.05} />
+      </mesh>
+      {/* Neck joint ball - bosh ulash joyi */}
+      <mesh position={[0, 0.1, 0]}>
+        <sphereGeometry args={[0.08, 16, 16]} />
+        <meshStandardMaterial color={OPTIMUS_CHROME} metalness={0.99} roughness={0.02} />
+      </mesh>
+      {/* Neck detail rings */}
+      <mesh position={[0, 0, 0]}>
+        <torusGeometry args={[0.075, 0.012, 8, 16]} />
+        <meshStandardMaterial color={OPTIMUS_CHROME} metalness={0.98} roughness={0.05} />
+      </mesh>
+    </group>
+    
     {/* Main chest - red - kattaroq */}
     <mesh>
       <boxGeometry args={[0.7, 0.55, 0.35]} />
@@ -963,10 +1011,15 @@ const OptimusArm = ({ side, gesture }: { side: "left" | "right"; gesture: Gestur
 
   return (
     <group ref={armRef} position={[xPos, 0.7, 0]}>
-      {/* Shoulder - chrome - katta */}
-      <mesh position={[mirror * 0.03, 0, 0]}>
-        <sphereGeometry args={[0.09, 16, 16]} />
+      {/* Shoulder ball joint - dumaloq ulash joyi */}
+      <mesh position={[mirror * 0.03, 0.02, 0]}>
+        <sphereGeometry args={[0.11, 20, 20]} />
         <meshStandardMaterial color={OPTIMUS_CHROME} metalness={0.99} roughness={0.02} />
+      </mesh>
+      {/* Shoulder joint ring */}
+      <mesh position={[mirror * 0.03, 0.02, 0]} rotation={[0, 0, Math.PI / 2]}>
+        <torusGeometry args={[0.09, 0.018, 8, 16]} />
+        <meshStandardMaterial color={OPTIMUS_RED} metalness={0.98} roughness={0.05} />
       </mesh>
       
       {/* Upper arm - blue - qalin */}
@@ -1028,10 +1081,15 @@ const OptimusLeg = ({ side, gesture }: { side: "left" | "right"; gesture: Gestur
 
   return (
     <group ref={legRef} position={[xPos, -0.02, 0]}>
-      {/* Hip - blue - katta */}
+      {/* Hip ball joint - dumaloq ulash joyi */}
       <mesh>
-        <sphereGeometry args={[0.08, 12, 12]} />
-        <meshStandardMaterial color={OPTIMUS_BLUE} metalness={0.98} roughness={0.05} />
+        <sphereGeometry args={[0.1, 20, 20]} />
+        <meshStandardMaterial color={OPTIMUS_CHROME} metalness={0.99} roughness={0.02} />
+      </mesh>
+      {/* Hip joint ring */}
+      <mesh rotation={[Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[0.08, 0.015, 8, 16]} />
+        <meshStandardMaterial color={OPTIMUS_RED} metalness={0.98} roughness={0.05} />
       </mesh>
       
       {/* Upper leg - blue - qalin muskulli */}
