@@ -3097,6 +3097,85 @@ const BumblebeeMascot = () => {
   const activityTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const recognitionRef = useRef<any>(null);
+  
+  // Speech recognition states
+  const [isListening, setIsListening] = useState(false);
+  const [userSpeech, setUserSpeech] = useState("");
+  const [robotResponse, setRobotResponse] = useState("");
+
+  // Response templates based on user speech
+  const generateResponse = useCallback((speech: string): string => {
+    const lowerSpeech = speech.toLowerCase();
+    
+    // Greetings
+    if (lowerSpeech.includes("salom") || lowerSpeech.includes("hello") || lowerSpeech.includes("hey")) {
+      const responses = ["Salom do'stim! Qandaysiz?", "Hey! Sizni eshityapman!", "Salomlar! Xursandman!"];
+      return responses[Math.floor(Math.random() * responses.length)];
+    }
+    
+    // How are you
+    if (lowerSpeech.includes("qanday") || lowerSpeech.includes("how are")) {
+      const responses = ["Zo'rman! Sizchi?", "Ajoyib! Rahmat so'raganingiz uchun!", "Yaxshi, sizni ko'rib yanada yaxshi!"];
+      return responses[Math.floor(Math.random() * responses.length)];
+    }
+    
+    // Name questions
+    if (lowerSpeech.includes("kim") || lowerSpeech.includes("ism") || lowerSpeech.includes("name")) {
+      return "Men Bumblebee! Avtobotlarning eng sodiq jangchisiman!";
+    }
+    
+    // What can you do
+    if (lowerSpeech.includes("nima qil") || lowerSpeech.includes("what can")) {
+      return "Men sizni ko'raman, eshitaman va suhbatlashaman!";
+    }
+    
+    // Compliments
+    if (lowerSpeech.includes("zo'r") || lowerSpeech.includes("yaxshi") || lowerSpeech.includes("chiroyli") || lowerSpeech.includes("good") || lowerSpeech.includes("nice")) {
+      const responses = ["Rahmat! Siz ham zo'rsiz!", "Voy, iltifotingiz uchun rahmat!", "Sizdan eshitish yoqimli!"];
+      return responses[Math.floor(Math.random() * responses.length)];
+    }
+    
+    // Bye
+    if (lowerSpeech.includes("xayr") || lowerSpeech.includes("ko'rishguncha") || lowerSpeech.includes("bye")) {
+      return "Xayr do'stim! Yana ko'rishguncha!";
+    }
+    
+    // Chemistry related
+    if (lowerSpeech.includes("kimyo") || lowerSpeech.includes("chem") || lowerSpeech.includes("element")) {
+      return "Kimyo haqida gapiryapsizmi? Bu mavzu menga yoqadi!";
+    }
+    
+    // Default responses
+    const defaultResponses = [
+      "Qiziq! Davom eting!",
+      "Sizni eshityapman!",
+      "Ha, tushunyapman!",
+      "Ajoyib fikr!",
+      "Davom etamizmi?",
+      "Siz juda qiziqsiz!",
+    ];
+    return defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
+  }, []);
+
+  // Text-to-speech function
+  const speak = useCallback((text: string) => {
+    if ('speechSynthesis' in window) {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'uz-UZ';
+      utterance.rate = 1.0;
+      utterance.pitch = 1.1;
+      
+      // Try to find Uzbek or Russian voice, fallback to default
+      const voices = window.speechSynthesis.getVoices();
+      const preferredVoice = voices.find(v => v.lang.includes('uz') || v.lang.includes('ru'));
+      if (preferredVoice) {
+        utterance.voice = preferredVoice;
+      }
+      
+      window.speechSynthesis.speak(utterance);
+    }
+  }, []);
 
   // Listen for camera status changes
   useEffect(() => {
@@ -3110,10 +3189,90 @@ const BumblebeeMascot = () => {
     };
   }, []);
 
+  // Initialize speech recognition when camera is enabled
+  useEffect(() => {
+    if (cameraEnabled && isUserVisible && 'webkitSpeechRecognition' in window) {
+      const SpeechRecognition = (window as any).webkitSpeechRecognition;
+      const recognition = new SpeechRecognition();
+      
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = 'uz-UZ';
+      
+      recognition.onstart = () => {
+        console.log('Speech recognition started');
+        setIsListening(true);
+      };
+      
+      recognition.onresult = (event: any) => {
+        let finalTranscript = '';
+        
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          if (event.results[i].isFinal) {
+            finalTranscript += event.results[i][0].transcript;
+          }
+        }
+        
+        if (finalTranscript) {
+          console.log('User said:', finalTranscript);
+          setUserSpeech(finalTranscript);
+          
+          // Generate and show response
+          const response = generateResponse(finalTranscript);
+          setRobotResponse(response);
+          
+          // Speak the response
+          speak(response);
+          
+          // Clear after a while
+          setTimeout(() => {
+            setUserSpeech("");
+            setRobotResponse("");
+          }, 5000);
+        }
+      };
+      
+      recognition.onerror = (event: any) => {
+        console.error('Speech recognition error:', event.error);
+        if (event.error !== 'no-speech') {
+          setIsListening(false);
+        }
+      };
+      
+      recognition.onend = () => {
+        // Restart recognition if camera is still enabled
+        if (cameraEnabled && isUserVisible) {
+          try {
+            recognition.start();
+          } catch (e) {
+            console.log('Recognition restart failed:', e);
+          }
+        }
+      };
+      
+      try {
+        recognition.start();
+        recognitionRef.current = recognition;
+      } catch (e) {
+        console.error('Failed to start recognition:', e);
+      }
+      
+      return () => {
+        recognition.stop();
+        recognitionRef.current = null;
+        setIsListening(false);
+      };
+    } else if (!cameraEnabled && recognitionRef.current) {
+      recognitionRef.current.stop();
+      recognitionRef.current = null;
+      setIsListening(false);
+    }
+  }, [cameraEnabled, isUserVisible, generateResponse, speak]);
+
   // Handle camera stream for robot "vision"
   useEffect(() => {
     if (cameraEnabled && !streamRef.current) {
-      navigator.mediaDevices.getUserMedia({ video: true })
+      navigator.mediaDevices.getUserMedia({ video: true, audio: true })
         .then(stream => {
           streamRef.current = stream;
           setIsUserVisible(true);
@@ -3447,8 +3606,13 @@ const BumblebeeMascot = () => {
     }
   }, [isUserVisible, conversationMessages]);
 
-  // Get current tip - NO setState calls here!
-  const currentTip = useMemo(() => {
+  // Get current tip - prioritize robot response if available
+  const displayTip = useMemo(() => {
+    // If robot is responding to user speech, show that instead
+    if (robotResponse) {
+      return robotResponse;
+    }
+    
     if (isFirstMessage) {
       return currentSpeaker === "bumblebee" ? bumblebeeIntro : optimusIntro;
     }
@@ -3458,7 +3622,7 @@ const BumblebeeMascot = () => {
     }
     if (shuffledKnowledge.length === 0) return knowledgeBase[0];
     return shuffledKnowledge[currentTipIndex % shuffledKnowledge.length];
-  }, [isFirstMessage, currentSpeaker, isUserVisible, shuffledConversation, conversationIndex, shuffledKnowledge, currentTipIndex]);
+  }, [isFirstMessage, currentSpeaker, isUserVisible, shuffledConversation, conversationIndex, shuffledKnowledge, currentTipIndex, robotResponse]);
 
   // Update conversation index when speaker changes (for camera mode)
   useEffect(() => {
@@ -3466,6 +3630,9 @@ const BumblebeeMascot = () => {
       setConversationIndex(prev => prev + 1);
     }
   }, [currentSpeaker, isUserVisible, isFirstMessage]);
+
+  // Show listening indicator
+  const showListeningIndicator = isListening && isUserVisible;
 
   return (
     <AnimatePresence>
@@ -3493,7 +3660,7 @@ const BumblebeeMascot = () => {
           >
             <AnimatePresence mode="wait">
               {showTip && currentSpeaker === "bumblebee" && (
-                <SpeechBubble text={currentTip} isRight={bumblebeePos.x > 50} />
+                <SpeechBubble text={displayTip} isRight={bumblebeePos.x > 50} />
               )}
             </AnimatePresence>
 
@@ -3547,7 +3714,7 @@ const BumblebeeMascot = () => {
               >
                 <AnimatePresence mode="wait">
                   {showTip && currentSpeaker === "bird" && (
-                    <SpeechBubble text={currentTip} isRight={birdPos.x > 50} />
+                    <SpeechBubble text={displayTip} isRight={birdPos.x > 50} />
                   )}
                 </AnimatePresence>
 
