@@ -22,7 +22,7 @@ const OPTIMUS_CHROME = "#FAFAFA"; // Juda yorqin kumush
 const OPTIMUS_ENERGY = "#81D4FA"; // Yorqin moviy
 
 // Gesture types (expanded)
-type GestureType = "idle" | "wave" | "point" | "thumbsUp" | "think" | "celebrate" | "listen" | "nod" | "raiseHand" | "salute" | "clap" | "walk";
+type GestureType = "idle" | "wave" | "point" | "thumbsUp" | "think" | "celebrate" | "listen" | "nod" | "raiseHand" | "salute" | "clap" | "walk" | "dance" | "jump" | "stretch" | "punch" | "flex";
 
 // Bumblebee - faqat kirishda tanishadi
 const bumblebeeIntro = "Salom! Men Bumblebee! Avtobotlarning eng sodiq jangchisiman!";
@@ -555,6 +555,34 @@ const BumblebeeArm = ({ side, gesture }: { side: "left" | "right"; gesture: Gest
       armRef.current.rotation.z = (isLeft ? 0.3 : -0.3);
       armRef.current.rotation.x = -0.15;
       forearmRef.current.rotation.x = 0.5;
+    } else if (gesture === "dance") {
+      // Dance animation - funky moves
+      const dancePhase = time * 8;
+      armRef.current.rotation.z = (isLeft ? -1.2 : 1.2) + Math.sin(dancePhase + (isLeft ? 0 : Math.PI)) * 0.6;
+      armRef.current.rotation.x = Math.sin(dancePhase * 0.5) * 0.4;
+      forearmRef.current.rotation.x = 0.5 + Math.sin(dancePhase * 1.5) * 0.4;
+    } else if (gesture === "jump") {
+      // Jump animation - arms swing up
+      const jumpPhase = Math.sin(time * 5);
+      armRef.current.rotation.z = (isLeft ? -1.8 : 1.8) + jumpPhase * 0.3;
+      armRef.current.rotation.x = -0.2;
+      forearmRef.current.rotation.x = 0.3;
+    } else if (gesture === "stretch") {
+      // Stretching animation
+      armRef.current.rotation.z = isLeft ? -2.8 : 2.8;
+      armRef.current.rotation.x = 0 + Math.sin(time * 2) * 0.1;
+      forearmRef.current.rotation.x = 0.2 + Math.sin(time * 3) * 0.15;
+    } else if (gesture === "punch" && !isLeft) {
+      // Punching animation (right arm only)
+      const punchPhase = Math.sin(time * 12);
+      armRef.current.rotation.z = -0.2;
+      armRef.current.rotation.x = -1.4 + punchPhase * 0.3;
+      forearmRef.current.rotation.x = 0.1;
+    } else if (gesture === "flex") {
+      // Flexing muscles animation
+      armRef.current.rotation.z = (isLeft ? -1.6 : 1.6);
+      armRef.current.rotation.x = -0.3 + Math.sin(time * 4) * 0.1;
+      forearmRef.current.rotation.x = 1.4 + Math.sin(time * 5) * 0.1;
     } else {
       // Standing at attention - subtle idle motion
       const armAngle = Math.sin(time * 1.5) * 0.04;
@@ -609,17 +637,74 @@ const BumblebeeArm = ({ side, gesture }: { side: "left" | "right"; gesture: Gest
           <meshStandardMaterial color={BLACK_ACCENT} metalness={0.95} roughness={0.1} />
         </mesh>
         
-        {/* Wrist - kattaroq */}
+        {/* Wrist ball joint */}
         <mesh position={[0, -0.28, 0]}>
-          <sphereGeometry args={[0.06, 12, 12]} />
+          <sphereGeometry args={[0.055, 16, 16]} />
           <meshStandardMaterial color={CHROME} metalness={0.99} roughness={0.02} />
         </mesh>
         
-        {/* Hand - katta */}
-        <mesh position={[0, -0.35, 0]}>
-          <boxGeometry args={[0.09, 0.1, 0.06]} />
+        {/* Palm - kaft */}
+        <mesh position={[0, -0.36, 0]}>
+          <boxGeometry args={[0.1, 0.08, 0.05]} />
           <meshStandardMaterial color={BLACK_METAL} metalness={0.98} roughness={0.05} />
         </mesh>
+        
+        {/* Fingers - barmoqlar */}
+        {/* Index finger */}
+        <group position={[-0.035, -0.42, 0]}>
+          <mesh position={[0, 0, 0]}>
+            <boxGeometry args={[0.018, 0.06, 0.02]} />
+            <meshStandardMaterial color={BLACK_METAL} metalness={0.98} roughness={0.05} />
+          </mesh>
+          <mesh position={[0, -0.035, 0]}>
+            <sphereGeometry args={[0.012, 8, 8]} />
+            <meshStandardMaterial color={CHROME_DARK} metalness={0.98} roughness={0.05} />
+          </mesh>
+        </group>
+        {/* Middle finger */}
+        <group position={[-0.012, -0.43, 0]}>
+          <mesh position={[0, 0, 0]}>
+            <boxGeometry args={[0.018, 0.065, 0.02]} />
+            <meshStandardMaterial color={BLACK_METAL} metalness={0.98} roughness={0.05} />
+          </mesh>
+          <mesh position={[0, -0.038, 0]}>
+            <sphereGeometry args={[0.012, 8, 8]} />
+            <meshStandardMaterial color={CHROME_DARK} metalness={0.98} roughness={0.05} />
+          </mesh>
+        </group>
+        {/* Ring finger */}
+        <group position={[0.012, -0.43, 0]}>
+          <mesh position={[0, 0, 0]}>
+            <boxGeometry args={[0.018, 0.065, 0.02]} />
+            <meshStandardMaterial color={BLACK_METAL} metalness={0.98} roughness={0.05} />
+          </mesh>
+          <mesh position={[0, -0.038, 0]}>
+            <sphereGeometry args={[0.012, 8, 8]} />
+            <meshStandardMaterial color={CHROME_DARK} metalness={0.98} roughness={0.05} />
+          </mesh>
+        </group>
+        {/* Pinky finger */}
+        <group position={[0.035, -0.42, 0]}>
+          <mesh position={[0, 0, 0]}>
+            <boxGeometry args={[0.016, 0.05, 0.018]} />
+            <meshStandardMaterial color={BLACK_METAL} metalness={0.98} roughness={0.05} />
+          </mesh>
+          <mesh position={[0, -0.03, 0]}>
+            <sphereGeometry args={[0.01, 8, 8]} />
+            <meshStandardMaterial color={CHROME_DARK} metalness={0.98} roughness={0.05} />
+          </mesh>
+        </group>
+        {/* Thumb */}
+        <group position={[0.05, -0.36, 0.015]} rotation={[0, 0, -0.5]}>
+          <mesh position={[0, 0, 0]}>
+            <boxGeometry args={[0.04, 0.02, 0.02]} />
+            <meshStandardMaterial color={BLACK_METAL} metalness={0.98} roughness={0.05} />
+          </mesh>
+          <mesh position={[0.025, 0, 0]}>
+            <sphereGeometry args={[0.012, 8, 8]} />
+            <meshStandardMaterial color={CHROME_DARK} metalness={0.98} roughness={0.05} />
+          </mesh>
+        </group>
       </group>
     </group>
   );
@@ -649,9 +734,35 @@ const BumblebeeLeg = ({ side, gesture }: { side: "left" | "right"; gesture: Gest
       const bounce = Math.sin(time * 8) * 0.15;
       legRef.current.rotation.x = bounce;
       lowerLegRef.current.rotation.x = Math.abs(bounce) * 0.5;
+    } else if (gesture === "dance") {
+      // Dancing legs - funky moves
+      const dancePhase = time * 8;
+      const legMove = Math.sin(dancePhase + (isLeft ? 0 : Math.PI)) * 0.4;
+      legRef.current.rotation.x = legMove;
+      legRef.current.rotation.z = Math.sin(dancePhase * 0.5) * 0.15;
+      lowerLegRef.current.rotation.x = Math.abs(legMove) * 0.6;
+    } else if (gesture === "jump") {
+      // Jump animation - legs tucked
+      const jumpPhase = Math.abs(Math.sin(time * 5));
+      legRef.current.rotation.x = -0.4 - jumpPhase * 0.3;
+      lowerLegRef.current.rotation.x = 0.6 + jumpPhase * 0.4;
+    } else if (gesture === "stretch") {
+      // Stretching - slight bend
+      legRef.current.rotation.x = isLeft ? 0.3 : -0.1;
+      lowerLegRef.current.rotation.x = 0.2;
+    } else if (gesture === "punch") {
+      // Stable stance for punch
+      legRef.current.rotation.x = isLeft ? 0.3 : -0.2;
+      legRef.current.rotation.z = isLeft ? -0.15 : 0.15;
+      lowerLegRef.current.rotation.x = 0.2;
+    } else if (gesture === "flex") {
+      // Power stance for flexing
+      legRef.current.rotation.z = isLeft ? -0.2 : 0.2;
+      lowerLegRef.current.rotation.x = 0.15;
     } else {
       // Standing still
       legRef.current.rotation.x = 0;
+      legRef.current.rotation.z = 0;
       lowerLegRef.current.rotation.x = 0;
     }
   });
@@ -695,10 +806,37 @@ const BumblebeeLeg = ({ side, gesture }: { side: "left" | "right"; gesture: Gest
           <meshStandardMaterial color={BLACK_ACCENT} metalness={0.95} roughness={0.1} />
         </mesh>
         
-        {/* Foot - katta */}
-        <mesh position={[0, -0.4, 0.03]}>
-          <boxGeometry args={[0.12, 0.08, 0.16]} />
+        {/* Ankle ball joint */}
+        <mesh position={[0, -0.36, 0]}>
+          <sphereGeometry args={[0.05, 12, 12]} />
+          <meshStandardMaterial color={CHROME} metalness={0.99} roughness={0.02} />
+        </mesh>
+        
+        {/* Foot base - oyoq kaft */}
+        <mesh position={[0, -0.42, 0.03]}>
+          <boxGeometry args={[0.12, 0.06, 0.16]} />
           <meshStandardMaterial color={BLACK_METAL} metalness={0.98} roughness={0.05} />
+        </mesh>
+        
+        {/* Toes - barmoqlar */}
+        {/* Big toe */}
+        <mesh position={[-0.035, -0.44, 0.1]}>
+          <boxGeometry args={[0.03, 0.03, 0.04]} />
+          <meshStandardMaterial color={BLACK_ACCENT} metalness={0.98} roughness={0.05} />
+        </mesh>
+        {/* Middle toes */}
+        <mesh position={[0, -0.44, 0.1]}>
+          <boxGeometry args={[0.025, 0.028, 0.035]} />
+          <meshStandardMaterial color={BLACK_ACCENT} metalness={0.98} roughness={0.05} />
+        </mesh>
+        <mesh position={[0.03, -0.44, 0.1]}>
+          <boxGeometry args={[0.025, 0.026, 0.03]} />
+          <meshStandardMaterial color={BLACK_ACCENT} metalness={0.98} roughness={0.05} />
+        </mesh>
+        {/* Small toe */}
+        <mesh position={[0.055, -0.44, 0.09]}>
+          <boxGeometry args={[0.02, 0.024, 0.025]} />
+          <meshStandardMaterial color={BLACK_ACCENT} metalness={0.98} roughness={0.05} />
         </mesh>
       </group>
     </group>
@@ -1001,6 +1139,29 @@ const OptimusArm = ({ side, gesture }: { side: "left" | "right"; gesture: Gestur
       armRef.current.rotation.z = (isLeft ? 0.3 : -0.3);
       armRef.current.rotation.x = -0.15;
       forearmRef.current.rotation.x = 0.5;
+    } else if (gesture === "dance") {
+      const dancePhase = time * 8;
+      armRef.current.rotation.z = (isLeft ? -1.2 : 1.2) + Math.sin(dancePhase + (isLeft ? 0 : Math.PI)) * 0.6;
+      armRef.current.rotation.x = Math.sin(dancePhase * 0.5) * 0.4;
+      forearmRef.current.rotation.x = 0.5 + Math.sin(dancePhase * 1.5) * 0.4;
+    } else if (gesture === "jump") {
+      const jumpPhase = Math.sin(time * 5);
+      armRef.current.rotation.z = (isLeft ? -1.8 : 1.8) + jumpPhase * 0.3;
+      armRef.current.rotation.x = -0.2;
+      forearmRef.current.rotation.x = 0.3;
+    } else if (gesture === "stretch") {
+      armRef.current.rotation.z = isLeft ? -2.8 : 2.8;
+      armRef.current.rotation.x = 0 + Math.sin(time * 2) * 0.1;
+      forearmRef.current.rotation.x = 0.2 + Math.sin(time * 3) * 0.15;
+    } else if (gesture === "punch" && !isLeft) {
+      const punchPhase = Math.sin(time * 12);
+      armRef.current.rotation.z = -0.2;
+      armRef.current.rotation.x = -1.4 + punchPhase * 0.3;
+      forearmRef.current.rotation.x = 0.1;
+    } else if (gesture === "flex") {
+      armRef.current.rotation.z = (isLeft ? -1.6 : 1.6);
+      armRef.current.rotation.x = -0.3 + Math.sin(time * 4) * 0.1;
+      forearmRef.current.rotation.x = 1.4 + Math.sin(time * 5) * 0.1;
     } else {
       const armAngle = Math.sin(time * 1.5) * 0.04;
       armRef.current.rotation.z = (isLeft ? 0.4 : -0.4) + armAngle;
@@ -1041,11 +1202,69 @@ const OptimusArm = ({ side, gesture }: { side: "left" | "right"; gesture: Gestur
           <meshStandardMaterial color={OPTIMUS_RED} metalness={0.98} roughness={0.05} />
         </mesh>
         
-        {/* Hand - chrome - katta */}
+        {/* Wrist ball joint */}
         <mesh position={[0, -0.26, 0]}>
-          <boxGeometry args={[0.08, 0.09, 0.05]} />
+          <sphereGeometry args={[0.045, 12, 12]} />
+          <meshStandardMaterial color={OPTIMUS_CHROME} metalness={0.99} roughness={0.02} />
+        </mesh>
+        
+        {/* Palm - kaft */}
+        <mesh position={[0, -0.33, 0]}>
+          <boxGeometry args={[0.085, 0.07, 0.045]} />
           <meshStandardMaterial color={OPTIMUS_CHROME} metalness={0.98} roughness={0.05} />
         </mesh>
+        
+        {/* Fingers - barmoqlar */}
+        {/* Index finger */}
+        <group position={[-0.028, -0.38, 0]}>
+          <mesh><boxGeometry args={[0.016, 0.05, 0.018]} />
+            <meshStandardMaterial color={OPTIMUS_RED} metalness={0.98} roughness={0.05} />
+          </mesh>
+          <mesh position={[0, -0.03, 0]}>
+            <sphereGeometry args={[0.01, 8, 8]} />
+            <meshStandardMaterial color={OPTIMUS_CHROME} metalness={0.98} roughness={0.05} />
+          </mesh>
+        </group>
+        {/* Middle finger */}
+        <group position={[-0.01, -0.385, 0]}>
+          <mesh><boxGeometry args={[0.016, 0.055, 0.018]} />
+            <meshStandardMaterial color={OPTIMUS_RED} metalness={0.98} roughness={0.05} />
+          </mesh>
+          <mesh position={[0, -0.032, 0]}>
+            <sphereGeometry args={[0.01, 8, 8]} />
+            <meshStandardMaterial color={OPTIMUS_CHROME} metalness={0.98} roughness={0.05} />
+          </mesh>
+        </group>
+        {/* Ring finger */}
+        <group position={[0.01, -0.385, 0]}>
+          <mesh><boxGeometry args={[0.016, 0.055, 0.018]} />
+            <meshStandardMaterial color={OPTIMUS_RED} metalness={0.98} roughness={0.05} />
+          </mesh>
+          <mesh position={[0, -0.032, 0]}>
+            <sphereGeometry args={[0.01, 8, 8]} />
+            <meshStandardMaterial color={OPTIMUS_CHROME} metalness={0.98} roughness={0.05} />
+          </mesh>
+        </group>
+        {/* Pinky finger */}
+        <group position={[0.028, -0.38, 0]}>
+          <mesh><boxGeometry args={[0.014, 0.045, 0.016]} />
+            <meshStandardMaterial color={OPTIMUS_RED} metalness={0.98} roughness={0.05} />
+          </mesh>
+          <mesh position={[0, -0.028, 0]}>
+            <sphereGeometry args={[0.009, 8, 8]} />
+            <meshStandardMaterial color={OPTIMUS_CHROME} metalness={0.98} roughness={0.05} />
+          </mesh>
+        </group>
+        {/* Thumb */}
+        <group position={[0.042, -0.33, 0.012]} rotation={[0, 0, -0.5]}>
+          <mesh><boxGeometry args={[0.035, 0.018, 0.018]} />
+            <meshStandardMaterial color={OPTIMUS_RED} metalness={0.98} roughness={0.05} />
+          </mesh>
+          <mesh position={[0.022, 0, 0]}>
+            <sphereGeometry args={[0.01, 8, 8]} />
+            <meshStandardMaterial color={OPTIMUS_CHROME} metalness={0.98} roughness={0.05} />
+          </mesh>
+        </group>
       </group>
     </group>
   );
@@ -1073,8 +1292,29 @@ const OptimusLeg = ({ side, gesture }: { side: "left" | "right"; gesture: Gestur
       const bounce = Math.sin(time * 8) * 0.15;
       legRef.current.rotation.x = bounce;
       lowerLegRef.current.rotation.x = Math.abs(bounce) * 0.5;
+    } else if (gesture === "dance") {
+      const dancePhase = time * 8;
+      const legMove = Math.sin(dancePhase + (isLeft ? 0 : Math.PI)) * 0.4;
+      legRef.current.rotation.x = legMove;
+      legRef.current.rotation.z = Math.sin(dancePhase * 0.5) * 0.15;
+      lowerLegRef.current.rotation.x = Math.abs(legMove) * 0.6;
+    } else if (gesture === "jump") {
+      const jumpPhase = Math.abs(Math.sin(time * 5));
+      legRef.current.rotation.x = -0.4 - jumpPhase * 0.3;
+      lowerLegRef.current.rotation.x = 0.6 + jumpPhase * 0.4;
+    } else if (gesture === "stretch") {
+      legRef.current.rotation.x = isLeft ? 0.3 : -0.1;
+      lowerLegRef.current.rotation.x = 0.2;
+    } else if (gesture === "punch") {
+      legRef.current.rotation.x = isLeft ? 0.3 : -0.2;
+      legRef.current.rotation.z = isLeft ? -0.15 : 0.15;
+      lowerLegRef.current.rotation.x = 0.2;
+    } else if (gesture === "flex") {
+      legRef.current.rotation.z = isLeft ? -0.2 : 0.2;
+      lowerLegRef.current.rotation.x = 0.15;
     } else {
       legRef.current.rotation.x = 0;
+      legRef.current.rotation.z = 0;
       lowerLegRef.current.rotation.x = 0;
     }
   });
@@ -1111,10 +1351,34 @@ const OptimusLeg = ({ side, gesture }: { side: "left" | "right"; gesture: Gestur
           <meshStandardMaterial color={OPTIMUS_BLUE} metalness={0.98} roughness={0.05} />
         </mesh>
         
-        {/* Foot - red - katta */}
-        <mesh position={[0, -0.35, 0.03]}>
-          <boxGeometry args={[0.1, 0.07, 0.14]} />
+        {/* Ankle ball joint */}
+        <mesh position={[0, -0.32, 0]}>
+          <sphereGeometry args={[0.04, 12, 12]} />
+          <meshStandardMaterial color={OPTIMUS_CHROME} metalness={0.99} roughness={0.02} />
+        </mesh>
+        
+        {/* Foot base - oyoq kaft */}
+        <mesh position={[0, -0.37, 0.03]}>
+          <boxGeometry args={[0.1, 0.05, 0.14]} />
           <meshStandardMaterial color={OPTIMUS_RED} metalness={0.98} roughness={0.05} />
+        </mesh>
+        
+        {/* Toes - barmoqlar */}
+        <mesh position={[-0.03, -0.38, 0.09]}>
+          <boxGeometry args={[0.025, 0.025, 0.035]} />
+          <meshStandardMaterial color={OPTIMUS_BLUE} metalness={0.98} roughness={0.05} />
+        </mesh>
+        <mesh position={[0, -0.38, 0.09]}>
+          <boxGeometry args={[0.022, 0.023, 0.03]} />
+          <meshStandardMaterial color={OPTIMUS_BLUE} metalness={0.98} roughness={0.05} />
+        </mesh>
+        <mesh position={[0.025, -0.38, 0.085]}>
+          <boxGeometry args={[0.02, 0.022, 0.025]} />
+          <meshStandardMaterial color={OPTIMUS_BLUE} metalness={0.98} roughness={0.05} />
+        </mesh>
+        <mesh position={[0.045, -0.38, 0.08]}>
+          <boxGeometry args={[0.016, 0.02, 0.022]} />
+          <meshStandardMaterial color={OPTIMUS_BLUE} metalness={0.98} roughness={0.05} />
         </mesh>
       </group>
     </group>
