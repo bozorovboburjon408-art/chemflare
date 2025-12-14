@@ -4,22 +4,22 @@ import { useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import * as THREE from "three";
 
-// Movie-accurate Bumblebee colors (Clean heroic style)
-const YELLOW_MAIN = "#FFD700"; // Bright polished gold-yellow
-const YELLOW_HIGHLIGHT = "#FFF44F"; // Highlight for shine
-const BLACK_METAL = "#1a1a1a"; // Slightly lighter for visibility
-const BLACK_ACCENT = "#2d2d2d"; // Secondary black
-const CHROME = "#E8E8E8"; // Polished chrome
-const CHROME_DARK = "#B8B8B8"; // Chrome shadow
-const BLUE_ENERGY = "#00BFFF"; // Glowing blue eyes
-const BLUE_CORE = "#4169E1"; // Core energy
-const AUTOBOT_RED = "#E32636"; // Autobot insignia
+// Bumblebee colors - YORQIN va OCHIQ
+const YELLOW_MAIN = "#FFEB3B"; // Yorqin sariq
+const YELLOW_HIGHLIGHT = "#FFF59D"; // Ochiq sariq
+const BLACK_METAL = "#455A64"; // Kulrang-ko'k (qora emas)
+const BLACK_ACCENT = "#607D8B"; // Ochiq kulrang
+const CHROME = "#F5F5F5"; // Yorqin oq-kumush
+const CHROME_DARK = "#CFD8DC"; // Ochiq kumush
+const BLUE_ENERGY = "#4FC3F7"; // Yorqin ko'k
+const BLUE_CORE = "#29B6F6"; // Ochiq ko'k
+const AUTOBOT_RED = "#EF5350"; // Yorqin qizil
 
-// Optimus Prime colors (Red-Blue like in movies)
-const OPTIMUS_RED = "#C41E3A"; // Classic Optimus red
-const OPTIMUS_BLUE = "#1E3A8A"; // Classic Optimus blue
-const OPTIMUS_CHROME = "#E8E8E8"; // Chrome details
-const OPTIMUS_ENERGY = "#60A5FA"; // Blue energy glow
+// Optimus Prime colors - YORQIN va OCHIQ
+const OPTIMUS_RED = "#EF5350"; // Yorqin qizil
+const OPTIMUS_BLUE = "#42A5F5"; // Yorqin ko'k
+const OPTIMUS_CHROME = "#FAFAFA"; // Juda yorqin kumush
+const OPTIMUS_ENERGY = "#81D4FA"; // Yorqin moviy
 
 // Gesture types (expanded)
 type GestureType = "idle" | "wave" | "point" | "thumbsUp" | "think" | "celebrate" | "listen" | "nod" | "raiseHand" | "salute" | "clap" | "walk";
@@ -1073,12 +1073,22 @@ const BumblebeeMascot = () => {
       
       setTimeout(() => {
         // Switch speaker
-        setCurrentSpeaker(prev => prev === "bumblebee" ? "bird" : "bumblebee");
-        setIsFirstMessage(false);
+        const nextSpeaker = currentSpeaker === "bumblebee" ? "bird" : "bumblebee";
+        setCurrentSpeaker(nextSpeaker);
+        
+        // If switching to bird for first time, keep isFirstMessage true for bird's intro
+        // Only set isFirstMessage to false after both have introduced
+        if (isFirstMessage && nextSpeaker === "bird") {
+          // Keep isFirstMessage true so bird can introduce
+        } else if (isFirstMessage && nextSpeaker === "bumblebee") {
+          setIsFirstMessage(false);
+        } else {
+          setIsFirstMessage(false);
+        }
         
         // Update gestures - speaker gets random gesture, listener listens
         const newGesture = getRandomSpeakerGesture();
-        if (currentSpeaker === "bumblebee") {
+        if (nextSpeaker === "bird") {
           setBumblebeeGesture("listen");
           setBirdGesture(newGesture);
         } else {
@@ -1087,14 +1097,16 @@ const BumblebeeMascot = () => {
         }
         
         // Change tip index - use shuffled knowledge
-        setCurrentTipIndex(prev => (prev + 1) % shuffledKnowledge.length);
+        if (!isFirstMessage || (isFirstMessage && nextSpeaker === "bumblebee")) {
+          setCurrentTipIndex(prev => (prev + 1) % shuffledKnowledge.length);
+        }
         
         setShowTip(true);
       }, 500);
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [isUserActive, currentSpeaker, shuffledKnowledge.length, getRandomSpeakerGesture]);
+  }, [isUserActive, currentSpeaker, shuffledKnowledge.length, getRandomSpeakerGesture, isFirstMessage]);
 
   // Smooth flying
   useEffect(() => {
@@ -1151,12 +1163,13 @@ const BumblebeeMascot = () => {
 
   if (isHidden) return null;
 
-  // Get current tip - intro on first message, then shuffled knowledge
+  // Get current tip - intro on first message for each robot, then shuffled knowledge
   const getCurrentTip = () => {
     if (isFirstMessage) {
       return currentSpeaker === "bumblebee" ? bumblebeeIntro : optimusIntro;
     }
-    return shuffledKnowledge[currentTipIndex % shuffledKnowledge.length] || knowledgeBase[0];
+    if (shuffledKnowledge.length === 0) return knowledgeBase[0];
+    return shuffledKnowledge[currentTipIndex % shuffledKnowledge.length];
   };
 
   const currentTip = getCurrentTip();
