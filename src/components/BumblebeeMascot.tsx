@@ -3238,41 +3238,6 @@ const BumblebeeMascot = () => {
   const [isListening, setIsListening] = useState(false);
   const [userSpeech, setUserSpeech] = useState("");
   const [robotResponse, setRobotResponse] = useState("");
-  
-  // Quiz game states
-  const [gameMode, setGameMode] = useState<"tips" | "quiz">("tips");
-  const [quizPhase, setQuizPhase] = useState<"question" | "answer" | "result">("question");
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [asker, setAsker] = useState<"bumblebee" | "bird">("bumblebee");
-  const [isCorrectAnswer, setIsCorrectAnswer] = useState(true);
-  const [bumblebeeScore, setBumblebeeScore] = useState(0);
-  const [optimusScore, setOptimusScore] = useState(0);
-  const [showTrophy, setShowTrophy] = useState(false);
-  const [trophyWinner, setTrophyWinner] = useState<"bumblebee" | "bird" | null>(null);
-  
-  // Quiz questions database
-  const quizQuestions = useMemo(() => [
-    { q: "Suvning formulasi nima?", a: "H₂O", wrong: "HO₂" },
-    { q: "Tuzning formulasi nima?", a: "NaCl", wrong: "ClNa₂" },
-    { q: "Vodorod atom massasi qancha?", a: "1", wrong: "2" },
-    { q: "Kislorod valentligi necha?", a: "2", wrong: "3" },
-    { q: "Oltin qaysi belgiga ega?", a: "Au", wrong: "Or" },
-    { q: "Temir qaysi belgiga ega?", a: "Fe", wrong: "Te" },
-    { q: "Havoning asosiy qismi nima?", a: "Azot - 78%", wrong: "Kislorod - 78%" },
-    { q: "Avogadro soni qancha?", a: "6.02×10²³", wrong: "6.02×10²⁴" },
-    { q: "Eng yengil element qaysi?", a: "Vodorod", wrong: "Geliy" },
-    { q: "Oltingugurt belgisi nima?", a: "S", wrong: "Su" },
-    { q: "Xlor belgisi nima?", a: "Cl", wrong: "Xr" },
-    { q: "Natriy suv bilan nima qiladi?", a: "Portlaydi!", wrong: "Hech narsa" },
-    { q: "Olmos nima tarkibida?", a: "Uglerod - C", wrong: "Kremniy - Si" },
-    { q: "Qaysi gaz yonishni ta'minlaydi?", a: "Kislorod - O₂", wrong: "Azot - N₂" },
-    { q: "pH = 7 nima?", a: "Neytral muhit", wrong: "Kislotali muhit" },
-    { q: "Kuchli kislota qaysi?", a: "HCl - xlorid kislota", wrong: "H₂CO₃ - karbonat kislota" },
-    { q: "NaOH nima?", a: "Natriy gidroksid - ishqor", wrong: "Natriy oksid" },
-    { q: "Qaysi metall suyuq holatda?", a: "Simob - Hg", wrong: "Qo'rg'oshin - Pb" },
-    { q: "Eng mustahkam metall qaysi?", a: "Titan - Ti", wrong: "Temir - Fe" },
-    { q: "Batareyalarda qaysi metall bor?", a: "Litiy - Li", wrong: "Natriy - Na" },
-  ], []);
 
   // Response templates based on user speech
   const generateResponse = useCallback((speech: string): string => {
@@ -3589,131 +3554,49 @@ const BumblebeeMascot = () => {
     return speakerGestures[Math.floor(Math.random() * speakerGestures.length)];
   }, []);
 
-  // Start quiz game after intro messages
-  useEffect(() => {
-    if (!isFirstMessage && !isUserVisible && showBird) {
-      // Switch to quiz mode after 10 seconds of tips
-      const quizTimer = setTimeout(() => {
-        setGameMode("quiz");
-        setQuizPhase("question");
-        setCurrentQuestionIndex(Math.floor(Math.random() * quizQuestions.length));
-        setAsker("bumblebee");
-      }, 10000);
-      return () => clearTimeout(quizTimer);
-    }
-  }, [isFirstMessage, isUserVisible, showBird, quizQuestions.length]);
-
-  // Alternate speakers and handle quiz game
+  // Alternate speakers and change tips with varied gestures
   useEffect(() => {
     if (isUserActive) return;
 
     const interval = setInterval(() => {
       setShowTip(false);
-      setShowTrophy(false);
       
       setTimeout(() => {
-        if (gameMode === "quiz" && !isUserVisible) {
-          // Quiz game logic
-          if (quizPhase === "question") {
-            // Asker asked question, now answerer responds
-            setQuizPhase("answer");
-            setCurrentSpeaker(asker === "bumblebee" ? "bird" : "bumblebee");
-            
-            // Random correct/incorrect (70% correct, 30% wrong)
-            const correct = Math.random() > 0.3;
-            setIsCorrectAnswer(correct);
-            
-            // Update gestures
-            if (asker === "bumblebee") {
-              setBumblebeeGesture("listen");
-              setBirdGesture("think");
-            } else {
-              setBirdGesture("listen");
-              setBumblebeeGesture("think");
-            }
-          } else if (quizPhase === "answer") {
-            // Show result
-            setQuizPhase("result");
-            
-            // Update scores
-            if (isCorrectAnswer) {
-              if (asker === "bumblebee") {
-                setOptimusScore(prev => prev + 1);
-                setTrophyWinner("bird");
-              } else {
-                setBumblebeeScore(prev => prev + 1);
-                setTrophyWinner("bumblebee");
-              }
-              setShowTrophy(true);
-            }
-            
-            // Gestures for result
-            if (isCorrectAnswer) {
-              if (asker === "bumblebee") {
-                setBirdGesture("celebrate");
-                setBumblebeeGesture("thumbsUp");
-              } else {
-                setBumblebeeGesture("celebrate");
-                setBirdGesture("thumbsUp");
-              }
-            } else {
-              if (asker === "bumblebee") {
-                setBirdGesture("idle");
-                setBumblebeeGesture("point");
-              } else {
-                setBumblebeeGesture("idle");
-                setBirdGesture("point");
-              }
-            }
-          } else {
-            // Result shown, move to next question with swapped roles
-            setQuizPhase("question");
-            setAsker(prev => prev === "bumblebee" ? "bird" : "bumblebee");
-            setCurrentSpeaker(asker === "bumblebee" ? "bird" : "bumblebee");
-            setCurrentQuestionIndex(Math.floor(Math.random() * quizQuestions.length));
-            
-            // Asker gets question gesture
-            if (asker === "bird") {
-              setBirdGesture("point");
-              setBumblebeeGesture("listen");
-            } else {
-              setBumblebeeGesture("point");
-              setBirdGesture("listen");
-            }
-          }
+        // Switch speaker
+        const nextSpeaker = currentSpeaker === "bumblebee" ? "bird" : "bumblebee";
+        setCurrentSpeaker(nextSpeaker);
+        
+        // If switching to bird for first time, keep isFirstMessage true for bird's intro
+        // Only set isFirstMessage to false after both have introduced
+        if (isFirstMessage && nextSpeaker === "bird") {
+          // Keep isFirstMessage true so bird can introduce
+        } else if (isFirstMessage && nextSpeaker === "bumblebee") {
+          setIsFirstMessage(false);
         } else {
-          // Normal tips mode
-          const nextSpeaker = currentSpeaker === "bumblebee" ? "bird" : "bumblebee";
-          setCurrentSpeaker(nextSpeaker);
-          
-          if (isFirstMessage && nextSpeaker === "bird") {
-            // Keep isFirstMessage true so bird can introduce
-          } else if (isFirstMessage && nextSpeaker === "bumblebee") {
-            setIsFirstMessage(false);
-          } else {
-            setIsFirstMessage(false);
-          }
-          
-          const newGesture = getRandomSpeakerGesture();
-          if (nextSpeaker === "bird") {
-            setBumblebeeGesture("listen");
-            setBirdGesture(newGesture);
-          } else {
-            setBumblebeeGesture(newGesture);
-            setBirdGesture("listen");
-          }
-          
-          if (!isFirstMessage || (isFirstMessage && nextSpeaker === "bumblebee")) {
-            setCurrentTipIndex(prev => (prev + 1) % shuffledKnowledge.length);
-          }
+          setIsFirstMessage(false);
+        }
+        
+        // Update gestures - speaker gets random gesture, listener listens
+        const newGesture = getRandomSpeakerGesture();
+        if (nextSpeaker === "bird") {
+          setBumblebeeGesture("listen");
+          setBirdGesture(newGesture);
+        } else {
+          setBumblebeeGesture(newGesture);
+          setBirdGesture("listen");
+        }
+        
+        // Change tip index - use shuffled knowledge
+        if (!isFirstMessage || (isFirstMessage && nextSpeaker === "bumblebee")) {
+          setCurrentTipIndex(prev => (prev + 1) % shuffledKnowledge.length);
         }
         
         setShowTip(true);
       }, 500);
-    }, gameMode === "quiz" ? 4000 : 5000);
+    }, 5000);
 
     return () => clearInterval(interval);
-  }, [isUserActive, currentSpeaker, shuffledKnowledge.length, getRandomSpeakerGesture, isFirstMessage, gameMode, quizPhase, asker, isCorrectAnswer, isUserVisible, quizQuestions.length]);
+  }, [isUserActive, currentSpeaker, shuffledKnowledge.length, getRandomSpeakerGesture, isFirstMessage]);
 
   // Fixed landing positions - robots sit in center area for better visibility
   const landingSpots = useMemo(() => ({
@@ -3865,11 +3748,6 @@ const BumblebeeMascot = () => {
     }
   }, [isUserVisible, conversationMessages]);
 
-  // Get current question data
-  const currentQuestion = useMemo(() => {
-    return quizQuestions[currentQuestionIndex] || quizQuestions[0];
-  }, [quizQuestions, currentQuestionIndex]);
-
   // Get current tip - prioritize robot response if available
   const displayTip = useMemo(() => {
     // If robot is responding to user speech, show that instead
@@ -3880,40 +3758,13 @@ const BumblebeeMascot = () => {
     if (isFirstMessage) {
       return currentSpeaker === "bumblebee" ? bumblebeeIntro : optimusIntro;
     }
-    
     // If camera enabled and user visible - ONLY show conversation messages
     if (isUserVisible && shuffledConversation.length > 0) {
       return shuffledConversation[conversationIndex % shuffledConversation.length];
     }
-    
-    // Quiz game mode
-    if (gameMode === "quiz" && !isUserVisible) {
-      const askerName = asker === "bumblebee" ? "Bumblebee" : "Optimus";
-      const answererName = asker === "bumblebee" ? "Optimus" : "Bumblebee";
-      
-      if (quizPhase === "question") {
-        // Asker asks the question
-        return `❓ Savol: ${currentQuestion.q}`;
-      } else if (quizPhase === "answer") {
-        // Answerer gives answer (correct or wrong)
-        if (isCorrectAnswer) {
-          return `✅ ${currentQuestion.a}`;
-        } else {
-          return `❌ ${currentQuestion.wrong}... Hmm...`;
-        }
-      } else {
-        // Result phase
-        if (isCorrectAnswer) {
-          return `🏆 To'g'ri! ${answererName} yutdi! (${bumblebeeScore}:${optimusScore})`;
-        } else {
-          return `😅 Noto'g'ri! Javob: ${currentQuestion.a}`;
-        }
-      }
-    }
-    
     if (shuffledKnowledge.length === 0) return knowledgeBase[0];
     return shuffledKnowledge[currentTipIndex % shuffledKnowledge.length];
-  }, [isFirstMessage, currentSpeaker, isUserVisible, shuffledConversation, conversationIndex, shuffledKnowledge, currentTipIndex, robotResponse, gameMode, quizPhase, currentQuestion, isCorrectAnswer, asker, bumblebeeScore, optimusScore]);
+  }, [isFirstMessage, currentSpeaker, isUserVisible, shuffledConversation, conversationIndex, shuffledKnowledge, currentTipIndex, robotResponse]);
 
   // Update conversation index when speaker changes (for camera mode)
   useEffect(() => {
@@ -4035,51 +3886,6 @@ const BumblebeeMascot = () => {
               </motion.div>
             )}
           </AnimatePresence>
-          
-          {/* Trophy Animation */}
-          <AnimatePresence>
-            {showTrophy && trophyWinner && (
-              <motion.div
-                className="fixed z-50 pointer-events-none"
-                style={{
-                  left: trophyWinner === "bumblebee" ? `${bumblebeePos.x}%` : `${birdPos.x}%`,
-                  top: trophyWinner === "bumblebee" ? `${bumblebeePos.y - 15}%` : `${birdPos.y - 15}%`,
-                  transform: "translate(-50%, -50%)",
-                }}
-                initial={{ opacity: 0, scale: 0, y: 50 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0, y: -50 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              >
-                <div className="relative">
-                  <span className="text-5xl sm:text-6xl md:text-7xl animate-bounce">🏆</span>
-                  <motion.div
-                    className="absolute inset-0 flex items-center justify-center"
-                    initial={{ scale: 1 }}
-                    animate={{ scale: [1, 1.2, 1] }}
-                    transition={{ repeat: Infinity, duration: 0.5 }}
-                  >
-                    <div className="absolute w-20 h-20 rounded-full bg-yellow-400/30 blur-xl" />
-                  </motion.div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-          
-          {/* Score Display */}
-          {gameMode === "quiz" && !isUserVisible && (
-            <motion.div
-              className="fixed top-4 left-1/2 -translate-x-1/2 z-40 bg-background/80 backdrop-blur-sm rounded-full px-6 py-2 border border-primary/20 shadow-lg"
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
-              <div className="flex items-center gap-4 text-sm font-medium">
-                <span className="text-yellow-500">🐝 {bumblebeeScore}</span>
-                <span className="text-muted-foreground">vs</span>
-                <span className="text-red-500">🤖 {optimusScore}</span>
-              </div>
-            </motion.div>
-          )}
         </>
       )}
     </AnimatePresence>
