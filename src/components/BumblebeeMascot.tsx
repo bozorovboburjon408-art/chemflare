@@ -3382,23 +3382,78 @@ const BumblebeeMascot = () => {
 
   if (isHidden) return null;
 
-  // Camera-aware messages
-  const cameraMessages = [
-    "Sizni ko'ryapman! Salom!",
-    "O'h, chiroyli odamsiz!",
-    "Kimyoni birga o'rganamiz!",
-    "Men sizni ko'ryapman!",
-    "Siz ham meni ko'rasizmi?",
+  // Conversational messages when camera is on - NO chemistry, just interaction
+  const conversationMessages = [
+    // Greetings and observations
+    "Voy! Sizni ko'rdim! Salom do'stim!",
+    "O'h, bugun juda chiroyli ko'rinyapsiz!",
+    "Salom! Kayfiyatingiz qanday?",
+    "Sizni ko'rib xursandman!",
+    "Bugun qanday o'tyapti kuningiz?",
+    
+    // Questions
+    "Sevimli rangingiz qanday?",
+    "Bugun nima qildingiz?",
+    "Eng yaxshi ko'rgan ovqatingiz nima?",
+    "Qaysi sport turini yoqtirasiz?",
+    "Musiqa eshitishni yoqtirasizmi?",
+    "Kitob o'qishni yaxshi ko'rasizmi?",
+    "Orzuingiz nima?",
+    "Eng yaxshi do'stingiz kim?",
+    "Qaysi mamlakat borishni xohlaysiz?",
+    
+    // Fun interactions
+    "Kulgingizni ko'rsating! 😄",
+    "Menga qo'l silkiting!",
+    "Tabassumingiz juda chiroyli!",
+    "Siz judayam zo'rsiz!",
+    "Sizga omad tilayman!",
+    "Siz menga yoqasiz!",
+    
+    // Mood boosters
+    "Siz eng zo'ri ekansiz!",
+    "Bugun sizning kuningiz bo'ladi!",
+    "Siz hamma narsaga qodirsiz!",
+    "O'zingizga ishoning!",
+    "Siz ajoyib odamsiz!",
+    "Tabassumingiz kunimni yoritdi!",
+    
+    // Playful
+    "Hoy! Men bu yerdaman! 👋",
+    "Meni ko'ryapsizmi?",
+    "Kelaqoling, suhbatlashamiz!",
+    "Sizni kutayotgan edim!",
+    "Birga o'yin o'ynaymizmi?",
+    "Qani, besh bering! ✋",
+    
+    // Encouragement
+    "Siz bugun ajoyib ko'rinyapsiz!",
+    "Energiyangiz juda zo'r!",
+    "Sizdan ilhom olyapman!",
+    "Sizga uchrashdim - baxtliman!",
+    "Davom eting, zo'rsiz!",
   ];
 
-  // Get current tip - intro on first message for each robot, then shuffled knowledge
+  // Gestures for camera interaction - more lively
+  const cameraGestures: GestureType[] = ["wave", "thumbsUp", "celebrate", "dance", "jump", "victory", "clap"];
+
+  // Get current tip
   const getCurrentTip = () => {
     if (isFirstMessage) {
       return currentSpeaker === "bumblebee" ? bumblebeeIntro : optimusIntro;
     }
-    // If camera enabled and user visible, sometimes show camera-aware messages
-    if (isUserVisible && Math.random() < 0.3) {
-      return cameraMessages[Math.floor(Math.random() * cameraMessages.length)];
+    // If camera enabled and user visible - ONLY show conversation messages
+    if (isUserVisible) {
+      // Change gesture to something fun
+      if (Math.random() < 0.4) {
+        const funGesture = cameraGestures[Math.floor(Math.random() * cameraGestures.length)];
+        if (currentSpeaker === "bumblebee") {
+          setBumblebeeGesture(funGesture);
+        } else {
+          setBirdGesture(funGesture);
+        }
+      }
+      return conversationMessages[Math.floor(Math.random() * conversationMessages.length)];
     }
     if (shuffledKnowledge.length === 0) return knowledgeBase[0];
     return shuffledKnowledge[currentTipIndex % shuffledKnowledge.length];
