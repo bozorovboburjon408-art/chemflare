@@ -265,19 +265,119 @@ const knowledgeBase: string[] = [
 ];
 
 // Optimus Prime tips - avval o'zini tanishtiradi
+// Page-specific tips for Bumblebee
+const bumblebeeTips: Record<string, string[]> = {
+  "/": [
+    "Men Bumblebee! Davriy jadval - barcha elementlar uyi!",
+    "Davriy jadvalda 118 ta element bor",
+    "Metallar chapda, nometallar o'ngda joylashgan",
+    "Har bir element o'z atom raqamiga ega",
+    "Gorizonal qatorlar - davrlar deyiladi",
+    "Vertikal ustunlar - gruppalar deyiladi",
+    "Lantanoidlar va aktinoidlar alohida qatorda",
+    "Vodorod eng birinchi element - atom raqami 1",
+    "Oganeson eng oxirgi element - atom raqami 118",
+    "Elementni bosib ko'proq ma'lumot oling!",
+  ],
+  "/reactions": [
+    "Bumblebee reaksiyalar olamiga xush kelibsiz deydi!",
+    "Kimyoviy reaksiya - moddalar o'zgarishi",
+    "Reaktantlar → Mahsulotlar",
+    "Tenglamani muvozanatlash zarur!",
+    "Katalitik reaksiyalar tezroq o'tadi",
+    "Endotermik reaksiyalar issiqlik yutadi",
+    "Ekzotermik reaksiyalar issiqlik chiqaradi",
+    "Oksidlanish-qaytarilish reaksiyalari muhim",
+    "Neytrallanish: kislota + asos = tuz + suv",
+    "Qidiruv orqali kerakli reaksiyani toping!",
+  ],
+  "/learning": [
+    "Bumblebee o'rganishda sizga yordam beradi!",
+    "Har bir bobni diqqat bilan o'qing",
+    "Test yechib bilimingizni sinang",
+    "AI savollar - istalgan mavzuda test",
+    "Oson, o'rta, qiyin darajalar mavjud",
+    "Qiyin darajada rasmli savollar ham bor",
+    "Har bir to'g'ri javob ball qo'shadi",
+    "Daraja oshishi bilan qiyinlik ortadi",
+    "Muntazam mashq qiling!",
+    "Bilimingiz oshib boradi!",
+  ],
+  "/library": [
+    "Bumblebee kutubxonaga xush kelibsiz deydi!",
+    "Bu yerda kimyo kitoblari mavjud",
+    "Har bir kitobda boblar bor",
+    "Boblarni o'qib, bilim oling",
+    "Qidiruv orqali kitob toping",
+    "1-qism: Boshlang'ich kimyo",
+    "2-qism: Umumiy kimyo",
+    "3-qism: Anorganik kimyo",
+    "Har bir bob so'ngida savollar bor",
+    "Kitoblarni yuklab olish mumkin!",
+  ],
+  "/quiz": [
+    "Bumblebee test yechishda yordam beradi!",
+    "Rasm yuklang va test yarating",
+    "10 tagacha rasm yuklash mumkin",
+    "AI savollarni avtomatik taniydi",
+    "Javoblarni belgilang va tekshiring",
+    "Har bir savolga izoh beriladi",
+    "Xato javoblarni tahlil qiling",
+    "Qayta-qayta mashq qiling!",
+    "Vaqtni tejash uchun rasmdan test!",
+    "Natijalaringiz saqlanadi!",
+  ],
+  "/calculator": [
+    "Bumblebee hisoblashda kuchli!",
+    "Istalgan kimyo masalasini yozing",
+    "Yoki rasm yuklang - masala tahlil qilinadi",
+    "Molyar massa hisoblash mumkin",
+    "Konsentratsiya hisoblash mumkin",
+    "pH qiymatini topish mumkin",
+    "Gazlar qonunlari bo'yicha hisoblash",
+    "Elektroliz hisoblash",
+    "Yechim bosqichma-bosqich ko'rsatiladi",
+    "Formula va izohlar beriladi!",
+  ],
+  "/experiments": [
+    "Bumblebee tajribalarni sevadi!",
+    "Bu yerda video tajribalar mavjud",
+    "Har bir tajriba xavfsiz o'tkazilgan",
+    "Tajribalarni uyda takrorlamang!",
+    "Video ko'rib o'rganing",
+    "Tajriba jarayonini kuzating",
+    "Xavfsizlik qoidalariga rioya qiling!",
+    "Laboratoriya jihozlari bilan ishlang",
+    "Kimyo - amaliy fan!",
+    "Nazariya + amaliyot = bilim!",
+  ],
+  "/developers": [
+    "Bumblebee ChemFlare jamoasini tanishtiradi!",
+    "Bu ilova Asilbek Salohiddinov tomonidan yaratilgan",
+    "Kimyoni o'rganish osonlashtirildi!",
+    "Telegram orqali bog'lanish mumkin",
+    "Fikr-mulohazalaringizni yuboring!",
+    "Ilova doimiy takomillashtirilmoqda",
+    "Yangi imkoniyatlar qo'shilmoqda",
+    "Foydalanganingiz uchun rahmat!",
+    "Transformerlar sizni qo'llab-quvvatlaydi!",
+    "Birga kimyoni o'rganamiz!",
+  ],
+};
+
+// Page-specific tips for Optimus Prime
 const optimusTips: Record<string, string[]> = {
   "/": [
-    "Men Optimus Prime! Avtobotlar lideri! Bilim - eng kuchli qurolimiz! Sizni himoya qilish va o'rgatish mening vazifam!",
-    "H - Vodorod, eng yengil element, atom massasi 1",
-    "He - Geliy, inert gaz, shamlar uchun ishlatiladi",
-    "Li - Litiy, eng yengil metall, batareyalarda ishlatiladi",
-    "C - Uglerod, olmosda va grafitda mavjud",
-    "N - Azot, havoning 78%, o'g'itlarda ishlatiladi",
-    "O - Kislorod, nafas olish uchun zarur",
+    "Men Optimus Prime! Davriy jadval - kimyoning asosi!",
+    "H - Vodorod, eng yengil element",
+    "He - Geliy, inert gaz, shamlar uchun",
+    "Li - Litiy, batareyalarda ishlatiladi",
+    "C - Uglerod, hayot asosi",
+    "N - Azot, havoning 78 foizi",
+    "O - Kislorod, nafas olish uchun",
     "Na - Natriy, suv bilan portlaydi!",
-    "Cl - Xlor, tuz tarkibida, NaCl",
-    "Fe - Temir, qon tarkibida, magnit xususiyatli",
-    "Au - Oltin, eng cho'ziluvchan metall",
+    "Fe - Temir, qon tarkibida",
+    "Au - Oltin, qimmatbaho metall",
   ],
   "/reactions": [
     "Optimus Prime! Reaksiyalar sirlarini ochamiz!",
@@ -286,47 +386,82 @@ const optimusTips: Record<string, string[]> = {
     "CaCO₃ → CaO + CO₂↑ - ohak yonishi",
     "Zn + 2HCl → ZnCl₂ + H₂↑ - metall va kislota",
     "NaOH + HCl → NaCl + H₂O - neytrallanish",
+    "Fe + CuSO₄ → FeSO₄ + Cu↓ - o'rin olish",
+    "CH₄ + 2O₂ → CO₂ + 2H₂O - metan yonishi",
+    "AI yordamida yangi reaksiyalar toping!",
+    "Reaksiyalar kutubxonasini ko'ring!",
   ],
   "/learning": [
-    "Optimus Prime o'rganishda sizga yo'l ko'rsatadi!",
-    "Valentlik - atomning bog' hosil qilish qobiliyati",
-    "Ion - zaryadlangan atom yoki molekula",
-    "Kation (+) va anion (-) - ion turlari",
-    "Molekula - atomlarning birikishi",
+    "Optimus Prime o'rganishda yo'l ko'rsatadi!",
+    "Valentlik - bog' hosil qilish qobiliyati",
+    "Ion - zaryadlangan atom",
+    "Kation (+) va anion (-) turlari",
+    "Molekula - atomlar birikishi",
     "Kristall panjara - qattiq modda tuzilishi",
+    "Kimyoviy bog' - atomlar orasidagi kuch",
+    "Kovalent bog' - elektronlar umumiy",
+    "Ion bog' - elektronlar ko'chgan",
+    "Muntazam o'rganing!",
   ],
   "/library": [
-    "Optimus Prime bilim xazinasiga xush kelibsiz deydi!",
-    "Mendeleev 1869-yilda davriy jadvalni yaratdi",
+    "Optimus Prime bilim xazinasiga taklif qiladi!",
+    "Mendeleev 1869-yilda davriy jadval yaratdi",
     "Davriy qonun - xossalar atom massasiga bog'liq",
-    "Atomning tuzilishi: yadro + elektronlar",
+    "Atom tuzilishi: yadro + elektronlar",
     "Proton (+), neytron (0), elektron (-)",
+    "Izotoplar - bir xil proton, turli neytron",
+    "Atom massasi - proton + neytron",
+    "Kitoblarni o'qib, chuqur bilim oling!",
+    "Har bir bob muhim ma'lumot beradi",
+    "Bilim - kuch!",
   ],
   "/quiz": [
     "Optimus Prime test yechishda kuch beradi!",
-    "Savol: Suvning formulasi? Javob: H₂O",
-    "Savol: Tuz formulasi? Javob: NaCl",
-    "Savol: Vodorod atom massasi? Javob: 1",
-    "Savol: Kislorod valentligi? Javob: 2",
+    "Har bir savolni diqqat bilan o'qing",
+    "Formulalarni esda tuting",
+    "Vaqtni to'g'ri taqsimlang",
+    "Ishonchsiz javoblarni qayta ko'ring",
+    "Xatolardan o'rganing",
+    "Bilim - eng kuchli qurol!",
+    "Testlar bilimni mustahkamlaydi",
+    "Har kuni mashq qiling!",
+    "Omad sizga yor bo'lsin!",
   ],
   "/calculator": [
     "Optimus Prime hisoblashda yordam beradi!",
-    "Massa ulushi: ω = m(element)/m(modda) × 100%",
-    "Zichlik: ρ = m/V (g/ml yoki g/cm³)",
-    "Hajm (gaz): V = n × 22.4 L (n.sh.)",
-    "Issiqlik sig'imi: Q = m × c × ΔT",
+    "M = m/n - molyar massa formulasi",
+    "C = n/V - konsentratsiya formulasi",
+    "pH = -log[H⁺] - kislotalik ko'rsatkichi",
+    "PV = nRT - ideal gaz tenglamasi",
+    "ρ = m/V - zichlik formulasi",
+    "V = n × 22.4 L - gaz hajmi (n.sh.)",
+    "Faradey qonuni: m = MIt/nF",
+    "Bosqichma-bosqich yeching!",
+    "Hisob-kitob - aniqlik talab qiladi!",
   ],
   "/experiments": [
-    "Optimus Prime tajribalar sirlari bilan tanishtiryapti!",
+    "Optimus Prime tajribalar sirlari bilan tanishtiradi!",
     "NaHCO₃ + CH₃COOH → vulqon tajribasi!",
-    "Yod + kraxmal → ko'k rang hosil bo'ladi",
+    "Yod + kraxmal → ko'k rang",
     "Magniy + olov → yorqin oq nur!",
-    "Suv + kalsiy → vodorod gazi chiqadi",
+    "Kalsiy + suv → vodorod gazi",
+    "Xavfsizlik - birinchi o'rinda!",
+    "Himoya ko'zoynak ishlating",
+    "Qo'lqop kiyib ishlang",
+    "Tajribalarni nazorat ostida o'tkazing!",
+    "Kimyo - qiziqarli fan!",
   ],
   "/developers": [
     "Optimus Prime ChemFlare jamoasini qo'llab-quvvatlaydi!",
     "Transformerlar kabi - bilim bilan o'zgaramiz!",
     "Birga o'rganamiz, birga kuchli bo'lamiz!",
+    "Ilova kimyoni oson qiladi",
+    "Yangi imkoniyatlar kutmoqda!",
+    "Sizning fikringiz muhim!",
+    "Ilovani do'stlaringizga tavsiya qiling!",
+    "Kimyo - kelajak fani!",
+    "Bilim - eng yaxshi sarmoya!",
+    "Rahmat, ChemFlare bilan birga!",
   ],
 };
 
@@ -3301,10 +3436,17 @@ const BumblebeeMascot = () => {
     };
   }, [cameraEnabled]);
 
-  // Shuffle knowledge base on mount and page change
+  // Get page-specific tips based on current path
   useEffect(() => {
-    const shuffled = [...knowledgeBase].sort(() => Math.random() - 0.5);
-    setShuffledKnowledge(shuffled);
+    const path = location.pathname;
+    
+    // Get page-specific tips for both robots, fallback to "/" if path not found
+    const bumblebePageTips = bumblebeeTips[path] || bumblebeeTips["/"];
+    const optimusPageTips = optimusTips[path] || optimusTips["/"];
+    
+    // Combine and shuffle page-specific tips
+    const combinedTips = [...bumblebePageTips, ...optimusPageTips].sort(() => Math.random() - 0.5);
+    setShuffledKnowledge(combinedTips);
     setCurrentTipIndex(0);
     setIsFirstMessage(true);
     setCurrentSpeaker("bumblebee");
