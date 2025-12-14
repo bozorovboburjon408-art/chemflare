@@ -15,11 +15,11 @@ const BLUE_ENERGY = "#00BFFF"; // Glowing blue eyes
 const BLUE_CORE = "#4169E1"; // Core energy
 const AUTOBOT_RED = "#E32636"; // Autobot insignia
 
-// Bird Robot colors (Red-Purple)
-const RED_MAIN = "#DC143C";
-const RED_DARK = "#8B0000";
-const PURPLE_ENERGY = "#9400D3";
-const PURPLE_CORE = "#4B0082";
+// Optimus Prime colors (Red-Blue like in movies)
+const OPTIMUS_RED = "#C41E3A"; // Classic Optimus red
+const OPTIMUS_BLUE = "#1E3A8A"; // Classic Optimus blue
+const OPTIMUS_CHROME = "#E8E8E8"; // Chrome details
+const OPTIMUS_ENERGY = "#60A5FA"; // Blue energy glow
 
 // Gesture types (expanded)
 type GestureType = "idle" | "wave" | "point" | "thumbsUp" | "think" | "celebrate" | "listen" | "nod" | "raiseHand" | "salute" | "clap" | "walk";
@@ -90,61 +90,76 @@ const bumblebeeTips: Record<string, string[]> = {
   ],
 };
 
-// Sparky tips - qo'shimcha foydali ma'lumotlar
-const birdTips: Record<string, string[]> = {
+// Optimus Prime tips - ko'proq ta'limiy ma'lumotlar
+const optimusTips: Record<string, string[]> = {
   "/": [
-    "Men Sparky! Qiziqarli faktlarni aytaman!",
-    "Oltin (Au) - eng cho'ziluvchan metall",
-    "Vodorod - koinotdagi eng ko'p element",
-    "Kislorod - Yer atmosferasining 21%",
-    "Temir - qon tarkibida gemoglobinda bor",
-    "Uglerod - barcha tirik organizmlar asosi",
-    "Azot - havoning 78% ni tashkil qiladi",
-    "Geliy - Quyoshda 2-o'rinda ko'p element",
+    "Men Optimus Prime! Bilim - eng kuchli qurol!",
+    "H - Vodorod, eng yengil element, atom massasi 1",
+    "He - Geliy, inert gaz, shamlar uchun ishlatiladi",
+    "Li - Litiy, eng yengil metall, batareyalarda ishlatiladi",
+    "C - Uglerod, olmosda va grafitda mavjud",
+    "N - Azot, havoning 78%, o'g'itlarda ishlatiladi",
+    "O - Kislorod, nafas olish uchun zarur",
+    "Na - Natriy, suv bilan portlaydi!",
+    "Cl - Xlor, tuz tarkibida, NaCl",
+    "Fe - Temir, qon tarkibida, magnit xususiyatli",
+    "Au - Oltin, eng cho'ziluvchan metall",
+    "Ag - Kumush, eng yaxshi elektr o'tkazuvchi",
+    "Cu - Mis, simlar uchun ishlatiladi",
   ],
   "/reactions": [
-    "Suv - H₂O, eng oddiy oksid!",
-    "Rza - temir oksidlanishi, Fe₂O₃",
-    "Fotosintez: 6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂",
-    "Nafas olish - glyukoza oksidlanishi",
-    "Olov - tez oksidlanish reaksiyasi",
-    "Tuz hosil bo'lishi - ionlar almashadi",
+    "2H₂ + O₂ → 2H₂O - suv hosil bo'lishi",
+    "2Na + 2H₂O → 2NaOH + H₂↑ - natriy va suv",
+    "CaCO₃ → CaO + CO₂↑ - ohak yonishi",
+    "Zn + 2HCl → ZnCl₂ + H₂↑ - metall va kislota",
+    "NaOH + HCl → NaCl + H₂O - neytrallanish",
+    "Fe + CuSO₄ → FeSO₄ + Cu - o'rin olish",
+    "2KMnO₄ → K₂MnO₄ + MnO₂ + O₂↑ - parchalanish",
+    "CH₄ + 2O₂ → CO₂ + 2H₂O - metan yonishi",
   ],
   "/learning": [
-    "Bilim - eng katta boylik!",
-    "Xato qilish - o'rganishning bir qismi",
-    "Sabr bilan o'rganing - natija bo'ladi!",
-    "Kuniga 5 ta yangi atama o'rganing",
-    "Davriy jadvalni yodlang - asos shu!",
+    "Valentlik - atomning bog' hosil qilish qobiliyati",
+    "Ion - zaryadlangan atom yoki molekula",
+    "Kation (+) va anion (-) - ion turlari",
+    "Molekula - atomlarning birikishi",
+    "Kristall panjara - qattiq modda tuzilishi",
+    "Elektrolitlar - eritma yoki suyuqlikda tok o'tkazadi",
+    "Indikatorlar - muhit pH ini aniqlaydi",
+    "Lakmus - kislotada qizil, asosda ko'k",
   ],
   "/library": [
-    "O'qish - miyani mashq qildiradi",
-    "Kimyo - tabiat sirlarini ochadi",
-    "Har bir kitob - yangi bilim eshigi",
-    "Yozib o'qish - yodda yaxshi qoladi",
+    "Mendeleev 1869-yilda davriy jadvalni yaratdi",
+    "Davriy qonun - xossalar atom massasiga bog'liq",
+    "Atomning tuzilishi: yadro + elektronlar",
+    "Proton (+), neytron (0), elektron (-)",
+    "Izotoplar - proton soni bir xil, neytron farqli",
+    "Atom radiusi - davrda kamayadi, guruhda ortadi",
   ],
   "/quiz": [
-    "Test - bilimni tekshirish usuli",
-    "Xatolardan qo'rqmang - ular o'rgatadi!",
-    "Vaqtni tejang - tez ishlang",
-    "Ishonchsiz javobni tekshiring",
+    "Savol: Suvning formulasi? Javob: H₂O",
+    "Savol: Tuz formulasi? Javob: NaCl",
+    "Savol: Vodorod atom massasi? Javob: 1",
+    "Savol: Kislorod valentligi? Javob: 2",
+    "Savol: Neytral muhit pH? Javob: 7",
+    "Savol: Avogadro soni? Javob: 6.02×10²³",
   ],
   "/calculator": [
-    "n = m/M - mol sonini toping",
-    "1 mol = 6.02×10²³ zarracha",
-    "Avogadro soni - kimyoning asosi",
-    "Standart sharoit: 25°C, 1 atm",
-    "Suv pH=7 - neytral muhit",
+    "Massa ulushi: ω = m(element)/m(modda) × 100%",
+    "Zichlik: ρ = m/V (g/ml yoki g/cm³)",
+    "Hajm (gaz): V = n × 22.4 L (n.sh.)",
+    "Issiqlik sig'imi: Q = m × c × ΔT",
+    "Elektroliz: m = (M × I × t)/(n × 96500)",
   ],
   "/experiments": [
-    "Xavfsizlik - eng muhim qoida!",
-    "Laboratoriyada ovqat yemang!",
-    "Kimyoviy idishlarni belgilang",
-    "Moddalarni aralashtirmang!",
+    "NaHCO₃ + CH₃COOH → vulqon tajribasi!",
+    "Yod + kraxmal → ko'k rang hosil bo'ladi",
+    "Magniy + olov → yorqin oq nur!",
+    "Suv + kalsiy → vodorod gazi chiqadi",
+    "Mis sulfat + temir → mis cho'kadi",
   ],
   "/developers": [
-    "Ilovamizdan foydalanganingiz uchun rahmat!",
-    "Takliflaringizni kutamiz!",
+    "Transformerlar kabi - bilim bilan o'zgaramiz!",
+    "Birga o'rganamiz, birga kuchli bo'lamiz!",
   ],
 };
 
@@ -610,8 +625,8 @@ const BumblebeeRobot = ({ gesture }: { gesture: GestureType }) => {
   );
 };
 
-// Bird Robot Head - Round design with more gestures
-const BirdHead = ({ gesture }: { gesture: GestureType }) => {
+// Optimus Prime Head - Round heroic design
+const OptimusHead = ({ gesture }: { gesture: GestureType }) => {
   const headRef = useRef<THREE.Group>(null);
   const eyeGlowRef = useRef<THREE.PointLight>(null);
 
@@ -646,94 +661,94 @@ const BirdHead = ({ gesture }: { gesture: GestureType }) => {
 
   return (
     <group ref={headRef} position={[0, 1.0, 0]}>
-      {/* Main round head */}
+      {/* Main round head - blue */}
       <mesh>
         <sphereGeometry args={[0.22, 32, 32]} />
-        <meshStandardMaterial color={RED_MAIN} metalness={0.98} roughness={0.05} />
+        <meshStandardMaterial color={OPTIMUS_BLUE} metalness={0.98} roughness={0.05} />
       </mesh>
       
-      {/* Head crest/antenna */}
+      {/* Helmet crest */}
       <mesh position={[0, 0.18, 0]}>
-        <sphereGeometry args={[0.05, 16, 16]} />
-        <meshStandardMaterial color={PURPLE_ENERGY} emissive={PURPLE_ENERGY} emissiveIntensity={3} />
-      </mesh>
-      <mesh position={[0, 0.25, 0]}>
-        <sphereGeometry args={[0.03, 12, 12]} />
-        <meshStandardMaterial color={PURPLE_ENERGY} emissive={PURPLE_ENERGY} emissiveIntensity={5} />
+        <boxGeometry args={[0.06, 0.1, 0.15]} />
+        <meshStandardMaterial color={OPTIMUS_RED} metalness={0.98} roughness={0.05} />
       </mesh>
       
-      {/* Face plate */}
+      {/* Face plate - silver */}
       <mesh position={[0, -0.02, 0.16]}>
         <boxGeometry args={[0.28, 0.14, 0.08]} />
-        <meshStandardMaterial color={RED_DARK} metalness={0.99} roughness={0.02} />
+        <meshStandardMaterial color={OPTIMUS_CHROME} metalness={0.99} roughness={0.02} />
       </mesh>
       
-      {/* Left eye - glowing purple */}
+      {/* Left eye - glowing blue */}
       <mesh position={[-0.07, 0.02, 0.21]}>
         <sphereGeometry args={[0.032, 20, 20]} />
-        <meshStandardMaterial color={PURPLE_ENERGY} emissive={PURPLE_ENERGY} emissiveIntensity={6} transparent opacity={0.95} />
+        <meshStandardMaterial color={OPTIMUS_ENERGY} emissive={OPTIMUS_ENERGY} emissiveIntensity={6} transparent opacity={0.95} />
       </mesh>
       <mesh position={[-0.07, 0.02, 0.22]}>
         <sphereGeometry args={[0.02, 16, 16]} />
         <meshStandardMaterial color="#FFFFFF" emissive="#FFFFFF" emissiveIntensity={2} />
       </mesh>
       
-      {/* Right eye - glowing purple */}
+      {/* Right eye - glowing blue */}
       <mesh position={[0.07, 0.02, 0.21]}>
         <sphereGeometry args={[0.032, 20, 20]} />
-        <meshStandardMaterial color={PURPLE_ENERGY} emissive={PURPLE_ENERGY} emissiveIntensity={6} transparent opacity={0.95} />
+        <meshStandardMaterial color={OPTIMUS_ENERGY} emissive={OPTIMUS_ENERGY} emissiveIntensity={6} transparent opacity={0.95} />
       </mesh>
       <mesh position={[0.07, 0.02, 0.22]}>
         <sphereGeometry args={[0.02, 16, 16]} />
         <meshStandardMaterial color="#FFFFFF" emissive="#FFFFFF" emissiveIntensity={2} />
       </mesh>
       
-      {/* Side panels */}
+      {/* Side panels - red */}
       <mesh position={[-0.2, 0, 0]}>
         <boxGeometry args={[0.05, 0.12, 0.1]} />
-        <meshStandardMaterial color={RED_MAIN} metalness={0.98} roughness={0.05} />
+        <meshStandardMaterial color={OPTIMUS_RED} metalness={0.98} roughness={0.05} />
       </mesh>
       <mesh position={[0.2, 0, 0]}>
         <boxGeometry args={[0.05, 0.12, 0.1]} />
-        <meshStandardMaterial color={RED_MAIN} metalness={0.98} roughness={0.05} />
+        <meshStandardMaterial color={OPTIMUS_RED} metalness={0.98} roughness={0.05} />
       </mesh>
       
-      <pointLight ref={eyeGlowRef} position={[0, 0, 0.25]} color={PURPLE_ENERGY} intensity={1.5} distance={0.8} />
+      <pointLight ref={eyeGlowRef} position={[0, 0, 0.25]} color={OPTIMUS_ENERGY} intensity={1.5} distance={0.8} />
     </group>
   );
 };
 
-// Bird Robot Chest
-const BirdChest = () => (
+// Optimus Prime Chest
+const OptimusChest = () => (
   <group position={[0, 0.5, 0]}>
-    {/* Main chest */}
+    {/* Main chest - red */}
     <mesh>
       <boxGeometry args={[0.5, 0.4, 0.25]} />
-      <meshStandardMaterial color={RED_MAIN} metalness={0.98} roughness={0.05} />
+      <meshStandardMaterial color={OPTIMUS_RED} metalness={0.98} roughness={0.05} />
     </mesh>
     
-    {/* Chest detail */}
-    <mesh position={[0, 0, 0.13]}>
-      <boxGeometry args={[0.3, 0.25, 0.02]} />
-      <meshStandardMaterial color={RED_DARK} metalness={0.99} roughness={0.02} />
+    {/* Window panels - blue */}
+    <mesh position={[-0.1, 0.05, 0.13]}>
+      <boxGeometry args={[0.1, 0.15, 0.02]} />
+      <meshStandardMaterial color={OPTIMUS_ENERGY} emissive={OPTIMUS_ENERGY} emissiveIntensity={1} transparent opacity={0.8} />
+    </mesh>
+    <mesh position={[0.1, 0.05, 0.13]}>
+      <boxGeometry args={[0.1, 0.15, 0.02]} />
+      <meshStandardMaterial color={OPTIMUS_ENERGY} emissive={OPTIMUS_ENERGY} emissiveIntensity={1} transparent opacity={0.8} />
     </mesh>
     
-    {/* Energy core */}
-    <mesh position={[0, 0.02, 0.15]}>
-      <circleGeometry args={[0.07, 32]} />
-      <meshStandardMaterial color={PURPLE_ENERGY} emissive={PURPLE_ENERGY} emissiveIntensity={3} />
+    {/* Autobot insignia */}
+    <mesh position={[0, -0.08, 0.13]}>
+      <circleGeometry args={[0.06, 6]} />
+      <meshStandardMaterial color={AUTOBOT_RED} emissive={AUTOBOT_RED} emissiveIntensity={0.5} />
     </mesh>
     
-    {/* Waist */}
+    {/* Waist - blue */}
     <mesh position={[0, -0.22, 0]}>
       <boxGeometry args={[0.35, 0.08, 0.2]} />
-      <meshStandardMaterial color={RED_DARK} metalness={0.98} roughness={0.05} />
+      <meshStandardMaterial color={OPTIMUS_BLUE} metalness={0.98} roughness={0.05} />
     </mesh>
   </group>
 );
 
-// Bird Robot Arm
-const BirdArm = ({ side, gesture }: { side: "left" | "right"; gesture: GestureType }) => {
+// Optimus Prime Arm
+const OptimusArm = ({ side, gesture }: { side: "left" | "right"; gesture: GestureType }) => {
   const armRef = useRef<THREE.Group>(null);
   const forearmRef = useRef<THREE.Group>(null);
   const isLeft = side === "left";
@@ -776,43 +791,43 @@ const BirdArm = ({ side, gesture }: { side: "left" | "right"; gesture: GestureTy
 
   return (
     <group ref={armRef} position={[xPos, 0.65, 0]}>
-      {/* Shoulder */}
+      {/* Shoulder - chrome */}
       <mesh position={[mirror * 0.02, 0, 0]}>
         <sphereGeometry args={[0.06, 16, 16]} />
-        <meshStandardMaterial color={CHROME} metalness={0.99} roughness={0.02} />
+        <meshStandardMaterial color={OPTIMUS_CHROME} metalness={0.99} roughness={0.02} />
       </mesh>
       
-      {/* Upper arm */}
+      {/* Upper arm - blue */}
       <mesh position={[mirror * 0.02, -0.1, 0]}>
         <boxGeometry args={[0.08, 0.18, 0.08]} />
-        <meshStandardMaterial color={RED_MAIN} metalness={0.98} roughness={0.05} />
+        <meshStandardMaterial color={OPTIMUS_BLUE} metalness={0.98} roughness={0.05} />
       </mesh>
       
-      {/* Elbow */}
+      {/* Elbow - chrome */}
       <mesh position={[0, -0.2, 0]}>
         <sphereGeometry args={[0.045, 16, 16]} />
-        <meshStandardMaterial color={CHROME} metalness={0.99} roughness={0.02} />
+        <meshStandardMaterial color={OPTIMUS_CHROME} metalness={0.99} roughness={0.02} />
       </mesh>
       
-      {/* Forearm */}
+      {/* Forearm - red */}
       <group ref={forearmRef} position={[0, -0.25, 0]}>
         <mesh position={[0, -0.08, 0]}>
           <boxGeometry args={[0.07, 0.15, 0.07]} />
-          <meshStandardMaterial color={RED_MAIN} metalness={0.98} roughness={0.05} />
+          <meshStandardMaterial color={OPTIMUS_RED} metalness={0.98} roughness={0.05} />
         </mesh>
         
-        {/* Hand */}
+        {/* Hand - chrome */}
         <mesh position={[0, -0.18, 0]}>
           <boxGeometry args={[0.05, 0.06, 0.035]} />
-          <meshStandardMaterial color={RED_DARK} metalness={0.98} roughness={0.05} />
+          <meshStandardMaterial color={OPTIMUS_CHROME} metalness={0.98} roughness={0.05} />
         </mesh>
       </group>
     </group>
   );
 };
 
-// Bird Robot Leg
-const BirdLeg = ({ side, gesture }: { side: "left" | "right"; gesture: GestureType }) => {
+// Optimus Prime Leg
+const OptimusLeg = ({ side, gesture }: { side: "left" | "right"; gesture: GestureType }) => {
   const legRef = useRef<THREE.Group>(null);
   const lowerLegRef = useRef<THREE.Group>(null);
   const isLeft = side === "left";
@@ -841,43 +856,43 @@ const BirdLeg = ({ side, gesture }: { side: "left" | "right"; gesture: GestureTy
 
   return (
     <group ref={legRef} position={[xPos, 0.05, 0]}>
-      {/* Hip */}
+      {/* Hip - blue */}
       <mesh>
         <sphereGeometry args={[0.05, 12, 12]} />
-        <meshStandardMaterial color={RED_DARK} metalness={0.98} roughness={0.05} />
+        <meshStandardMaterial color={OPTIMUS_BLUE} metalness={0.98} roughness={0.05} />
       </mesh>
       
-      {/* Upper leg */}
+      {/* Upper leg - blue */}
       <mesh position={[0, -0.12, 0]}>
         <boxGeometry args={[0.08, 0.2, 0.08]} />
-        <meshStandardMaterial color={RED_MAIN} metalness={0.98} roughness={0.05} />
+        <meshStandardMaterial color={OPTIMUS_BLUE} metalness={0.98} roughness={0.05} />
       </mesh>
       
-      {/* Knee */}
+      {/* Knee - chrome */}
       <mesh position={[0, -0.24, 0]}>
         <sphereGeometry args={[0.04, 12, 12]} />
-        <meshStandardMaterial color={CHROME} metalness={0.99} roughness={0.02} />
+        <meshStandardMaterial color={OPTIMUS_CHROME} metalness={0.99} roughness={0.02} />
       </mesh>
       
-      {/* Lower leg */}
+      {/* Lower leg - blue */}
       <group ref={lowerLegRef} position={[0, -0.24, 0]}>
         <mesh position={[0, -0.12, 0]}>
           <boxGeometry args={[0.07, 0.2, 0.07]} />
-          <meshStandardMaterial color={RED_MAIN} metalness={0.98} roughness={0.05} />
+          <meshStandardMaterial color={OPTIMUS_BLUE} metalness={0.98} roughness={0.05} />
         </mesh>
         
-        {/* Foot */}
+        {/* Foot - red */}
         <mesh position={[0, -0.26, 0.02]}>
           <boxGeometry args={[0.06, 0.05, 0.1]} />
-          <meshStandardMaterial color={RED_DARK} metalness={0.98} roughness={0.05} />
+          <meshStandardMaterial color={OPTIMUS_RED} metalness={0.98} roughness={0.05} />
         </mesh>
       </group>
     </group>
   );
 };
 
-// Bird Robot - Full body with legs
-const BirdRobot = ({ gesture }: { gesture: GestureType }) => {
+// Optimus Prime Robot - Full body
+const OptimusRobot = ({ gesture }: { gesture: GestureType }) => {
   const groupRef = useRef<THREE.Group>(null);
 
   useFrame((state) => {
@@ -900,13 +915,13 @@ const BirdRobot = ({ gesture }: { gesture: GestureType }) => {
 
   return (
     <group ref={groupRef} scale={0.55} position={[0, 0, 0]}>
-      <BirdHead gesture={gesture} />
-      <BirdChest />
-      <BirdArm side="left" gesture={gesture} />
-      <BirdArm side="right" gesture={gesture} />
-      <BirdLeg side="left" gesture={gesture} />
-      <BirdLeg side="right" gesture={gesture} />
-      <EnergySphere color={PURPLE_ENERGY} coreColor={PURPLE_CORE} />
+      <OptimusHead gesture={gesture} />
+      <OptimusChest />
+      <OptimusArm side="left" gesture={gesture} />
+      <OptimusArm side="right" gesture={gesture} />
+      <OptimusLeg side="left" gesture={gesture} />
+      <OptimusLeg side="right" gesture={gesture} />
+      <EnergySphere color={OPTIMUS_ENERGY} coreColor={OPTIMUS_BLUE} />
     </group>
   );
 };
@@ -964,7 +979,7 @@ const BumblebeeMascot = () => {
 
   // Get tips for current page
   const currentBumblebeeTips = bumblebeeTips[location.pathname] || bumblebeeTips["/"];
-  const currentBirdTips = birdTips[location.pathname] || birdTips["/"];
+  const currentOptimusTips = optimusTips[location.pathname] || optimusTips["/"];
 
   // Track user activity
   useEffect(() => {
@@ -1023,7 +1038,7 @@ const BumblebeeMascot = () => {
         
         // Change tip index
         setCurrentTipIndex(prev => {
-          const tips = currentSpeaker === "bumblebee" ? currentBirdTips : currentBumblebeeTips;
+          const tips = currentSpeaker === "bumblebee" ? currentOptimusTips : currentBumblebeeTips;
           return (prev + 1) % tips.length;
         });
         
@@ -1032,7 +1047,7 @@ const BumblebeeMascot = () => {
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [isUserActive, currentSpeaker, currentBumblebeeTips, currentBirdTips, getRandomSpeakerGesture]);
+  }, [isUserActive, currentSpeaker, currentBumblebeeTips, currentOptimusTips, getRandomSpeakerGesture]);
 
   // Smooth flying
   useEffect(() => {
@@ -1100,7 +1115,7 @@ const BumblebeeMascot = () => {
 
   const currentTip = currentSpeaker === "bumblebee" 
     ? currentBumblebeeTips[currentTipIndex % currentBumblebeeTips.length]
-    : currentBirdTips[currentTipIndex % currentBirdTips.length];
+    : currentOptimusTips[currentTipIndex % currentOptimusTips.length];
 
   return (
     <AnimatePresence>
@@ -1183,20 +1198,21 @@ const BumblebeeMascot = () => {
 
                 <div className="w-full h-full pointer-events-none">
                   <Canvas
-                    camera={{ position: [0, 0.2, 2.2], fov: 50 }}
+                    camera={{ position: [0, 0.3, 2.8], fov: 45 }}
                     style={{ background: "transparent" }}
                     gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}
                   >
-                    <ambientLight intensity={0.3} />
-                    <directionalLight position={[3, 5, 2]} intensity={1.2} />
-                    <pointLight position={[0, 0, 2]} intensity={0.8} color="#FFB6C1" />
-                    <BirdRobot gesture={birdGesture} />
+                    <ambientLight intensity={0.6} />
+                    <directionalLight position={[2, 4, 3]} intensity={1.5} />
+                    <directionalLight position={[-2, 3, 2]} intensity={0.8} />
+                    <pointLight position={[0, 0, 2]} intensity={0.6} color="#FFFFFF" />
+                    <OptimusRobot gesture={birdGesture} />
                   </Canvas>
                 </div>
                 
                 <div 
                   className="absolute inset-0 -z-10 rounded-full blur-3xl opacity-25"
-                  style={{ background: `radial-gradient(circle, ${PURPLE_ENERGY} 0%, transparent 70%)` }}
+                  style={{ background: `radial-gradient(circle, ${OPTIMUS_ENERGY} 0%, transparent 70%)` }}
                 />
               </motion.div>
             )}
