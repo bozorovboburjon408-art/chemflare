@@ -681,8 +681,22 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
                     <span className="relative flex items-center gap-2">
                       <MessageCircle className="w-4 h-4" />
                       Fikr va mulohazalar uchun suhbatlashing
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </span>
                   </motion.a>
+
+                  {/* Motivational text below */}
+                  <motion.p
+                    className="text-center text-sm"
+                    style={{
+                      color: "rgba(255, 255, 255, 0.6)",
+                    }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.5 }}
+                  >
+                    O'z fikrlaringizni yozib qoldiring — biz ularni albatta o'qiymiz!
+                  </motion.p>
                 </motion.div>
               )}
             </AnimatePresence>
