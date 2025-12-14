@@ -994,34 +994,29 @@ const BumblebeeMascot = () => {
     // Random weapon types
     const weapons: WeaponType[] = ["laser", "rocket", "plasma"];
     
-    // Calculate hand positions (offset from robot center)
-    const bumblebeeHandPos = { 
-      x: bumblebeePos.x + (birdPos.x > bumblebeePos.x ? 3 : -3), 
-      y: bumblebeePos.y + 2 
-    };
-    const birdHandPos = { 
-      x: birdPos.x + (bumblebeePos.x > birdPos.x ? 3 : -3), 
-      y: birdPos.y + 2 
-    };
-    
     // Shoot projectiles - both shoot at the same time with random weapons
+    // Projectiles start from current robot position (center) toward enemy
     const shootProjectiles = () => {
       const bumblebeeWeapon = weapons[Math.floor(Math.random() * weapons.length)];
       const birdWeapon = weapons[Math.floor(Math.random() * weapons.length)];
+      
+      // Get current positions at the moment of shooting
+      const currentBumblebeePos = { ...bumblebeePos };
+      const currentBirdPos = { ...birdPos };
       
       setProjectiles(prev => [
         ...prev,
         {
           id: projectileIdRef.current++,
-          from: bumblebeeHandPos,
-          to: birdPos,
+          from: currentBumblebeePos,
+          to: currentBirdPos,
           color: BLUE_ENERGY,
           weaponType: bumblebeeWeapon
         },
         {
           id: projectileIdRef.current++,
-          from: birdHandPos,
-          to: bumblebeePos,
+          from: currentBirdPos,
+          to: currentBumblebeePos,
           color: PURPLE_ENERGY,
           weaponType: birdWeapon
         }
@@ -1159,7 +1154,7 @@ const BumblebeeMascot = () => {
             initial={{ opacity: 0, scale: 0 }}
             animate={{ 
               opacity: 1,
-              scale: winner === "bumblebee" ? 1.2 : winner === "bird" ? 0.9 : 1,
+              scale: 1,
               left: `${bumblebeePos.x}%`,
               top: `${bumblebeePos.y}%`,
               x: "-50%",
@@ -1221,7 +1216,7 @@ const BumblebeeMascot = () => {
                 initial={{ opacity: 0, scale: 0 }}
                 animate={{ 
                   opacity: 1,
-                  scale: winner === "bird" ? 1.2 : winner === "bumblebee" ? 0.9 : 1,
+                  scale: 1,
                   left: `${birdPos.x}%`,
                   top: `${birdPos.y}%`,
                   x: "-50%",
