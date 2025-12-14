@@ -3383,7 +3383,7 @@ const BumblebeeMascot = () => {
   if (isHidden) return null;
 
   // Conversational messages when camera is on - NO chemistry, just interaction
-  const conversationMessages = [
+  const conversationMessages = useMemo(() => [
     // Greetings and observations
     "Voy! Sizni ko'rdim! Salom do'stim!",
     "O'h, bugun juda chiroyli ko'rinyapsiz!",
@@ -3403,7 +3403,7 @@ const BumblebeeMascot = () => {
     "Qaysi mamlakat borishni xohlaysiz?",
     
     // Fun interactions
-    "Kulgingizni ko'rsating! 😄",
+    "Kulgingizni ko'rsating!",
     "Menga qo'l silkiting!",
     "Tabassumingiz juda chiroyli!",
     "Siz judayam zo'rsiz!",
@@ -3419,12 +3419,12 @@ const BumblebeeMascot = () => {
     "Tabassumingiz kunimni yoritdi!",
     
     // Playful
-    "Hoy! Men bu yerdaman! 👋",
+    "Hoy! Men bu yerdaman!",
     "Meni ko'ryapsizmi?",
     "Kelaqoling, suhbatlashamiz!",
     "Sizni kutayotgan edim!",
     "Birga o'yin o'ynaymizmi?",
-    "Qani, besh bering! ✋",
+    "Qani, besh bering!",
     
     // Encouragement
     "Siz bugun ajoyib ko'rinyapsiz!",
@@ -3432,34 +3432,40 @@ const BumblebeeMascot = () => {
     "Sizdan ilhom olyapman!",
     "Sizga uchrashdim - baxtliman!",
     "Davom eting, zo'rsiz!",
-  ];
+  ], []);
 
-  // Gestures for camera interaction - more lively
-  const cameraGestures: GestureType[] = ["wave", "thumbsUp", "celebrate", "dance", "jump", "victory", "clap"];
+  // Shuffled conversation messages
+  const [shuffledConversation, setShuffledConversation] = useState<string[]>([]);
+  const [conversationIndex, setConversationIndex] = useState(0);
 
-  // Get current tip
-  const getCurrentTip = () => {
+  // Shuffle conversation messages when camera becomes visible
+  useEffect(() => {
+    if (isUserVisible) {
+      const shuffled = [...conversationMessages].sort(() => Math.random() - 0.5);
+      setShuffledConversation(shuffled);
+      setConversationIndex(0);
+    }
+  }, [isUserVisible, conversationMessages]);
+
+  // Get current tip - NO setState calls here!
+  const currentTip = useMemo(() => {
     if (isFirstMessage) {
       return currentSpeaker === "bumblebee" ? bumblebeeIntro : optimusIntro;
     }
     // If camera enabled and user visible - ONLY show conversation messages
-    if (isUserVisible) {
-      // Change gesture to something fun
-      if (Math.random() < 0.4) {
-        const funGesture = cameraGestures[Math.floor(Math.random() * cameraGestures.length)];
-        if (currentSpeaker === "bumblebee") {
-          setBumblebeeGesture(funGesture);
-        } else {
-          setBirdGesture(funGesture);
-        }
-      }
-      return conversationMessages[Math.floor(Math.random() * conversationMessages.length)];
+    if (isUserVisible && shuffledConversation.length > 0) {
+      return shuffledConversation[conversationIndex % shuffledConversation.length];
     }
     if (shuffledKnowledge.length === 0) return knowledgeBase[0];
     return shuffledKnowledge[currentTipIndex % shuffledKnowledge.length];
-  };
+  }, [isFirstMessage, currentSpeaker, isUserVisible, shuffledConversation, conversationIndex, shuffledKnowledge, currentTipIndex]);
 
-  const currentTip = getCurrentTip();
+  // Update conversation index when speaker changes (for camera mode)
+  useEffect(() => {
+    if (isUserVisible && !isFirstMessage) {
+      setConversationIndex(prev => prev + 1);
+    }
+  }, [currentSpeaker, isUserVisible, isFirstMessage]);
 
   return (
     <AnimatePresence>
