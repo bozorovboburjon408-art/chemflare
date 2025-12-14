@@ -242,41 +242,37 @@ const EnergySphere = ({ color = BLUE_ENERGY, coreColor = BLUE_CORE }: { color?: 
   );
 };
 
-// Bumblebee Head - Movie accurate heroic design with more gestures
-const BumblebeeHead = ({ gesture }: { gesture: GestureType }) => {
+// Bumblebee Head - Movie accurate heroic design with ears and talking mouth
+const BumblebeeHead = ({ gesture, isTalking }: { gesture: GestureType; isTalking?: boolean }) => {
   const headRef = useRef<THREE.Group>(null);
   const eyeGlowRef = useRef<THREE.PointLight>(null);
+  const mouthRef = useRef<THREE.Mesh>(null);
+  const leftEarRef = useRef<THREE.Group>(null);
+  const rightEarRef = useRef<THREE.Group>(null);
 
   useFrame((state) => {
     const time = state.clock.getElapsedTime();
     if (headRef.current) {
       if (gesture === "listen") {
-        // Attentive listening pose
         headRef.current.rotation.y = 0.15;
         headRef.current.rotation.x = 0.08;
       } else if (gesture === "nod") {
-        // Nodding animation
         headRef.current.rotation.y = 0;
         headRef.current.rotation.x = Math.sin(time * 4) * 0.2;
       } else if (gesture === "think") {
-        // Thinking - head tilted
         headRef.current.rotation.y = -0.2 + Math.sin(time * 0.5) * 0.05;
         headRef.current.rotation.x = 0.1;
         headRef.current.rotation.z = 0.1;
       } else if (gesture === "celebrate") {
-        // Excited head movement
         headRef.current.rotation.y = Math.sin(time * 6) * 0.15;
         headRef.current.rotation.x = Math.sin(time * 4) * 0.1 - 0.1;
       } else if (gesture === "salute") {
-        // Firm salute pose
         headRef.current.rotation.y = 0;
         headRef.current.rotation.x = -0.05;
       } else if (gesture === "walk") {
-        // Walking head bob
         headRef.current.rotation.y = Math.sin(time * 3) * 0.05;
         headRef.current.rotation.x = Math.sin(time * 6) * 0.03;
       } else {
-        // Default subtle focused movement
         headRef.current.rotation.y = Math.sin(time * 0.5) * 0.08;
         headRef.current.rotation.x = Math.sin(time * 0.3) * 0.03;
         headRef.current.rotation.z = 0;
@@ -286,6 +282,26 @@ const BumblebeeHead = ({ gesture }: { gesture: GestureType }) => {
     if (eyeGlowRef.current) {
       const baseIntensity = gesture === "celebrate" ? 2.5 : 1.5;
       eyeGlowRef.current.intensity = baseIntensity + Math.sin(time * 2) * 0.3;
+    }
+    // Talking mouth animation
+    if (mouthRef.current && isTalking) {
+      const mouthOpen = Math.abs(Math.sin(time * 12)) * 0.03 + 0.01;
+      mouthRef.current.scale.y = 1 + mouthOpen * 8;
+    } else if (mouthRef.current) {
+      mouthRef.current.scale.y = 1;
+    }
+    // Ear antenna movement when talking or listening
+    if (leftEarRef.current && rightEarRef.current) {
+      const earMove = isTalking ? Math.sin(time * 8) * 0.1 : Math.sin(time * 2) * 0.05;
+      leftEarRef.current.rotation.z = earMove;
+      rightEarRef.current.rotation.z = -earMove;
+      if (gesture === "listen") {
+        leftEarRef.current.rotation.x = 0.15;
+        rightEarRef.current.rotation.x = 0.15;
+      } else {
+        leftEarRef.current.rotation.x = 0;
+        rightEarRef.current.rotation.x = 0;
+      }
     }
   });
 
@@ -341,15 +357,59 @@ const BumblebeeHead = ({ gesture }: { gesture: GestureType }) => {
         <meshStandardMaterial color="#FFFFFF" emissive="#FFFFFF" emissiveIntensity={2} />
       </mesh>
       
-      {/* Side ear panels */}
-      <mesh position={[-0.22, 0, 0]}>
-        <boxGeometry args={[0.06, 0.15, 0.12]} />
-        <meshStandardMaterial color={YELLOW_MAIN} metalness={0.98} roughness={0.05} />
+      {/* Mouth - animated when talking */}
+      <mesh ref={mouthRef} position={[0, -0.08, 0.22]}>
+        <boxGeometry args={[0.12, 0.02, 0.02]} />
+        <meshStandardMaterial color={BLUE_ENERGY} emissive={BLUE_ENERGY} emissiveIntensity={2} />
       </mesh>
-      <mesh position={[0.22, 0, 0]}>
-        <boxGeometry args={[0.06, 0.15, 0.12]} />
-        <meshStandardMaterial color={YELLOW_MAIN} metalness={0.98} roughness={0.05} />
-      </mesh>
+      
+      {/* LEFT EAR - Transformers style antenna */}
+      <group ref={leftEarRef} position={[-0.24, 0.08, 0]}>
+        {/* Ear base panel */}
+        <mesh position={[0, 0, 0]}>
+          <boxGeometry args={[0.06, 0.18, 0.12]} />
+          <meshStandardMaterial color={YELLOW_MAIN} metalness={0.98} roughness={0.05} />
+        </mesh>
+        {/* Ear antenna fin - tall */}
+        <mesh position={[-0.02, 0.12, 0]}>
+          <boxGeometry args={[0.03, 0.14, 0.08]} />
+          <meshStandardMaterial color={BLACK_ACCENT} metalness={0.95} roughness={0.1} />
+        </mesh>
+        {/* Ear tip glow */}
+        <mesh position={[-0.02, 0.2, 0]}>
+          <sphereGeometry args={[0.02, 12, 12]} />
+          <meshStandardMaterial color={BLUE_ENERGY} emissive={BLUE_ENERGY} emissiveIntensity={3} />
+        </mesh>
+        {/* Inner ear detail */}
+        <mesh position={[0.02, 0, 0.05]}>
+          <cylinderGeometry args={[0.015, 0.015, 0.1, 8]} />
+          <meshStandardMaterial color={CHROME} metalness={0.99} roughness={0.02} />
+        </mesh>
+      </group>
+      
+      {/* RIGHT EAR - Transformers style antenna */}
+      <group ref={rightEarRef} position={[0.24, 0.08, 0]}>
+        {/* Ear base panel */}
+        <mesh position={[0, 0, 0]}>
+          <boxGeometry args={[0.06, 0.18, 0.12]} />
+          <meshStandardMaterial color={YELLOW_MAIN} metalness={0.98} roughness={0.05} />
+        </mesh>
+        {/* Ear antenna fin - tall */}
+        <mesh position={[0.02, 0.12, 0]}>
+          <boxGeometry args={[0.03, 0.14, 0.08]} />
+          <meshStandardMaterial color={BLACK_ACCENT} metalness={0.95} roughness={0.1} />
+        </mesh>
+        {/* Ear tip glow */}
+        <mesh position={[0.02, 0.2, 0]}>
+          <sphereGeometry args={[0.02, 12, 12]} />
+          <meshStandardMaterial color={BLUE_ENERGY} emissive={BLUE_ENERGY} emissiveIntensity={3} />
+        </mesh>
+        {/* Inner ear detail */}
+        <mesh position={[-0.02, 0, 0.05]}>
+          <cylinderGeometry args={[0.015, 0.015, 0.1, 8]} />
+          <meshStandardMaterial color={CHROME} metalness={0.99} roughness={0.02} />
+        </mesh>
+      </group>
       
       {/* Chin guard */}
       <mesh position={[0, -0.14, 0.1]}>
@@ -617,7 +677,7 @@ const BumblebeeLeg = ({ side, gesture }: { side: "left" | "right"; gesture: Gest
 };
 
 // Bumblebee Robot - Full body, heroic pose, facing forward
-const BumblebeeRobot = ({ gesture }: { gesture: GestureType }) => {
+const BumblebeeRobot = ({ gesture, isTalking }: { gesture: GestureType; isTalking?: boolean }) => {
   const groupRef = useRef<THREE.Group>(null);
 
   useFrame((state) => {
@@ -632,18 +692,24 @@ const BumblebeeRobot = ({ gesture }: { gesture: GestureType }) => {
         // Bouncing celebration
         groupRef.current.position.y = Math.abs(Math.sin(time * 8)) * 0.04;
         groupRef.current.rotation.y = Math.sin(time * 4) * 0.1;
+      } else if (isTalking) {
+        // Talking body movement - slight forward lean and energy
+        groupRef.current.position.y = Math.sin(time * 3) * 0.01;
+        groupRef.current.rotation.y = Math.sin(time * 2) * 0.05;
+        groupRef.current.rotation.x = -0.05 + Math.sin(time * 4) * 0.02;
       } else {
         // Subtle heroic idle - very slight motion
         groupRef.current.position.y = Math.sin(time * 1.2) * 0.015;
         groupRef.current.rotation.y = Math.sin(time * 0.4) * 0.03;
         groupRef.current.rotation.z = 0;
+        groupRef.current.rotation.x = 0;
       }
     }
   });
 
   return (
     <group ref={groupRef} scale={0.55} position={[0, 0, 0]}>
-      <BumblebeeHead gesture={gesture} />
+      <BumblebeeHead gesture={gesture} isTalking={isTalking} />
       <BumblebeeChest />
       <BumblebeeArm side="left" gesture={gesture} />
       <BumblebeeArm side="right" gesture={gesture} />
@@ -654,10 +720,13 @@ const BumblebeeRobot = ({ gesture }: { gesture: GestureType }) => {
   );
 };
 
-// Optimus Prime Head - Round heroic design
-const OptimusHead = ({ gesture }: { gesture: GestureType }) => {
+// Optimus Prime Head - Round heroic design with ears and talking mouth
+const OptimusHead = ({ gesture, isTalking }: { gesture: GestureType; isTalking?: boolean }) => {
   const headRef = useRef<THREE.Group>(null);
   const eyeGlowRef = useRef<THREE.PointLight>(null);
+  const mouthRef = useRef<THREE.Mesh>(null);
+  const leftEarRef = useRef<THREE.Group>(null);
+  const rightEarRef = useRef<THREE.Group>(null);
 
   useFrame((state) => {
     const time = state.clock.getElapsedTime();
@@ -685,6 +754,26 @@ const OptimusHead = ({ gesture }: { gesture: GestureType }) => {
     }
     if (eyeGlowRef.current) {
       eyeGlowRef.current.intensity = 1.5 + Math.sin(time * 2) * 0.3;
+    }
+    // Talking mouth animation
+    if (mouthRef.current && isTalking) {
+      const mouthOpen = Math.abs(Math.sin(time * 10)) * 0.025 + 0.01;
+      mouthRef.current.scale.y = 1 + mouthOpen * 6;
+    } else if (mouthRef.current) {
+      mouthRef.current.scale.y = 1;
+    }
+    // Ear antenna movement
+    if (leftEarRef.current && rightEarRef.current) {
+      const earMove = isTalking ? Math.sin(time * 7) * 0.08 : Math.sin(time * 1.5) * 0.04;
+      leftEarRef.current.rotation.z = earMove;
+      rightEarRef.current.rotation.z = -earMove;
+      if (gesture === "listen") {
+        leftEarRef.current.rotation.x = 0.12;
+        rightEarRef.current.rotation.x = 0.12;
+      } else {
+        leftEarRef.current.rotation.x = 0;
+        rightEarRef.current.rotation.x = 0;
+      }
     }
   });
 
@@ -728,15 +817,59 @@ const OptimusHead = ({ gesture }: { gesture: GestureType }) => {
         <meshStandardMaterial color="#FFFFFF" emissive="#FFFFFF" emissiveIntensity={2} />
       </mesh>
       
-      {/* Side panels - red */}
-      <mesh position={[-0.2, 0, 0]}>
-        <boxGeometry args={[0.05, 0.12, 0.1]} />
-        <meshStandardMaterial color={OPTIMUS_RED} metalness={0.98} roughness={0.05} />
+      {/* Mouth - animated when talking */}
+      <mesh ref={mouthRef} position={[0, -0.07, 0.2]}>
+        <boxGeometry args={[0.1, 0.015, 0.02]} />
+        <meshStandardMaterial color={OPTIMUS_ENERGY} emissive={OPTIMUS_ENERGY} emissiveIntensity={2} />
       </mesh>
-      <mesh position={[0.2, 0, 0]}>
-        <boxGeometry args={[0.05, 0.12, 0.1]} />
-        <meshStandardMaterial color={OPTIMUS_RED} metalness={0.98} roughness={0.05} />
-      </mesh>
+      
+      {/* LEFT EAR - Optimus style audio receptor */}
+      <group ref={leftEarRef} position={[-0.22, 0.06, 0]}>
+        {/* Ear base - red */}
+        <mesh position={[0, 0, 0]}>
+          <boxGeometry args={[0.05, 0.16, 0.1]} />
+          <meshStandardMaterial color={OPTIMUS_RED} metalness={0.98} roughness={0.05} />
+        </mesh>
+        {/* Ear antenna - tall fin */}
+        <mesh position={[-0.02, 0.1, 0]}>
+          <boxGeometry args={[0.025, 0.12, 0.06]} />
+          <meshStandardMaterial color={OPTIMUS_BLUE} metalness={0.98} roughness={0.05} />
+        </mesh>
+        {/* Ear tip */}
+        <mesh position={[-0.02, 0.18, 0]}>
+          <sphereGeometry args={[0.018, 12, 12]} />
+          <meshStandardMaterial color={OPTIMUS_ENERGY} emissive={OPTIMUS_ENERGY} emissiveIntensity={3} />
+        </mesh>
+        {/* Audio receptor detail */}
+        <mesh position={[0.015, 0, 0.04]}>
+          <cylinderGeometry args={[0.012, 0.012, 0.08, 8]} />
+          <meshStandardMaterial color={OPTIMUS_CHROME} metalness={0.99} roughness={0.02} />
+        </mesh>
+      </group>
+      
+      {/* RIGHT EAR - Optimus style audio receptor */}
+      <group ref={rightEarRef} position={[0.22, 0.06, 0]}>
+        {/* Ear base - red */}
+        <mesh position={[0, 0, 0]}>
+          <boxGeometry args={[0.05, 0.16, 0.1]} />
+          <meshStandardMaterial color={OPTIMUS_RED} metalness={0.98} roughness={0.05} />
+        </mesh>
+        {/* Ear antenna - tall fin */}
+        <mesh position={[0.02, 0.1, 0]}>
+          <boxGeometry args={[0.025, 0.12, 0.06]} />
+          <meshStandardMaterial color={OPTIMUS_BLUE} metalness={0.98} roughness={0.05} />
+        </mesh>
+        {/* Ear tip */}
+        <mesh position={[0.02, 0.18, 0]}>
+          <sphereGeometry args={[0.018, 12, 12]} />
+          <meshStandardMaterial color={OPTIMUS_ENERGY} emissive={OPTIMUS_ENERGY} emissiveIntensity={3} />
+        </mesh>
+        {/* Audio receptor detail */}
+        <mesh position={[-0.015, 0, 0.04]}>
+          <cylinderGeometry args={[0.012, 0.012, 0.08, 8]} />
+          <meshStandardMaterial color={OPTIMUS_CHROME} metalness={0.99} roughness={0.02} />
+        </mesh>
+      </group>
       
       <pointLight ref={eyeGlowRef} position={[0, 0, 0.25]} color={OPTIMUS_ENERGY} intensity={1.5} distance={0.8} />
     </group>
@@ -931,7 +1064,7 @@ const OptimusLeg = ({ side, gesture }: { side: "left" | "right"; gesture: Gestur
 };
 
 // Optimus Prime Robot - Full body
-const OptimusRobot = ({ gesture }: { gesture: GestureType }) => {
+const OptimusRobot = ({ gesture, isTalking }: { gesture: GestureType; isTalking?: boolean }) => {
   const groupRef = useRef<THREE.Group>(null);
 
   useFrame((state) => {
@@ -944,17 +1077,23 @@ const OptimusRobot = ({ gesture }: { gesture: GestureType }) => {
       } else if (gesture === "celebrate") {
         groupRef.current.position.y = Math.abs(Math.sin(time * 8)) * 0.04;
         groupRef.current.rotation.y = Math.sin(time * 5) * 0.12;
+      } else if (isTalking) {
+        // Talking body movement - authoritative stance
+        groupRef.current.position.y = Math.sin(time * 2.5) * 0.01;
+        groupRef.current.rotation.y = Math.sin(time * 1.8) * 0.04;
+        groupRef.current.rotation.x = -0.03 + Math.sin(time * 3) * 0.015;
       } else {
         groupRef.current.position.y = Math.sin(time * 1.5) * 0.02;
         groupRef.current.rotation.y = Math.sin(time * 0.6) * 0.06;
         groupRef.current.rotation.z = 0;
+        groupRef.current.rotation.x = 0;
       }
     }
   });
 
   return (
     <group ref={groupRef} scale={0.55} position={[0, 0, 0]}>
-      <OptimusHead gesture={gesture} />
+      <OptimusHead gesture={gesture} isTalking={isTalking} />
       <OptimusChest />
       <OptimusArm side="left" gesture={gesture} />
       <OptimusArm side="right" gesture={gesture} />
@@ -1215,7 +1354,7 @@ const BumblebeeMascot = () => {
                 <directionalLight position={[2, 4, 3]} intensity={1.5} />
                 <directionalLight position={[-2, 3, 2]} intensity={0.8} />
                 <pointLight position={[0, 0, 2]} intensity={0.6} color="#FFFFFF" />
-                <BumblebeeRobot gesture={bumblebeeGesture} />
+                <BumblebeeRobot gesture={bumblebeeGesture} isTalking={showTip && currentSpeaker === "bumblebee"} />
               </Canvas>
             </div>
             
@@ -1263,7 +1402,7 @@ const BumblebeeMascot = () => {
                     <directionalLight position={[2, 4, 3]} intensity={1.5} />
                     <directionalLight position={[-2, 3, 2]} intensity={0.8} />
                     <pointLight position={[0, 0, 2]} intensity={0.6} color="#FFFFFF" />
-                    <OptimusRobot gesture={birdGesture} />
+                    <OptimusRobot gesture={birdGesture} isTalking={showTip && currentSpeaker === "bird"} />
                   </Canvas>
                 </div>
                 
