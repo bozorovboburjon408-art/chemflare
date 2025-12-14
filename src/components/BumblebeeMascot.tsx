@@ -2222,16 +2222,17 @@ const OptimusTruck = ({ transformProgress }: { transformProgress: number }) => {
   );
 };
 
-// Transformation effect particles
-const TransformParticles = ({ isTransforming }: { isTransforming: boolean }) => {
+// Transformation effect particles - Enhanced
+const TransformParticles = ({ isTransforming, color = BLUE_ENERGY }: { isTransforming: boolean; color?: string }) => {
   const particlesRef = useRef<THREE.Points>(null);
+  const sparkRef = useRef<THREE.Points>(null);
 
   const particleGeometry = useMemo(() => {
-    const positions = new Float32Array(100 * 3);
-    for (let i = 0; i < 100; i++) {
+    const positions = new Float32Array(150 * 3);
+    for (let i = 0; i < 150; i++) {
       const theta = Math.random() * Math.PI * 2;
       const phi = Math.random() * Math.PI;
-      const r = 0.3 + Math.random() * 0.5;
+      const r = 0.2 + Math.random() * 0.6;
       positions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
       positions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
       positions[i * 3 + 2] = r * Math.cos(phi);
@@ -2241,23 +2242,242 @@ const TransformParticles = ({ isTransforming }: { isTransforming: boolean }) => 
     return geometry;
   }, []);
 
+  const sparkGeometry = useMemo(() => {
+    const positions = new Float32Array(80 * 3);
+    for (let i = 0; i < 80; i++) {
+      positions[i * 3] = (Math.random() - 0.5) * 1.2;
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 1.2;
+      positions[i * 3 + 2] = (Math.random() - 0.5) * 1.2;
+    }
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    return geometry;
+  }, []);
+
   useFrame((state) => {
+    const time = state.clock.getElapsedTime();
     if (particlesRef.current && isTransforming) {
-      particlesRef.current.rotation.y = state.clock.getElapsedTime() * 3;
-      particlesRef.current.rotation.x = state.clock.getElapsedTime() * 2;
+      particlesRef.current.rotation.y = time * 4;
+      particlesRef.current.rotation.x = time * 3;
+      particlesRef.current.rotation.z = time * 2;
+    }
+    if (sparkRef.current && isTransforming) {
+      sparkRef.current.rotation.y = -time * 6;
+      sparkRef.current.rotation.z = time * 4;
     }
   });
 
   if (!isTransforming) return null;
 
   return (
-    <points ref={particlesRef} geometry={particleGeometry}>
-      <pointsMaterial color={BLUE_ENERGY} size={0.03} transparent opacity={0.8} sizeAttenuation />
-    </points>
+    <group>
+      <points ref={particlesRef} geometry={particleGeometry}>
+        <pointsMaterial color={color} size={0.035} transparent opacity={0.9} sizeAttenuation />
+      </points>
+      <points ref={sparkRef} geometry={sparkGeometry}>
+        <pointsMaterial color="#FFFFFF" size={0.02} transparent opacity={0.7} sizeAttenuation />
+      </points>
+      {/* Energy ring */}
+      <mesh rotation={[Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[0.5, 0.02, 8, 32]} />
+        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={3} transparent opacity={0.6} />
+      </mesh>
+    </group>
   );
 };
 
-// Transforming Bumblebee (car to robot)
+// Transforming limb component
+const TransformingLimb = ({ 
+  type, 
+  side, 
+  progress, 
+  color 
+}: { 
+  type: "arm" | "leg"; 
+  side: "left" | "right"; 
+  progress: number;
+  color: string;
+}) => {
+  const limbRef = useRef<THREE.Group>(null);
+  const isLeft = side === "left";
+  
+  useFrame((state) => {
+    if (!limbRef.current) return;
+    const time = state.clock.getElapsedTime();
+    
+    // Each limb unfolds at different timing
+    const limbDelay = type === "arm" ? (isLeft ? 0.1 : 0.2) : (isLeft ? 0.3 : 0.4);
+    const adjustedProgress = Math.max(0, Math.min(1, (progress - limbDelay) / 0.5));
+    
+    if (type === "arm") {
+      // Arms unfold from body - rotation from flat to down
+      const unfoldAngle = adjustedProgress * Math.PI * 0.5;
+      limbRef.current.rotation.z = isLeft ? -Math.PI / 2 + unfoldAngle : Math.PI / 2 - unfoldAngle;
+      limbRef.current.rotation.x = Math.sin(adjustedProgress * Math.PI) * 0.5;
+      // Position moves outward
+      limbRef.current.position.x = isLeft ? -0.15 - adjustedProgress * 0.15 : 0.15 + adjustedProgress * 0.15;
+      limbRef.current.position.y = 0.3 + adjustedProgress * 0.2;
+    } else {
+      // Legs unfold downward
+      const unfoldAngle = adjustedProgress * Math.PI * 0.3;
+      limbRef.current.rotation.x = -unfoldAngle;
+      limbRef.current.position.x = isLeft ? -0.08 - adjustedProgress * 0.04 : 0.08 + adjustedProgress * 0.04;
+      limbRef.current.position.y = -adjustedProgress * 0.4;
+    }
+    
+    // Shaking during transformation
+    if (progress > 0 && progress < 1) {
+      limbRef.current.position.x += Math.sin(time * 30) * 0.005;
+      limbRef.current.position.y += Math.cos(time * 25) * 0.005;
+    }
+  });
+
+  const length = type === "arm" ? 0.25 : 0.35;
+  const width = type === "arm" ? 0.06 : 0.08;
+
+  return (
+    <group ref={limbRef}>
+      {/* Upper segment */}
+      <mesh position={[0, -length / 2, 0]}>
+        <boxGeometry args={[width, length, width * 0.8]} />
+        <meshStandardMaterial color={color} metalness={0.95} roughness={0.08} />
+      </mesh>
+      {/* Joint */}
+      <mesh position={[0, -length, 0]}>
+        <sphereGeometry args={[width * 0.6, 12, 12]} />
+        <meshStandardMaterial color="#CFD8DC" metalness={0.99} roughness={0.02} />
+      </mesh>
+      {/* Lower segment */}
+      <mesh position={[0, -length * 1.5, 0]}>
+        <boxGeometry args={[width * 0.9, length * 0.8, width * 0.7]} />
+        <meshStandardMaterial color={color} metalness={0.95} roughness={0.08} />
+      </mesh>
+      {/* Glow during transformation */}
+      {progress > 0 && progress < 1 && (
+        <pointLight color={BLUE_ENERGY} intensity={1} distance={0.3} />
+      )}
+    </group>
+  );
+};
+
+// Car parts transforming into robot
+const TransformingCarParts = ({ progress, isBumblebee }: { progress: number; isBumblebee: boolean }) => {
+  const bodyRef = useRef<THREE.Group>(null);
+  const hoodRef = useRef<THREE.Mesh>(null);
+  const roofRef = useRef<THREE.Mesh>(null);
+  const leftDoorRef = useRef<THREE.Mesh>(null);
+  const rightDoorRef = useRef<THREE.Mesh>(null);
+  
+  const mainColor = isBumblebee ? YELLOW_MAIN : OPTIMUS_RED;
+  const accentColor = isBumblebee ? BLACK_METAL : OPTIMUS_BLUE;
+  
+  useFrame((state) => {
+    const time = state.clock.getElapsedTime();
+    
+    if (bodyRef.current) {
+      // Body rises and rotates to become torso
+      bodyRef.current.position.y = progress * 0.4;
+      bodyRef.current.rotation.x = progress * -Math.PI * 0.1;
+      bodyRef.current.scale.y = 1 + progress * 0.3;
+      bodyRef.current.scale.x = 1 - progress * 0.2;
+    }
+    
+    if (hoodRef.current) {
+      // Hood folds up to become chest
+      hoodRef.current.rotation.x = -progress * Math.PI * 0.4;
+      hoodRef.current.position.y = progress * 0.3;
+      hoodRef.current.position.z = progress * 0.1;
+    }
+    
+    if (roofRef.current) {
+      // Roof rises to form head area
+      roofRef.current.position.y = progress * 0.5;
+      roofRef.current.scale.setScalar(1 - progress * 0.5);
+    }
+    
+    if (leftDoorRef.current) {
+      // Left door opens and rotates to become wing/shoulder
+      leftDoorRef.current.rotation.y = progress * Math.PI * 0.6;
+      leftDoorRef.current.position.z = 0.35 + progress * 0.2;
+      leftDoorRef.current.position.y = progress * 0.25;
+    }
+    
+    if (rightDoorRef.current) {
+      // Right door mirrors left
+      rightDoorRef.current.rotation.y = -progress * Math.PI * 0.6;
+      rightDoorRef.current.position.z = -0.35 - progress * 0.2;
+      rightDoorRef.current.position.y = progress * 0.25;
+    }
+    
+    // Vibration during transformation
+    if (progress > 0 && progress < 1) {
+      const shake = 0.003;
+      if (bodyRef.current) {
+        bodyRef.current.position.x = Math.sin(time * 40) * shake;
+      }
+    }
+  });
+
+  return (
+    <group scale={0.38}>
+      {/* Main body transforming */}
+      <group ref={bodyRef}>
+        <mesh>
+          <boxGeometry args={[1.2, 0.25, 0.65]} />
+          <meshStandardMaterial color={mainColor} metalness={0.92} roughness={0.08} />
+        </mesh>
+      </group>
+      
+      {/* Hood becoming chest */}
+      <mesh ref={hoodRef} position={[0.4, 0.15, 0]}>
+        <boxGeometry args={[0.5, 0.12, 0.6]} />
+        <meshStandardMaterial color={mainColor} metalness={0.92} roughness={0.08} />
+      </mesh>
+      
+      {/* Roof shrinking */}
+      <mesh ref={roofRef} position={[0, 0.35, 0]}>
+        <boxGeometry args={[0.6, 0.2, 0.55]} />
+        <meshStandardMaterial color={mainColor} metalness={0.92} roughness={0.08} />
+      </mesh>
+      
+      {/* Doors opening */}
+      <mesh ref={leftDoorRef} position={[0, 0.2, 0.35]}>
+        <boxGeometry args={[0.5, 0.25, 0.02]} />
+        <meshStandardMaterial color={mainColor} metalness={0.92} roughness={0.08} />
+      </mesh>
+      <mesh ref={rightDoorRef} position={[0, 0.2, -0.35]}>
+        <boxGeometry args={[0.5, 0.25, 0.02]} />
+        <meshStandardMaterial color={mainColor} metalness={0.92} roughness={0.08} />
+      </mesh>
+      
+      {/* Wheels retracting */}
+      <mesh position={[0.45, -0.05 - progress * 0.15, 0.38]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.1 * (1 - progress * 0.5), 0.1 * (1 - progress * 0.5), 0.08, 16]} />
+        <meshStandardMaterial color="#1a1a1a" metalness={0.5} roughness={0.7} />
+      </mesh>
+      <mesh position={[0.45, -0.05 - progress * 0.15, -0.38]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.1 * (1 - progress * 0.5), 0.1 * (1 - progress * 0.5), 0.08, 16]} />
+        <meshStandardMaterial color="#1a1a1a" metalness={0.5} roughness={0.7} />
+      </mesh>
+      <mesh position={[-0.45, -0.05 - progress * 0.15, 0.38]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.1 * (1 - progress * 0.5), 0.1 * (1 - progress * 0.5), 0.08, 16]} />
+        <meshStandardMaterial color="#1a1a1a" metalness={0.5} roughness={0.7} />
+      </mesh>
+      <mesh position={[-0.45, -0.05 - progress * 0.15, -0.38]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.1 * (1 - progress * 0.5), 0.1 * (1 - progress * 0.5), 0.08, 16]} />
+        <meshStandardMaterial color="#1a1a1a" metalness={0.5} roughness={0.7} />
+      </mesh>
+      
+      {/* Limbs emerging */}
+      <TransformingLimb type="arm" side="left" progress={progress} color={accentColor} />
+      <TransformingLimb type="arm" side="right" progress={progress} color={accentColor} />
+      <TransformingLimb type="leg" side="left" progress={progress} color={accentColor} />
+      <TransformingLimb type="leg" side="right" progress={progress} color={accentColor} />
+    </group>
+  );
+};
+
+// Transforming Bumblebee (car to robot) - Enhanced
 const TransformingBumblebee = ({ gesture, isTalking, isTransformed, transformProgress }: { 
   gesture: GestureType; 
   isTalking?: boolean;
@@ -2265,33 +2485,58 @@ const TransformingBumblebee = ({ gesture, isTalking, isTransformed, transformPro
   transformProgress: number;
 }) => {
   const groupRef = useRef<THREE.Group>(null);
+  const [showMidTransform, setShowMidTransform] = useState(false);
+
+  useEffect(() => {
+    // Show mid-transformation parts during the middle phase
+    if (transformProgress > 0.2 && transformProgress < 0.8) {
+      setShowMidTransform(true);
+    } else {
+      setShowMidTransform(false);
+    }
+  }, [transformProgress]);
 
   useFrame((state) => {
     if (groupRef.current) {
-      // Rotation during transformation
+      const time = state.clock.getElapsedTime();
+      
       if (transformProgress > 0 && transformProgress < 1) {
-        groupRef.current.rotation.y = transformProgress * Math.PI * 2;
-        groupRef.current.position.y = Math.sin(transformProgress * Math.PI) * 0.3;
+        // Multi-axis rotation during transformation
+        groupRef.current.rotation.y = transformProgress * Math.PI * 2.5;
+        groupRef.current.rotation.x = Math.sin(transformProgress * Math.PI) * 0.3;
+        groupRef.current.position.y = Math.sin(transformProgress * Math.PI) * 0.4;
+        // Shake effect
+        groupRef.current.position.x = Math.sin(time * 20) * 0.01 * (1 - Math.abs(transformProgress - 0.5) * 2);
       } else {
         groupRef.current.rotation.y = 0;
+        groupRef.current.rotation.x = 0;
         groupRef.current.position.y = 0;
+        groupRef.current.position.x = 0;
       }
     }
   });
 
   return (
     <group ref={groupRef}>
-      <TransformParticles isTransforming={transformProgress > 0 && transformProgress < 1} />
-      {isTransformed ? (
+      <TransformParticles isTransforming={transformProgress > 0 && transformProgress < 1} color={YELLOW_HIGHLIGHT} />
+      
+      {/* Show different states based on progress */}
+      {transformProgress === 0 && (
+        <BumblebeeCar transformProgress={0} />
+      )}
+      
+      {transformProgress > 0 && transformProgress < 1 && (
+        <TransformingCarParts progress={transformProgress} isBumblebee={true} />
+      )}
+      
+      {transformProgress >= 1 && (
         <BumblebeeRobot gesture={gesture} isTalking={isTalking} />
-      ) : (
-        <BumblebeeCar transformProgress={transformProgress} />
       )}
     </group>
   );
 };
 
-// Transforming Optimus Prime (truck to robot)
+// Transforming Optimus Prime (truck to robot) - Enhanced
 const TransformingOptimus = ({ gesture, isTalking, isTransformed, transformProgress }: { 
   gesture: GestureType; 
   isTalking?: boolean;
@@ -2302,23 +2547,38 @@ const TransformingOptimus = ({ gesture, isTalking, isTransformed, transformProgr
 
   useFrame((state) => {
     if (groupRef.current) {
+      const time = state.clock.getElapsedTime();
+      
       if (transformProgress > 0 && transformProgress < 1) {
+        // Heavier, more dramatic transformation
         groupRef.current.rotation.y = transformProgress * Math.PI * 2;
-        groupRef.current.position.y = Math.sin(transformProgress * Math.PI) * 0.3;
+        groupRef.current.rotation.z = Math.sin(transformProgress * Math.PI * 2) * 0.15;
+        groupRef.current.position.y = Math.sin(transformProgress * Math.PI) * 0.5;
+        // Power surge shake
+        groupRef.current.position.x = Math.sin(time * 25) * 0.015 * Math.sin(transformProgress * Math.PI);
       } else {
         groupRef.current.rotation.y = 0;
+        groupRef.current.rotation.z = 0;
         groupRef.current.position.y = 0;
+        groupRef.current.position.x = 0;
       }
     }
   });
 
   return (
     <group ref={groupRef}>
-      <TransformParticles isTransforming={transformProgress > 0 && transformProgress < 1} />
-      {isTransformed ? (
+      <TransformParticles isTransforming={transformProgress > 0 && transformProgress < 1} color={OPTIMUS_ENERGY} />
+      
+      {transformProgress === 0 && (
+        <OptimusTruck transformProgress={0} />
+      )}
+      
+      {transformProgress > 0 && transformProgress < 1 && (
+        <TransformingCarParts progress={transformProgress} isBumblebee={false} />
+      )}
+      
+      {transformProgress >= 1 && (
         <OptimusRobot gesture={gesture} isTalking={isTalking} />
-      ) : (
-        <OptimusTruck transformProgress={transformProgress} />
       )}
     </group>
   );
