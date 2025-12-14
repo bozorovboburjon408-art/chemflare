@@ -1149,9 +1149,9 @@ const BumblebeeMascot = () => {
 
           {/* Bumblebee */}
           <motion.div
-            className="fixed z-30 select-none w-[320px] h-[380px] md:w-[360px] md:h-[420px] cursor-pointer"
+            className="fixed z-30 select-none w-[220px] h-[260px] md:w-[220px] md:h-[260px] cursor-pointer"
             onClick={handleClick}
-            initial={{ opacity: 0, scale: 0 }}
+            initial={{ opacity: 0, scale: 1 }}
             animate={{ 
               opacity: 1,
               scale: 1,
@@ -1161,7 +1161,7 @@ const BumblebeeMascot = () => {
               y: "-50%",
               rotate: isFighting && !winner ? [0, 5, -5, 0] : 0,
             }}
-            exit={{ opacity: 0, scale: 0, transition: { duration: 0.5 } }}
+            exit={{ opacity: 0, scale: 1, transition: { duration: 0.5 } }}
             transition={{ 
               duration: 0.5,
               ease: "easeOut",
@@ -1211,9 +1211,9 @@ const BumblebeeMascot = () => {
           <AnimatePresence>
             {showBird && (
               <motion.div
-                className="fixed z-30 select-none w-[320px] h-[380px] md:w-[360px] md:h-[420px] cursor-pointer"
+                className="fixed z-30 select-none w-[220px] h-[260px] md:w-[220px] md:h-[260px] cursor-pointer"
                 onClick={handleClick}
-                initial={{ opacity: 0, scale: 0 }}
+                initial={{ opacity: 0, scale: 1 }}
                 animate={{ 
                   opacity: 1,
                   scale: 1,
@@ -1223,7 +1223,7 @@ const BumblebeeMascot = () => {
                   y: "-50%",
                   rotate: isFighting && !winner ? [0, -8, 8, 0] : 0,
                 }}
-                exit={{ opacity: 0, scale: 0, transition: { duration: 0.5 } }}
+                exit={{ opacity: 0, scale: 1, transition: { duration: 0.5 } }}
                 transition={{ 
                   duration: 0.5,
                   ease: "easeOut",
