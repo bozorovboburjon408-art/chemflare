@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface IntroAnimationProps {
@@ -17,14 +17,14 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
     return () => clearTimeout(timer);
   }, [onComplete]);
 
-  // Generate floating molecules
-  const molecules = Array.from({ length: 8 }, (_, i) => ({
+  // Generate floating molecules with stable values
+  const molecules = useMemo(() => Array.from({ length: 8 }, (_, i) => ({
     id: i,
-    x: Math.random() * 100,
-    y: Math.random() * 100,
-    scale: 0.3 + Math.random() * 0.4,
-    duration: 15 + Math.random() * 10,
-  }));
+    x: 10 + (i * 11) % 80,
+    y: 10 + (i * 13) % 80,
+    scale: 0.3 + (i * 0.05),
+    duration: 15 + (i * 1.2),
+  })), []);
 
   // Periodic table elements floating
   const elements = [
@@ -37,11 +37,14 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
   ];
 
   // DNA helix points
-  const helixPoints = Array.from({ length: 20 }, (_, i) => ({
+  const helixPoints = useMemo(() => Array.from({ length: 20 }, (_, i) => ({
     id: i,
     y: i * 15,
     delay: i * 0.05,
-  }));
+  })), []);
+
+  // Stable bubble positions
+  const bubblePositions = useMemo(() => [42, 48, 55, 62, 70, 45, 58, 65], []);
 
   return (
     <AnimatePresence>
@@ -50,9 +53,10 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.5 }}
-          className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden"
+          className="fixed inset-0 flex items-center justify-center overflow-hidden"
           style={{
             background: "radial-gradient(ellipse at 30% 20%, #0f172a 0%, #020617 50%, #000 100%)",
+            zIndex: 9999,
           }}
         >
           {/* Animated grid background */}
@@ -295,12 +299,12 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
                   />
                   
                   {/* Bubbles inside flask */}
-                  {[...Array(8)].map((_, i) => (
+                  {bubblePositions.map((xPos, i) => (
                     <motion.circle
                       key={i}
-                      cx={40 + Math.random() * 40}
+                      cx={xPos}
                       cy={120}
-                      r={2 + Math.random() * 3}
+                      r={2 + (i % 3)}
                       fill="rgba(255, 255, 255, 0.7)"
                       initial={{ cy: 120, opacity: 0 }}
                       animate={{ 
@@ -308,7 +312,7 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
                         opacity: [0, 0.8, 0],
                       }}
                       transition={{
-                        duration: 1.5 + Math.random(),
+                        duration: 1.5 + (i * 0.1),
                         delay: i * 0.2,
                         repeat: Infinity,
                       }}
