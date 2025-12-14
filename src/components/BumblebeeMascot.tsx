@@ -21,8 +21,8 @@ const RED_DARK = "#8B0000";
 const PURPLE_ENERGY = "#9400D3";
 const PURPLE_CORE = "#4B0082";
 
-// Gesture types (no fighting)
-type GestureType = "idle" | "wave" | "point" | "thumbsUp" | "think" | "celebrate" | "listen";
+// Gesture types (expanded)
+type GestureType = "idle" | "wave" | "point" | "thumbsUp" | "think" | "celebrate" | "listen" | "nod" | "raiseHand" | "salute" | "clap" | "walk";
 
 // Bumblebee tips
 const bumblebeeTips: Record<string, string[]> = {
@@ -162,7 +162,7 @@ const EnergySphere = ({ color = BLUE_ENERGY, coreColor = BLUE_CORE }: { color?: 
   );
 };
 
-// Bumblebee Head - Movie accurate heroic design
+// Bumblebee Head - Movie accurate heroic design with more gestures
 const BumblebeeHead = ({ gesture }: { gesture: GestureType }) => {
   const headRef = useRef<THREE.Group>(null);
   const eyeGlowRef = useRef<THREE.PointLight>(null);
@@ -171,17 +171,41 @@ const BumblebeeHead = ({ gesture }: { gesture: GestureType }) => {
     const time = state.clock.getElapsedTime();
     if (headRef.current) {
       if (gesture === "listen") {
+        // Attentive listening pose
         headRef.current.rotation.y = 0.15;
-        headRef.current.rotation.x = 0.05;
+        headRef.current.rotation.x = 0.08;
+      } else if (gesture === "nod") {
+        // Nodding animation
+        headRef.current.rotation.y = 0;
+        headRef.current.rotation.x = Math.sin(time * 4) * 0.2;
+      } else if (gesture === "think") {
+        // Thinking - head tilted
+        headRef.current.rotation.y = -0.2 + Math.sin(time * 0.5) * 0.05;
+        headRef.current.rotation.x = 0.1;
+        headRef.current.rotation.z = 0.1;
+      } else if (gesture === "celebrate") {
+        // Excited head movement
+        headRef.current.rotation.y = Math.sin(time * 6) * 0.15;
+        headRef.current.rotation.x = Math.sin(time * 4) * 0.1 - 0.1;
+      } else if (gesture === "salute") {
+        // Firm salute pose
+        headRef.current.rotation.y = 0;
+        headRef.current.rotation.x = -0.05;
+      } else if (gesture === "walk") {
+        // Walking head bob
+        headRef.current.rotation.y = Math.sin(time * 3) * 0.05;
+        headRef.current.rotation.x = Math.sin(time * 6) * 0.03;
       } else {
-        // Subtle focused movement
+        // Default subtle focused movement
         headRef.current.rotation.y = Math.sin(time * 0.5) * 0.08;
         headRef.current.rotation.x = Math.sin(time * 0.3) * 0.03;
+        headRef.current.rotation.z = 0;
       }
     }
     // Pulsing eye glow
     if (eyeGlowRef.current) {
-      eyeGlowRef.current.intensity = 1.5 + Math.sin(time * 2) * 0.3;
+      const baseIntensity = gesture === "celebrate" ? 2.5 : 1.5;
+      eyeGlowRef.current.intensity = baseIntensity + Math.sin(time * 2) * 0.3;
     }
   });
 
@@ -308,7 +332,7 @@ const BumblebeeChest = () => (
   </group>
 );
 
-// Bumblebee Arm - Polished mechanical design
+// Bumblebee Arm - Polished mechanical design with more gestures
 const BumblebeeArm = ({ side, gesture }: { side: "left" | "right"; gesture: GestureType }) => {
   const armRef = useRef<THREE.Group>(null);
   const forearmRef = useRef<THREE.Group>(null);
@@ -321,9 +345,53 @@ const BumblebeeArm = ({ side, gesture }: { side: "left" | "right"; gesture: Gest
     if (!armRef.current || !forearmRef.current) return;
 
     if (gesture === "wave" && isLeft) {
-      armRef.current.rotation.z = -1.2 + Math.sin(time * 6) * 0.25;
+      // Waving animation
+      armRef.current.rotation.z = -1.4 + Math.sin(time * 6) * 0.3;
+      armRef.current.rotation.x = -0.3;
+      forearmRef.current.rotation.x = 0.2 + Math.sin(time * 8) * 0.2;
+    } else if (gesture === "raiseHand" && isLeft) {
+      // Raising hand high
+      armRef.current.rotation.z = -2.5;
+      armRef.current.rotation.x = 0;
+      forearmRef.current.rotation.x = 0.3 + Math.sin(time * 2) * 0.1;
+    } else if (gesture === "salute" && !isLeft) {
+      // Salute with right hand
+      armRef.current.rotation.z = -1.8;
       armRef.current.rotation.x = -0.4;
+      forearmRef.current.rotation.x = 1.2;
+    } else if (gesture === "thumbsUp" && !isLeft) {
+      // Thumbs up with right hand
+      armRef.current.rotation.z = -0.8;
+      armRef.current.rotation.x = -0.6;
+      forearmRef.current.rotation.x = 0.8;
+    } else if (gesture === "point" && !isLeft) {
+      // Pointing forward
+      armRef.current.rotation.z = -0.3;
+      armRef.current.rotation.x = -1.2;
+      forearmRef.current.rotation.x = 0.2;
+    } else if (gesture === "clap") {
+      // Clapping animation
+      const clapAngle = Math.sin(time * 10) * 0.4;
+      armRef.current.rotation.z = (isLeft ? -0.6 : 0.6) + (isLeft ? -clapAngle : clapAngle);
+      armRef.current.rotation.x = -0.8;
+      forearmRef.current.rotation.x = 0.6;
+    } else if (gesture === "celebrate") {
+      // Both arms up celebrating
+      const bounce = Math.sin(time * 6) * 0.2;
+      armRef.current.rotation.z = (isLeft ? -2.2 : 2.2) + bounce;
+      armRef.current.rotation.x = 0;
       forearmRef.current.rotation.x = 0.3 + Math.sin(time * 8) * 0.15;
+    } else if (gesture === "think" && !isLeft) {
+      // Hand on chin thinking
+      armRef.current.rotation.z = -0.6;
+      armRef.current.rotation.x = -0.9;
+      forearmRef.current.rotation.x = 1.4;
+    } else if (gesture === "walk") {
+      // Walking arm swing
+      const walkSwing = Math.sin(time * 6 + (isLeft ? 0 : Math.PI)) * 0.5;
+      armRef.current.rotation.z = (isLeft ? 0.3 : -0.3);
+      armRef.current.rotation.x = walkSwing;
+      forearmRef.current.rotation.x = 0.4 + Math.abs(walkSwing) * 0.3;
     } else if (gesture === "listen") {
       armRef.current.rotation.z = (isLeft ? 0.3 : -0.3);
       armRef.current.rotation.x = -0.15;
@@ -393,13 +461,39 @@ const BumblebeeArm = ({ side, gesture }: { side: "left" | "right"; gesture: Gest
   );
 };
 
-// Bumblebee Legs
-const BumblebeeLeg = ({ side }: { side: "left" | "right" }) => {
+// Bumblebee Legs with walking animation
+const BumblebeeLeg = ({ side, gesture }: { side: "left" | "right"; gesture: GestureType }) => {
+  const legRef = useRef<THREE.Group>(null);
+  const lowerLegRef = useRef<THREE.Group>(null);
   const isLeft = side === "left";
   const xPos = isLeft ? -0.15 : 0.15;
 
+  useFrame((state) => {
+    const time = state.clock.getElapsedTime();
+    if (!legRef.current || !lowerLegRef.current) return;
+
+    if (gesture === "walk") {
+      // Walking animation - legs alternate
+      const walkPhase = time * 6 + (isLeft ? 0 : Math.PI);
+      const legSwing = Math.sin(walkPhase) * 0.5;
+      const kneeAngle = Math.max(0, Math.sin(walkPhase + 0.5)) * 0.6;
+      
+      legRef.current.rotation.x = legSwing;
+      lowerLegRef.current.rotation.x = kneeAngle;
+    } else if (gesture === "celebrate") {
+      // Jumping/bouncing legs
+      const bounce = Math.sin(time * 8) * 0.15;
+      legRef.current.rotation.x = bounce;
+      lowerLegRef.current.rotation.x = Math.abs(bounce) * 0.5;
+    } else {
+      // Standing still
+      legRef.current.rotation.x = 0;
+      lowerLegRef.current.rotation.x = 0;
+    }
+  });
+
   return (
-    <group position={[xPos, 0.05, 0]}>
+    <group ref={legRef} position={[xPos, 0.05, 0]}>
       {/* Hip joint */}
       <mesh>
         <sphereGeometry args={[0.06, 12, 12]} />
@@ -418,23 +512,26 @@ const BumblebeeLeg = ({ side }: { side: "left" | "right" }) => {
         <meshStandardMaterial color={CHROME} metalness={0.99} roughness={0.02} />
       </mesh>
       
-      {/* Lower leg */}
-      <mesh position={[0, -0.45, 0]}>
-        <boxGeometry args={[0.09, 0.25, 0.09]} />
-        <meshStandardMaterial color={YELLOW_MAIN} metalness={0.98} roughness={0.05} />
-      </mesh>
-      
-      {/* Lower leg stripe */}
-      <mesh position={[0, -0.45, 0.048]}>
-        <boxGeometry args={[0.04, 0.2, 0.01]} />
-        <meshStandardMaterial color={BLACK_ACCENT} metalness={0.95} roughness={0.1} />
-      </mesh>
-      
-      {/* Foot */}
-      <mesh position={[0, -0.62, 0.02]}>
-        <boxGeometry args={[0.08, 0.06, 0.12]} />
-        <meshStandardMaterial color={BLACK_METAL} metalness={0.98} roughness={0.05} />
-      </mesh>
+      {/* Lower leg group */}
+      <group ref={lowerLegRef} position={[0, -0.3, 0]}>
+        {/* Lower leg */}
+        <mesh position={[0, -0.15, 0]}>
+          <boxGeometry args={[0.09, 0.25, 0.09]} />
+          <meshStandardMaterial color={YELLOW_MAIN} metalness={0.98} roughness={0.05} />
+        </mesh>
+        
+        {/* Lower leg stripe */}
+        <mesh position={[0, -0.15, 0.048]}>
+          <boxGeometry args={[0.04, 0.2, 0.01]} />
+          <meshStandardMaterial color={BLACK_ACCENT} metalness={0.95} roughness={0.1} />
+        </mesh>
+        
+        {/* Foot */}
+        <mesh position={[0, -0.32, 0.02]}>
+          <boxGeometry args={[0.08, 0.06, 0.12]} />
+          <meshStandardMaterial color={BLACK_METAL} metalness={0.98} roughness={0.05} />
+        </mesh>
+      </group>
     </group>
   );
 };
@@ -446,9 +543,21 @@ const BumblebeeRobot = ({ gesture }: { gesture: GestureType }) => {
   useFrame((state) => {
     const time = state.clock.getElapsedTime();
     if (groupRef.current) {
-      // Subtle heroic idle - very slight motion
-      groupRef.current.position.y = Math.sin(time * 1.2) * 0.015;
-      groupRef.current.rotation.y = Math.sin(time * 0.4) * 0.03;
+      if (gesture === "walk") {
+        // Walking body movement
+        groupRef.current.position.y = Math.abs(Math.sin(time * 6)) * 0.02;
+        groupRef.current.rotation.y = Math.sin(time * 3) * 0.03;
+        groupRef.current.rotation.z = Math.sin(time * 6) * 0.02;
+      } else if (gesture === "celebrate") {
+        // Bouncing celebration
+        groupRef.current.position.y = Math.abs(Math.sin(time * 8)) * 0.04;
+        groupRef.current.rotation.y = Math.sin(time * 4) * 0.1;
+      } else {
+        // Subtle heroic idle - very slight motion
+        groupRef.current.position.y = Math.sin(time * 1.2) * 0.015;
+        groupRef.current.rotation.y = Math.sin(time * 0.4) * 0.03;
+        groupRef.current.rotation.z = 0;
+      }
     }
   });
 
@@ -458,14 +567,14 @@ const BumblebeeRobot = ({ gesture }: { gesture: GestureType }) => {
       <BumblebeeChest />
       <BumblebeeArm side="left" gesture={gesture} />
       <BumblebeeArm side="right" gesture={gesture} />
-      <BumblebeeLeg side="left" />
-      <BumblebeeLeg side="right" />
+      <BumblebeeLeg side="left" gesture={gesture} />
+      <BumblebeeLeg side="right" gesture={gesture} />
       <EnergySphere color={BLUE_ENERGY} coreColor={BLUE_CORE} />
     </group>
   );
 };
 
-// Bird Robot Head
+// Bird Robot Head with more gestures
 const BirdHead = ({ gesture }: { gesture: GestureType }) => {
   const headRef = useRef<THREE.Group>(null);
 
@@ -475,6 +584,19 @@ const BirdHead = ({ gesture }: { gesture: GestureType }) => {
       if (gesture === "listen") {
         headRef.current.rotation.y = -0.2;
         headRef.current.rotation.x = 0.1;
+      } else if (gesture === "nod") {
+        headRef.current.rotation.y = 0;
+        headRef.current.rotation.x = Math.sin(time * 5) * 0.25;
+      } else if (gesture === "think") {
+        headRef.current.rotation.y = 0.2;
+        headRef.current.rotation.x = 0.15;
+        headRef.current.rotation.z = -0.1;
+      } else if (gesture === "celebrate") {
+        headRef.current.rotation.y = Math.sin(time * 7) * 0.2;
+        headRef.current.rotation.x = Math.sin(time * 5) * 0.15;
+      } else if (gesture === "walk") {
+        headRef.current.rotation.y = Math.sin(time * 4) * 0.08;
+        headRef.current.rotation.x = Math.sin(time * 8) * 0.05;
       } else {
         headRef.current.rotation.y = Math.sin(time * 1.2) * 0.15;
         headRef.current.rotation.x = Math.sin(time * 0.8) * 0.08;
@@ -519,7 +641,7 @@ const BirdBody = () => (
   </group>
 );
 
-// Bird Robot Wings
+// Bird Robot Wings with more gestures
 const BirdWing = ({ side, gesture }: { side: "left" | "right"; gesture: GestureType }) => {
   const wingRef = useRef<THREE.Group>(null);
   const isLeft = side === "left";
@@ -530,6 +652,20 @@ const BirdWing = ({ side, gesture }: { side: "left" | "right"; gesture: GestureT
     if (wingRef.current) {
       if (gesture === "listen") {
         wingRef.current.rotation.z = (isLeft ? 1 : -1) * 0.3;
+      } else if (gesture === "celebrate") {
+        const bounce = Math.sin(time * 10) * 0.4;
+        wingRef.current.rotation.z = (isLeft ? 1 : -1) * (0.8 + bounce);
+      } else if (gesture === "clap") {
+        const clapAngle = Math.sin(time * 12) * 0.5;
+        wingRef.current.rotation.z = (isLeft ? 1 : -1) * (0.5 + clapAngle);
+      } else if (gesture === "walk") {
+        const walkFlap = Math.sin(time * 8 + (isLeft ? 0 : Math.PI)) * 0.3;
+        wingRef.current.rotation.z = (isLeft ? 1 : -1) * (0.6 + walkFlap);
+      } else if (gesture === "raiseHand" && isLeft) {
+        wingRef.current.rotation.z = 1.8;
+      } else if (gesture === "wave" && isLeft) {
+        const waveAngle = Math.sin(time * 8) * 0.4;
+        wingRef.current.rotation.z = 1.5 + waveAngle;
       } else {
         const baseFlap = Math.sin(time * 8) * 0.3;
         wingRef.current.rotation.z = (isLeft ? 1 : -1) * (0.5 + baseFlap);
@@ -553,15 +689,23 @@ const BirdWing = ({ side, gesture }: { side: "left" | "right"; gesture: GestureT
   );
 };
 
-// Bird Robot
+// Bird Robot with walking support
 const BirdRobot = ({ gesture }: { gesture: GestureType }) => {
   const groupRef = useRef<THREE.Group>(null);
 
   useFrame((state) => {
     const time = state.clock.getElapsedTime();
     if (groupRef.current) {
-      groupRef.current.position.y = Math.sin(time * 2) * 0.03;
-      groupRef.current.rotation.y = Math.sin(time * 0.8) * 0.08;
+      if (gesture === "walk") {
+        groupRef.current.position.y = Math.abs(Math.sin(time * 8)) * 0.025;
+        groupRef.current.rotation.y = Math.sin(time * 4) * 0.06;
+      } else if (gesture === "celebrate") {
+        groupRef.current.position.y = Math.abs(Math.sin(time * 10)) * 0.035;
+        groupRef.current.rotation.y = Math.sin(time * 5) * 0.12;
+      } else {
+        groupRef.current.position.y = Math.sin(time * 2) * 0.03;
+        groupRef.current.rotation.y = Math.sin(time * 0.8) * 0.08;
+      }
     }
   });
 
@@ -659,7 +803,13 @@ const BumblebeeMascot = () => {
     return () => clearTimeout(timer);
   }, [isUserActive, isHidden]);
 
-  // Alternate speakers and change tips
+  // Speaker gestures variety
+  const speakerGestures: GestureType[] = ["wave", "point", "thumbsUp", "nod", "celebrate", "raiseHand", "salute"];
+  const getRandomSpeakerGesture = useCallback(() => {
+    return speakerGestures[Math.floor(Math.random() * speakerGestures.length)];
+  }, []);
+
+  // Alternate speakers and change tips with varied gestures
   useEffect(() => {
     if (isUserActive) return;
 
@@ -670,12 +820,13 @@ const BumblebeeMascot = () => {
         // Switch speaker
         setCurrentSpeaker(prev => prev === "bumblebee" ? "bird" : "bumblebee");
         
-        // Update gestures - speaker waves, listener listens
+        // Update gestures - speaker gets random gesture, listener listens
+        const newGesture = getRandomSpeakerGesture();
         if (currentSpeaker === "bumblebee") {
           setBumblebeeGesture("listen");
-          setBirdGesture("wave");
+          setBirdGesture(newGesture);
         } else {
-          setBumblebeeGesture("wave");
+          setBumblebeeGesture(newGesture);
           setBirdGesture("listen");
         }
         
@@ -690,7 +841,7 @@ const BumblebeeMascot = () => {
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [isUserActive, currentSpeaker, currentBumblebeeTips, currentBirdTips]);
+  }, [isUserActive, currentSpeaker, currentBumblebeeTips, currentBirdTips, getRandomSpeakerGesture]);
 
   // Smooth flying
   useEffect(() => {
