@@ -844,23 +844,23 @@ const BumblebeeMascot = () => {
     setBumblebeeGesture("fight");
     setBirdGesture("fight");
     
-    // Shoot projectiles
+    // Shoot projectiles - both shoot at the same time
     const shootProjectiles = () => {
-      setProjectiles(prev => [...prev, {
-        id: projectileIdRef.current++,
-        from: bumblebeePos,
-        to: birdPos,
-        color: BLUE_ENERGY
-      }]);
-      
-      setTimeout(() => {
-        setProjectiles(prev => [...prev, {
+      setProjectiles(prev => [
+        ...prev,
+        {
+          id: projectileIdRef.current++,
+          from: bumblebeePos,
+          to: birdPos,
+          color: BLUE_ENERGY
+        },
+        {
           id: projectileIdRef.current++,
           from: birdPos,
           to: bumblebeePos,
           color: PURPLE_ENERGY
-        }]);
-      }, 400);
+        }
+      ]);
     };
 
     shootProjectiles();
@@ -968,7 +968,7 @@ const BumblebeeMascot = () => {
 
           {/* Bumblebee */}
           <motion.div
-            className="fixed z-30 select-none w-[90px] h-[120px] md:w-[100px] md:h-[130px] cursor-pointer"
+            className="fixed z-30 select-none w-[140px] h-[180px] md:w-[160px] md:h-[200px] cursor-pointer"
             onClick={handleClick}
             initial={{ opacity: 0, scale: 0 }}
             animate={{ 
@@ -1030,7 +1030,7 @@ const BumblebeeMascot = () => {
           <AnimatePresence>
             {showBird && (
               <motion.div
-                className="fixed z-30 select-none w-[80px] h-[100px] md:w-[90px] md:h-[110px] cursor-pointer"
+                className="fixed z-30 select-none w-[140px] h-[180px] md:w-[160px] md:h-[200px] cursor-pointer"
                 onClick={handleClick}
                 initial={{ opacity: 0, scale: 0 }}
                 animate={{ 
