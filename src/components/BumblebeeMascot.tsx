@@ -24,10 +24,10 @@ const OPTIMUS_ENERGY = "#60A5FA"; // Blue energy glow
 // Gesture types (expanded)
 type GestureType = "idle" | "wave" | "point" | "thumbsUp" | "think" | "celebrate" | "listen" | "nod" | "raiseHand" | "salute" | "clap" | "walk";
 
-// Bumblebee tips - foydali va tushunarli
+// Bumblebee tips - avval o'zini tanishtiradi
 const bumblebeeTips: Record<string, string[]> = {
   "/": [
-    "Salom! Men Bumblebee - kimyo bo'yicha yordamchiman!",
+    "Salom! Men Bumblebee! Avtobotlarning eng sodiq jangchisiman! Sizga kimyoni o'rgatishga tayyorman!",
     "Elementni bosing - proton, neytron, elektron sonini ko'ring",
     "Metalllar chap tomonda, metalmaslar o'ng tomonda joylashgan",
     "Davr raqami - elektron qavatlar sonini bildiradi",
@@ -37,63 +37,60 @@ const bumblebeeTips: Record<string, string[]> = {
     "Elektromanfiylk - atomning elektron tortish qobiliyati",
   ],
   "/reactions": [
+    "Men Bumblebee! Reaksiyalar dunyosiga xush kelibsiz!",
     "Reaksiya tenglamasini muvozanatlash uchun koeffitsientlar qo'ying",
     "Oksidlanish - elektron yo'qotish, qaytarilish - elektron olish",
     "Ekzotermik reaksiya - issiqlik ajratadi, endotermik - yutadi",
     "Katalizator - reaksiya tezligini oshiradi, o'zi sarf bo'lmaydi",
     "Neytrallanish: kislota + asos = tuz + suv",
-    "Almashinuv reaksiyasi: AB + CD = AD + CB",
-    "Birikish: A + B = AB, parchalanish: AB = A + B",
   ],
   "/learning": [
+    "Bumblebee sizga yordam beradi! O'rganishni boshlaymiz!",
     "Har kuni 15 daqiqa o'qish - 1 oyda katta natija!",
     "Avval nazariyani o'qing, keyin test ishlang",
     "Xato javoblarni qayta ko'rib chiqing - bu eng muhim!",
     "Formulalarni yod oling - masalalar oson bo'ladi",
     "Darajangizni oshirib, yangi mavzularni oching",
-    "AI testlar - sizning bilimingizga moslashtirilgan",
   ],
   "/library": [
+    "Bumblebee kutubxonaga xush kelibsiz deydi!",
     "Boshlang'ich kitobdan boshlang - poydevor muhim!",
     "Har bir bobni to'liq o'qib, keyin savollarga javob bering",
     "Murakkab mavzularni bir necha marta o'qing",
     "PDF yuklab oling - oflayn ham o'qishingiz mumkin",
-    "Tushunmagan joylarni belgilab qo'ying",
   ],
   "/quiz": [
+    "Bumblebee test yechishda yordam beradi!",
     "Test rasmini yuklang - 10 tagacha rasm",
     "AI savollarni avtomatik taniydi va formatlaydi",
     "Javoblar aralashtiriladi - yod olish emas, tushunish muhim!",
     "Xato javoblarni ko'rib chiqing - tushuntirishni o'qing",
-    "Natijangiz saqlanadi - keyinroq qayta ishlashingiz mumkin",
   ],
   "/calculator": [
+    "Bumblebee kalkulyator bilan yordam beradi!",
     "Molyar massa: M = m/n (g/mol)",
     "Konsentratsiya: C = n/V (mol/L)",
     "pH = -log[H⁺], pOH = -log[OH⁻]",
     "Ideal gaz: PV = nRT",
     "Faradey qonuni: m = (M·I·t)/(n·F)",
-    "Masala rasmini yuklang - AI yechimni ko'rsatadi",
-    "Bosqichma-bosqich yechim va tushuntirish beriladi",
   ],
   "/experiments": [
+    "Bumblebee tajribalar bo'limiga xush kelibsiz deydi!",
     "Videolarni diqqat bilan tomosha qiling",
     "Xavfsizlik qoidalariga amal qiling!",
     "Ko'zoynak va qo'lqop kiyish shart",
-    "Kimyoviy moddalarni hid bilmang!",
-    "Tajribadan keyin qo'llaringizni yuvmang",
   ],
   "/developers": [
+    "Bumblebee ChemFlare jamoasini tanishtiradi!",
     "ChemFlare - kimyoni oson o'rganish uchun yaratilgan",
     "Savollar bo'lsa - Telegram orqali bog'laning",
-    "Ilovani baholang va fikringizni bildiring!",
   ],
 };
 
-// Optimus Prime tips - ko'proq ta'limiy ma'lumotlar
+// Optimus Prime tips - avval o'zini tanishtiradi
 const optimusTips: Record<string, string[]> = {
   "/": [
-    "Men Optimus Prime! Bilim - eng kuchli qurol!",
+    "Men Optimus Prime! Avtobotlar lideri! Bilim - eng kuchli qurolimiz! Sizni himoya qilish va o'rgatish mening vazifam!",
     "H - Vodorod, eng yengil element, atom massasi 1",
     "He - Geliy, inert gaz, shamlar uchun ishlatiladi",
     "Li - Litiy, eng yengil metall, batareyalarda ishlatiladi",
@@ -104,60 +101,53 @@ const optimusTips: Record<string, string[]> = {
     "Cl - Xlor, tuz tarkibida, NaCl",
     "Fe - Temir, qon tarkibida, magnit xususiyatli",
     "Au - Oltin, eng cho'ziluvchan metall",
-    "Ag - Kumush, eng yaxshi elektr o'tkazuvchi",
-    "Cu - Mis, simlar uchun ishlatiladi",
   ],
   "/reactions": [
+    "Optimus Prime! Reaksiyalar sirlarini ochamiz!",
     "2H₂ + O₂ → 2H₂O - suv hosil bo'lishi",
     "2Na + 2H₂O → 2NaOH + H₂↑ - natriy va suv",
     "CaCO₃ → CaO + CO₂↑ - ohak yonishi",
     "Zn + 2HCl → ZnCl₂ + H₂↑ - metall va kislota",
     "NaOH + HCl → NaCl + H₂O - neytrallanish",
-    "Fe + CuSO₄ → FeSO₄ + Cu - o'rin olish",
-    "2KMnO₄ → K₂MnO₄ + MnO₂ + O₂↑ - parchalanish",
-    "CH₄ + 2O₂ → CO₂ + 2H₂O - metan yonishi",
   ],
   "/learning": [
+    "Optimus Prime o'rganishda sizga yo'l ko'rsatadi!",
     "Valentlik - atomning bog' hosil qilish qobiliyati",
     "Ion - zaryadlangan atom yoki molekula",
     "Kation (+) va anion (-) - ion turlari",
     "Molekula - atomlarning birikishi",
     "Kristall panjara - qattiq modda tuzilishi",
-    "Elektrolitlar - eritma yoki suyuqlikda tok o'tkazadi",
-    "Indikatorlar - muhit pH ini aniqlaydi",
-    "Lakmus - kislotada qizil, asosda ko'k",
   ],
   "/library": [
+    "Optimus Prime bilim xazinasiga xush kelibsiz deydi!",
     "Mendeleev 1869-yilda davriy jadvalni yaratdi",
     "Davriy qonun - xossalar atom massasiga bog'liq",
     "Atomning tuzilishi: yadro + elektronlar",
     "Proton (+), neytron (0), elektron (-)",
-    "Izotoplar - proton soni bir xil, neytron farqli",
-    "Atom radiusi - davrda kamayadi, guruhda ortadi",
   ],
   "/quiz": [
+    "Optimus Prime test yechishda kuch beradi!",
     "Savol: Suvning formulasi? Javob: H₂O",
     "Savol: Tuz formulasi? Javob: NaCl",
     "Savol: Vodorod atom massasi? Javob: 1",
     "Savol: Kislorod valentligi? Javob: 2",
-    "Savol: Neytral muhit pH? Javob: 7",
-    "Savol: Avogadro soni? Javob: 6.02×10²³",
   ],
   "/calculator": [
+    "Optimus Prime hisoblashda yordam beradi!",
     "Massa ulushi: ω = m(element)/m(modda) × 100%",
     "Zichlik: ρ = m/V (g/ml yoki g/cm³)",
     "Hajm (gaz): V = n × 22.4 L (n.sh.)",
     "Issiqlik sig'imi: Q = m × c × ΔT",
-    "Elektroliz: m = (M × I × t)/(n × 96500)",
   ],
   "/experiments": [
+    "Optimus Prime tajribalar sirlari bilan tanishtiryapti!",
     "NaHCO₃ + CH₃COOH → vulqon tajribasi!",
     "Yod + kraxmal → ko'k rang hosil bo'ladi",
     "Magniy + olov → yorqin oq nur!",
     "Suv + kalsiy → vodorod gazi chiqadi",
-    "Mis sulfat + temir → mis cho'kadi",
   ],
   "/developers": [
+    "Optimus Prime ChemFlare jamoasini qo'llab-quvvatlaydi!",
     "Transformerlar kabi - bilim bilan o'zgaramiz!",
     "Birga o'rganamiz, birga kuchli bo'lamiz!",
   ],
@@ -334,50 +324,50 @@ const BumblebeeHead = ({ gesture }: { gesture: GestureType }) => {
   );
 };
 
-// Bumblebee Chest - with Autobot insignia
+// Bumblebee Chest - with Autobot insignia (BAQUVAT - kattaroq)
 const BumblebeeChest = () => (
-  <group position={[0, 0.6, 0]}>
-    {/* Main chest plate */}
+  <group position={[0, 0.55, 0]}>
+    {/* Main chest plate - kattaroq */}
     <mesh>
-      <boxGeometry args={[0.6, 0.5, 0.3]} />
+      <boxGeometry args={[0.75, 0.6, 0.4]} />
       <meshStandardMaterial color={YELLOW_MAIN} metalness={0.98} roughness={0.05} />
     </mesh>
     
     {/* Upper chest detail */}
-    <mesh position={[0, 0.15, 0.16]}>
-      <boxGeometry args={[0.5, 0.15, 0.02]} />
+    <mesh position={[0, 0.2, 0.21]}>
+      <boxGeometry args={[0.6, 0.18, 0.03]} />
       <meshStandardMaterial color={BLACK_METAL} metalness={0.99} roughness={0.02} />
     </mesh>
     
     {/* Central chest plate (metal plate for insignia) */}
-    <mesh position={[0, 0, 0.16]}>
-      <boxGeometry args={[0.35, 0.3, 0.02]} />
+    <mesh position={[0, 0, 0.21]}>
+      <boxGeometry args={[0.42, 0.35, 0.03]} />
       <meshStandardMaterial color={CHROME} metalness={0.99} roughness={0.02} />
     </mesh>
     
     {/* Autobot Insignia - Red face shape */}
-    <mesh position={[0, 0.02, 0.175]}>
-      <circleGeometry args={[0.08, 6]} />
+    <mesh position={[0, 0.02, 0.23]}>
+      <circleGeometry args={[0.1, 6]} />
       <meshStandardMaterial color={AUTOBOT_RED} emissive={AUTOBOT_RED} emissiveIntensity={0.5} />
     </mesh>
-    <mesh position={[0, 0.02, 0.178]}>
-      <circleGeometry args={[0.05, 6]} />
+    <mesh position={[0, 0.02, 0.235]}>
+      <circleGeometry args={[0.065, 6]} />
       <meshStandardMaterial color="#FFFFFF" metalness={0.9} roughness={0.1} />
     </mesh>
     
-    {/* Side chest vents */}
-    <mesh position={[-0.25, 0, 0.1]}>
-      <boxGeometry args={[0.08, 0.35, 0.15]} />
+    {/* Side chest armor - kuchli yelka */}
+    <mesh position={[-0.32, 0.05, 0.12]}>
+      <boxGeometry args={[0.12, 0.45, 0.2]} />
       <meshStandardMaterial color={BLACK_ACCENT} metalness={0.95} roughness={0.1} />
     </mesh>
-    <mesh position={[0.25, 0, 0.1]}>
-      <boxGeometry args={[0.08, 0.35, 0.15]} />
+    <mesh position={[0.32, 0.05, 0.12]}>
+      <boxGeometry args={[0.12, 0.45, 0.2]} />
       <meshStandardMaterial color={BLACK_ACCENT} metalness={0.95} roughness={0.1} />
     </mesh>
     
     {/* Lower chest - waist connection */}
-    <mesh position={[0, -0.28, 0]}>
-      <boxGeometry args={[0.4, 0.1, 0.25]} />
+    <mesh position={[0, -0.35, 0]}>
+      <boxGeometry args={[0.5, 0.12, 0.32]} />
       <meshStandardMaterial color={BLACK_METAL} metalness={0.98} roughness={0.05} />
     </mesh>
   </group>
@@ -457,54 +447,54 @@ const BumblebeeArm = ({ side, gesture }: { side: "left" | "right"; gesture: Gest
   });
 
   return (
-    <group ref={armRef} position={[xPos, 0.8, 0]}>
-      {/* Shoulder joint */}
-      <mesh position={[mirror * 0.02, 0, 0]}>
-        <sphereGeometry args={[0.07, 16, 16]} />
+    <group ref={armRef} position={[xPos, 0.85, 0]}>
+      {/* Shoulder joint - kattaroq */}
+      <mesh position={[mirror * 0.03, 0, 0]}>
+        <sphereGeometry args={[0.1, 16, 16]} />
         <meshStandardMaterial color={CHROME} metalness={0.99} roughness={0.02} />
       </mesh>
       
-      {/* Upper arm */}
-      <mesh position={[mirror * 0.02, -0.12, 0]}>
-        <boxGeometry args={[0.1, 0.22, 0.1]} />
+      {/* Upper arm - qalin */}
+      <mesh position={[mirror * 0.03, -0.15, 0]}>
+        <boxGeometry args={[0.14, 0.28, 0.14]} />
         <meshStandardMaterial color={YELLOW_MAIN} metalness={0.98} roughness={0.05} />
       </mesh>
       
       {/* Upper arm detail stripe */}
-      <mesh position={[mirror * 0.02, -0.12, 0.052]}>
-        <boxGeometry args={[0.04, 0.18, 0.01]} />
+      <mesh position={[mirror * 0.03, -0.15, 0.072]}>
+        <boxGeometry args={[0.06, 0.22, 0.015]} />
         <meshStandardMaterial color={BLACK_ACCENT} metalness={0.95} roughness={0.1} />
       </mesh>
       
-      {/* Elbow joint */}
-      <mesh position={[0, -0.25, 0]}>
-        <sphereGeometry args={[0.055, 16, 16]} />
+      {/* Elbow joint - kattaroq */}
+      <mesh position={[0, -0.32, 0]}>
+        <sphereGeometry args={[0.08, 16, 16]} />
         <meshStandardMaterial color={CHROME} metalness={0.99} roughness={0.02} />
       </mesh>
       
       {/* Forearm group */}
-      <group ref={forearmRef} position={[0, -0.3, 0]}>
-        {/* Forearm */}
-        <mesh position={[0, -0.1, 0]}>
-          <boxGeometry args={[0.09, 0.2, 0.09]} />
+      <group ref={forearmRef} position={[0, -0.38, 0]}>
+        {/* Forearm - qalin */}
+        <mesh position={[0, -0.12, 0]}>
+          <boxGeometry args={[0.12, 0.25, 0.12]} />
           <meshStandardMaterial color={YELLOW_MAIN} metalness={0.98} roughness={0.05} />
         </mesh>
         
         {/* Forearm detail */}
-        <mesh position={[0, -0.1, 0.048]}>
-          <boxGeometry args={[0.035, 0.16, 0.01]} />
+        <mesh position={[0, -0.12, 0.065]}>
+          <boxGeometry args={[0.05, 0.2, 0.015]} />
           <meshStandardMaterial color={BLACK_ACCENT} metalness={0.95} roughness={0.1} />
         </mesh>
         
-        {/* Wrist */}
-        <mesh position={[0, -0.22, 0]}>
-          <sphereGeometry args={[0.04, 12, 12]} />
+        {/* Wrist - kattaroq */}
+        <mesh position={[0, -0.28, 0]}>
+          <sphereGeometry args={[0.06, 12, 12]} />
           <meshStandardMaterial color={CHROME} metalness={0.99} roughness={0.02} />
         </mesh>
         
-        {/* Hand */}
-        <mesh position={[0, -0.28, 0]}>
-          <boxGeometry args={[0.06, 0.08, 0.04]} />
+        {/* Hand - katta */}
+        <mesh position={[0, -0.35, 0]}>
+          <boxGeometry args={[0.09, 0.1, 0.06]} />
           <meshStandardMaterial color={BLACK_METAL} metalness={0.98} roughness={0.05} />
         </mesh>
       </group>
@@ -544,42 +534,42 @@ const BumblebeeLeg = ({ side, gesture }: { side: "left" | "right"; gesture: Gest
   });
 
   return (
-    <group ref={legRef} position={[xPos, 0.05, 0]}>
-      {/* Hip joint */}
+    <group ref={legRef} position={[xPos, 0, 0]}>
+      {/* Hip joint - kattaroq */}
       <mesh>
-        <sphereGeometry args={[0.06, 12, 12]} />
+        <sphereGeometry args={[0.09, 12, 12]} />
         <meshStandardMaterial color={BLACK_METAL} metalness={0.98} roughness={0.05} />
       </mesh>
       
-      {/* Upper leg */}
-      <mesh position={[0, -0.15, 0]}>
-        <boxGeometry args={[0.1, 0.25, 0.1]} />
+      {/* Upper leg - qalin muskulli */}
+      <mesh position={[0, -0.18, 0]}>
+        <boxGeometry args={[0.14, 0.32, 0.14]} />
         <meshStandardMaterial color={YELLOW_MAIN} metalness={0.98} roughness={0.05} />
       </mesh>
       
-      {/* Knee */}
-      <mesh position={[0, -0.3, 0]}>
-        <sphereGeometry args={[0.05, 12, 12]} />
+      {/* Knee - katta */}
+      <mesh position={[0, -0.38, 0]}>
+        <sphereGeometry args={[0.07, 12, 12]} />
         <meshStandardMaterial color={CHROME} metalness={0.99} roughness={0.02} />
       </mesh>
       
       {/* Lower leg group */}
-      <group ref={lowerLegRef} position={[0, -0.3, 0]}>
-        {/* Lower leg */}
-        <mesh position={[0, -0.15, 0]}>
-          <boxGeometry args={[0.09, 0.25, 0.09]} />
+      <group ref={lowerLegRef} position={[0, -0.38, 0]}>
+        {/* Lower leg - qalin */}
+        <mesh position={[0, -0.18, 0]}>
+          <boxGeometry args={[0.12, 0.32, 0.12]} />
           <meshStandardMaterial color={YELLOW_MAIN} metalness={0.98} roughness={0.05} />
         </mesh>
         
         {/* Lower leg stripe */}
-        <mesh position={[0, -0.15, 0.048]}>
-          <boxGeometry args={[0.04, 0.2, 0.01]} />
+        <mesh position={[0, -0.18, 0.065]}>
+          <boxGeometry args={[0.06, 0.26, 0.015]} />
           <meshStandardMaterial color={BLACK_ACCENT} metalness={0.95} roughness={0.1} />
         </mesh>
         
-        {/* Foot */}
-        <mesh position={[0, -0.32, 0.02]}>
-          <boxGeometry args={[0.08, 0.06, 0.12]} />
+        {/* Foot - katta */}
+        <mesh position={[0, -0.4, 0.03]}>
+          <boxGeometry args={[0.12, 0.08, 0.16]} />
           <meshStandardMaterial color={BLACK_METAL} metalness={0.98} roughness={0.05} />
         </mesh>
       </group>
@@ -714,34 +704,44 @@ const OptimusHead = ({ gesture }: { gesture: GestureType }) => {
   );
 };
 
-// Optimus Prime Chest
+// Optimus Prime Chest - BAQUVAT
 const OptimusChest = () => (
-  <group position={[0, 0.5, 0]}>
-    {/* Main chest - red */}
+  <group position={[0, 0.45, 0]}>
+    {/* Main chest - red - kattaroq */}
     <mesh>
-      <boxGeometry args={[0.5, 0.4, 0.25]} />
+      <boxGeometry args={[0.7, 0.55, 0.35]} />
       <meshStandardMaterial color={OPTIMUS_RED} metalness={0.98} roughness={0.05} />
     </mesh>
     
-    {/* Window panels - blue */}
-    <mesh position={[-0.1, 0.05, 0.13]}>
-      <boxGeometry args={[0.1, 0.15, 0.02]} />
+    {/* Window panels - blue - kattaroq */}
+    <mesh position={[-0.12, 0.08, 0.18]}>
+      <boxGeometry args={[0.14, 0.2, 0.03]} />
       <meshStandardMaterial color={OPTIMUS_ENERGY} emissive={OPTIMUS_ENERGY} emissiveIntensity={1} transparent opacity={0.8} />
     </mesh>
-    <mesh position={[0.1, 0.05, 0.13]}>
-      <boxGeometry args={[0.1, 0.15, 0.02]} />
+    <mesh position={[0.12, 0.08, 0.18]}>
+      <boxGeometry args={[0.14, 0.2, 0.03]} />
       <meshStandardMaterial color={OPTIMUS_ENERGY} emissive={OPTIMUS_ENERGY} emissiveIntensity={1} transparent opacity={0.8} />
     </mesh>
     
-    {/* Autobot insignia */}
-    <mesh position={[0, -0.08, 0.13]}>
-      <circleGeometry args={[0.06, 6]} />
+    {/* Side armor - kuchli */}
+    <mesh position={[-0.3, 0, 0.1]}>
+      <boxGeometry args={[0.1, 0.4, 0.18]} />
+      <meshStandardMaterial color={OPTIMUS_BLUE} metalness={0.98} roughness={0.05} />
+    </mesh>
+    <mesh position={[0.3, 0, 0.1]}>
+      <boxGeometry args={[0.1, 0.4, 0.18]} />
+      <meshStandardMaterial color={OPTIMUS_BLUE} metalness={0.98} roughness={0.05} />
+    </mesh>
+    
+    {/* Autobot insignia - kattaroq */}
+    <mesh position={[0, -0.1, 0.18]}>
+      <circleGeometry args={[0.08, 6]} />
       <meshStandardMaterial color={AUTOBOT_RED} emissive={AUTOBOT_RED} emissiveIntensity={0.5} />
     </mesh>
     
-    {/* Waist - blue */}
-    <mesh position={[0, -0.22, 0]}>
-      <boxGeometry args={[0.35, 0.08, 0.2]} />
+    {/* Waist - blue - qalin */}
+    <mesh position={[0, -0.32, 0]}>
+      <boxGeometry args={[0.48, 0.12, 0.28]} />
       <meshStandardMaterial color={OPTIMUS_BLUE} metalness={0.98} roughness={0.05} />
     </mesh>
   </group>
@@ -790,35 +790,35 @@ const OptimusArm = ({ side, gesture }: { side: "left" | "right"; gesture: Gestur
   });
 
   return (
-    <group ref={armRef} position={[xPos, 0.65, 0]}>
-      {/* Shoulder - chrome */}
-      <mesh position={[mirror * 0.02, 0, 0]}>
-        <sphereGeometry args={[0.06, 16, 16]} />
+    <group ref={armRef} position={[xPos, 0.7, 0]}>
+      {/* Shoulder - chrome - katta */}
+      <mesh position={[mirror * 0.03, 0, 0]}>
+        <sphereGeometry args={[0.09, 16, 16]} />
         <meshStandardMaterial color={OPTIMUS_CHROME} metalness={0.99} roughness={0.02} />
       </mesh>
       
-      {/* Upper arm - blue */}
-      <mesh position={[mirror * 0.02, -0.1, 0]}>
-        <boxGeometry args={[0.08, 0.18, 0.08]} />
+      {/* Upper arm - blue - qalin */}
+      <mesh position={[mirror * 0.03, -0.14, 0]}>
+        <boxGeometry args={[0.12, 0.25, 0.12]} />
         <meshStandardMaterial color={OPTIMUS_BLUE} metalness={0.98} roughness={0.05} />
       </mesh>
       
-      {/* Elbow - chrome */}
-      <mesh position={[0, -0.2, 0]}>
-        <sphereGeometry args={[0.045, 16, 16]} />
+      {/* Elbow - chrome - katta */}
+      <mesh position={[0, -0.28, 0]}>
+        <sphereGeometry args={[0.07, 16, 16]} />
         <meshStandardMaterial color={OPTIMUS_CHROME} metalness={0.99} roughness={0.02} />
       </mesh>
       
-      {/* Forearm - red */}
-      <group ref={forearmRef} position={[0, -0.25, 0]}>
-        <mesh position={[0, -0.08, 0]}>
-          <boxGeometry args={[0.07, 0.15, 0.07]} />
+      {/* Forearm - red - qalin */}
+      <group ref={forearmRef} position={[0, -0.34, 0]}>
+        <mesh position={[0, -0.12, 0]}>
+          <boxGeometry args={[0.1, 0.22, 0.1]} />
           <meshStandardMaterial color={OPTIMUS_RED} metalness={0.98} roughness={0.05} />
         </mesh>
         
-        {/* Hand - chrome */}
-        <mesh position={[0, -0.18, 0]}>
-          <boxGeometry args={[0.05, 0.06, 0.035]} />
+        {/* Hand - chrome - katta */}
+        <mesh position={[0, -0.26, 0]}>
+          <boxGeometry args={[0.08, 0.09, 0.05]} />
           <meshStandardMaterial color={OPTIMUS_CHROME} metalness={0.98} roughness={0.05} />
         </mesh>
       </group>
@@ -855,35 +855,35 @@ const OptimusLeg = ({ side, gesture }: { side: "left" | "right"; gesture: Gestur
   });
 
   return (
-    <group ref={legRef} position={[xPos, 0.05, 0]}>
-      {/* Hip - blue */}
+    <group ref={legRef} position={[xPos, -0.02, 0]}>
+      {/* Hip - blue - katta */}
       <mesh>
-        <sphereGeometry args={[0.05, 12, 12]} />
+        <sphereGeometry args={[0.08, 12, 12]} />
         <meshStandardMaterial color={OPTIMUS_BLUE} metalness={0.98} roughness={0.05} />
       </mesh>
       
-      {/* Upper leg - blue */}
-      <mesh position={[0, -0.12, 0]}>
-        <boxGeometry args={[0.08, 0.2, 0.08]} />
+      {/* Upper leg - blue - qalin muskulli */}
+      <mesh position={[0, -0.16, 0]}>
+        <boxGeometry args={[0.12, 0.28, 0.12]} />
         <meshStandardMaterial color={OPTIMUS_BLUE} metalness={0.98} roughness={0.05} />
       </mesh>
       
-      {/* Knee - chrome */}
-      <mesh position={[0, -0.24, 0]}>
-        <sphereGeometry args={[0.04, 12, 12]} />
+      {/* Knee - chrome - katta */}
+      <mesh position={[0, -0.34, 0]}>
+        <sphereGeometry args={[0.06, 12, 12]} />
         <meshStandardMaterial color={OPTIMUS_CHROME} metalness={0.99} roughness={0.02} />
       </mesh>
       
-      {/* Lower leg - blue */}
-      <group ref={lowerLegRef} position={[0, -0.24, 0]}>
-        <mesh position={[0, -0.12, 0]}>
-          <boxGeometry args={[0.07, 0.2, 0.07]} />
+      {/* Lower leg - blue - qalin */}
+      <group ref={lowerLegRef} position={[0, -0.34, 0]}>
+        <mesh position={[0, -0.16, 0]}>
+          <boxGeometry args={[0.1, 0.28, 0.1]} />
           <meshStandardMaterial color={OPTIMUS_BLUE} metalness={0.98} roughness={0.05} />
         </mesh>
         
-        {/* Foot - red */}
-        <mesh position={[0, -0.26, 0.02]}>
-          <boxGeometry args={[0.06, 0.05, 0.1]} />
+        {/* Foot - red - katta */}
+        <mesh position={[0, -0.35, 0.03]}>
+          <boxGeometry args={[0.1, 0.07, 0.14]} />
           <meshStandardMaterial color={OPTIMUS_RED} metalness={0.98} roughness={0.05} />
         </mesh>
       </group>
