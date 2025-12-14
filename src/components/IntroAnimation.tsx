@@ -12,26 +12,36 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
     const timer = setTimeout(() => {
       setIsVisible(false);
       setTimeout(onComplete, 500);
-    }, 4000);
+    }, 4500);
 
     return () => clearTimeout(timer);
   }, [onComplete]);
 
-  // Generate bubbles
-  const bubbles = Array.from({ length: 12 }, (_, i) => ({
+  // Generate floating molecules
+  const molecules = Array.from({ length: 8 }, (_, i) => ({
     id: i,
-    x: 15 + Math.random() * 20,
-    delay: Math.random() * 2,
-    duration: 1.5 + Math.random() * 1,
-    size: 2 + Math.random() * 4,
+    x: Math.random() * 100,
+    y: Math.random() * 100,
+    scale: 0.3 + Math.random() * 0.4,
+    duration: 15 + Math.random() * 10,
   }));
 
-  // Electron orbit positions
-  const electrons = [
-    { angle: 0, orbitSize: 35, speed: 2 },
-    { angle: 120, orbitSize: 50, speed: 3 },
-    { angle: 240, orbitSize: 65, speed: 2.5 },
+  // Periodic table elements floating
+  const elements = [
+    { symbol: "H", name: "Vodorod", number: 1, color: "#00d4ff" },
+    { symbol: "O", name: "Kislorod", number: 8, color: "#ff6b6b" },
+    { symbol: "C", name: "Uglerod", number: 6, color: "#4ade80" },
+    { symbol: "N", name: "Azot", number: 7, color: "#a78bfa" },
+    { symbol: "Fe", name: "Temir", number: 26, color: "#fbbf24" },
+    { symbol: "Au", name: "Oltin", number: 79, color: "#f59e0b" },
   ];
+
+  // DNA helix points
+  const helixPoints = Array.from({ length: 20 }, (_, i) => ({
+    id: i,
+    y: i * 15,
+    delay: i * 0.05,
+  }));
 
   return (
     <AnimatePresence>
@@ -42,270 +52,384 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
           transition={{ duration: 0.5 }}
           className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden"
           style={{
-            background: "radial-gradient(ellipse at center, #0a1628 0%, #030712 100%)",
+            background: "radial-gradient(ellipse at 30% 20%, #0f172a 0%, #020617 50%, #000 100%)",
           }}
         >
-          {/* Noise texture overlay */}
+          {/* Animated grid background */}
           <div 
-            className="absolute inset-0 opacity-20"
+            className="absolute inset-0 opacity-10"
             style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+              backgroundImage: `
+                linear-gradient(rgba(0, 212, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 255, 0.1) 1px, transparent 1px)
+              `,
+              backgroundSize: "50px 50px",
             }}
           />
 
-          <div className="relative flex flex-col items-center">
-            {/* Main visual container */}
-            <div className="relative w-80 h-80 flex items-center justify-center">
-              
-              {/* Flask */}
+          {/* Floating molecules in background */}
+          {molecules.map((mol) => (
+            <motion.div
+              key={mol.id}
+              className="absolute pointer-events-none"
+              style={{
+                left: `${mol.x}%`,
+                top: `${mol.y}%`,
+              }}
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ 
+                opacity: [0, 0.3, 0.3, 0],
+                scale: mol.scale,
+                x: [0, 50, -30, 0],
+                y: [0, -30, 20, 0],
+              }}
+              transition={{
+                duration: mol.duration,
+                repeat: Infinity,
+                delay: mol.id * 0.3,
+              }}
+            >
+              <svg width="60" height="60" viewBox="0 0 60 60">
+                <circle cx="30" cy="20" r="8" fill="rgba(0, 212, 255, 0.4)" />
+                <circle cx="20" cy="40" r="6" fill="rgba(255, 107, 107, 0.4)" />
+                <circle cx="40" cy="40" r="6" fill="rgba(255, 107, 107, 0.4)" />
+                <line x1="30" y1="20" x2="20" y2="40" stroke="rgba(255,255,255,0.2)" strokeWidth="2" />
+                <line x1="30" y1="20" x2="40" y2="40" stroke="rgba(255,255,255,0.2)" strokeWidth="2" />
+              </svg>
+            </motion.div>
+          ))}
+
+          {/* DNA Helix on left side */}
+          <motion.div
+            className="absolute left-8 top-1/2 -translate-y-1/2 hidden lg:block"
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 1, delay: 0.5 }}
+          >
+            <svg width="80" height="350" viewBox="0 0 80 350">
+              {helixPoints.map((point) => (
+                <g key={point.id}>
+                  <motion.circle
+                    cx={40 + Math.sin(point.id * 0.5) * 25}
+                    cy={point.y + 25}
+                    r="4"
+                    fill="#00d4ff"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: [0, 1, 1, 0] }}
+                    transition={{ duration: 2, delay: point.delay, repeat: Infinity }}
+                    style={{ filter: "drop-shadow(0 0 6px #00d4ff)" }}
+                  />
+                  <motion.circle
+                    cx={40 - Math.sin(point.id * 0.5) * 25}
+                    cy={point.y + 25}
+                    r="4"
+                    fill="#a78bfa"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: [0, 1, 1, 0] }}
+                    transition={{ duration: 2, delay: point.delay + 0.1, repeat: Infinity }}
+                    style={{ filter: "drop-shadow(0 0 6px #a78bfa)" }}
+                  />
+                  {point.id % 2 === 0 && (
+                    <motion.line
+                      x1={40 + Math.sin(point.id * 0.5) * 25}
+                      y1={point.y + 25}
+                      x2={40 - Math.sin(point.id * 0.5) * 25}
+                      y2={point.y + 25}
+                      stroke="rgba(255,255,255,0.2)"
+                      strokeWidth="1"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 0.5 }}
+                      transition={{ delay: point.delay }}
+                    />
+                  )}
+                </g>
+              ))}
+            </svg>
+          </motion.div>
+
+          {/* Chemical formulas floating on right */}
+          <motion.div
+            className="absolute right-8 top-1/2 -translate-y-1/2 hidden lg:block space-y-4"
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 1, delay: 0.8 }}
+          >
+            {["H₂O", "CO₂", "NaCl", "H₂SO₄", "C₆H₁₂O₆"].map((formula, i) => (
               <motion.div
+                key={formula}
+                className="text-xl font-mono"
+                style={{
+                  color: "rgba(0, 212, 255, 0.6)",
+                  textShadow: "0 0 10px rgba(0, 212, 255, 0.4)",
+                }}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: [0, 0.7, 0.7, 0], x: 0 }}
+                transition={{ duration: 3, delay: 1 + i * 0.3, repeat: Infinity, repeatDelay: 2 }}
+              >
+                {formula}
+              </motion.div>
+            ))}
+          </motion.div>
+
+          {/* Main content */}
+          <div className="relative flex flex-col items-center z-10">
+            
+            {/* Rotating periodic elements circle */}
+            <motion.div
+              className="relative w-72 h-72 md:w-96 md:h-96"
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1 }}
+            >
+              {/* Outer glowing ring */}
+              <motion.div
+                className="absolute inset-0 rounded-full"
+                style={{
+                  border: "2px solid rgba(0, 212, 255, 0.3)",
+                  boxShadow: "0 0 30px rgba(0, 212, 255, 0.2), inset 0 0 30px rgba(0, 212, 255, 0.1)",
+                }}
+                animate={{ rotate: 360 }}
+                transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+              />
+
+              {/* Second ring */}
+              <motion.div
+                className="absolute inset-6 md:inset-8 rounded-full"
+                style={{
+                  border: "1px solid rgba(167, 139, 250, 0.3)",
+                }}
+                animate={{ rotate: -360 }}
+                transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+              />
+
+              {/* Floating elements around circle */}
+              {elements.map((el, i) => {
+                const angle = (i * 60 - 90) * (Math.PI / 180);
+                const radius = 130;
+                const x = Math.cos(angle) * radius;
+                const y = Math.sin(angle) * radius;
+                
+                return (
+                  <motion.div
+                    key={el.symbol}
+                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+                    style={{ x, y }}
+                    initial={{ opacity: 0, scale: 0 }}
+                    animate={{ 
+                      opacity: 1, 
+                      scale: 1,
+                    }}
+                    transition={{ delay: 0.5 + i * 0.15, duration: 0.5 }}
+                  >
+                    <motion.div
+                      className="w-12 h-14 md:w-14 md:h-16 rounded-lg flex flex-col items-center justify-center"
+                      style={{
+                        background: `linear-gradient(135deg, ${el.color}20, ${el.color}10)`,
+                        border: `1px solid ${el.color}50`,
+                        boxShadow: `0 0 20px ${el.color}30`,
+                      }}
+                      animate={{ 
+                        y: [0, -5, 0],
+                        boxShadow: [
+                          `0 0 20px ${el.color}30`,
+                          `0 0 30px ${el.color}50`,
+                          `0 0 20px ${el.color}30`,
+                        ]
+                      }}
+                      transition={{ duration: 2, delay: i * 0.2, repeat: Infinity }}
+                    >
+                      <span className="text-[10px] text-white/50">{el.number}</span>
+                      <span 
+                        className="text-lg md:text-xl font-bold"
+                        style={{ color: el.color }}
+                      >
+                        {el.symbol}
+                      </span>
+                    </motion.div>
+                  </motion.div>
+                );
+              })}
+
+              {/* Center flask with reaction */}
+              <motion.div
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
                 initial={{ opacity: 0, scale: 0.5 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.8, delay: 0.2 }}
-                className="absolute left-8 bottom-16"
+                transition={{ duration: 0.8, delay: 0.3 }}
               >
-                <svg width="100" height="140" viewBox="0 0 100 140" className="drop-shadow-[0_0_20px_rgba(0,200,255,0.8)]">
-                  {/* Flask outline */}
+                <svg width="120" height="150" viewBox="0 0 120 150" className="drop-shadow-[0_0_30px_rgba(0,212,255,0.6)]">
+                  {/* Flask body */}
                   <path
-                    d="M35 10 L35 50 L10 120 Q5 135 20 135 L80 135 Q95 135 90 120 L65 50 L65 10"
+                    d="M45 20 L45 55 L20 120 Q15 140 35 140 L85 140 Q105 140 100 120 L75 55 L75 20"
                     fill="none"
-                    stroke="rgba(0, 200, 255, 0.8)"
-                    strokeWidth="2"
+                    stroke="rgba(0, 212, 255, 0.8)"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
                   />
                   {/* Flask neck */}
-                  <rect x="33" y="5" width="34" height="8" rx="2" fill="none" stroke="rgba(0, 200, 255, 0.8)" strokeWidth="2" />
+                  <rect x="42" y="10" width="36" height="12" rx="3" fill="none" stroke="rgba(0, 212, 255, 0.8)" strokeWidth="2" />
                   
-                  {/* Liquid inside */}
-                  <motion.path
-                    d="M15 115 Q10 130 25 130 L75 130 Q90 130 85 115 L65 55 L35 55 Z"
-                    fill="url(#liquidGradient)"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: [0.6, 1, 0.6] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                  />
-                  
-                  {/* Gradient definitions */}
+                  {/* Liquid with gradient */}
                   <defs>
-                    <linearGradient id="liquidGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                      <stop offset="0%" stopColor="rgba(0, 200, 255, 0.9)" />
-                      <stop offset="100%" stopColor="rgba(0, 100, 200, 0.7)" />
+                    <linearGradient id="liquidGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stopColor="rgba(0, 212, 255, 0.9)" />
+                      <stop offset="50%" stopColor="rgba(167, 139, 250, 0.7)" />
+                      <stop offset="100%" stopColor="rgba(255, 107, 107, 0.6)" />
                     </linearGradient>
+                    <filter id="glow">
+                      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                      <feMerge>
+                        <feMergeNode in="coloredBlur"/>
+                        <feMergeNode in="SourceGraphic"/>
+                      </feMerge>
+                    </filter>
                   </defs>
-                </svg>
-
-                {/* Bubbles */}
-                {bubbles.map((bubble) => (
-                  <motion.div
-                    key={bubble.id}
-                    className="absolute rounded-full"
-                    style={{
-                      left: bubble.x,
-                      bottom: 30,
-                      width: bubble.size,
-                      height: bubble.size,
-                      background: "rgba(0, 200, 255, 0.8)",
-                      boxShadow: "0 0 6px rgba(0, 200, 255, 0.8)",
-                    }}
-                    initial={{ y: 0, opacity: 0 }}
-                    animate={{
-                      y: [-80, -120],
-                      opacity: [0, 1, 0],
-                    }}
-                    transition={{
-                      duration: bubble.duration,
-                      delay: bubble.delay,
-                      repeat: Infinity,
-                      ease: "easeOut",
-                    }}
-                  />
-                ))}
-
-                {/* Sparks */}
-                {[...Array(5)].map((_, i) => (
-                  <motion.div
-                    key={`spark-${i}`}
-                    className="absolute"
-                    style={{
-                      left: 20 + Math.random() * 30,
-                      bottom: 40,
-                      width: 2,
-                      height: 2,
-                      background: "#fff",
-                      boxShadow: "0 0 8px rgba(255, 255, 255, 0.9)",
-                    }}
-                    initial={{ y: 0, opacity: 0 }}
-                    animate={{
-                      y: [-60, -100],
-                      x: [0, (Math.random() - 0.5) * 20],
-                      opacity: [0, 1, 0],
-                    }}
-                    transition={{
-                      duration: 1 + Math.random() * 0.5,
-                      delay: i * 0.4,
-                      repeat: Infinity,
-                    }}
-                  />
-                ))}
-              </motion.div>
-
-              {/* Atom with orbiting electrons */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.5 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.8, delay: 0.5 }}
-                className="absolute right-4 top-12"
-              >
-                <div className="relative w-36 h-36">
-                  {/* Nucleus */}
-                  <motion.div
-                    className="absolute top-1/2 left-1/2 w-6 h-6 -translate-x-1/2 -translate-y-1/2 rounded-full"
-                    style={{
-                      background: "radial-gradient(circle, rgba(0, 200, 255, 1) 0%, rgba(0, 150, 200, 0.8) 100%)",
-                      boxShadow: "0 0 20px rgba(0, 200, 255, 0.9), 0 0 40px rgba(0, 200, 255, 0.5)",
-                    }}
-                    animate={{
-                      scale: [1, 1.1, 1],
-                    }}
+                  
+                  <motion.path
+                    d="M25 115 Q20 135 40 135 L80 135 Q100 135 95 115 L75 60 L45 60 Z"
+                    fill="url(#liquidGrad)"
+                    filter="url(#glow)"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: [0.7, 1, 0.7] }}
                     transition={{ duration: 2, repeat: Infinity }}
                   />
-
-                  {/* Orbits and electrons */}
-                  {electrons.map((electron, i) => (
-                    <div key={i} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                      {/* Orbit ring */}
-                      <motion.div
-                        className="absolute rounded-full border"
-                        style={{
-                          width: electron.orbitSize * 2,
-                          height: electron.orbitSize * 2,
-                          top: -electron.orbitSize,
-                          left: -electron.orbitSize,
-                          borderColor: "rgba(0, 200, 255, 0.3)",
-                          transform: `rotate(${30 * i}deg) rotateX(60deg)`,
-                        }}
-                      />
-                      
-                      {/* Electron */}
-                      <motion.div
-                        className="absolute w-3 h-3 rounded-full"
-                        style={{
-                          background: "#00c8ff",
-                          boxShadow: "0 0 10px rgba(0, 200, 255, 1), 0 0 20px rgba(0, 200, 255, 0.6)",
-                          transformOrigin: `${-electron.orbitSize + 6}px 0`,
-                        }}
-                        animate={{
-                          rotate: 360,
-                        }}
-                        transition={{
-                          duration: electron.speed,
-                          repeat: Infinity,
-                          ease: "linear",
-                        }}
-                      />
-                    </div>
-                  ))}
-                </div>
-
-                {/* Digital/Tech lines */}
-                <motion.div
-                  className="absolute -right-16 top-1/2 -translate-y-1/2"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.8, delay: 1 }}
-                >
-                  {[0, 8, 16, 24, 32].map((y, i) => (
-                    <motion.div
+                  
+                  {/* Bubbles inside flask */}
+                  {[...Array(8)].map((_, i) => (
+                    <motion.circle
                       key={i}
-                      className="absolute"
-                      style={{
-                        top: y - 16,
-                        left: 0,
-                        height: 2,
-                        background: "linear-gradient(90deg, rgba(0, 200, 255, 0.8) 0%, transparent 100%)",
-                        boxShadow: "0 0 6px rgba(0, 200, 255, 0.6)",
+                      cx={40 + Math.random() * 40}
+                      cy={120}
+                      r={2 + Math.random() * 3}
+                      fill="rgba(255, 255, 255, 0.7)"
+                      initial={{ cy: 120, opacity: 0 }}
+                      animate={{ 
+                        cy: [120, 70],
+                        opacity: [0, 0.8, 0],
                       }}
-                      initial={{ width: 0 }}
-                      animate={{ width: 40 + Math.random() * 30 }}
-                      transition={{ duration: 0.5, delay: 1.2 + i * 0.1 }}
+                      transition={{
+                        duration: 1.5 + Math.random(),
+                        delay: i * 0.2,
+                        repeat: Infinity,
+                      }}
                     />
                   ))}
                   
-                  {/* Data nodes */}
-                  {[0, 16, 32].map((y, i) => (
-                    <motion.div
-                      key={`node-${i}`}
-                      className="absolute w-2 h-2 rounded-full"
-                      style={{
-                        top: y - 16 - 1,
-                        left: 50 + i * 15,
-                        background: "#00c8ff",
-                        boxShadow: "0 0 8px rgba(0, 200, 255, 0.8)",
+                  {/* Steam/vapor from top */}
+                  {[...Array(3)].map((_, i) => (
+                    <motion.path
+                      key={`steam-${i}`}
+                      d={`M${55 + i * 5} 8 Q${50 + i * 5} -5 ${55 + i * 5} -15`}
+                      fill="none"
+                      stroke="rgba(255, 255, 255, 0.3)"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      initial={{ opacity: 0, pathLength: 0 }}
+                      animate={{ 
+                        opacity: [0, 0.5, 0],
+                        pathLength: [0, 1],
+                        y: [0, -10],
                       }}
-                      initial={{ opacity: 0, scale: 0 }}
-                      animate={{ opacity: [0, 1, 0.5, 1], scale: 1 }}
-                      transition={{ duration: 0.3, delay: 1.5 + i * 0.15, repeat: Infinity, repeatDelay: 2 }}
+                      transition={{
+                        duration: 2,
+                        delay: 1.5 + i * 0.3,
+                        repeat: Infinity,
+                      }}
                     />
                   ))}
-                </motion.div>
+                </svg>
               </motion.div>
-            </div>
+            </motion.div>
 
-            {/* KIMYO Text */}
+            {/* Title */}
             <motion.h1
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 1 }}
-              className="text-6xl md:text-7xl font-bold tracking-wider mt-4"
+              transition={{ duration: 0.8, delay: 1.2 }}
+              className="text-5xl md:text-7xl font-black tracking-wider mt-6"
               style={{
-                color: "#00c8ff",
-                textShadow: "0 0 20px rgba(0, 200, 255, 0.8), 0 0 40px rgba(0, 200, 255, 0.5), 0 0 60px rgba(0, 200, 255, 0.3)",
-                fontFamily: "'Inter', 'Arial', sans-serif",
+                background: "linear-gradient(135deg, #00d4ff 0%, #a78bfa 50%, #ff6b6b 100%)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                filter: "drop-shadow(0 0 30px rgba(0, 212, 255, 0.5))",
+                fontFamily: "'Inter', sans-serif",
               }}
             >
               CHEMFLARE
             </motion.h1>
 
-            {/* Subtitle */}
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.8, delay: 1.5 }}
-              className="text-lg md:text-xl tracking-[0.3em] mt-4 uppercase"
-              style={{
-                color: "rgba(0, 200, 255, 0.7)",
-                textShadow: "0 0 10px rgba(0, 200, 255, 0.5)",
-              }}
-            >
-              Kimyo ilmini o'rganing
-            </motion.p>
-
-            {/* Loading indicator */}
+            {/* Subtitle with typing effect */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 2 }}
-              className="mt-8 flex items-center gap-2"
+              transition={{ duration: 0.8, delay: 1.6 }}
+              className="mt-4 flex items-center gap-2"
             >
+              <motion.div
+                className="h-[2px] bg-gradient-to-r from-transparent to-cyan-400"
+                initial={{ width: 0 }}
+                animate={{ width: 40 }}
+                transition={{ duration: 0.5, delay: 1.8 }}
+              />
+              <p 
+                className="text-base md:text-lg tracking-[0.25em] uppercase"
+                style={{
+                  color: "rgba(167, 139, 250, 0.9)",
+                  textShadow: "0 0 20px rgba(167, 139, 250, 0.5)",
+                }}
+              >
+                Kimyo ilmini o'rganing
+              </p>
+              <motion.div
+                className="h-[2px] bg-gradient-to-l from-transparent to-purple-400"
+                initial={{ width: 0 }}
+                animate={{ width: 40 }}
+                transition={{ duration: 0.5, delay: 1.8 }}
+              />
+            </motion.div>
+
+            {/* Loading bar */}
+            <motion.div
+              className="mt-8 w-48 h-1 rounded-full overflow-hidden"
+              style={{ background: "rgba(255,255,255,0.1)" }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 2 }}
+            >
+              <motion.div
+                className="h-full rounded-full"
+                style={{
+                  background: "linear-gradient(90deg, #00d4ff, #a78bfa, #ff6b6b)",
+                }}
+                initial={{ width: "0%" }}
+                animate={{ width: "100%" }}
+                transition={{ duration: 2, delay: 2, ease: "easeInOut" }}
+              />
+            </motion.div>
+
+            {/* Atom particles around loading */}
+            <div className="relative mt-2">
               {[0, 1, 2].map((i) => (
                 <motion.div
                   key={i}
-                  className="w-2 h-2 rounded-full"
+                  className="absolute w-2 h-2 rounded-full"
                   style={{
-                    background: "#00c8ff",
-                    boxShadow: "0 0 8px rgba(0, 200, 255, 0.8)",
+                    background: i === 0 ? "#00d4ff" : i === 1 ? "#a78bfa" : "#ff6b6b",
+                    boxShadow: `0 0 10px ${i === 0 ? "#00d4ff" : i === 1 ? "#a78bfa" : "#ff6b6b"}`,
+                    left: `${i * 20 - 20}px`,
                   }}
                   animate={{
-                    scale: [1, 1.5, 1],
-                    opacity: [0.5, 1, 0.5],
+                    y: [0, -8, 0],
+                    scale: [1, 1.3, 1],
                   }}
                   transition={{
-                    duration: 1,
+                    duration: 0.8,
                     repeat: Infinity,
-                    delay: i * 0.2,
+                    delay: i * 0.15,
                   }}
                 />
               ))}
-            </motion.div>
+            </div>
           </div>
         </motion.div>
       )}
