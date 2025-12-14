@@ -3247,17 +3247,17 @@ const BumblebeeMascot = () => {
     return () => clearInterval(interval);
   }, [isUserActive, currentSpeaker, shuffledKnowledge.length, getRandomSpeakerGesture, isFirstMessage]);
 
-  // Fixed landing positions - robots sit in specific spots
+  // Fixed landing positions - robots sit in center area for better visibility
   const landingSpots = useMemo(() => ({
     bumblebee: [
-      { x: 8, y: 75, name: "left-bottom" },   // Left bottom corner - sitting
-      { x: 12, y: 50, name: "left-middle" },  // Left middle
-      { x: 5, y: 85, name: "left-floor" },    // Left floor - resting
+      { x: 25, y: 55, name: "left-center" },   // Left center - safe for speech
+      { x: 20, y: 45, name: "left-middle" },   // Left middle
+      { x: 28, y: 65, name: "left-lower" },    // Left lower center
     ],
     bird: [
-      { x: 88, y: 75, name: "right-bottom" }, // Right bottom corner - sitting
-      { x: 85, y: 50, name: "right-middle" }, // Right middle
-      { x: 92, y: 85, name: "right-floor" },  // Right floor - resting
+      { x: 75, y: 55, name: "right-center" },  // Right center - safe for speech
+      { x: 80, y: 45, name: "right-middle" },  // Right middle
+      { x: 72, y: 65, name: "right-lower" },   // Right lower center
     ]
   }), []);
 
