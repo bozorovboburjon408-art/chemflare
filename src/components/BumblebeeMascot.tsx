@@ -32,35 +32,9 @@ type GestureType =
 
 // Bumblebee - faqat kirishda tanishadi
 const bumblebeeIntro = "Salom! Men Bumblebee! Avtobotlarning eng sodiq jangchisiman!";
-const bumblebeeMotivation = "Biz urush maydonini tashlab, seni o'rgatish uchun keldik! Sening biliming bizga har qanday jangdan muhimroq!";
 
 // Optimus Prime - faqat kirishda tanishadi  
 const optimusIntro = "Men Optimus Prime! Avtobotlar lideri! Bilim - eng kuchli qurolimiz!";
-const optimusMotivation = "Janglardan to'xtadik, chunki kelajak - bilimda! Sen o'rganishing - bizning g'alabamiz!";
-
-// Motivatsion xabarlar - aralashtirib beriladi
-const motivationalMessages: string[] = [
-  "Har kuni bir qadam oldinga! Sen bunga qodirsiz!",
-  "Qiyinchilik - bu kuch! Davom et, g'olib bo'lasan!",
-  "Kimyo o'rgansang, dunyoni o'zgartirasan!",
-  "Bilim - eng kuchli qurol! Buni unutma!",
-  "Transformerlar senga ishonadi! Oldinga!",
-  "Xato qilish - o'rganish! Qo'rqma, davom et!",
-  "Bugun o'rganganing - ertangi kuchingiz!",
-  "Biz sen bilan birga! Hech qachon yolg'iz emassan!",
-  "Har bir formula - yangi imkoniyat!",
-  "O'rganish - eng ulug' jang! Sen g'olibsan!",
-  "Kimyo dunyosi seni kutmoqda! Kashf et!",
-  "Sabrli bo'l, natija albatta keladi!",
-  "Kichik qadamlar - katta muvaffaqiyat!",
-  "Bugun qiyin, ertaga oson bo'ladi!",
-  "Avtobotlar seni qo'llab-quvvatlaydi!",
-  "Bilim olish - eng go'zal g'alaba!",
-  "O'zingga ishon! Sen eng zo'risan!",
-  "Har bir mashq seni kuchliroq qiladi!",
-  "Qiyinchilikdan qo'rqma - u seni o'stiradi!",
-  "Biz urushni tashladik - sen uchun! O'rgan!",
-];
 
 // Umumiy bilimlar bazasi - barcha sahifalar uchun aralashtiriladi (kengaytirilgan)
 const knowledgeBase: string[] = [
@@ -3239,8 +3213,6 @@ const BumblebeeMascot = () => {
   const [isUserActive, setIsUserActive] = useState(true);
   const [currentSpeaker, setCurrentSpeaker] = useState<"bumblebee" | "bird">("bumblebee");
   const [isFirstMessage, setIsFirstMessage] = useState(true);
-  const [isMotivationMessage, setIsMotivationMessage] = useState(false);
-  const [motivationShown, setMotivationShown] = useState({ bumblebee: false, bird: false });
   const [shuffledKnowledge, setShuffledKnowledge] = useState<string[]>([]);
   const [cameraEnabled, setCameraEnabled] = useState(() => {
     return localStorage.getItem('robot_camera_enabled') === 'true';
@@ -3472,13 +3444,11 @@ const BumblebeeMascot = () => {
     const bumblebePageTips = bumblebeeTips[path] || bumblebeeTips["/"];
     const optimusPageTips = optimusTips[path] || optimusTips["/"];
     
-    // Combine and shuffle page-specific tips with motivational messages
-    const combinedTips = [...bumblebePageTips, ...optimusPageTips, ...motivationalMessages].sort(() => Math.random() - 0.5);
+    // Combine and shuffle page-specific tips
+    const combinedTips = [...bumblebePageTips, ...optimusPageTips].sort(() => Math.random() - 0.5);
     setShuffledKnowledge(combinedTips);
     setCurrentTipIndex(0);
     setIsFirstMessage(true);
-    setIsMotivationMessage(false);
-    setMotivationShown({ bumblebee: false, bird: false });
     setCurrentSpeaker("bumblebee");
     setBumblebeeGesture("wave");
     setBirdGesture("listen");
@@ -3596,38 +3566,19 @@ const BumblebeeMascot = () => {
         const nextSpeaker = currentSpeaker === "bumblebee" ? "bird" : "bumblebee";
         setCurrentSpeaker(nextSpeaker);
         
-        // Message sequence: intro -> motivation -> chemistry tips
-        // Bumblebee intro -> Bumblebee motivation -> Bird intro -> Bird motivation -> tips
-        if (isFirstMessage) {
-          if (nextSpeaker === "bird") {
-            // Bumblebee just finished intro, now show motivation
-            setIsFirstMessage(false);
-            setIsMotivationMessage(true);
-            setMotivationShown(prev => ({ ...prev, bumblebee: true }));
-            // Stay on bumblebee for motivation
-            setCurrentSpeaker("bumblebee");
-          }
-        } else if (isMotivationMessage) {
-          if (!motivationShown.bird) {
-            // Bumblebee motivation done, now bird intro
-            setIsFirstMessage(true);
-            setIsMotivationMessage(false);
-            setCurrentSpeaker("bird");
-          } else {
-            // Bird motivation done, start chemistry tips
-            setIsMotivationMessage(false);
-          }
-        } else if (motivationShown.bumblebee && !motivationShown.bird && !isMotivationMessage) {
-          // After bird intro, show bird motivation
-          setIsMotivationMessage(true);
-          setMotivationShown(prev => ({ ...prev, bird: true }));
-          setCurrentSpeaker("bird");
+        // If switching to bird for first time, keep isFirstMessage true for bird's intro
+        // Only set isFirstMessage to false after both have introduced
+        if (isFirstMessage && nextSpeaker === "bird") {
+          // Keep isFirstMessage true so bird can introduce
+        } else if (isFirstMessage && nextSpeaker === "bumblebee") {
+          setIsFirstMessage(false);
+        } else {
+          setIsFirstMessage(false);
         }
         
         // Update gestures - speaker gets random gesture, listener listens
         const newGesture = getRandomSpeakerGesture();
-        const actualSpeaker = (isFirstMessage && nextSpeaker === "bird" && !motivationShown.bumblebee) ? "bumblebee" : nextSpeaker;
-        if (actualSpeaker === "bird") {
+        if (nextSpeaker === "bird") {
           setBumblebeeGesture("listen");
           setBirdGesture(newGesture);
         } else {
@@ -3635,8 +3586,8 @@ const BumblebeeMascot = () => {
           setBirdGesture("listen");
         }
         
-        // Change tip index - only after all intros and motivations are done
-        if (!isFirstMessage && !isMotivationMessage && motivationShown.bumblebee && motivationShown.bird) {
+        // Change tip index - use shuffled knowledge
+        if (!isFirstMessage || (isFirstMessage && nextSpeaker === "bumblebee")) {
           setCurrentTipIndex(prev => (prev + 1) % shuffledKnowledge.length);
         }
         
@@ -3645,7 +3596,7 @@ const BumblebeeMascot = () => {
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [isUserActive, currentSpeaker, shuffledKnowledge.length, getRandomSpeakerGesture, isFirstMessage, isMotivationMessage, motivationShown]);
+  }, [isUserActive, currentSpeaker, shuffledKnowledge.length, getRandomSpeakerGesture, isFirstMessage]);
 
   // Fixed landing positions - robots sit in center area for better visibility
   const landingSpots = useMemo(() => ({
@@ -3804,23 +3755,16 @@ const BumblebeeMascot = () => {
       return robotResponse;
     }
     
-    // First message - show intro
     if (isFirstMessage) {
       return currentSpeaker === "bumblebee" ? bumblebeeIntro : optimusIntro;
     }
-    
-    // After intro - show motivation message
-    if (isMotivationMessage) {
-      return currentSpeaker === "bumblebee" ? bumblebeeMotivation : optimusMotivation;
-    }
-    
     // If camera enabled and user visible - ONLY show conversation messages
     if (isUserVisible && shuffledConversation.length > 0) {
       return shuffledConversation[conversationIndex % shuffledConversation.length];
     }
     if (shuffledKnowledge.length === 0) return knowledgeBase[0];
     return shuffledKnowledge[currentTipIndex % shuffledKnowledge.length];
-  }, [isFirstMessage, isMotivationMessage, currentSpeaker, isUserVisible, shuffledConversation, conversationIndex, shuffledKnowledge, currentTipIndex, robotResponse]);
+  }, [isFirstMessage, currentSpeaker, isUserVisible, shuffledConversation, conversationIndex, shuffledKnowledge, currentTipIndex, robotResponse]);
 
   // Update conversation index when speaker changes (for camera mode)
   useEffect(() => {
