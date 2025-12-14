@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { ArrowRight, MessageCircle } from "lucide-react";
 
 interface IntroAnimationProps {
   onComplete: () => void;
@@ -7,15 +8,21 @@ interface IntroAnimationProps {
 
 const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
   const [isVisible, setIsVisible] = useState(true);
+  const [showButtons, setShowButtons] = useState(false);
 
   useEffect(() => {
+    // Show buttons after animation completes
     const timer = setTimeout(() => {
-      setIsVisible(false);
-      setTimeout(onComplete, 500);
-    }, 4500);
+      setShowButtons(true);
+    }, 3500);
 
     return () => clearTimeout(timer);
-  }, [onComplete]);
+  }, []);
+
+  const handleEnterApp = () => {
+    setIsVisible(false);
+    setTimeout(onComplete, 500);
+  };
 
   // Generate floating molecules with stable values
   const molecules = useMemo(() => Array.from({ length: 8 }, (_, i) => ({
@@ -392,48 +399,66 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
               />
             </motion.div>
 
-            {/* Loading bar */}
-            <motion.div
-              className="mt-8 w-48 h-1 rounded-full overflow-hidden"
-              style={{ background: "rgba(255,255,255,0.1)" }}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 2 }}
-            >
-              <motion.div
-                className="h-full rounded-full"
-                style={{
-                  background: "linear-gradient(90deg, #00d4ff, #a78bfa, #ff6b6b)",
-                }}
-                initial={{ width: "0%" }}
-                animate={{ width: "100%" }}
-                transition={{ duration: 2, delay: 2, ease: "easeInOut" }}
-              />
-            </motion.div>
-
-            {/* Atom particles around loading */}
-            <div className="relative mt-2">
-              {[0, 1, 2].map((i) => (
+            {/* Enter App Button and Telegram Link */}
+            <AnimatePresence>
+              {showButtons && (
                 <motion.div
-                  key={i}
-                  className="absolute w-2 h-2 rounded-full"
-                  style={{
-                    background: i === 0 ? "#00d4ff" : i === 1 ? "#a78bfa" : "#ff6b6b",
-                    boxShadow: `0 0 10px ${i === 0 ? "#00d4ff" : i === 1 ? "#a78bfa" : "#ff6b6b"}`,
-                    left: `${i * 20 - 20}px`,
-                  }}
-                  animate={{
-                    y: [0, -8, 0],
-                    scale: [1, 1.3, 1],
-                  }}
-                  transition={{
-                    duration: 0.8,
-                    repeat: Infinity,
-                    delay: i * 0.15,
-                  }}
-                />
-              ))}
-            </div>
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                  className="mt-10 flex flex-col items-center gap-4"
+                >
+                  {/* Enter App Button */}
+                  <motion.button
+                    onClick={handleEnterApp}
+                    className="group relative px-8 py-4 rounded-xl font-bold text-lg overflow-hidden"
+                    style={{
+                      background: "linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(167, 139, 250, 0.2))",
+                      border: "2px solid rgba(0, 212, 255, 0.5)",
+                      color: "#fff",
+                      boxShadow: "0 0 30px rgba(0, 212, 255, 0.3)",
+                    }}
+                    whileHover={{ 
+                      scale: 1.05,
+                      boxShadow: "0 0 50px rgba(0, 212, 255, 0.5)",
+                    }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <motion.div
+                      className="absolute inset-0"
+                      style={{
+                        background: "linear-gradient(135deg, rgba(0, 212, 255, 0.4), rgba(167, 139, 250, 0.4))",
+                      }}
+                      initial={{ x: "-100%" }}
+                      whileHover={{ x: "0%" }}
+                      transition={{ duration: 0.3 }}
+                    />
+                    <span className="relative flex items-center gap-2">
+                      Ilovaga Kirish
+                      <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    </span>
+                  </motion.button>
+
+                  {/* Telegram Link */}
+                  <motion.a
+                    href="https://t.me/ndktu_iqtidorlilar"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 text-sm"
+                    style={{
+                      color: "rgba(167, 139, 250, 0.9)",
+                    }}
+                    whileHover={{ scale: 1.05 }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.3 }}
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    <span>Fikr va mulohazalar uchun biz bilan suhbatlashing</span>
+                  </motion.a>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </motion.div>
       )}
