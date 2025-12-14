@@ -1,227 +1,283 @@
 import { useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 
-// Robot Head Component
-const RobotHead = () => {
+// Bumblebee style colors
+const YELLOW = "#FFD700";
+const DARK_YELLOW = "#DAA520";
+const BLACK = "#1a1a1a";
+const BLUE_GLOW = "#00BFFF";
+const METAL_GRAY = "#4a4a4a";
+
+// Robot Head - Bumblebee style with helmet and antennas
+const BumblebeeHead = () => {
+  const headRef = useRef<THREE.Group>(null);
+  
+  useFrame((state) => {
+    if (headRef.current) {
+      // Subtle head movement
+      headRef.current.rotation.y = Math.sin(state.clock.getElapsedTime() * 0.8) * 0.15;
+      headRef.current.rotation.x = Math.sin(state.clock.getElapsedTime() * 0.5) * 0.05;
+    }
+  });
+
   return (
-    <group position={[0, 1.2, 0]}>
-      {/* Main head */}
+    <group ref={headRef} position={[0, 1.4, 0]}>
+      {/* Main helmet */}
       <mesh>
-        <boxGeometry args={[0.6, 0.5, 0.5]} />
-        <meshStandardMaterial color="#f5c842" metalness={0.8} roughness={0.2} />
+        <sphereGeometry args={[0.35, 32, 32]} />
+        <meshStandardMaterial color={YELLOW} metalness={0.9} roughness={0.15} />
       </mesh>
       
-      {/* Eyes */}
-      <mesh position={[-0.15, 0.05, 0.26]}>
-        <sphereGeometry args={[0.08, 16, 16]} />
-        <meshStandardMaterial color="#00bfff" emissive="#00bfff" emissiveIntensity={2} />
+      {/* Face plate - darker section */}
+      <mesh position={[0, -0.05, 0.2]}>
+        <boxGeometry args={[0.4, 0.25, 0.2]} />
+        <meshStandardMaterial color={BLACK} metalness={0.95} roughness={0.1} />
       </mesh>
-      <mesh position={[0.15, 0.05, 0.26]}>
-        <sphereGeometry args={[0.08, 16, 16]} />
-        <meshStandardMaterial color="#00bfff" emissive="#00bfff" emissiveIntensity={2} />
+      
+      {/* Eyes - bright blue glow */}
+      <mesh position={[-0.1, 0.02, 0.32]}>
+        <sphereGeometry args={[0.06, 16, 16]} />
+        <meshStandardMaterial color={BLUE_GLOW} emissive={BLUE_GLOW} emissiveIntensity={3} />
+      </mesh>
+      <mesh position={[0.1, 0.02, 0.32]}>
+        <sphereGeometry args={[0.06, 16, 16]} />
+        <meshStandardMaterial color={BLUE_GLOW} emissive={BLUE_GLOW} emissiveIntensity={3} />
+      </mesh>
+      
+      {/* Eye rings */}
+      <mesh position={[-0.1, 0.02, 0.3]}>
+        <torusGeometry args={[0.08, 0.015, 8, 16]} />
+        <meshStandardMaterial color={METAL_GRAY} metalness={0.9} roughness={0.2} />
+      </mesh>
+      <mesh position={[0.1, 0.02, 0.3]}>
+        <torusGeometry args={[0.08, 0.015, 8, 16]} />
+        <meshStandardMaterial color={METAL_GRAY} metalness={0.9} roughness={0.2} />
       </mesh>
       
       {/* Antenna horns */}
-      <mesh position={[-0.2, 0.35, 0]}>
-        <coneGeometry args={[0.05, 0.2, 8]} />
-        <meshStandardMaterial color="#f5c842" metalness={0.8} roughness={0.2} />
+      <mesh position={[-0.18, 0.32, 0]} rotation={[0, 0, 0.3]}>
+        <coneGeometry args={[0.04, 0.18, 8]} />
+        <meshStandardMaterial color={YELLOW} metalness={0.85} roughness={0.15} />
       </mesh>
-      <mesh position={[0.2, 0.35, 0]}>
-        <coneGeometry args={[0.05, 0.2, 8]} />
-        <meshStandardMaterial color="#f5c842" metalness={0.8} roughness={0.2} />
+      <mesh position={[0.18, 0.32, 0]} rotation={[0, 0, -0.3]}>
+        <coneGeometry args={[0.04, 0.18, 8]} />
+        <meshStandardMaterial color={YELLOW} metalness={0.85} roughness={0.15} />
       </mesh>
       
-      {/* Face plate */}
-      <mesh position={[0, -0.1, 0.26]}>
-        <boxGeometry args={[0.3, 0.15, 0.05]} />
-        <meshStandardMaterial color="#333" metalness={0.9} roughness={0.1} />
+      {/* Antenna tips */}
+      <mesh position={[-0.22, 0.42, 0]}>
+        <sphereGeometry args={[0.025, 8, 8]} />
+        <meshStandardMaterial color={BLUE_GLOW} emissive={BLUE_GLOW} emissiveIntensity={2} />
+      </mesh>
+      <mesh position={[0.22, 0.42, 0]}>
+        <sphereGeometry args={[0.025, 8, 8]} />
+        <meshStandardMaterial color={BLUE_GLOW} emissive={BLUE_GLOW} emissiveIntensity={2} />
+      </mesh>
+      
+      {/* Helmet side panels */}
+      <mesh position={[-0.32, 0.05, 0]} rotation={[0, 0, 0.2]}>
+        <boxGeometry args={[0.08, 0.25, 0.2]} />
+        <meshStandardMaterial color={DARK_YELLOW} metalness={0.85} roughness={0.2} />
+      </mesh>
+      <mesh position={[0.32, 0.05, 0]} rotation={[0, 0, -0.2]}>
+        <boxGeometry args={[0.08, 0.25, 0.2]} />
+        <meshStandardMaterial color={DARK_YELLOW} metalness={0.85} roughness={0.2} />
       </mesh>
     </group>
   );
 };
 
-// Robot Body Component
-const RobotBody = () => {
+// Robot Body - Bumblebee chest with Autobot emblem area
+const BumblebeeBody = () => {
   return (
-    <group position={[0, 0.4, 0]}>
-      {/* Chest */}
+    <group position={[0, 0.65, 0]}>
+      {/* Main chest */}
       <mesh>
-        <boxGeometry args={[0.8, 0.7, 0.4]} />
-        <meshStandardMaterial color="#f5c842" metalness={0.8} roughness={0.2} />
+        <boxGeometry args={[0.7, 0.6, 0.35]} />
+        <meshStandardMaterial color={YELLOW} metalness={0.85} roughness={0.15} />
       </mesh>
       
-      {/* Chest emblem */}
-      <mesh position={[0, 0, 0.21]}>
-        <circleGeometry args={[0.15, 16]} />
-        <meshStandardMaterial color="#00bfff" emissive="#00bfff" emissiveIntensity={1} />
+      {/* Chest center - dark panel */}
+      <mesh position={[0, 0, 0.18]}>
+        <boxGeometry args={[0.35, 0.4, 0.02]} />
+        <meshStandardMaterial color={BLACK} metalness={0.9} roughness={0.1} />
       </mesh>
       
-      {/* Chest details */}
-      <mesh position={[-0.25, 0.15, 0.21]}>
-        <boxGeometry args={[0.1, 0.2, 0.02]} />
-        <meshStandardMaterial color="#333" metalness={0.9} roughness={0.1} />
+      {/* Autobot emblem glow */}
+      <mesh position={[0, 0.05, 0.2]}>
+        <circleGeometry args={[0.1, 16]} />
+        <meshStandardMaterial color={BLUE_GLOW} emissive={BLUE_GLOW} emissiveIntensity={1.5} />
       </mesh>
-      <mesh position={[0.25, 0.15, 0.21]}>
-        <boxGeometry args={[0.1, 0.2, 0.02]} />
-        <meshStandardMaterial color="#333" metalness={0.9} roughness={0.1} />
+      
+      {/* Side panels */}
+      <mesh position={[-0.38, 0.1, 0]}>
+        <boxGeometry args={[0.08, 0.35, 0.25]} />
+        <meshStandardMaterial color={DARK_YELLOW} metalness={0.8} roughness={0.2} />
+      </mesh>
+      <mesh position={[0.38, 0.1, 0]}>
+        <boxGeometry args={[0.08, 0.35, 0.25]} />
+        <meshStandardMaterial color={DARK_YELLOW} metalness={0.8} roughness={0.2} />
+      </mesh>
+      
+      {/* Shoulder joints */}
+      <mesh position={[-0.42, 0.25, 0]}>
+        <sphereGeometry args={[0.1, 16, 16]} />
+        <meshStandardMaterial color={METAL_GRAY} metalness={0.9} roughness={0.15} />
+      </mesh>
+      <mesh position={[0.42, 0.25, 0]}>
+        <sphereGeometry args={[0.1, 16, 16]} />
+        <meshStandardMaterial color={METAL_GRAY} metalness={0.9} roughness={0.15} />
+      </mesh>
+      
+      {/* Lower torso */}
+      <mesh position={[0, -0.35, 0]}>
+        <boxGeometry args={[0.5, 0.15, 0.3]} />
+        <meshStandardMaterial color={BLACK} metalness={0.85} roughness={0.2} />
       </mesh>
     </group>
   );
 };
 
-// Animated Arm Component
-const AnimatedArm = ({ side }: { side: "left" | "right" }) => {
+// Animated Arm with waving gesture
+const BumblebeeArm = ({ side }: { side: "left" | "right" }) => {
   const armRef = useRef<THREE.Group>(null);
   const forearmRef = useRef<THREE.Group>(null);
   const handRef = useRef<THREE.Group>(null);
   
   const xPos = side === "left" ? -0.55 : 0.55;
-  const waveDirection = side === "right" ? 1 : 0.3;
   
   useFrame((state) => {
     const time = state.clock.getElapsedTime();
     
     if (armRef.current) {
-      // Wave motion for right arm
       if (side === "right") {
-        armRef.current.rotation.z = Math.sin(time * 3) * 0.4 - 0.8;
-        armRef.current.rotation.x = Math.sin(time * 2) * 0.2;
+        // Right arm waves enthusiastically
+        armRef.current.rotation.z = Math.sin(time * 4) * 0.5 - 1.2;
+        armRef.current.rotation.x = Math.sin(time * 2.5) * 0.15 - 0.2;
       } else {
-        armRef.current.rotation.z = Math.sin(time * 1.5 + 1) * 0.15 + 0.3;
+        // Left arm gentle movement
+        armRef.current.rotation.z = Math.sin(time * 1.2) * 0.1 + 0.4;
       }
     }
     
-    if (forearmRef.current) {
-      if (side === "right") {
-        forearmRef.current.rotation.x = Math.sin(time * 4) * 0.3 + 0.5;
-      }
+    if (forearmRef.current && side === "right") {
+      forearmRef.current.rotation.x = Math.sin(time * 5) * 0.25 + 0.6;
     }
     
-    if (handRef.current) {
-      if (side === "right") {
-        // Waving hand gesture
-        handRef.current.rotation.z = Math.sin(time * 6) * 0.5;
-      }
+    if (handRef.current && side === "right") {
+      handRef.current.rotation.z = Math.sin(time * 7) * 0.6;
+      handRef.current.rotation.x = Math.sin(time * 4) * 0.2;
     }
   });
   
   return (
-    <group ref={armRef} position={[xPos, 0.6, 0]}>
-      {/* Shoulder */}
+    <group ref={armRef} position={[xPos, 0.85, 0]}>
+      {/* Shoulder plate */}
       <mesh>
-        <sphereGeometry args={[0.12, 16, 16]} />
-        <meshStandardMaterial color="#f5c842" metalness={0.8} roughness={0.2} />
+        <boxGeometry args={[0.15, 0.12, 0.15]} />
+        <meshStandardMaterial color={YELLOW} metalness={0.85} roughness={0.15} />
       </mesh>
       
       {/* Upper arm */}
-      <mesh position={[0, -0.2, 0]}>
-        <boxGeometry args={[0.15, 0.3, 0.15]} />
-        <meshStandardMaterial color="#f5c842" metalness={0.8} roughness={0.2} />
+      <mesh position={[0, -0.18, 0]}>
+        <boxGeometry args={[0.12, 0.25, 0.12]} />
+        <meshStandardMaterial color={YELLOW} metalness={0.85} roughness={0.2} />
       </mesh>
       
       {/* Forearm group */}
-      <group ref={forearmRef} position={[0, -0.4, 0]}>
-        {/* Elbow */}
+      <group ref={forearmRef} position={[0, -0.35, 0]}>
+        {/* Elbow joint */}
         <mesh>
-          <sphereGeometry args={[0.08, 16, 16]} />
-          <meshStandardMaterial color="#333" metalness={0.9} roughness={0.1} />
+          <sphereGeometry args={[0.06, 12, 12]} />
+          <meshStandardMaterial color={METAL_GRAY} metalness={0.9} roughness={0.15} />
         </mesh>
         
         {/* Forearm */}
-        <mesh position={[0, -0.2, 0]}>
-          <boxGeometry args={[0.12, 0.25, 0.12]} />
-          <meshStandardMaterial color="#f5c842" metalness={0.8} roughness={0.2} />
+        <mesh position={[0, -0.15, 0]}>
+          <boxGeometry args={[0.1, 0.22, 0.1]} />
+          <meshStandardMaterial color={YELLOW} metalness={0.85} roughness={0.2} />
         </mesh>
         
         {/* Hand group */}
-        <group ref={handRef} position={[0, -0.4, 0]}>
+        <group ref={handRef} position={[0, -0.32, 0]}>
           {/* Palm */}
           <mesh>
-            <boxGeometry args={[0.12, 0.1, 0.08]} />
-            <meshStandardMaterial color="#333" metalness={0.9} roughness={0.1} />
+            <boxGeometry args={[0.1, 0.08, 0.06]} />
+            <meshStandardMaterial color={METAL_GRAY} metalness={0.9} roughness={0.15} />
           </mesh>
           
           {/* Fingers */}
-          {[-0.04, 0, 0.04].map((offset, i) => (
-            <mesh key={i} position={[offset, -0.08, 0]}>
-              <boxGeometry args={[0.025, 0.06, 0.03]} />
-              <meshStandardMaterial color="#333" metalness={0.9} roughness={0.1} />
+          {[-0.035, 0, 0.035].map((offset, i) => (
+            <mesh key={i} position={[offset, -0.06, 0]}>
+              <boxGeometry args={[0.02, 0.05, 0.025]} />
+              <meshStandardMaterial color={METAL_GRAY} metalness={0.9} roughness={0.15} />
             </mesh>
           ))}
+          
+          {/* Thumb */}
+          <mesh position={[side === "right" ? -0.055 : 0.055, -0.02, 0]} rotation={[0, 0, side === "right" ? 0.5 : -0.5]}>
+            <boxGeometry args={[0.02, 0.04, 0.025]} />
+            <meshStandardMaterial color={METAL_GRAY} metalness={0.9} roughness={0.15} />
+          </mesh>
         </group>
       </group>
     </group>
   );
 };
 
-// Main Robot Component with animations
-const AnimatedRobot = () => {
+// Main Bumblebee Robot with floating animation
+const BumblebeeRobot = () => {
   const groupRef = useRef<THREE.Group>(null);
   
   useFrame((state) => {
     const time = state.clock.getElapsedTime();
     
     if (groupRef.current) {
-      // Gentle floating motion
-      groupRef.current.position.y = Math.sin(time * 1.5) * 0.05;
-      // Slight body rotation
-      groupRef.current.rotation.y = Math.sin(time * 0.5) * 0.1;
+      // Floating hover effect
+      groupRef.current.position.y = Math.sin(time * 1.8) * 0.04;
+      // Gentle body sway
+      groupRef.current.rotation.y = Math.sin(time * 0.6) * 0.08 + 0.1;
     }
   });
   
   return (
-    <group ref={groupRef} scale={0.8}>
-      <RobotHead />
-      <RobotBody />
-      <AnimatedArm side="left" />
-      <AnimatedArm side="right" />
-      
-      {/* Lower body hint */}
-      <mesh position={[0, -0.1, 0]}>
-        <boxGeometry args={[0.5, 0.3, 0.3]} />
-        <meshStandardMaterial color="#f5c842" metalness={0.8} roughness={0.2} />
-      </mesh>
+    <group ref={groupRef} scale={0.65} position={[0, -0.3, 0]}>
+      <BumblebeeHead />
+      <BumblebeeBody />
+      <BumblebeeArm side="left" />
+      <BumblebeeArm side="right" />
     </group>
   );
 };
 
 const BumblebeeMascot = () => {
   return (
-    <div 
-      className="fixed top-20 right-4 z-40 pointer-events-none select-none"
-      style={{ width: "100px", height: "120px" }}
-    >
+    <div className="fixed top-20 right-2 z-30 pointer-events-none select-none w-[90px] h-[110px] md:w-[100px] md:h-[120px]">
       <Canvas
-        camera={{ position: [0, 0.5, 3], fov: 45 }}
+        camera={{ position: [0, 0.3, 2.5], fov: 45 }}
         style={{ background: "transparent" }}
+        gl={{ alpha: true, antialias: true }}
       >
-        <ambientLight intensity={0.5} />
-        <pointLight position={[5, 5, 5]} intensity={1} />
-        <pointLight position={[-5, 3, 5]} intensity={0.5} color="#00bfff" />
+        <ambientLight intensity={0.4} />
+        <pointLight position={[3, 3, 3]} intensity={0.8} color="#ffffff" />
+        <pointLight position={[-2, 2, 3]} intensity={0.5} color={BLUE_GLOW} />
         <spotLight
-          position={[0, 5, 5]}
-          angle={0.3}
-          penumbra={1}
-          intensity={0.5}
+          position={[0, 4, 4]}
+          angle={0.4}
+          penumbra={0.8}
+          intensity={0.6}
           castShadow
         />
         
-        <AnimatedRobot />
-        
-        <OrbitControls
-          enableZoom={false}
-          enablePan={false}
-          enableRotate={false}
-        />
+        <BumblebeeRobot />
       </Canvas>
       
-      {/* Glow effect behind robot */}
+      {/* Glow effect */}
       <div 
-        className="absolute inset-0 -z-10 rounded-full blur-xl opacity-30"
+        className="absolute inset-0 -z-10 rounded-full blur-2xl opacity-20"
         style={{
-          background: "radial-gradient(circle, rgba(59, 130, 246, 0.6) 0%, transparent 70%)",
+          background: `radial-gradient(circle, ${BLUE_GLOW} 0%, transparent 70%)`,
         }}
       />
     </div>
