@@ -1457,278 +1457,767 @@ const SpeechBubble = ({ text, isRight }: { text: string; isRight: boolean }) => 
   </motion.div>
 );
 
-// Bumblebee as Camaro Car (Yellow sports car)
+// Bumblebee as Camaro Car (Yellow sports car) - REALISTIC VERSION
 const BumblebeeCar = ({ transformProgress }: { transformProgress: number }) => {
   const carRef = useRef<THREE.Group>(null);
-  const wheelFL = useRef<THREE.Mesh>(null);
-  const wheelFR = useRef<THREE.Mesh>(null);
-  const wheelBL = useRef<THREE.Mesh>(null);
-  const wheelBR = useRef<THREE.Mesh>(null);
+  const wheelFL = useRef<THREE.Group>(null);
+  const wheelFR = useRef<THREE.Group>(null);
+  const wheelBL = useRef<THREE.Group>(null);
+  const wheelBR = useRef<THREE.Group>(null);
+  const steeringAngle = useRef(0);
 
   useFrame((state) => {
     const time = state.clock.getElapsedTime();
-    // Wheels rotation
-    if (wheelFL.current) wheelFL.current.rotation.x = time * 8;
-    if (wheelFR.current) wheelFR.current.rotation.x = time * 8;
-    if (wheelBL.current) wheelBL.current.rotation.x = time * 8;
-    if (wheelBR.current) wheelBR.current.rotation.x = time * 8;
     
-    // Car hover
+    // Wheel spinning - faster for realistic speed
+    const wheelSpeed = time * 12;
+    [wheelFL, wheelFR, wheelBL, wheelBR].forEach((wheel) => {
+      if (wheel.current) {
+        wheel.current.children.forEach((child) => {
+          if (child instanceof THREE.Mesh) {
+            child.rotation.x = wheelSpeed;
+          }
+        });
+      }
+    });
+    
+    // Subtle steering animation
+    steeringAngle.current = Math.sin(time * 0.8) * 0.15;
+    if (wheelFL.current) wheelFL.current.rotation.y = steeringAngle.current;
+    if (wheelFR.current) wheelFR.current.rotation.y = steeringAngle.current;
+    
+    // Car movement - realistic driving motion
     if (carRef.current) {
-      carRef.current.position.y = Math.sin(time * 2) * 0.02;
-      carRef.current.rotation.y = Math.sin(time * 0.5) * 0.05;
+      // Suspension bounce
+      carRef.current.position.y = Math.sin(time * 4) * 0.008 + Math.sin(time * 7) * 0.003;
+      // Slight body roll
+      carRef.current.rotation.z = Math.sin(time * 0.8) * 0.02;
+      // Forward/back pitch during acceleration
+      carRef.current.rotation.x = Math.sin(time * 1.2) * 0.015;
+      // Steering yaw
+      carRef.current.rotation.y = Math.sin(time * 0.5) * 0.04;
     }
   });
 
   return (
-    <group ref={carRef} scale={0.4}>
-      {/* Car body - main */}
-      <mesh position={[0, 0.15, 0]}>
-        <boxGeometry args={[1.6, 0.35, 0.7]} />
-        <meshStandardMaterial color={YELLOW_MAIN} metalness={0.9} roughness={0.1} />
+    <group ref={carRef} scale={0.38}>
+      {/* MAIN BODY - Curved sports car shape */}
+      {/* Lower body/chassis */}
+      <mesh position={[0, 0.08, 0]}>
+        <boxGeometry args={[1.85, 0.12, 0.78]} />
+        <meshStandardMaterial color={BLACK_METAL} metalness={0.95} roughness={0.15} />
       </mesh>
       
-      {/* Car hood - front slope */}
-      <mesh position={[0.55, 0.18, 0]} rotation={[0, 0, -0.2]}>
-        <boxGeometry args={[0.5, 0.12, 0.68]} />
-        <meshStandardMaterial color={YELLOW_MAIN} metalness={0.9} roughness={0.1} />
+      {/* Main body lower section */}
+      <mesh position={[0, 0.18, 0]}>
+        <boxGeometry args={[1.75, 0.15, 0.76]} />
+        <meshStandardMaterial color={YELLOW_MAIN} metalness={0.92} roughness={0.08} />
       </mesh>
       
-      {/* Car roof cabin */}
-      <mesh position={[-0.15, 0.45, 0]}>
-        <boxGeometry args={[0.7, 0.25, 0.6]} />
-        <meshStandardMaterial color={YELLOW_MAIN} metalness={0.9} roughness={0.1} />
+      {/* Main body upper section - muscular */}
+      <mesh position={[0, 0.32, 0]}>
+        <boxGeometry args={[1.7, 0.18, 0.74]} />
+        <meshStandardMaterial color={YELLOW_MAIN} metalness={0.92} roughness={0.08} />
       </mesh>
       
-      {/* Windshield */}
-      <mesh position={[0.22, 0.4, 0]} rotation={[0, 0, -0.5]}>
-        <boxGeometry args={[0.35, 0.02, 0.55]} />
-        <meshStandardMaterial color={BLUE_ENERGY} metalness={0.3} roughness={0.1} transparent opacity={0.7} />
+      {/* HOOD - with muscle car bulge */}
+      <mesh position={[0.55, 0.28, 0]}>
+        <boxGeometry args={[0.65, 0.16, 0.72]} />
+        <meshStandardMaterial color={YELLOW_MAIN} metalness={0.92} roughness={0.08} />
       </mesh>
-      
-      {/* Rear window */}
-      <mesh position={[-0.5, 0.4, 0]} rotation={[0, 0, 0.4]}>
-        <boxGeometry args={[0.25, 0.02, 0.55]} />
-        <meshStandardMaterial color={BLUE_ENERGY} metalness={0.3} roughness={0.1} transparent opacity={0.7} />
+      {/* Hood scoop */}
+      <mesh position={[0.45, 0.38, 0]}>
+        <boxGeometry args={[0.35, 0.06, 0.25]} />
+        <meshStandardMaterial color={BLACK_METAL} metalness={0.98} roughness={0.1} />
       </mesh>
-      
-      {/* Racing stripes */}
-      <mesh position={[0, 0.34, 0]}>
-        <boxGeometry args={[1.55, 0.02, 0.15]} />
+      {/* Hood vents */}
+      <mesh position={[0.6, 0.36, 0.18]}>
+        <boxGeometry args={[0.12, 0.02, 0.08]} />
         <meshStandardMaterial color={BLACK_METAL} metalness={0.95} roughness={0.1} />
       </mesh>
-      <mesh position={[0, 0.34, 0.18]}>
-        <boxGeometry args={[1.55, 0.02, 0.05]} />
-        <meshStandardMaterial color={BLACK_METAL} metalness={0.95} roughness={0.1} />
-      </mesh>
-      <mesh position={[0, 0.34, -0.18]}>
-        <boxGeometry args={[1.55, 0.02, 0.05]} />
+      <mesh position={[0.6, 0.36, -0.18]}>
+        <boxGeometry args={[0.12, 0.02, 0.08]} />
         <meshStandardMaterial color={BLACK_METAL} metalness={0.95} roughness={0.1} />
       </mesh>
       
-      {/* Headlights */}
-      <mesh position={[0.8, 0.15, 0.25]}>
-        <sphereGeometry args={[0.06, 12, 12]} />
-        <meshStandardMaterial color="#FFFFFF" emissive="#FFFFFF" emissiveIntensity={2} />
+      {/* FRONT BUMPER - detailed */}
+      <mesh position={[0.92, 0.12, 0]}>
+        <boxGeometry args={[0.08, 0.18, 0.78]} />
+        <meshStandardMaterial color={BLACK_METAL} metalness={0.9} roughness={0.2} />
       </mesh>
-      <mesh position={[0.8, 0.15, -0.25]}>
-        <sphereGeometry args={[0.06, 12, 12]} />
-        <meshStandardMaterial color="#FFFFFF" emissive="#FFFFFF" emissiveIntensity={2} />
+      {/* Front splitter */}
+      <mesh position={[0.94, 0.04, 0]}>
+        <boxGeometry args={[0.06, 0.03, 0.82]} />
+        <meshStandardMaterial color={BLACK_METAL} metalness={0.95} roughness={0.1} />
+      </mesh>
+      {/* Air intakes */}
+      <mesh position={[0.9, 0.08, 0.25]}>
+        <boxGeometry args={[0.04, 0.08, 0.18]} />
+        <meshStandardMaterial color={BLACK_METAL} metalness={0.98} roughness={0.05} />
+      </mesh>
+      <mesh position={[0.9, 0.08, -0.25]}>
+        <boxGeometry args={[0.04, 0.08, 0.18]} />
+        <meshStandardMaterial color={BLACK_METAL} metalness={0.98} roughness={0.05} />
+      </mesh>
+      {/* Center grille */}
+      <mesh position={[0.92, 0.16, 0]}>
+        <boxGeometry args={[0.03, 0.1, 0.35]} />
+        <meshStandardMaterial color={CHROME} metalness={0.99} roughness={0.02} />
       </mesh>
       
-      {/* Taillights */}
-      <mesh position={[-0.8, 0.15, 0.25]}>
-        <boxGeometry args={[0.03, 0.08, 0.12]} />
-        <meshStandardMaterial color={AUTOBOT_RED} emissive={AUTOBOT_RED} emissiveIntensity={1} />
+      {/* CABIN/ROOF */}
+      <mesh position={[-0.1, 0.52, 0]}>
+        <boxGeometry args={[0.75, 0.28, 0.68]} />
+        <meshStandardMaterial color={YELLOW_MAIN} metalness={0.92} roughness={0.08} />
       </mesh>
-      <mesh position={[-0.8, 0.15, -0.25]}>
-        <boxGeometry args={[0.03, 0.08, 0.12]} />
-        <meshStandardMaterial color={AUTOBOT_RED} emissive={AUTOBOT_RED} emissiveIntensity={1} />
+      {/* Roof panel */}
+      <mesh position={[-0.1, 0.68, 0]}>
+        <boxGeometry args={[0.6, 0.04, 0.55]} />
+        <meshStandardMaterial color={BLACK_METAL} metalness={0.95} roughness={0.1} />
       </mesh>
       
-      {/* Grille */}
-      <mesh position={[0.81, 0.08, 0]}>
-        <boxGeometry args={[0.02, 0.12, 0.4]} />
+      {/* WINDSHIELD - angled */}
+      <mesh position={[0.32, 0.52, 0]} rotation={[0, 0, -0.55]}>
+        <boxGeometry args={[0.42, 0.025, 0.62]} />
+        <meshStandardMaterial color={BLUE_ENERGY} metalness={0.4} roughness={0.05} transparent opacity={0.75} />
+      </mesh>
+      {/* Windshield frame */}
+      <mesh position={[0.32, 0.52, 0.32]} rotation={[0, 0, -0.55]}>
+        <boxGeometry args={[0.42, 0.03, 0.02]} />
+        <meshStandardMaterial color={BLACK_METAL} metalness={0.95} roughness={0.1} />
+      </mesh>
+      <mesh position={[0.32, 0.52, -0.32]} rotation={[0, 0, -0.55]}>
+        <boxGeometry args={[0.42, 0.03, 0.02]} />
+        <meshStandardMaterial color={BLACK_METAL} metalness={0.95} roughness={0.1} />
+      </mesh>
+      
+      {/* REAR WINDOW */}
+      <mesh position={[-0.48, 0.5, 0]} rotation={[0, 0, 0.45]}>
+        <boxGeometry args={[0.32, 0.025, 0.58]} />
+        <meshStandardMaterial color={BLUE_ENERGY} metalness={0.4} roughness={0.05} transparent opacity={0.75} />
+      </mesh>
+      
+      {/* SIDE WINDOWS */}
+      <mesh position={[-0.1, 0.52, 0.345]}>
+        <boxGeometry args={[0.55, 0.18, 0.015]} />
+        <meshStandardMaterial color={BLUE_ENERGY} metalness={0.4} roughness={0.05} transparent opacity={0.7} />
+      </mesh>
+      <mesh position={[-0.1, 0.52, -0.345]}>
+        <boxGeometry args={[0.55, 0.18, 0.015]} />
+        <meshStandardMaterial color={BLUE_ENERGY} metalness={0.4} roughness={0.05} transparent opacity={0.7} />
+      </mesh>
+      
+      {/* RACING STRIPES - dual stripes */}
+      <mesh position={[0.1, 0.42, 0.08]}>
+        <boxGeometry args={[1.65, 0.015, 0.06]} />
+        <meshStandardMaterial color={BLACK_METAL} metalness={0.98} roughness={0.05} />
+      </mesh>
+      <mesh position={[0.1, 0.42, -0.08]}>
+        <boxGeometry args={[1.65, 0.015, 0.06]} />
         <meshStandardMaterial color={BLACK_METAL} metalness={0.98} roughness={0.05} />
       </mesh>
       
-      {/* Wheels */}
-      <mesh ref={wheelFL} position={[0.5, -0.05, 0.38]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.12, 0.12, 0.08, 16]} />
-        <meshStandardMaterial color={BLACK_METAL} metalness={0.8} roughness={0.3} />
+      {/* REAR SECTION */}
+      <mesh position={[-0.7, 0.26, 0]}>
+        <boxGeometry args={[0.45, 0.22, 0.72]} />
+        <meshStandardMaterial color={YELLOW_MAIN} metalness={0.92} roughness={0.08} />
       </mesh>
-      <mesh position={[0.5, -0.05, 0.38]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.08, 0.08, 0.09, 8]} />
+      {/* Rear diffuser */}
+      <mesh position={[-0.92, 0.08, 0]}>
+        <boxGeometry args={[0.06, 0.12, 0.65]} />
+        <meshStandardMaterial color={BLACK_METAL} metalness={0.95} roughness={0.15} />
+      </mesh>
+      {/* Spoiler */}
+      <mesh position={[-0.72, 0.42, 0]}>
+        <boxGeometry args={[0.12, 0.025, 0.65]} />
+        <meshStandardMaterial color={BLACK_METAL} metalness={0.98} roughness={0.05} />
+      </mesh>
+      {/* Spoiler supports */}
+      <mesh position={[-0.72, 0.395, 0.22]}>
+        <boxGeometry args={[0.08, 0.04, 0.03]} />
+        <meshStandardMaterial color={BLACK_METAL} metalness={0.98} roughness={0.05} />
+      </mesh>
+      <mesh position={[-0.72, 0.395, -0.22]}>
+        <boxGeometry args={[0.08, 0.04, 0.03]} />
+        <meshStandardMaterial color={BLACK_METAL} metalness={0.98} roughness={0.05} />
+      </mesh>
+      
+      {/* HEADLIGHTS - detailed LED style */}
+      <mesh position={[0.88, 0.22, 0.28]}>
+        <boxGeometry args={[0.06, 0.06, 0.12]} />
+        <meshStandardMaterial color="#FFFFFF" emissive="#FFFFFF" emissiveIntensity={2.5} />
+      </mesh>
+      <mesh position={[0.88, 0.22, -0.28]}>
+        <boxGeometry args={[0.06, 0.06, 0.12]} />
+        <meshStandardMaterial color="#FFFFFF" emissive="#FFFFFF" emissiveIntensity={2.5} />
+      </mesh>
+      {/* Headlight housings */}
+      <mesh position={[0.86, 0.22, 0.28]}>
+        <boxGeometry args={[0.08, 0.08, 0.14]} />
+        <meshStandardMaterial color={BLACK_METAL} metalness={0.98} roughness={0.05} transparent opacity={0.3} />
+      </mesh>
+      <mesh position={[0.86, 0.22, -0.28]}>
+        <boxGeometry args={[0.08, 0.08, 0.14]} />
+        <meshStandardMaterial color={BLACK_METAL} metalness={0.98} roughness={0.05} transparent opacity={0.3} />
+      </mesh>
+      {/* DRL strips */}
+      <mesh position={[0.89, 0.18, 0.28]}>
+        <boxGeometry args={[0.02, 0.015, 0.1]} />
+        <meshStandardMaterial color={YELLOW_HIGHLIGHT} emissive={YELLOW_HIGHLIGHT} emissiveIntensity={1.5} />
+      </mesh>
+      <mesh position={[0.89, 0.18, -0.28]}>
+        <boxGeometry args={[0.02, 0.015, 0.1]} />
+        <meshStandardMaterial color={YELLOW_HIGHLIGHT} emissive={YELLOW_HIGHLIGHT} emissiveIntensity={1.5} />
+      </mesh>
+      
+      {/* TAILLIGHTS - detailed */}
+      <mesh position={[-0.92, 0.22, 0.26]}>
+        <boxGeometry args={[0.025, 0.08, 0.15]} />
+        <meshStandardMaterial color={AUTOBOT_RED} emissive={AUTOBOT_RED} emissiveIntensity={1.5} />
+      </mesh>
+      <mesh position={[-0.92, 0.22, -0.26]}>
+        <boxGeometry args={[0.025, 0.08, 0.15]} />
+        <meshStandardMaterial color={AUTOBOT_RED} emissive={AUTOBOT_RED} emissiveIntensity={1.5} />
+      </mesh>
+      {/* Brake light strip */}
+      <mesh position={[-0.9, 0.35, 0]}>
+        <boxGeometry args={[0.02, 0.02, 0.4]} />
+        <meshStandardMaterial color={AUTOBOT_RED} emissive={AUTOBOT_RED} emissiveIntensity={1} />
+      </mesh>
+      {/* Exhaust tips */}
+      <mesh position={[-0.94, 0.08, 0.22]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.035, 0.04, 0.06, 12]} />
+        <meshStandardMaterial color={CHROME} metalness={0.99} roughness={0.02} />
+      </mesh>
+      <mesh position={[-0.94, 0.08, -0.22]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.035, 0.04, 0.06, 12]} />
         <meshStandardMaterial color={CHROME} metalness={0.99} roughness={0.02} />
       </mesh>
       
-      <mesh ref={wheelFR} position={[0.5, -0.05, -0.38]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.12, 0.12, 0.08, 16]} />
-        <meshStandardMaterial color={BLACK_METAL} metalness={0.8} roughness={0.3} />
+      {/* SIDE MIRRORS */}
+      <mesh position={[0.18, 0.48, 0.4]}>
+        <boxGeometry args={[0.08, 0.04, 0.04]} />
+        <meshStandardMaterial color={YELLOW_MAIN} metalness={0.92} roughness={0.08} />
       </mesh>
-      <mesh position={[0.5, -0.05, -0.38]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.08, 0.08, 0.09, 8]} />
+      <mesh position={[0.2, 0.48, 0.44]}>
+        <boxGeometry args={[0.04, 0.035, 0.02]} />
+        <meshStandardMaterial color={BLACK_METAL} metalness={0.98} roughness={0.05} />
+      </mesh>
+      <mesh position={[0.18, 0.48, -0.4]}>
+        <boxGeometry args={[0.08, 0.04, 0.04]} />
+        <meshStandardMaterial color={YELLOW_MAIN} metalness={0.92} roughness={0.08} />
+      </mesh>
+      <mesh position={[0.2, 0.48, -0.44]}>
+        <boxGeometry args={[0.04, 0.035, 0.02]} />
+        <meshStandardMaterial color={BLACK_METAL} metalness={0.98} roughness={0.05} />
+      </mesh>
+      
+      {/* DOOR HANDLES */}
+      <mesh position={[-0.05, 0.32, 0.375]}>
+        <boxGeometry args={[0.08, 0.02, 0.015]} />
+        <meshStandardMaterial color={CHROME} metalness={0.99} roughness={0.02} />
+      </mesh>
+      <mesh position={[-0.05, 0.32, -0.375]}>
+        <boxGeometry args={[0.08, 0.02, 0.015]} />
         <meshStandardMaterial color={CHROME} metalness={0.99} roughness={0.02} />
       </mesh>
       
-      <mesh ref={wheelBL} position={[-0.5, -0.05, 0.38]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.12, 0.12, 0.08, 16]} />
-        <meshStandardMaterial color={BLACK_METAL} metalness={0.8} roughness={0.3} />
+      {/* WHEEL ARCHES */}
+      <mesh position={[0.52, 0.1, 0.4]}>
+        <boxGeometry args={[0.32, 0.18, 0.04]} />
+        <meshStandardMaterial color={BLACK_METAL} metalness={0.95} roughness={0.15} />
       </mesh>
-      <mesh position={[-0.5, -0.05, 0.38]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.08, 0.08, 0.09, 8]} />
-        <meshStandardMaterial color={CHROME} metalness={0.99} roughness={0.02} />
+      <mesh position={[0.52, 0.1, -0.4]}>
+        <boxGeometry args={[0.32, 0.18, 0.04]} />
+        <meshStandardMaterial color={BLACK_METAL} metalness={0.95} roughness={0.15} />
+      </mesh>
+      <mesh position={[-0.52, 0.1, 0.4]}>
+        <boxGeometry args={[0.32, 0.18, 0.04]} />
+        <meshStandardMaterial color={BLACK_METAL} metalness={0.95} roughness={0.15} />
+      </mesh>
+      <mesh position={[-0.52, 0.1, -0.4]}>
+        <boxGeometry args={[0.32, 0.18, 0.04]} />
+        <meshStandardMaterial color={BLACK_METAL} metalness={0.95} roughness={0.15} />
       </mesh>
       
-      <mesh ref={wheelBR} position={[-0.5, -0.05, -0.38]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.12, 0.12, 0.08, 16]} />
-        <meshStandardMaterial color={BLACK_METAL} metalness={0.8} roughness={0.3} />
-      </mesh>
-      <mesh position={[-0.5, -0.05, -0.38]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.08, 0.08, 0.09, 8]} />
-        <meshStandardMaterial color={CHROME} metalness={0.99} roughness={0.02} />
-      </mesh>
+      {/* WHEELS - Detailed with spokes */}
+      {/* Front Left Wheel */}
+      <group ref={wheelFL} position={[0.52, 0.02, 0.42]}>
+        {/* Tire */}
+        <mesh rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.14, 0.14, 0.1, 24]} />
+          <meshStandardMaterial color="#1a1a1a" metalness={0.3} roughness={0.8} />
+        </mesh>
+        {/* Tire sidewall */}
+        <mesh rotation={[0, 0, Math.PI / 2]}>
+          <torusGeometry args={[0.14, 0.025, 8, 24]} />
+          <meshStandardMaterial color="#2a2a2a" metalness={0.2} roughness={0.9} />
+        </mesh>
+        {/* Rim */}
+        <mesh rotation={[0, 0, Math.PI / 2]} position={[0, 0.02, 0]}>
+          <cylinderGeometry args={[0.095, 0.095, 0.08, 20]} />
+          <meshStandardMaterial color={CHROME} metalness={0.99} roughness={0.02} />
+        </mesh>
+        {/* Center cap */}
+        <mesh position={[0, 0.06, 0]} rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.035, 0.035, 0.02, 12]} />
+          <meshStandardMaterial color={BLACK_METAL} metalness={0.98} roughness={0.05} />
+        </mesh>
+        {/* Brake disc */}
+        <mesh rotation={[0, 0, Math.PI / 2]} position={[0, -0.02, 0]}>
+          <cylinderGeometry args={[0.08, 0.08, 0.015, 20]} />
+          <meshStandardMaterial color="#444" metalness={0.9} roughness={0.3} />
+        </mesh>
+        {/* Brake caliper */}
+        <mesh position={[0.06, -0.03, 0]}>
+          <boxGeometry args={[0.04, 0.025, 0.06]} />
+          <meshStandardMaterial color={AUTOBOT_RED} metalness={0.9} roughness={0.2} />
+        </mesh>
+      </group>
+      
+      {/* Front Right Wheel */}
+      <group ref={wheelFR} position={[0.52, 0.02, -0.42]}>
+        <mesh rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.14, 0.14, 0.1, 24]} />
+          <meshStandardMaterial color="#1a1a1a" metalness={0.3} roughness={0.8} />
+        </mesh>
+        <mesh rotation={[0, 0, Math.PI / 2]}>
+          <torusGeometry args={[0.14, 0.025, 8, 24]} />
+          <meshStandardMaterial color="#2a2a2a" metalness={0.2} roughness={0.9} />
+        </mesh>
+        <mesh rotation={[0, 0, Math.PI / 2]} position={[0, -0.02, 0]}>
+          <cylinderGeometry args={[0.095, 0.095, 0.08, 20]} />
+          <meshStandardMaterial color={CHROME} metalness={0.99} roughness={0.02} />
+        </mesh>
+        <mesh position={[0, -0.06, 0]} rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.035, 0.035, 0.02, 12]} />
+          <meshStandardMaterial color={BLACK_METAL} metalness={0.98} roughness={0.05} />
+        </mesh>
+        <mesh rotation={[0, 0, Math.PI / 2]} position={[0, 0.02, 0]}>
+          <cylinderGeometry args={[0.08, 0.08, 0.015, 20]} />
+          <meshStandardMaterial color="#444" metalness={0.9} roughness={0.3} />
+        </mesh>
+        <mesh position={[0.06, 0.03, 0]}>
+          <boxGeometry args={[0.04, 0.025, 0.06]} />
+          <meshStandardMaterial color={AUTOBOT_RED} metalness={0.9} roughness={0.2} />
+        </mesh>
+      </group>
+      
+      {/* Rear Left Wheel */}
+      <group ref={wheelBL} position={[-0.52, 0.02, 0.42]}>
+        <mesh rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.14, 0.14, 0.12, 24]} />
+          <meshStandardMaterial color="#1a1a1a" metalness={0.3} roughness={0.8} />
+        </mesh>
+        <mesh rotation={[0, 0, Math.PI / 2]}>
+          <torusGeometry args={[0.14, 0.025, 8, 24]} />
+          <meshStandardMaterial color="#2a2a2a" metalness={0.2} roughness={0.9} />
+        </mesh>
+        <mesh rotation={[0, 0, Math.PI / 2]} position={[0, 0.02, 0]}>
+          <cylinderGeometry args={[0.095, 0.095, 0.1, 20]} />
+          <meshStandardMaterial color={CHROME} metalness={0.99} roughness={0.02} />
+        </mesh>
+        <mesh position={[0, 0.07, 0]} rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.035, 0.035, 0.02, 12]} />
+          <meshStandardMaterial color={BLACK_METAL} metalness={0.98} roughness={0.05} />
+        </mesh>
+        <mesh rotation={[0, 0, Math.PI / 2]} position={[0, -0.02, 0]}>
+          <cylinderGeometry args={[0.08, 0.08, 0.015, 20]} />
+          <meshStandardMaterial color="#444" metalness={0.9} roughness={0.3} />
+        </mesh>
+        <mesh position={[0.06, -0.03, 0]}>
+          <boxGeometry args={[0.04, 0.025, 0.06]} />
+          <meshStandardMaterial color={AUTOBOT_RED} metalness={0.9} roughness={0.2} />
+        </mesh>
+      </group>
+      
+      {/* Rear Right Wheel */}
+      <group ref={wheelBR} position={[-0.52, 0.02, -0.42]}>
+        <mesh rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.14, 0.14, 0.12, 24]} />
+          <meshStandardMaterial color="#1a1a1a" metalness={0.3} roughness={0.8} />
+        </mesh>
+        <mesh rotation={[0, 0, Math.PI / 2]}>
+          <torusGeometry args={[0.14, 0.025, 8, 24]} />
+          <meshStandardMaterial color="#2a2a2a" metalness={0.2} roughness={0.9} />
+        </mesh>
+        <mesh rotation={[0, 0, Math.PI / 2]} position={[0, -0.02, 0]}>
+          <cylinderGeometry args={[0.095, 0.095, 0.1, 20]} />
+          <meshStandardMaterial color={CHROME} metalness={0.99} roughness={0.02} />
+        </mesh>
+        <mesh position={[0, -0.07, 0]} rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.035, 0.035, 0.02, 12]} />
+          <meshStandardMaterial color={BLACK_METAL} metalness={0.98} roughness={0.05} />
+        </mesh>
+        <mesh rotation={[0, 0, Math.PI / 2]} position={[0, 0.02, 0]}>
+          <cylinderGeometry args={[0.08, 0.08, 0.015, 20]} />
+          <meshStandardMaterial color="#444" metalness={0.9} roughness={0.3} />
+        </mesh>
+        <mesh position={[0.06, 0.03, 0]}>
+          <boxGeometry args={[0.04, 0.025, 0.06]} />
+          <meshStandardMaterial color={AUTOBOT_RED} metalness={0.9} roughness={0.2} />
+        </mesh>
+      </group>
       
       {/* Autobot emblem on hood */}
-      <mesh position={[0.3, 0.35, 0]}>
+      <mesh position={[0.35, 0.43, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <circleGeometry args={[0.06, 6]} />
-        <meshStandardMaterial color={AUTOBOT_RED} emissive={AUTOBOT_RED} emissiveIntensity={0.5} />
+        <meshStandardMaterial color={AUTOBOT_RED} emissive={AUTOBOT_RED} emissiveIntensity={0.8} />
       </mesh>
+      
+      {/* Headlight beams (light cones) */}
+      <pointLight position={[0.95, 0.22, 0.28]} color="#FFFFFF" intensity={0.5} distance={1} />
+      <pointLight position={[0.95, 0.22, -0.28]} color="#FFFFFF" intensity={0.5} distance={1} />
     </group>
   );
 };
 
-// Optimus Prime as Semi Truck (Red/Blue truck)
+// Optimus Prime as Semi Truck (Red/Blue truck) - REALISTIC VERSION
 const OptimusTruck = ({ transformProgress }: { transformProgress: number }) => {
   const truckRef = useRef<THREE.Group>(null);
-  const wheelFL = useRef<THREE.Mesh>(null);
-  const wheelFR = useRef<THREE.Mesh>(null);
-  const wheelBL = useRef<THREE.Mesh>(null);
-  const wheelBR = useRef<THREE.Mesh>(null);
+  const wheelFL = useRef<THREE.Group>(null);
+  const wheelFR = useRef<THREE.Group>(null);
+  const wheelBL1 = useRef<THREE.Group>(null);
+  const wheelBR1 = useRef<THREE.Group>(null);
+  const wheelBL2 = useRef<THREE.Group>(null);
+  const wheelBR2 = useRef<THREE.Group>(null);
+  const steeringAngle = useRef(0);
 
   useFrame((state) => {
     const time = state.clock.getElapsedTime();
-    if (wheelFL.current) wheelFL.current.rotation.x = time * 6;
-    if (wheelFR.current) wheelFR.current.rotation.x = time * 6;
-    if (wheelBL.current) wheelBL.current.rotation.x = time * 6;
-    if (wheelBR.current) wheelBR.current.rotation.x = time * 6;
     
+    // Wheel spinning
+    const wheelSpeed = time * 8;
+    [wheelFL, wheelFR, wheelBL1, wheelBR1, wheelBL2, wheelBR2].forEach((wheel) => {
+      if (wheel.current) {
+        wheel.current.children.forEach((child) => {
+          if (child instanceof THREE.Mesh) {
+            child.rotation.x = wheelSpeed;
+          }
+        });
+      }
+    });
+    
+    // Steering
+    steeringAngle.current = Math.sin(time * 0.6) * 0.12;
+    if (wheelFL.current) wheelFL.current.rotation.y = steeringAngle.current;
+    if (wheelFR.current) wheelFR.current.rotation.y = steeringAngle.current;
+    
+    // Truck movement - heavier, more substantial
     if (truckRef.current) {
-      truckRef.current.position.y = Math.sin(time * 1.5) * 0.015;
-      truckRef.current.rotation.y = Math.sin(time * 0.4) * 0.04;
+      // Heavy suspension
+      truckRef.current.position.y = Math.sin(time * 2.5) * 0.012 + Math.sin(time * 5) * 0.004;
+      // Body sway
+      truckRef.current.rotation.z = Math.sin(time * 0.6) * 0.015;
+      // Pitch
+      truckRef.current.rotation.x = Math.sin(time * 0.8) * 0.01;
+      // Steering response
+      truckRef.current.rotation.y = Math.sin(time * 0.4) * 0.035;
     }
   });
 
   return (
-    <group ref={truckRef} scale={0.35}>
-      {/* Truck cab - main body red */}
-      <mesh position={[0.3, 0.35, 0]}>
-        <boxGeometry args={[0.9, 0.6, 0.75]} />
-        <meshStandardMaterial color={OPTIMUS_RED} metalness={0.9} roughness={0.1} />
+    <group ref={truckRef} scale={0.32}>
+      {/* FRAME/CHASSIS */}
+      <mesh position={[0, 0.06, 0]}>
+        <boxGeometry args={[2.4, 0.08, 0.7]} />
+        <meshStandardMaterial color={BLACK_METAL} metalness={0.95} roughness={0.2} />
       </mesh>
       
-      {/* Truck cab roof */}
-      <mesh position={[0.1, 0.72, 0]}>
-        <boxGeometry args={[0.6, 0.15, 0.7]} />
-        <meshStandardMaterial color={OPTIMUS_RED} metalness={0.9} roughness={0.1} />
+      {/* CAB - Main body */}
+      <mesh position={[0.45, 0.42, 0]}>
+        <boxGeometry args={[0.95, 0.65, 0.82]} />
+        <meshStandardMaterial color={OPTIMUS_RED} metalness={0.92} roughness={0.08} />
       </mesh>
       
-      {/* Windshield */}
-      <mesh position={[0.58, 0.5, 0]} rotation={[0, 0, -0.3]}>
-        <boxGeometry args={[0.35, 0.02, 0.6]} />
-        <meshStandardMaterial color={OPTIMUS_ENERGY} metalness={0.3} roughness={0.1} transparent opacity={0.7} />
+      {/* CAB ROOF */}
+      <mesh position={[0.3, 0.82, 0]}>
+        <boxGeometry args={[0.7, 0.18, 0.78]} />
+        <meshStandardMaterial color={OPTIMUS_RED} metalness={0.92} roughness={0.08} />
+      </mesh>
+      {/* Roof deflector/sleeper */}
+      <mesh position={[0.15, 0.95, 0]}>
+        <boxGeometry args={[0.4, 0.1, 0.65]} />
+        <meshStandardMaterial color={OPTIMUS_RED} metalness={0.92} roughness={0.08} />
       </mesh>
       
-      {/* Blue flame stripes on sides */}
-      <mesh position={[0.3, 0.25, 0.38]}>
-        <boxGeometry args={[0.85, 0.2, 0.02]} />
-        <meshStandardMaterial color={OPTIMUS_BLUE} metalness={0.9} roughness={0.1} />
+      {/* HOOD/ENGINE - Blue */}
+      <mesh position={[0.88, 0.28, 0]}>
+        <boxGeometry args={[0.5, 0.38, 0.8]} />
+        <meshStandardMaterial color={OPTIMUS_BLUE} metalness={0.92} roughness={0.08} />
       </mesh>
-      <mesh position={[0.3, 0.25, -0.38]}>
-        <boxGeometry args={[0.85, 0.2, 0.02]} />
-        <meshStandardMaterial color={OPTIMUS_BLUE} metalness={0.9} roughness={0.1} />
-      </mesh>
-      
-      {/* Truck hood/engine - blue */}
-      <mesh position={[0.7, 0.15, 0]}>
-        <boxGeometry args={[0.35, 0.25, 0.7]} />
-        <meshStandardMaterial color={OPTIMUS_BLUE} metalness={0.9} roughness={0.1} />
+      {/* Hood top panel */}
+      <mesh position={[0.88, 0.48, 0]}>
+        <boxGeometry args={[0.48, 0.04, 0.76]} />
+        <meshStandardMaterial color={OPTIMUS_BLUE} metalness={0.92} roughness={0.08} />
       </mesh>
       
-      {/* Truck bed/chassis */}
-      <mesh position={[-0.5, 0.12, 0]}>
-        <boxGeometry args={[1.0, 0.18, 0.65]} />
-        <meshStandardMaterial color={OPTIMUS_BLUE} metalness={0.9} roughness={0.1} />
+      {/* WINDSHIELD - large truck style */}
+      <mesh position={[0.7, 0.6, 0]} rotation={[0, 0, -0.35]}>
+        <boxGeometry args={[0.45, 0.03, 0.7]} />
+        <meshStandardMaterial color={OPTIMUS_ENERGY} metalness={0.4} roughness={0.05} transparent opacity={0.75} />
       </mesh>
-      
-      {/* Chrome exhaust stacks */}
-      <mesh position={[-0.15, 0.6, 0.4]}>
-        <cylinderGeometry args={[0.04, 0.04, 0.45, 12]} />
+      {/* Windshield frame */}
+      <mesh position={[0.7, 0.6, 0.36]} rotation={[0, 0, -0.35]}>
+        <boxGeometry args={[0.45, 0.04, 0.02]} />
         <meshStandardMaterial color={OPTIMUS_CHROME} metalness={0.99} roughness={0.02} />
       </mesh>
-      <mesh position={[-0.15, 0.6, -0.4]}>
-        <cylinderGeometry args={[0.04, 0.04, 0.45, 12]} />
-        <meshStandardMaterial color={OPTIMUS_CHROME} metalness={0.99} roughness={0.02} />
-      </mesh>
-      
-      {/* Chrome grille */}
-      <mesh position={[0.88, 0.2, 0]}>
-        <boxGeometry args={[0.02, 0.3, 0.5]} />
+      <mesh position={[0.7, 0.6, -0.36]} rotation={[0, 0, -0.35]}>
+        <boxGeometry args={[0.45, 0.04, 0.02]} />
         <meshStandardMaterial color={OPTIMUS_CHROME} metalness={0.99} roughness={0.02} />
       </mesh>
       
-      {/* Headlights */}
-      <mesh position={[0.88, 0.25, 0.25]}>
-        <sphereGeometry args={[0.06, 12, 12]} />
-        <meshStandardMaterial color="#FFFFFF" emissive="#FFFFFF" emissiveIntensity={2} />
+      {/* SIDE WINDOWS */}
+      <mesh position={[0.35, 0.6, 0.415]}>
+        <boxGeometry args={[0.4, 0.25, 0.015]} />
+        <meshStandardMaterial color={OPTIMUS_ENERGY} metalness={0.4} roughness={0.05} transparent opacity={0.7} />
       </mesh>
-      <mesh position={[0.88, 0.25, -0.25]}>
-        <sphereGeometry args={[0.06, 12, 12]} />
-        <meshStandardMaterial color="#FFFFFF" emissive="#FFFFFF" emissiveIntensity={2} />
+      <mesh position={[0.35, 0.6, -0.415]}>
+        <boxGeometry args={[0.4, 0.25, 0.015]} />
+        <meshStandardMaterial color={OPTIMUS_ENERGY} metalness={0.4} roughness={0.05} transparent opacity={0.7} />
       </mesh>
       
-      {/* Wheels */}
-      <mesh ref={wheelFL} position={[0.55, -0.02, 0.42]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.14, 0.14, 0.1, 16]} />
-        <meshStandardMaterial color={BLACK_METAL} metalness={0.8} roughness={0.3} />
+      {/* FLAME STRIPES on sides - iconic Optimus design */}
+      <mesh position={[0.45, 0.28, 0.42]}>
+        <boxGeometry args={[0.9, 0.25, 0.015]} />
+        <meshStandardMaterial color={OPTIMUS_BLUE} metalness={0.92} roughness={0.08} />
       </mesh>
-      <mesh position={[0.55, -0.02, 0.42]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.09, 0.09, 0.11, 8]} />
+      <mesh position={[0.45, 0.28, -0.42]}>
+        <boxGeometry args={[0.9, 0.25, 0.015]} />
+        <meshStandardMaterial color={OPTIMUS_BLUE} metalness={0.92} roughness={0.08} />
+      </mesh>
+      {/* Flame accent tips */}
+      <mesh position={[0.75, 0.35, 0.42]}>
+        <boxGeometry args={[0.18, 0.08, 0.018]} />
+        <meshStandardMaterial color="#FF6B35" metalness={0.9} roughness={0.1} />
+      </mesh>
+      <mesh position={[0.75, 0.35, -0.42]}>
+        <boxGeometry args={[0.18, 0.08, 0.018]} />
+        <meshStandardMaterial color="#FF6B35" metalness={0.9} roughness={0.1} />
+      </mesh>
+      
+      {/* FRONT BUMPER - chrome */}
+      <mesh position={[1.14, 0.15, 0]}>
+        <boxGeometry args={[0.06, 0.22, 0.85]} />
+        <meshStandardMaterial color={OPTIMUS_CHROME} metalness={0.99} roughness={0.02} />
+      </mesh>
+      {/* Bumper steps */}
+      <mesh position={[1.12, 0.06, 0.3]}>
+        <boxGeometry args={[0.08, 0.04, 0.2]} />
+        <meshStandardMaterial color={BLACK_METAL} metalness={0.95} roughness={0.2} />
+      </mesh>
+      <mesh position={[1.12, 0.06, -0.3]}>
+        <boxGeometry args={[0.08, 0.04, 0.2]} />
+        <meshStandardMaterial color={BLACK_METAL} metalness={0.95} roughness={0.2} />
+      </mesh>
+      
+      {/* GRILLE - detailed chrome */}
+      <mesh position={[1.12, 0.32, 0]}>
+        <boxGeometry args={[0.03, 0.28, 0.55]} />
+        <meshStandardMaterial color={OPTIMUS_CHROME} metalness={0.99} roughness={0.02} />
+      </mesh>
+      {/* Grille bars */}
+      {[-0.2, -0.1, 0, 0.1, 0.2].map((z, i) => (
+        <mesh key={i} position={[1.12, 0.32, z]}>
+          <boxGeometry args={[0.035, 0.24, 0.025]} />
+          <meshStandardMaterial color={BLACK_METAL} metalness={0.98} roughness={0.1} />
+        </mesh>
+      ))}
+      
+      {/* HEADLIGHTS - large truck style */}
+      <mesh position={[1.1, 0.38, 0.32]}>
+        <boxGeometry args={[0.04, 0.12, 0.14]} />
+        <meshStandardMaterial color="#FFFFFF" emissive="#FFFFFF" emissiveIntensity={2.5} />
+      </mesh>
+      <mesh position={[1.1, 0.38, -0.32]}>
+        <boxGeometry args={[0.04, 0.12, 0.14]} />
+        <meshStandardMaterial color="#FFFFFF" emissive="#FFFFFF" emissiveIntensity={2.5} />
+      </mesh>
+      {/* Headlight housings */}
+      <mesh position={[1.08, 0.38, 0.32]}>
+        <boxGeometry args={[0.06, 0.14, 0.16]} />
+        <meshStandardMaterial color={OPTIMUS_CHROME} metalness={0.99} roughness={0.02} />
+      </mesh>
+      <mesh position={[1.08, 0.38, -0.32]}>
+        <boxGeometry args={[0.06, 0.14, 0.16]} />
         <meshStandardMaterial color={OPTIMUS_CHROME} metalness={0.99} roughness={0.02} />
       </mesh>
       
-      <mesh ref={wheelFR} position={[0.55, -0.02, -0.42]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.14, 0.14, 0.1, 16]} />
-        <meshStandardMaterial color={BLACK_METAL} metalness={0.8} roughness={0.3} />
+      {/* EXHAUST STACKS - chrome */}
+      <mesh position={[0.02, 0.65, 0.48]}>
+        <cylinderGeometry args={[0.045, 0.045, 0.55, 16]} />
+        <meshStandardMaterial color={OPTIMUS_CHROME} metalness={0.99} roughness={0.02} />
       </mesh>
-      <mesh position={[0.55, -0.02, -0.42]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.09, 0.09, 0.11, 8]} />
+      <mesh position={[0.02, 0.65, -0.48]}>
+        <cylinderGeometry args={[0.045, 0.045, 0.55, 16]} />
+        <meshStandardMaterial color={OPTIMUS_CHROME} metalness={0.99} roughness={0.02} />
+      </mesh>
+      {/* Exhaust tops */}
+      <mesh position={[0.02, 0.94, 0.48]}>
+        <cylinderGeometry args={[0.055, 0.045, 0.04, 16]} />
+        <meshStandardMaterial color={OPTIMUS_CHROME} metalness={0.99} roughness={0.02} />
+      </mesh>
+      <mesh position={[0.02, 0.94, -0.48]}>
+        <cylinderGeometry args={[0.055, 0.045, 0.04, 16]} />
         <meshStandardMaterial color={OPTIMUS_CHROME} metalness={0.99} roughness={0.02} />
       </mesh>
       
-      <mesh ref={wheelBL} position={[-0.6, -0.02, 0.38]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.14, 0.14, 0.1, 16]} />
-        <meshStandardMaterial color={BLACK_METAL} metalness={0.8} roughness={0.3} />
+      {/* AIR FILTERS */}
+      <mesh position={[0.02, 0.52, 0.48]}>
+        <cylinderGeometry args={[0.06, 0.06, 0.12, 12]} />
+        <meshStandardMaterial color={BLACK_METAL} metalness={0.9} roughness={0.2} />
       </mesh>
-      <mesh position={[-0.6, -0.02, 0.38]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.09, 0.09, 0.11, 8]} />
+      <mesh position={[0.02, 0.52, -0.48]}>
+        <cylinderGeometry args={[0.06, 0.06, 0.12, 12]} />
+        <meshStandardMaterial color={BLACK_METAL} metalness={0.9} roughness={0.2} />
+      </mesh>
+      
+      {/* SIDE MIRRORS */}
+      <mesh position={[0.75, 0.72, 0.48]}>
+        <boxGeometry args={[0.06, 0.04, 0.08]} />
+        <meshStandardMaterial color={BLACK_METAL} metalness={0.95} roughness={0.1} />
+      </mesh>
+      <mesh position={[0.78, 0.72, 0.52]}>
+        <boxGeometry args={[0.08, 0.12, 0.02]} />
+        <meshStandardMaterial color={OPTIMUS_CHROME} metalness={0.99} roughness={0.02} />
+      </mesh>
+      <mesh position={[0.75, 0.72, -0.48]}>
+        <boxGeometry args={[0.06, 0.04, 0.08]} />
+        <meshStandardMaterial color={BLACK_METAL} metalness={0.95} roughness={0.1} />
+      </mesh>
+      <mesh position={[0.78, 0.72, -0.52]}>
+        <boxGeometry args={[0.08, 0.12, 0.02]} />
         <meshStandardMaterial color={OPTIMUS_CHROME} metalness={0.99} roughness={0.02} />
       </mesh>
       
-      <mesh ref={wheelBR} position={[-0.6, -0.02, -0.38]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.14, 0.14, 0.1, 16]} />
-        <meshStandardMaterial color={BLACK_METAL} metalness={0.8} roughness={0.3} />
+      {/* TRAILER CONNECTION/BED */}
+      <mesh position={[-0.55, 0.18, 0]}>
+        <boxGeometry args={[1.2, 0.2, 0.68]} />
+        <meshStandardMaterial color={OPTIMUS_BLUE} metalness={0.92} roughness={0.08} />
       </mesh>
-      <mesh position={[-0.6, -0.02, -0.38]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.09, 0.09, 0.11, 8]} />
+      {/* Fifth wheel */}
+      <mesh position={[-0.4, 0.3, 0]}>
+        <cylinderGeometry args={[0.12, 0.12, 0.04, 16]} />
+        <meshStandardMaterial color={BLACK_METAL} metalness={0.95} roughness={0.2} />
+      </mesh>
+      
+      {/* FUEL TANKS */}
+      <mesh position={[-0.15, 0.18, 0.42]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0.1, 0.1, 0.08, 16]} />
+        <meshStandardMaterial color={OPTIMUS_CHROME} metalness={0.99} roughness={0.02} />
+      </mesh>
+      <mesh position={[-0.15, 0.18, -0.42]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0.1, 0.1, 0.08, 16]} />
         <meshStandardMaterial color={OPTIMUS_CHROME} metalness={0.99} roughness={0.02} />
       </mesh>
       
-      {/* Autobot emblem */}
-      <mesh position={[0.4, 0.66, 0.36]}>
-        <circleGeometry args={[0.06, 6]} />
-        <meshStandardMaterial color={AUTOBOT_RED} emissive={AUTOBOT_RED} emissiveIntensity={0.5} />
+      {/* WHEELS - Front steering */}
+      <group ref={wheelFL} position={[0.72, 0.02, 0.48]}>
+        <mesh rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.16, 0.16, 0.12, 24]} />
+          <meshStandardMaterial color="#1a1a1a" metalness={0.3} roughness={0.8} />
+        </mesh>
+        <mesh rotation={[0, 0, Math.PI / 2]}>
+          <torusGeometry args={[0.16, 0.03, 8, 24]} />
+          <meshStandardMaterial color="#2a2a2a" metalness={0.2} roughness={0.9} />
+        </mesh>
+        <mesh rotation={[0, 0, Math.PI / 2]} position={[0, 0.02, 0]}>
+          <cylinderGeometry args={[0.1, 0.1, 0.1, 20]} />
+          <meshStandardMaterial color={OPTIMUS_CHROME} metalness={0.99} roughness={0.02} />
+        </mesh>
+        <mesh position={[0, 0.07, 0]} rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.04, 0.04, 0.025, 12]} />
+          <meshStandardMaterial color={BLACK_METAL} metalness={0.98} roughness={0.05} />
+        </mesh>
+      </group>
+      
+      <group ref={wheelFR} position={[0.72, 0.02, -0.48]}>
+        <mesh rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.16, 0.16, 0.12, 24]} />
+          <meshStandardMaterial color="#1a1a1a" metalness={0.3} roughness={0.8} />
+        </mesh>
+        <mesh rotation={[0, 0, Math.PI / 2]}>
+          <torusGeometry args={[0.16, 0.03, 8, 24]} />
+          <meshStandardMaterial color="#2a2a2a" metalness={0.2} roughness={0.9} />
+        </mesh>
+        <mesh rotation={[0, 0, Math.PI / 2]} position={[0, -0.02, 0]}>
+          <cylinderGeometry args={[0.1, 0.1, 0.1, 20]} />
+          <meshStandardMaterial color={OPTIMUS_CHROME} metalness={0.99} roughness={0.02} />
+        </mesh>
+        <mesh position={[0, -0.07, 0]} rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.04, 0.04, 0.025, 12]} />
+          <meshStandardMaterial color={BLACK_METAL} metalness={0.98} roughness={0.05} />
+        </mesh>
+      </group>
+      
+      {/* Rear wheels - dual axle */}
+      <group ref={wheelBL1} position={[-0.6, 0.02, 0.44]}>
+        <mesh rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.16, 0.16, 0.14, 24]} />
+          <meshStandardMaterial color="#1a1a1a" metalness={0.3} roughness={0.8} />
+        </mesh>
+        <mesh rotation={[0, 0, Math.PI / 2]} position={[0, 0.03, 0]}>
+          <cylinderGeometry args={[0.1, 0.1, 0.12, 20]} />
+          <meshStandardMaterial color={OPTIMUS_CHROME} metalness={0.99} roughness={0.02} />
+        </mesh>
+      </group>
+      
+      <group ref={wheelBR1} position={[-0.6, 0.02, -0.44]}>
+        <mesh rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.16, 0.16, 0.14, 24]} />
+          <meshStandardMaterial color="#1a1a1a" metalness={0.3} roughness={0.8} />
+        </mesh>
+        <mesh rotation={[0, 0, Math.PI / 2]} position={[0, -0.03, 0]}>
+          <cylinderGeometry args={[0.1, 0.1, 0.12, 20]} />
+          <meshStandardMaterial color={OPTIMUS_CHROME} metalness={0.99} roughness={0.02} />
+        </mesh>
+      </group>
+      
+      <group ref={wheelBL2} position={[-0.9, 0.02, 0.44]}>
+        <mesh rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.16, 0.16, 0.14, 24]} />
+          <meshStandardMaterial color="#1a1a1a" metalness={0.3} roughness={0.8} />
+        </mesh>
+        <mesh rotation={[0, 0, Math.PI / 2]} position={[0, 0.03, 0]}>
+          <cylinderGeometry args={[0.1, 0.1, 0.12, 20]} />
+          <meshStandardMaterial color={OPTIMUS_CHROME} metalness={0.99} roughness={0.02} />
+        </mesh>
+      </group>
+      
+      <group ref={wheelBR2} position={[-0.9, 0.02, -0.44]}>
+        <mesh rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.16, 0.16, 0.14, 24]} />
+          <meshStandardMaterial color="#1a1a1a" metalness={0.3} roughness={0.8} />
+        </mesh>
+        <mesh rotation={[0, 0, Math.PI / 2]} position={[0, -0.03, 0]}>
+          <cylinderGeometry args={[0.1, 0.1, 0.12, 20]} />
+          <meshStandardMaterial color={OPTIMUS_CHROME} metalness={0.99} roughness={0.02} />
+        </mesh>
+      </group>
+      
+      {/* MUD FLAPS */}
+      <mesh position={[-0.45, 0.08, 0.38]}>
+        <boxGeometry args={[0.02, 0.12, 0.04]} />
+        <meshStandardMaterial color="#1a1a1a" metalness={0.3} roughness={0.9} />
       </mesh>
+      <mesh position={[-0.45, 0.08, -0.38]}>
+        <boxGeometry args={[0.02, 0.12, 0.04]} />
+        <meshStandardMaterial color="#1a1a1a" metalness={0.3} roughness={0.9} />
+      </mesh>
+      
+      {/* Autobot emblem on door */}
+      <mesh position={[0.35, 0.5, 0.42]} rotation={[0, Math.PI / 2, 0]}>
+        <circleGeometry args={[0.08, 6]} />
+        <meshStandardMaterial color={AUTOBOT_RED} emissive={AUTOBOT_RED} emissiveIntensity={0.8} />
+      </mesh>
+      <mesh position={[0.35, 0.5, -0.42]} rotation={[0, -Math.PI / 2, 0]}>
+        <circleGeometry args={[0.08, 6]} />
+        <meshStandardMaterial color={AUTOBOT_RED} emissive={AUTOBOT_RED} emissiveIntensity={0.8} />
+      </mesh>
+      
+      {/* Headlight beams */}
+      <pointLight position={[1.2, 0.38, 0.32]} color="#FFFFFF" intensity={0.6} distance={1.2} />
+      <pointLight position={[1.2, 0.38, -0.32]} color="#FFFFFF" intensity={0.6} distance={1.2} />
     </group>
   );
 };
