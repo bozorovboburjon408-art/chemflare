@@ -1918,23 +1918,20 @@ const SpeechBubble = ({ text, isRight }: { text: string; isRight: boolean }) => 
     transition={{ duration: 0.3 }}
     className="absolute pointer-events-auto"
     style={{
-      [isRight ? 'right' : 'left']: '100%',
-      [isRight ? 'marginRight' : 'marginLeft']: '12px',
-      top: '50%',
-      transform: 'translateY(-50%)',
+      left: '50%',
+      transform: 'translateX(-50%)',
+      bottom: '105%',
+      marginBottom: '8px',
     }}
   >
     <div className="relative bg-gradient-to-br from-primary/95 to-primary/80 backdrop-blur-md 
-      text-primary-foreground text-xs md:text-sm px-3 py-2 rounded-xl shadow-elegant border border-primary/30
-      max-w-[180px] md:max-w-[220px]">
-      <p className="leading-relaxed">{text}</p>
+      text-primary-foreground text-[10px] sm:text-xs md:text-sm px-2 sm:px-3 py-1.5 sm:py-2 rounded-xl shadow-elegant border border-primary/30
+      max-w-[140px] sm:max-w-[180px] md:max-w-[220px] text-center">
+      <p className="leading-relaxed break-words">{text}</p>
       <div 
-        className={`absolute top-1/2 -translate-y-1/2 w-0 h-0 
-          ${isRight 
-            ? "right-0 translate-x-full border-l-8 border-l-primary/90 border-t-6 border-t-transparent border-b-6 border-b-transparent" 
-            : "left-0 -translate-x-full border-r-8 border-r-primary/90 border-t-6 border-t-transparent border-b-6 border-b-transparent"
-          }`}
-        style={{ borderTopWidth: "6px", borderBottomWidth: "6px" }}
+        className="absolute left-1/2 -translate-x-1/2 bottom-0 translate-y-full w-0 h-0 
+          border-l-6 border-l-transparent border-r-6 border-r-transparent border-t-8 border-t-primary/90"
+        style={{ borderLeftWidth: "6px", borderRightWidth: "6px", borderTopWidth: "8px" }}
       />
     </div>
   </motion.div>
@@ -3250,19 +3247,17 @@ const BumblebeeMascot = () => {
     return () => clearInterval(interval);
   }, [isUserActive, currentSpeaker, shuffledKnowledge.length, getRandomSpeakerGesture, isFirstMessage]);
 
-  // Calculate safe position avoiding speech bubbles
+  // Calculate safe position - prefer center area for better visibility
   const getSafePosition = useCallback((robotType: 'bumblebee' | 'bird') => {
-    // Speech bubble appears above robot, roughly 100px height
-    // Avoid center area where text might overlap
-    // Safe zones: corners and edges, avoiding where other robot's speech might be
+    // Prefer center area for better mobile visibility
+    // Speech bubble appears above robot so position robot in lower-center area
     
-    // Define safe zones - avoid center and areas where speech bubbles appear
+    // Define center-focused safe zones
     const safeZones = [
-      { x: 70, y: 60, w: 25, h: 30 }, // Bottom right corner
-      { x: 5, y: 60, w: 25, h: 30 },  // Bottom left corner
-      { x: 70, y: 5, w: 25, h: 20 },  // Top right
-      { x: 5, y: 5, w: 25, h: 20 },   // Top left
-      { x: 40, y: 70, w: 20, h: 20 }, // Bottom center
+      { x: 30, y: 50, w: 20, h: 25 }, // Center left
+      { x: 50, y: 50, w: 20, h: 25 }, // Center right
+      { x: 35, y: 60, w: 30, h: 20 }, // Bottom center
+      { x: 35, y: 40, w: 30, h: 15 }, // Middle center
     ];
     
     // Pick random safe zone
