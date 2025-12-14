@@ -3197,8 +3197,8 @@ const BumblebeeMascot = () => {
     return () => clearTimeout(timer);
   }, [isUserActive, isHidden]);
 
-  // Speaker gestures variety
-  const speakerGestures: GestureType[] = ["wave", "point", "thumbsUp", "nod", "celebrate", "raiseHand", "salute"];
+  // Speaker gestures - only calm gestures (no playing/dancing)
+  const speakerGestures: GestureType[] = ["wave", "point", "thumbsUp", "nod", "idle"];
   const getRandomSpeakerGesture = useCallback(() => {
     return speakerGestures[Math.floor(Math.random() * speakerGestures.length)];
   }, []);
@@ -3247,44 +3247,47 @@ const BumblebeeMascot = () => {
     return () => clearInterval(interval);
   }, [isUserActive, currentSpeaker, shuffledKnowledge.length, getRandomSpeakerGesture, isFirstMessage]);
 
-  // Calculate safe position - prefer center area, keep robots apart
-  const getSafePosition = useCallback((robotType: 'bumblebee' | 'bird', otherRobotPos?: { x: number; y: number }) => {
-    // Bumblebee stays on left side, Optimus stays on right side
-    const safeZones = robotType === 'bumblebee' 
-      ? [
-          { x: 15, y: 45, w: 20, h: 25 }, // Left center
-          { x: 20, y: 55, w: 15, h: 20 }, // Left bottom
-          { x: 18, y: 35, w: 18, h: 15 }, // Left top
-        ]
-      : [
-          { x: 60, y: 45, w: 20, h: 25 }, // Right center
-          { x: 65, y: 55, w: 15, h: 20 }, // Right bottom
-          { x: 62, y: 35, w: 18, h: 15 }, // Right top
-        ];
-    
-    const zone = safeZones[Math.floor(Math.random() * safeZones.length)];
-    
-    return {
-      x: zone.x + Math.random() * zone.w,
-      y: zone.y + Math.random() * zone.h
-    };
-  }, []);
+  // Fixed landing positions - robots sit in specific spots
+  const landingSpots = useMemo(() => ({
+    bumblebee: [
+      { x: 8, y: 75, name: "left-bottom" },   // Left bottom corner - sitting
+      { x: 12, y: 50, name: "left-middle" },  // Left middle
+      { x: 5, y: 85, name: "left-floor" },    // Left floor - resting
+    ],
+    bird: [
+      { x: 88, y: 75, name: "right-bottom" }, // Right bottom corner - sitting
+      { x: 85, y: 50, name: "right-middle" }, // Right middle
+      { x: 92, y: 85, name: "right-floor" },  // Right floor - resting
+    ]
+  }), []);
 
-  // Smooth flying - keep robots on separate sides
+  // Get landing position for robot
+  const getLandingPosition = useCallback((robotType: 'bumblebee' | 'bird') => {
+    const spots = landingSpots[robotType];
+    const spot = spots[Math.floor(Math.random() * spots.length)];
+    return { x: spot.x, y: spot.y };
+  }, [landingSpots]);
+
+  // Robots fly to landing spots and stay there longer
   useEffect(() => {
     if (isUserActive || isHidden) return;
 
+    // Set initial landing positions
+    setBumblebeeTarget(getLandingPosition('bumblebee'));
+    if (showBird) {
+      setBirdTarget(getLandingPosition('bird'));
+    }
+
+    // Change position less frequently (every 20 seconds)
     const flyInterval = setInterval(() => {
-      const beePos = getSafePosition('bumblebee');
-      setBumblebeeTarget(beePos);
+      setBumblebeeTarget(getLandingPosition('bumblebee'));
       if (showBird) {
-        const birdNewPos = getSafePosition('bird');
-        setBirdTarget(birdNewPos);
+        setBirdTarget(getLandingPosition('bird'));
       }
-    }, 8000);
+    }, 20000);
 
     return () => clearInterval(flyInterval);
-  }, [showBird, isUserActive, isHidden, getSafePosition]);
+  }, [showBird, isUserActive, isHidden, getLandingPosition]);
 
   // Smooth position update
   useEffect(() => {
@@ -3304,7 +3307,7 @@ const BumblebeeMascot = () => {
     return () => clearInterval(animationInterval);
   }, [bumblebeeTarget, birdTarget, isUserActive]);
 
-  // Handle click
+  // Handle click - fly to new landing spot
   const handleClick = useCallback(() => {
     setClickCount(prev => prev + 1);
     
@@ -3312,11 +3315,9 @@ const BumblebeeMascot = () => {
 
     clickTimerRef.current = setTimeout(() => {
       if (clickCount === 0) {
-        const beePos = getSafePosition('bumblebee');
-        setBumblebeeTarget(beePos);
+        setBumblebeeTarget(getLandingPosition('bumblebee'));
         if (showBird) {
-          const birdNewPos = getSafePosition('bird');
-          setBirdTarget({ x: birdNewPos.x < 50 ? birdNewPos.x : birdNewPos.x - 40, y: birdNewPos.y });
+          setBirdTarget(getLandingPosition('bird'));
         }
       }
       setClickCount(0);
@@ -3327,7 +3328,7 @@ const BumblebeeMascot = () => {
       setIsHidden(true);
       setClickCount(0);
     }
-  }, [clickCount, showBird]);
+  }, [clickCount, showBird, getLandingPosition]);
 
   if (isHidden) return null;
 
