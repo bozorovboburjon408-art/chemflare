@@ -36,100 +36,232 @@ const bumblebeeIntro = "Salom! Men Bumblebee! Avtobotlarning eng sodiq jangchisi
 // Optimus Prime - faqat kirishda tanishadi  
 const optimusIntro = "Men Optimus Prime! Avtobotlar lideri! Bilim - eng kuchli qurolimiz!";
 
-// Umumiy bilimlar bazasi - barcha sahifalar uchun aralashtiriladi
+// Umumiy bilimlar bazasi - barcha sahifalar uchun aralashtiriladi (kengaytirilgan)
 const knowledgeBase: string[] = [
-  // Elementlar
+  // Elementlar - 1-20
   "H - Vodorod, eng yengil element, atom massasi 1",
-  "He - Geliy, inert gaz, shamlar uchun ishlatiladi",
+  "He - Geliy, inert gaz, sharlar uchun ishlatiladi",
   "Li - Litiy, eng yengil metall, batareyalarda",
+  "Be - Berilliy, yengil va qattiq metall",
+  "B - Bor, yarim o'tkazgich, shishada ishlatiladi",
   "C - Uglerod, olmos va grafitda mavjud",
   "N - Azot, havoning 78 foizi",
   "O - Kislorod, nafas olish uchun zarur",
+  "F - Ftor, eng faol nometall",
+  "Ne - Neon, reklama chiroqlarida",
   "Na - Natriy, suv bilan portlaydi!",
-  "Cl - Xlor, tuz tarkibida NaCl",
-  "Fe - Temir, qon tarkibida, magnit xususiyatli",
-  "Au - Oltin, eng choziluvchan metall",
-  "Ag - Kumush, eng yaxshi elektr otkazuvchi",
-  "Cu - Mis, simlar uchun ishlatiladi",
-  "Ca - Kalsiy, suyaklar tarkibida",
-  "K - Kaliy, osimliklar uchun zarur",
-  "Mg - Magniy, xlorofil tarkibida",
-  "S - Oltingugurt, vulqonlarda topiladi",
-  "P - Fosfor, gugurt ishlab chiqarishda",
-  "Zn - Rux, korroziyadan himoya",
+  "Mg - Magniy, yonganida yorqin oq nur",
   "Al - Alyuminiy, samolyotlarda ishlatiladi",
   "Si - Kremniy, kompyuter chiplari asosi",
+  "P - Fosfor, gugurt ishlab chiqarishda",
+  "S - Oltingugurt, vulqonlarda topiladi",
+  "Cl - Xlor, tuz tarkibida NaCl",
+  "Ar - Argon, payvandlashda himoya gazi",
+  "K - Kaliy, o'simliklar uchun zarur",
+  "Ca - Kalsiy, suyaklar tarkibida",
+  
+  // Elementlar - 21-40
+  "Sc - Skandiy, kosmik texnologiyalarda",
+  "Ti - Titan, eng mustahkam metallardan",
+  "V - Vanadiy, po'lat qotishmalarida",
+  "Cr - Xrom, zanglamaydigan po'latda",
+  "Mn - Marganes, batareyalarda ishlatiladi",
+  "Fe - Temir, qon tarkibida, magnit xususiyatli",
+  "Co - Kobalt, ko'k rang beradi",
+  "Ni - Nikel, tangalarda ishlatiladi",
+  "Cu - Mis, simlar uchun ishlatiladi",
+  "Zn - Rux, korroziyadan himoya",
+  "Ga - Galliy, qo'lda eriydi (29°C)",
+  "Ge - Germaniy, yarim o'tkazgich",
+  "As - Mishyak, zaharli element",
+  "Se - Selen, fotoelemtlarda",
+  "Br - Brom, suyuq nometall",
+  "Kr - Kripton, lazer nurlarida",
+  "Rb - Rubidiy, atom soatlarida",
+  "Sr - Stronsiy, fajerverklarda",
+  "Y - Ittriy, LED ekranlarda",
+  "Zr - Sirkoniy, yadro reaktorlarida",
+  
+  // Qimmatbaho metallar
+  "Ag - Kumush, eng yaxshi elektr o'tkazgich",
+  "Au - Oltin, eng cho'ziluvchan metall",
+  "Pt - Platina, katalizator sifatida",
+  "Pd - Palladiy, avtomobil katalizatorlarida",
+  "Rh - Rodiy, eng qimmat metall",
+  
+  // Nodir elementlar
+  "U - Uran, yadro yoqilg'isi",
+  "Pu - Plutoniy, yadro qurollarida",
+  "Ra - Radiy, radioaktiv, nurlanadi",
+  "Hg - Simob, yagona suyuq metall",
+  "Pb - Qo'rg'oshin, og'ir metall",
+  "Sn - Qalay, konserva bankalarda",
+  "Bi - Vismut, kamalak rangli kristallar",
+  "W - Volfram, eng qiyin eriydigan metall (3422°C)",
   
   // Formulalar va qonunlar
   "Molyar massa: M = m/n (g/mol)",
   "Konsentratsiya: C = n/V (mol/L)",
-  "pH = -log[H+], pOH = -log[OH-]",
+  "pH = -log[H⁺], pOH = -log[OH⁻]",
   "Ideal gaz: PV = nRT",
   "Faradey qonuni: m = (M·I·t)/(n·F)",
   "Massa ulushi: w = m(element)/m(modda)",
-  "Zichlik: p = m/V (g/ml)",
-  "Hajm (gaz): V = n × 22.4 L",
-  "Issiqlik: Q = m × c × dT",
-  "Avogadro soni: 6.02×10 darajada 23",
+  "Zichlik: ρ = m/V (g/ml)",
+  "Hajm (gaz): V = n × 22.4 L (n.sh.)",
+  "Issiqlik: Q = m × c × ΔT",
+  "Avogadro soni: 6.02×10²³",
+  "Gess qonuni: ΔH = ΣΔH(mahsulot) - ΣΔH(reaktant)",
+  "Arrhenius tenglamasi: k = A·e^(-Ea/RT)",
+  "Rault qonuni: P = P°·x (bug' bosimi)",
+  "Gey-Lyussak qonuni: V₁/T₁ = V₂/T₂",
+  "Boyl-Mariott qonuni: P₁V₁ = P₂V₂",
+  "Dalton qonuni: P(umumiy) = P₁ + P₂ + P₃...",
   
-  // Reaksiyalar
-  "2H2 + O2 = 2H2O - suv hosil bolishi",
-  "2Na + 2H2O = 2NaOH + H2 - natriy va suv",
-  "CaCO3 = CaO + CO2 - ohak yonishi",
-  "Zn + 2HCl = ZnCl2 + H2 - metall va kislota",
-  "NaOH + HCl = NaCl + H2O - neytrallanish",
-  "Fe + CuSO4 = FeSO4 + Cu - orin olish",
-  "CH4 + 2O2 = CO2 + 2H2O - metan yonishi",
-  "2KMnO4 = K2MnO4 + MnO2 + O2",
+  // Reaksiyalar - neytrallanish
+  "2H₂ + O₂ = 2H₂O - suv hosil bo'lishi",
+  "2Na + 2H₂O = 2NaOH + H₂↑ - natriy va suv",
+  "CaCO₃ = CaO + CO₂↑ - ohak yonishi",
+  "Zn + 2HCl = ZnCl₂ + H₂↑ - metall va kislota",
+  "NaOH + HCl = NaCl + H₂O - neytrallanish",
+  "Fe + CuSO₄ = FeSO₄ + Cu↓ - o'rin olish",
+  "CH₄ + 2O₂ = CO₂ + 2H₂O - metan yonishi",
+  "2KMnO₄ = K₂MnO₄ + MnO₂ + O₂↑",
+  "2H₂O₂ = 2H₂O + O₂↑ - vodorod peroksid parchalanishi",
+  "NH₄Cl + NaOH = NaCl + NH₃↑ + H₂O",
+  
+  // Oksidlanish-qaytarilish
+  "Zn + Cu²⁺ → Zn²⁺ + Cu - oksidlanish-qaytarilish",
+  "2Fe + 3Cl₂ → 2FeCl₃ - temir xlorlanishi",
+  "4Fe + 3O₂ → 2Fe₂O₃ - zang hosil bo'lishi",
+  "2Al + 3H₂SO₄ → Al₂(SO₄)₃ + 3H₂↑",
+  "Cu + 4HNO₃(konts) → Cu(NO₃)₂ + 2NO₂↑ + 2H₂O",
+  "Mg + 2HCl → MgCl₂ + H₂↑ - faol metall",
+  
+  // Organik reaksiyalar
+  "C₂H₄ + H₂ → C₂H₆ - gidrogenlanish",
+  "C₂H₅OH + O₂ → CH₃COOH + H₂O - oksidlanish",
+  "CH₃COOH + C₂H₅OH → CH₃COOC₂H₅ + H₂O - esterifikatsiya",
+  "C₆H₁₂O₆ → 2C₂H₅OH + 2CO₂ - bijg'ish",
+  "nCH₂=CH₂ → (-CH₂-CH₂-)n - polimerizatsiya",
   
   // Tushunchalar
-  "Valentlik - atomning bog hosil qilish qobiliyati",
+  "Valentlik - atomning bog' hosil qilish qobiliyati",
   "Ion - zaryadlangan atom yoki molekula",
   "Kation (+) va anion (-) - ion turlari",
   "Molekula - atomlarning birikishi",
   "Kristall panjara - qattiq modda tuzilishi",
-  "Elektrolitlar - eritma tok otkazadi",
+  "Elektrolitlar - eritma tok o'tkazadi",
   "Indikatorlar - muhit pH ini aniqlaydi",
-  "Lakmus - kislotada qizil, asosda kok",
+  "Lakmus - kislotada qizil, asosda ko'k",
   "Fenolftalein - asosda pushti rang",
-  "Metil oranj - kislotada qizil",
+  "Metil oranj - kislotada qizil, asosda sariq",
+  "Izotoplar - proton soni bir xil, neytron soni farqli",
+  "Allotropiya - bir element turli shakllarda (olmos, grafit)",
+  "Gibridlanish - sp, sp², sp³ orbitallar aralashuvi",
+  "Elektronegativlik - atom elektron tortish kuchi",
+  "Ionlanish energiyasi - elektronni ajratish uchun kerak energiya",
   
   // Qiziqarli faktlar
   "Mendeleev 1869-yilda davriy jadvalni yaratdi",
   "Olmos va grafit bir xil element - uglerod!",
   "Suv 0°C da muzlaydi, 100°C da qaynaydi",
-  "Oltingugurt yonganida kok olov chiqadi",
-  "Magniy yonganida yorqin oq nur hosil boladi",
+  "Oltingugurt yonganida ko'k olov chiqadi",
+  "Magniy yonganida yorqin oq nur hosil bo'ladi",
   "Natriy xlorid - oddiy osh tuzi",
   "Vodorod - Quyosh asosiy elementi",
   "Kislorod havoning 21 foizi",
   "Azot havoning 78 foizi",
-  "Argon - havoda 3-chi koplik element",
+  "Argon - havoda 3-chi ko'plik element",
+  "Inson tanasida 65% kislorod bor",
+  "DNA molekulasida N, C, H, O, P bor",
+  "Eng katta atom - Oganesson (Og)",
+  "Eng kichik atom - Vodorod (H)",
+  "Geliy Yerda kam, Quyoshda ko'p",
+  "Titan - eng mustahkam metall",
+  "Simob yagona suyuq metall (20°C da)",
+  "Fransiy - eng kam tarqalgan tabiiy element",
+  "Karbon - hayotning asosi",
+  "Ozon (O₃) - atmosferani UV nurdan himoya qiladi",
   
   // Amaliy bilimlar
   "Soda + sirka = vulqon tajribasi!",
-  "Yod + kraxmal = kok rang hosil boladi",
-  "Mis sulfat + temir = mis chokadi",
+  "Yod + kraxmal = ko'k rang hosil bo'ladi",
+  "Mis sulfat + temir = mis cho'kadi",
   "Limon kislotasi - tabiiy kislota",
   "Sut - kolloid eritma misoli",
-  "Tuz suvda eriganda ion hosil boladi",
+  "Tuz suvda eriganda ion hosil bo'ladi",
   "Muzlash - ekzotermik jarayon",
-  "Buglanish - endotermik jarayon",
+  "Bug'lanish - endotermik jarayon",
+  "Sabun - yog' + ishqor reaksiyasi",
+  "Cho'ntak isitgichlari - kristallanish issiqligidan foydalanadi",
+  "Muzlatgich - ammiakni bug'latish orqali ishlaydi",
+  "Shisha - SiO₂ asosida tayyorlanadi",
+  "Sement - CaO, SiO₂, Al₂O₃ aralashmasi",
+  "Plastmassa - uglerod polimerlaridan",
+  "Rezina - kauchuk vulkanizatsiyasi",
   
   // Xavfsizlik
-  "Laboratoriyada kozoynak kiyish shart!",
-  "Kimyoviy moddalarni tatib korib bulmaydi!",
+  "Laboratoriyada ko'zoynak kiyish shart!",
+  "Kimyoviy moddalarni tatib ko'rib bo'lmaydi!",
   "Kislotalarni suv ustiga quyish kerak",
-  "Tajribadan keyin qollarni yuvish zarur",
+  "Tajribadan keyin qo'llarni yuvish zarur",
   "Isitish vaqtida probirkani yuzga qaratmang",
+  "Zaharli gazlar bilan faqat mo'ri ostida ishlang",
+  "Yonuvchan moddalarni olovdan uzoq saqlang",
+  "Kimyoviy moddalar idishlarini yopiq saqlang",
+  "Laboratoriyada ovqatlanish taqiqlangan",
+  "Kislota bilan ishlaganda oldin suv, keyin kislota!",
   
   // Maslahatlar
-  "Har kuni 15 daqiqa oqish - katta natija!",
-  "Avval nazariyani oqing, keyin test ishlang",
-  "Xato javoblarni qayta korib chiqing",
-  "Formulalarni yod oling - oson boladi",
+  "Har kuni 15 daqiqa o'qish - katta natija!",
+  "Avval nazariyani o'qing, keyin test ishlang",
+  "Xato javoblarni qayta ko'rib chiqing",
+  "Formulalarni yod oling - oson bo'ladi",
   "Davriy jadvalni yodlashdan boshlang",
-  "Kimyoviy tenglamalarni muvozanatlashni organing",
+  "Kimyoviy tenglamalarni muvozanatlashni o'rganing",
+  "Testlarni vaqt bilan yechishni mashq qiling",
+  "Murakkab mavzularni kichik qismlarga bo'ling",
+  "Kimyoviy jarayonlarni vizualizatsiya qiling",
+  "Video darslardan ham foydalaning",
+  
+  // Qo'shimcha elementlar
+  "Mo - Molibden, po'lat qotishmalarida",
+  "Nb - Niobiy, supero'tkazgichlarda",
+  "Tc - Texnetsiy, birinchi sun'iy element",
+  "Ru - Ruteniy, elektronikada",
+  "Os - Osmiy, eng og'ir element",
+  "Ir - Iridiy, eng zichligi yuqori",
+  "Ta - Tantal, kondensatorlarda",
+  "Re - Reniy, reaktiv dvigatlarda",
+  "Ce - Seriy, o'tkazgich sifatida",
+  "Nd - Neodim, kuchli magnitlarda",
+  
+  // Kislotalar
+  "HCl - Xlorid kislota (oshqozon kislotasi)",
+  "H₂SO₄ - Sulfat kislota (akkumulyatorlarda)",
+  "HNO₃ - Nitrat kislota (o'g'itlarda)",
+  "H₃PO₄ - Fosfat kislota (ichimliklar)",
+  "CH₃COOH - Sirka kislotasi",
+  "H₂CO₃ - Karbonat kislota (gazli suvda)",
+  
+  // Asoslar
+  "NaOH - Natriy gidroksid (o'yuvchi natriy)",
+  "KOH - Kaliy gidroksid (o'yuvchi kaliy)",
+  "Ca(OH)₂ - Kalsiy gidroksid (ohak suvi)",
+  "NH₄OH - Ammoniy gidroksid (nashatir spirt)",
+  "Ba(OH)₂ - Bariy gidroksid",
+  
+  // Tuzlar
+  "NaCl - Osh tuzi",
+  "CaCO₃ - Ohaktosh, marmar, bo'r",
+  "NaHCO₃ - Ichimlik sodasi",
+  "Na₂CO₃ - Kir yuvish sodasi",
+  "CaSO₄ - Gips",
+  "KNO₃ - Kaliy nitrat (porox tarkibida)",
+  "AgNO₃ - Kumush nitrat (fotografiyada)",
+  "CuSO₄ - Mis sulfat (ko'k tosh)",
+  "FeSO₄ - Temir sulfat (qaramog'or)",
+  "MgSO₄ - Magniy sulfat (epsom tuzi)",
 ];
 
 // Optimus Prime tips - avval o'zini tanishtiradi
@@ -3118,19 +3250,50 @@ const BumblebeeMascot = () => {
     return () => clearInterval(interval);
   }, [isUserActive, currentSpeaker, shuffledKnowledge.length, getRandomSpeakerGesture, isFirstMessage]);
 
-  // Smooth flying
+  // Calculate safe position avoiding speech bubbles
+  const getSafePosition = useCallback((robotType: 'bumblebee' | 'bird') => {
+    // Speech bubble appears above robot, roughly 100px height
+    // Avoid center area where text might overlap
+    // Safe zones: corners and edges, avoiding where other robot's speech might be
+    
+    // Define safe zones - avoid center and areas where speech bubbles appear
+    const safeZones = [
+      { x: 70, y: 60, w: 25, h: 30 }, // Bottom right corner
+      { x: 5, y: 60, w: 25, h: 30 },  // Bottom left corner
+      { x: 70, y: 5, w: 25, h: 20 },  // Top right
+      { x: 5, y: 5, w: 25, h: 20 },   // Top left
+      { x: 40, y: 70, w: 20, h: 20 }, // Bottom center
+    ];
+    
+    // Pick random safe zone
+    const zone = safeZones[Math.floor(Math.random() * safeZones.length)];
+    
+    return {
+      x: zone.x + Math.random() * zone.w,
+      y: zone.y + Math.random() * zone.h
+    };
+  }, []);
+
+  // Smooth flying - avoid speech bubble zones
   useEffect(() => {
     if (isUserActive || isHidden) return;
 
     const flyInterval = setInterval(() => {
-      setBumblebeeTarget({ x: 60 + Math.random() * 30, y: 15 + Math.random() * 40 });
+      const beePos = getSafePosition('bumblebee');
+      setBumblebeeTarget(beePos);
       if (showBird) {
-        setBirdTarget({ x: 10 + Math.random() * 30, y: 15 + Math.random() * 40 });
+        const birdNewPos = getSafePosition('bird');
+        // Ensure bird doesn't go to same area as bumblebee
+        const adjustedBird = {
+          x: birdNewPos.x < 50 ? birdNewPos.x : birdNewPos.x - 40,
+          y: birdNewPos.y
+        };
+        setBirdTarget(adjustedBird);
       }
     }, 8000);
 
     return () => clearInterval(flyInterval);
-  }, [showBird, isUserActive, isHidden]);
+  }, [showBird, isUserActive, isHidden, getSafePosition]);
 
   // Smooth position update
   useEffect(() => {
@@ -3158,8 +3321,12 @@ const BumblebeeMascot = () => {
 
     clickTimerRef.current = setTimeout(() => {
       if (clickCount === 0) {
-        setBumblebeeTarget({ x: 60 + Math.random() * 30, y: 15 + Math.random() * 40 });
-        if (showBird) setBirdTarget({ x: 10 + Math.random() * 30, y: 15 + Math.random() * 40 });
+        const beePos = getSafePosition('bumblebee');
+        setBumblebeeTarget(beePos);
+        if (showBird) {
+          const birdNewPos = getSafePosition('bird');
+          setBirdTarget({ x: birdNewPos.x < 50 ? birdNewPos.x : birdNewPos.x - 40, y: birdNewPos.y });
+        }
       }
       setClickCount(0);
     }, 300);
