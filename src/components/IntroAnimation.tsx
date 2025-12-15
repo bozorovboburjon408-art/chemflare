@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, MessageCircle } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 interface IntroAnimationProps {
   onComplete: () => void;
@@ -647,53 +647,6 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
                       <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                     </span>
                   </motion.button>
-
-                  {/* Telegram Link Button */}
-                  <motion.a
-                    href="https://t.me/ndktu_iqtidorlilar"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group relative px-6 py-3 rounded-xl font-medium text-sm overflow-hidden"
-                    style={{
-                      background: "linear-gradient(135deg, rgba(167, 139, 250, 0.15), rgba(255, 107, 107, 0.15))",
-                      border: "2px solid rgba(167, 139, 250, 0.4)",
-                      color: "#fff",
-                      boxShadow: "0 0 20px rgba(167, 139, 250, 0.2)",
-                    }}
-                    whileHover={{ 
-                      scale: 1.05,
-                      boxShadow: "0 0 40px rgba(167, 139, 250, 0.4)",
-                    }}
-                    whileTap={{ scale: 0.95 }}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.3 }}
-                  >
-                    <motion.div
-                      className="absolute inset-0"
-                      style={{
-                        background: "linear-gradient(135deg, rgba(167, 139, 250, 0.3), rgba(255, 107, 107, 0.3))",
-                      }}
-                      initial={{ x: "-100%" }}
-                      whileHover={{ x: "0%" }}
-                      transition={{ duration: 0.3 }}
-                    />
-                    <span className="relative flex items-center gap-2">
-                      <MessageCircle className="w-4 h-4" />
-                      Fikr va mulohazalar uchun suhbatlashing
-                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                    </span>
-                  </motion.a>
-                  
-                  {/* Motivational text */}
-                  <motion.p
-                    className="text-white/60 text-sm text-center max-w-xs"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.5 }}
-                  >
-                    O'z fikrlaringizni yozib qoldiring — biz ularni albatta o'qiymiz!
-                  </motion.p>
                 </motion.div>
               )}
             </AnimatePresence>
