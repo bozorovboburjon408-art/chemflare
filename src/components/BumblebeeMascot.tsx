@@ -249,7 +249,7 @@ const GirlRobot = ({
   );
 };
 
-// Boy Robot SVG Component (Piko - Cyan/Blue)
+// Boy Robot SVG Component (Piko - Blue/Navy)
 const BoyRobot = ({ 
   isWaving = false, 
   isTalking = false,
@@ -259,43 +259,49 @@ const BoyRobot = ({
   isTalking?: boolean;
   name?: string;
 }) => {
-  const primaryColor = "#00BCD4";
-  const glowColor = "#00E5FF";
+  const primaryColor = "#2196F3"; // Blue
+  const glowColor = "#64B5F6"; // Light blue
+  const accentColor = "#1565C0"; // Dark blue
   
   return (
     <svg viewBox="0 0 100 140" className="w-full h-full drop-shadow-lg">
       {/* Glow effect */}
       <defs>
-        <filter id="glow-cyan" x="-50%" y="-50%" width="200%" height="200%">
+        <filter id="glow-blue" x="-50%" y="-50%" width="200%" height="200%">
           <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
           <feMerge>
             <feMergeNode in="coloredBlur"/>
             <feMergeNode in="SourceGraphic"/>
           </feMerge>
         </filter>
-        <radialGradient id="bodyGrad-cyan" cx="30%" cy="30%">
+        <radialGradient id="bodyGrad-blue" cx="30%" cy="30%">
           <stop offset="0%" stopColor="#FFFFFF"/>
-          <stop offset="100%" stopColor="#E8E8E8"/>
+          <stop offset="100%" stopColor="#E3F2FD"/>
         </radialGradient>
       </defs>
       
-      {/* Antenna */}
-      <ellipse cx="50" cy="12" rx="8" ry="4" fill={primaryColor}/>
-      <line x1="50" y1="16" x2="50" y2="25" stroke="#CCCCCC" strokeWidth="3"/>
+      {/* Cap/Hat */}
+      <ellipse cx="50" cy="22" rx="30" ry="8" fill={accentColor}/>
+      <path d="M25 22 Q25 12 50 10 Q75 12 75 22" fill={primaryColor}/>
+      <rect x="45" y="5" width="10" height="8" rx="2" fill={accentColor}/>
       
-      {/* Head */}
-      <ellipse cx="50" cy="40" rx="28" ry="22" fill="url(#bodyGrad-cyan)" stroke="#DDDDDD" strokeWidth="1"/>
+      {/* Head - more square/angular */}
+      <rect x="24" cy="25" y="25" width="52" height="35" rx="12" fill="url(#bodyGrad-blue)" stroke="#BBDEFB" strokeWidth="1"/>
       
       {/* Face screen */}
-      <ellipse cx="50" cy="42" rx="22" ry="16" fill="#1A1A2E"/>
+      <rect x="30" y="32" width="40" height="22" rx="8" fill="#1A1A2E"/>
       
-      {/* Eyes */}
-      <motion.ellipse 
-        cx="40" cy="42" rx="6" ry={isTalking ? 4 : 5} 
+      {/* Thick eyebrows */}
+      <rect x="34" y="34" width="10" height="3" rx="1" fill={accentColor}/>
+      <rect x="56" y="34" width="10" height="3" rx="1" fill={accentColor}/>
+      
+      {/* Eyes - square style */}
+      <motion.rect 
+        x="35" y="40" width="10" height={isTalking ? 6 : 8} rx="2"
         fill={glowColor} 
-        filter="url(#glow-cyan)"
+        filter="url(#glow-blue)"
         animate={{ 
-          scaleY: isTalking ? [1, 0.7, 1] : 1,
+          height: isTalking ? [8, 5, 8] : 8,
           opacity: [0.8, 1, 0.8]
         }}
         transition={{ 
@@ -303,12 +309,12 @@ const BoyRobot = ({
           repeat: Infinity
         }}
       />
-      <motion.ellipse 
-        cx="60" cy="42" rx="6" ry={isTalking ? 4 : 5} 
+      <motion.rect 
+        x="55" y="40" width="10" height={isTalking ? 6 : 8} rx="2"
         fill={glowColor} 
-        filter="url(#glow-cyan)"
+        filter="url(#glow-blue)"
         animate={{ 
-          scaleY: isTalking ? [1, 0.7, 1] : 1,
+          height: isTalking ? [8, 5, 8] : 8,
           opacity: [0.8, 1, 0.8]
         }}
         transition={{ 
@@ -317,50 +323,53 @@ const BoyRobot = ({
         }}
       />
       
-      {/* Smile when talking */}
-      {isTalking && (
-        <motion.path 
-          d="M42 50 Q50 55 58 50" 
-          fill="none" 
-          stroke={glowColor} 
-          strokeWidth="2"
-          strokeLinecap="round"
-          animate={{ d: ["M42 50 Q50 55 58 50", "M42 50 Q50 52 58 50", "M42 50 Q50 55 58 50"] }}
-          transition={{ duration: 0.4, repeat: Infinity }}
+      {/* Smile/mouth */}
+      {isTalking ? (
+        <motion.rect 
+          x="42" y="52" width="16" height="4" rx="2"
+          fill={glowColor}
+          animate={{ height: [4, 2, 4] }}
+          transition={{ duration: 0.3, repeat: Infinity }}
         />
+      ) : (
+        <rect x="44" y="52" width="12" height="2" rx="1" fill={glowColor} opacity="0.7"/>
       )}
       
-      {/* Body */}
-      <ellipse cx="50" cy="90" rx="22" ry="28" fill="url(#bodyGrad-cyan)" stroke="#DDDDDD" strokeWidth="1"/>
+      {/* Body - more rectangular/sturdy */}
+      <rect x="28" y="62" width="44" height="52" rx="10" fill="url(#bodyGrad-blue)" stroke="#BBDEFB" strokeWidth="1"/>
       
-      {/* Body accent */}
-      <path d="M38 75 Q50 70 62 75 L60 95 Q50 100 40 95 Z" fill={primaryColor} opacity="0.8"/>
+      {/* Tie/bowtie */}
+      <polygon points="50,64 44,70 50,76 56,70" fill={accentColor}/>
+      <circle cx="50" cy="70" r="3" fill={primaryColor}/>
       
-      {/* Chest circle */}
-      <circle cx="50" cy="85" r="6" fill={primaryColor} stroke="#FFFFFF" strokeWidth="1"/>
-      <circle cx="50" cy="85" r="3" fill={glowColor}>
-        <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite"/>
-      </circle>
+      {/* Body accent - vest style */}
+      <path d="M35 75 L35 105 Q50 110 65 105 L65 75 Q50 80 35 75 Z" fill={primaryColor} opacity="0.6"/>
       
-      {/* Arms */}
+      {/* Belt */}
+      <rect x="32" y="95" width="36" height="5" fill={accentColor} rx="2"/>
+      <rect x="46" y="94" width="8" height="7" fill="#FFD700" rx="1"/>
+      
+      {/* Arms - stronger */}
       <motion.g
-        animate={isWaving ? { rotate: [0, -30, 0] } : {}}
-        transition={{ duration: 0.6, repeat: isWaving ? Infinity : 0, repeatDelay: 0.5 }}
-        style={{ transformOrigin: "30px 80px" }}
+        animate={isWaving ? { rotate: [0, -35, 0] } : {}}
+        transition={{ duration: 0.5, repeat: isWaving ? Infinity : 0, repeatDelay: 0.4 }}
+        style={{ transformOrigin: "28px 78px" }}
       >
-        <ellipse cx="22" cy="85" rx="8" ry="12" fill="url(#bodyGrad-cyan)" stroke="#DDDDDD" strokeWidth="1"/>
-        <ellipse cx="22" cy="85" rx="5" ry="8" fill={primaryColor} opacity="0.5"/>
+        <rect x="14" y="70" width="14" height="24" rx="5" fill="url(#bodyGrad-blue)" stroke="#BBDEFB" strokeWidth="1"/>
+        <rect x="17" y="75" width="8" height="14" rx="3" fill={primaryColor} opacity="0.5"/>
       </motion.g>
       
-      <ellipse cx="78" cy="85" rx="8" ry="12" fill="url(#bodyGrad-cyan)" stroke="#DDDDDD" strokeWidth="1"/>
-      <ellipse cx="78" cy="85" rx="5" ry="8" fill={primaryColor} opacity="0.5"/>
+      <rect x="72" y="70" width="14" height="24" rx="5" fill="url(#bodyGrad-blue)" stroke="#BBDEFB" strokeWidth="1"/>
+      <rect x="75" y="75" width="8" height="14" rx="3" fill={primaryColor} opacity="0.5"/>
       
-      {/* Feet */}
-      <ellipse cx="40" cy="118" rx="10" ry="6" fill="url(#bodyGrad-cyan)" stroke="#DDDDDD" strokeWidth="1"/>
-      <ellipse cx="60" cy="118" rx="10" ry="6" fill="url(#bodyGrad-cyan)" stroke="#DDDDDD" strokeWidth="1"/>
+      {/* Feet - boots style */}
+      <rect x="32" y="114" width="14" height="10" rx="3" fill={accentColor}/>
+      <rect x="54" y="114" width="14" height="10" rx="3" fill={accentColor}/>
+      <rect x="32" y="114" width="14" height="4" rx="2" fill={primaryColor}/>
+      <rect x="54" y="114" width="14" height="4" rx="2" fill={primaryColor}/>
       
       {/* Name tag */}
-      <text x="50" y="105" textAnchor="middle" fontSize="6" fill="#666666" fontFamily="Arial">{name}</text>
+      <text x="50" y="88" textAnchor="middle" fontSize="5" fill="#FFFFFF" fontFamily="Arial" fontWeight="bold">{name}</text>
     </svg>
   );
 };
