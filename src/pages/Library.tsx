@@ -64,23 +64,17 @@ const Library = () => {
       (event, session) => {
         setUser(session?.user ?? null);
         setIsLoading(false);
-        if (!session) {
-          navigate("/auth");
-        }
       }
     );
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
-      if (!session) {
-        navigate("/auth");
-      } else {
-        loadBooks();
-      }
+      setIsLoading(false);
+      loadBooks();
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, []);
 
   const loadBooks = async () => {
     try {
