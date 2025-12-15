@@ -6,7 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Upload, Loader2, CheckCircle2, XCircle, Trophy, LogOut, Shuffle } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Upload, Loader2, CheckCircle2, XCircle, Trophy, LogOut, Shuffle, Brain, Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
@@ -33,6 +35,25 @@ interface Question {
   order_num: number;
 }
 
+interface AIQuizQuestion {
+  question: string;
+  options: {
+    A: string;
+    B: string;
+    C: string;
+    D: string;
+  };
+  correct: string;
+  explanation: string;
+}
+
+const QUESTION_COUNTS = [5, 10, 15, 20, 25, 30];
+const DIFFICULTY_LEVELS = [
+  { value: 'easy', label: 'Oson', description: 'Asosiy tushunchalar' },
+  { value: 'medium', label: "O'rtacha", description: 'Amaliy masalalar' },
+  { value: 'hard', label: 'Qiyin', description: 'Murakkab va rasmli' },
+];
+
 const Quiz = () => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -46,6 +67,21 @@ const Quiz = () => {
   const [uploadTitle, setUploadTitle] = useState("");
   const [questionsImages, setQuestionsImages] = useState<string[]>([]);
   const [answersImages, setAnswersImages] = useState<string[]>([]);
+  
+  // AI Quiz states
+  const [aiQuizMode, setAiQuizMode] = useState(false);
+  const [aiQuizQuestions, setAiQuizQuestions] = useState<AIQuizQuestion[]>([]);
+  const [aiCurrentIndex, setAiCurrentIndex] = useState(0);
+  const [aiSelectedAnswer, setAiSelectedAnswer] = useState<string | null>(null);
+  const [aiShowResult, setAiShowResult] = useState(false);
+  const [aiScore, setAiScore] = useState(0);
+  const [aiQuizComplete, setAiQuizComplete] = useState(false);
+  const [aiAnswers, setAiAnswers] = useState<{ selected: string; correct: string; isCorrect: boolean }[]>([]);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [aiTopic, setAiTopic] = useState('');
+  const [aiQuestionCount, setAiQuestionCount] = useState(10);
+  const [aiDifficulty, setAiDifficulty] = useState('medium');
+  
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -361,10 +397,244 @@ const Quiz = () => {
     loadQuizzes();
   };
 
+  // AI Quiz functions
+  const generateAiQuiz = async () => {
+    setIsGenerating(true);
+    try {
+      const topicText = aiTopic.trim() || 'Umumiy kimyo - turli mavzular';
+      
+      const response = await supabase.functions.invoke('generate-book-quiz', {
+        body: {
+          bookTitle: 'AI Test',
+          chapterTitle: topicText,
+          chapterContent: `Kimyo bo'yicha "${topicText}" mavzusida test savollarini tuzish. Savollar turli xil bo'lsin: nazariy, amaliy, hisoblash. Kimyoviy reaksiyalar, formulalar, xossalar, qonunlar haqida.`,
+          questionCount: aiQuestionCount,
+          difficulty: aiDifficulty,
+        },
+      });
+
+      if (response.error) throw response.error;
+
+      const data = response.data;
+      if (data.questions && data.questions.length > 0) {
+        const shuffled = [...data.questions].sort(() => Math.random() - 0.5);
+        setAiQuizQuestions(shuffled);
+        setAiCurrentIndex(0);
+        setAiSelectedAnswer(null);
+        setAiShowResult(false);
+        setAiScore(0);
+        setAiQuizComplete(false);
+        setAiAnswers([]);
+        setAiQuizMode(true);
+      } else {
+        throw new Error("Savollar yaratilmadi");
+      }
+    } catch (error: any) {
+      console.error('Error generating AI quiz:', error);
+      toast({
+        title: "Xato",
+        description: error.message || "Test yaratishda xatolik",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleAiAnswerSelect = (answer: string) => {
+    if (aiShowResult) return;
+    setAiSelectedAnswer(answer);
+  };
+
+  const checkAiAnswer = () => {
+    if (!aiSelectedAnswer || !aiQuizQuestions[aiCurrentIndex]) return;
+
+    const currentQuestion = aiQuizQuestions[aiCurrentIndex];
+    const isCorrect = aiSelectedAnswer === currentQuestion.correct;
+    
+    setAiShowResult(true);
+    setAiAnswers([...aiAnswers, { selected: aiSelectedAnswer, correct: currentQuestion.correct, isCorrect }]);
+    
+    if (isCorrect) {
+      setAiScore(aiScore + 1);
+    }
+  };
+
+  const nextAiQuestion = () => {
+    if (aiCurrentIndex < aiQuizQuestions.length - 1) {
+      setAiCurrentIndex(aiCurrentIndex + 1);
+      setAiSelectedAnswer(null);
+      setAiShowResult(false);
+    } else {
+      setAiQuizComplete(true);
+    }
+  };
+
+  const resetAiQuiz = () => {
+    setAiQuizMode(false);
+    setAiQuizQuestions([]);
+    setAiCurrentIndex(0);
+    setAiSelectedAnswer(null);
+    setAiShowResult(false);
+    setAiScore(0);
+    setAiQuizComplete(false);
+    setAiAnswers([]);
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  // AI Quiz taking view
+  if (aiQuizMode && aiQuizQuestions.length > 0 && !aiQuizComplete) {
+    const currentQuestion = aiQuizQuestions[aiCurrentIndex];
+    const progress = ((aiCurrentIndex + 1) / aiQuizQuestions.length) * 100;
+
+    return (
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        <main className="container mx-auto px-4 pt-24 pb-12">
+          <div className="max-w-3xl mx-auto">
+            <Button variant="ghost" onClick={resetAiQuiz} className="mb-6">
+              <ChevronLeft className="w-4 h-4 mr-2" />
+              Orqaga
+            </Button>
+
+            <div className="mb-6">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-muted-foreground">
+                  Savol {aiCurrentIndex + 1} / {aiQuizQuestions.length}
+                </span>
+                <Badge variant="outline">
+                  Ball: {aiScore}
+                </Badge>
+              </div>
+              <Progress value={progress} className="h-2" />
+            </div>
+
+            <Card className="p-6 md:p-8">
+              <h2 className="text-xl md:text-2xl font-semibold mb-6">
+                {currentQuestion.question}
+              </h2>
+
+              <div className="space-y-3">
+                {Object.entries(currentQuestion.options).map(([key, value]) => {
+                  const isSelected = aiSelectedAnswer === key;
+                  const isCorrect = key === currentQuestion.correct;
+
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => handleAiAnswerSelect(key)}
+                      disabled={aiShowResult}
+                      className={`w-full p-4 text-left rounded-lg border-2 transition-all flex items-center gap-3 ${
+                        aiShowResult && isCorrect
+                          ? 'border-green-500 bg-green-500/10'
+                          : aiShowResult && isSelected && !isCorrect
+                          ? 'border-red-500 bg-red-500/10'
+                          : isSelected
+                          ? 'border-primary bg-primary/10'
+                          : 'border-border hover:border-primary/50 hover:bg-muted/50'
+                      }`}
+                    >
+                      <span className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
+                        aiShowResult && isCorrect ? 'bg-green-500 text-white' :
+                        aiShowResult && isSelected && !isCorrect ? 'bg-red-500 text-white' :
+                        isSelected ? 'bg-primary text-primary-foreground' :
+                        'bg-muted'
+                      }`}>
+                        {key}
+                      </span>
+                      <span className="flex-1">{value}</span>
+                      {aiShowResult && isCorrect && (
+                        <CheckCircle2 className="w-5 h-5 text-green-500" />
+                      )}
+                      {aiShowResult && isSelected && !isCorrect && (
+                        <XCircle className="w-5 h-5 text-red-500" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {aiShowResult && currentQuestion.explanation && (
+                <Card className="p-4 mb-6 mt-4 bg-muted/50">
+                  <p className="text-sm">
+                    <span className="font-semibold">Izoh:</span> {currentQuestion.explanation}
+                  </p>
+                </Card>
+              )}
+
+              {!aiShowResult ? (
+                <Button 
+                  onClick={checkAiAnswer} 
+                  disabled={!aiSelectedAnswer}
+                  className="w-full mt-6"
+                  size="lg"
+                >
+                  Tekshirish
+                </Button>
+              ) : (
+                <Button onClick={nextAiQuestion} className="w-full mt-6" size="lg">
+                  {aiCurrentIndex < aiQuizQuestions.length - 1 ? (
+                    <>Keyingi savol <ChevronRight className="w-4 h-4 ml-2" /></>
+                  ) : (
+                    <>Natijalarni ko'rish <Trophy className="w-4 h-4 ml-2" /></>
+                  )}
+                </Button>
+              )}
+            </Card>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  // AI Quiz complete view
+  if (aiQuizComplete) {
+    const percentage = Math.round((aiScore / aiQuizQuestions.length) * 100);
+    return (
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        <main className="container mx-auto px-4 pt-24 pb-12">
+          <div className="max-w-2xl mx-auto">
+            <Card className="p-8 text-center">
+              <div className={`w-24 h-24 mx-auto mb-6 rounded-full flex items-center justify-center ${
+                percentage >= 70 ? 'bg-green-500/20' : percentage >= 50 ? 'bg-yellow-500/20' : 'bg-red-500/20'
+              }`}>
+                <Trophy className={`w-12 h-12 ${
+                  percentage >= 70 ? 'text-green-500' : percentage >= 50 ? 'text-yellow-500' : 'text-red-500'
+                }`} />
+              </div>
+              
+              <h2 className="text-3xl font-bold mb-2">Test yakunlandi!</h2>
+              <p className="text-xl text-muted-foreground mb-6">
+                {aiScore} / {aiQuizQuestions.length} to'g'ri javob ({percentage}%)
+              </p>
+
+              <div className="grid grid-cols-2 gap-4 mb-8">
+                <Card className="p-4 bg-green-500/10">
+                  <CheckCircle2 className="w-8 h-8 text-green-500 mx-auto mb-2" />
+                  <p className="text-2xl font-bold text-green-500">{aiScore}</p>
+                  <p className="text-sm text-muted-foreground">To'g'ri</p>
+                </Card>
+                <Card className="p-4 bg-red-500/10">
+                  <XCircle className="w-8 h-8 text-red-500 mx-auto mb-2" />
+                  <p className="text-2xl font-bold text-red-500">{aiQuizQuestions.length - aiScore}</p>
+                  <p className="text-sm text-muted-foreground">Noto'g'ri</p>
+                </Card>
+              </div>
+
+              <Button onClick={resetAiQuiz} size="lg">
+                Testlarga qaytish
+              </Button>
+            </Card>
+          </div>
+        </main>
       </div>
     );
   }
@@ -544,7 +814,7 @@ const Quiz = () => {
               Test va Viktorina
             </h1>
             <p className="text-muted-foreground">
-              Test rasmini yuklang yoki mavjud testlarni yeching
+              Test rasmini yuklang, AI test yarating yoki mavjud testlarni yeching
             </p>
           </div>
           <Button variant="outline" onClick={handleSignOut}>
@@ -553,98 +823,198 @@ const Quiz = () => {
           </Button>
         </div>
 
-        {/* Upload Section */}
-        <Card className="p-6 mb-8">
-          <h2 className="text-xl font-semibold mb-4">Yangi test yaratish</h2>
-          <div className="space-y-4">
-            <Input
-              placeholder="Test nomi (ixtiyoriy)"
-              value={uploadTitle}
-              onChange={(e) => setUploadTitle(e.target.value)}
-              disabled={isUploading}
-            />
-            
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="questions-upload" className="block">
-                  <Button 
-                    variant={questionsImages.length > 0 ? "outline" : "default"}
-                    size="lg"
-                    disabled={isUploading}
-                    className="w-full cursor-pointer"
-                    asChild
-                  >
-                    <span>
-                      <Upload className="w-5 h-5 mr-2" />
-                      {questionsImages.length > 0 
-                        ? `Savollar yuklandi (${questionsImages.length} ta) ✓` 
-                        : "1. Savollar rasmlarini yuklash"}
-                    </span>
-                  </Button>
-                  <input
-                    id="questions-upload"
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={(e) => handleFileUpload('questions', e)}
-                    className="hidden"
-                    disabled={isUploading}
-                  />
-                </label>
+        <Tabs defaultValue="upload" className="mb-8">
+          <TabsList className="grid w-full grid-cols-2 mb-6">
+            <TabsTrigger value="upload" className="flex items-center gap-2">
+              <Upload className="w-4 h-4" />
+              Rasmdan test
+            </TabsTrigger>
+            <TabsTrigger value="ai" className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4" />
+              AI Test
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="upload">
+            <Card className="p-6">
+              <h2 className="text-xl font-semibold mb-4">Rasmdan test yaratish</h2>
+              <div className="space-y-4">
+                <Input
+                  placeholder="Test nomi (ixtiyoriy)"
+                  value={uploadTitle}
+                  onChange={(e) => setUploadTitle(e.target.value)}
+                  disabled={isUploading}
+                />
+                
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="questions-upload" className="block">
+                      <Button 
+                        variant={questionsImages.length > 0 ? "outline" : "default"}
+                        size="lg"
+                        disabled={isUploading}
+                        className="w-full cursor-pointer"
+                        asChild
+                      >
+                        <span>
+                          <Upload className="w-5 h-5 mr-2" />
+                          {questionsImages.length > 0 
+                            ? `Savollar yuklandi (${questionsImages.length} ta) ✓` 
+                            : "1. Savollar rasmlarini yuklash"}
+                        </span>
+                      </Button>
+                      <input
+                        id="questions-upload"
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={(e) => handleFileUpload('questions', e)}
+                        className="hidden"
+                        disabled={isUploading}
+                      />
+                    </label>
+                  </div>
+
+                  <div>
+                    <label htmlFor="answers-upload" className="block">
+                      <Button 
+                        variant={answersImages.length > 0 ? "outline" : "default"}
+                        size="lg"
+                        disabled={isUploading || questionsImages.length === 0}
+                        className="w-full cursor-pointer"
+                        asChild
+                      >
+                        <span>
+                          <Upload className="w-5 h-5 mr-2" />
+                          {answersImages.length > 0 
+                            ? `Javoblar yuklandi (${answersImages.length} ta) ✓` 
+                            : "2. Javoblar rasmlarini yuklash"}
+                        </span>
+                      </Button>
+                      <input
+                        id="answers-upload"
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={(e) => handleFileUpload('answers', e)}
+                        className="hidden"
+                        disabled={isUploading || questionsImages.length === 0}
+                      />
+                    </label>
+                  </div>
+                </div>
+
+                <Button
+                  onClick={createQuiz}
+                  disabled={isUploading || questionsImages.length === 0 || answersImages.length === 0}
+                  size="lg"
+                  className="w-full"
+                >
+                  {isUploading ? (
+                    <>
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                      AI tahlil qilmoqda...
+                    </>
+                  ) : (
+                    "Test yaratish"
+                  )}
+                </Button>
+
+                <p className="text-sm text-muted-foreground text-center">
+                  AI ikkala rasmni tahlil qilib, test savollarini va to'g'ri javoblarni avtomatik aniqlaydi.
+                  <br />
+                  <span className="text-xs">Maksimum 10 ta fayl, har biri 30MB gacha</span>
+                </p>
               </div>
+            </Card>
+          </TabsContent>
 
-              <div>
-                <label htmlFor="answers-upload" className="block">
-                  <Button 
-                    variant={answersImages.length > 0 ? "outline" : "default"}
-                    size="lg"
-                    disabled={isUploading || questionsImages.length === 0}
-                    className="w-full cursor-pointer"
-                    asChild
-                  >
-                    <span>
-                      <Upload className="w-5 h-5 mr-2" />
-                      {answersImages.length > 0 
-                        ? `Javoblar yuklandi (${answersImages.length} ta) ✓` 
-                        : "2. Javoblar rasmlarini yuklash"}
-                    </span>
-                  </Button>
-                  <input
-                    id="answers-upload"
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={(e) => handleFileUpload('answers', e)}
-                    className="hidden"
-                    disabled={isUploading || questionsImages.length === 0}
-                  />
-                </label>
+          <TabsContent value="ai">
+            <Card className="p-6">
+              <div className="flex items-center gap-3 mb-6 justify-center">
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-accent to-primary flex items-center justify-center">
+                  <Brain className="w-8 h-8 text-primary-foreground" />
+                </div>
               </div>
-            </div>
+              
+              <h2 className="text-2xl font-bold text-center mb-2">AI Test Yaratish</h2>
+              <p className="text-muted-foreground text-center mb-8">
+                AI sizga kimyo bo'yicha test savollarini yaratib beradi
+              </p>
 
-            <Button
-              onClick={createQuiz}
-              disabled={isUploading || questionsImages.length === 0 || answersImages.length === 0}
-              size="lg"
-              className="w-full"
-            >
-              {isUploading ? (
-                <>
-                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                  AI tahlil qilmoqda...
-                </>
-              ) : (
-                "Test yaratish"
-              )}
-            </Button>
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Mavzu (ixtiyoriy)</label>
+                  <Textarea
+                    value={aiTopic}
+                    onChange={(e) => setAiTopic(e.target.value)}
+                    placeholder="Masalan: Organik kimyo, Metallar, pH va kislotalar, Elektroliz..."
+                    className="min-h-[80px] resize-none"
+                    disabled={isGenerating}
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">Bo'sh qoldirsangiz, turli mavzulardan savollar beriladi</p>
+                </div>
 
-            <p className="text-sm text-muted-foreground text-center">
-              AI ikkala rasmni tahlil qilib, test savollarini va to'g'ri javoblarni avtomatik aniqlaydi.
-              <br />
-              <span className="text-xs">Maksimum 10 ta fayl, har biri 30MB gacha</span>
-            </p>
-          </div>
-        </Card>
+                <div>
+                  <p className="text-sm font-medium mb-3">Qiyinlik darajasi:</p>
+                  <div className="flex flex-wrap justify-center gap-2">
+                    {DIFFICULTY_LEVELS.map((level) => (
+                      <Button
+                        key={level.value}
+                        variant={aiDifficulty === level.value ? "default" : "outline"}
+                        onClick={() => setAiDifficulty(level.value)}
+                        className="min-w-[100px]"
+                        disabled={isGenerating}
+                      >
+                        <div className="text-center">
+                          <div className="font-medium">{level.label}</div>
+                          <div className="text-xs opacity-70">{level.description}</div>
+                        </div>
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-sm font-medium mb-3">Savollar soni:</p>
+                  <div className="flex flex-wrap justify-center gap-2">
+                    {QUESTION_COUNTS.map((count) => (
+                      <Button
+                        key={count}
+                        variant={aiQuestionCount === count ? "default" : "outline"}
+                        onClick={() => setAiQuestionCount(count)}
+                        size="lg"
+                        className="min-w-[50px]"
+                        disabled={isGenerating}
+                      >
+                        {count}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
+                <Button 
+                  onClick={generateAiQuiz} 
+                  disabled={isGenerating}
+                  size="lg"
+                  className="w-full"
+                >
+                  {isGenerating ? (
+                    <>
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                      Test yaratilmoqda...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-5 h-5 mr-2" />
+                      {aiQuestionCount} ta savol bilan testni boshlash
+                    </>
+                  )}
+                </Button>
+              </div>
+            </Card>
+          </TabsContent>
+        </Tabs>
 
         {/* Quizzes List */}
         <div>
@@ -653,7 +1023,7 @@ const Quiz = () => {
           {quizzes.length === 0 ? (
             <Card className="p-8 text-center">
               <p className="text-muted-foreground">
-                Hozircha testlar yo'q. Yuqorida rasm yuklab test yarating!
+                Hozircha testlar yo'q. Yuqorida rasm yuklab yoki AI orqali test yarating!
               </p>
             </Card>
           ) : (
