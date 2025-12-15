@@ -8,7 +8,6 @@ import PeriodicTable from "./pages/PeriodicTable";
 import Quiz from "./pages/Quiz";
 import Calculator from "./pages/Calculator";
 import Auth from "./pages/Auth";
-import Learning from "./pages/Learning";
 import Library from "./pages/Library";
 import ChemicalReactions from "./pages/ChemicalReactions";
 import Developers from "./pages/Developers";
@@ -39,7 +38,6 @@ const App = () => {
             <Route path="/" element={<PeriodicTable />} />
             <Route path="/quiz" element={<Quiz />} />
             <Route path="/calculator" element={<Calculator />} />
-            <Route path="/learning" element={<Learning />} />
             <Route path="/library" element={<Library />} />
             <Route path="/reactions" element={<ChemicalReactions />} />
             <Route path="/experiments" element={<Experiments />} />
