@@ -3398,11 +3398,11 @@ const TransformingOptimus = ({ gesture, isTalking, isTransformed, transformProgr
 const BumblebeeMascot = () => {
   const location = useLocation();
   const [currentTipIndex, setCurrentTipIndex] = useState(0);
-  const [showTip, setShowTip] = useState(true);
-  const [bumblebeePos, setBumblebeePos] = useState({ x: 85, y: 20 });
-  const [birdPos, setBirdPos] = useState({ x: 15, y: 25 });
-  const [bumblebeeGesture, setBumblebeeGesture] = useState<GestureType>("wave");
-  const [birdGesture, setBirdGesture] = useState<GestureType>("listen");
+  const [showTip, setShowTip] = useState(false); // Start with tip hidden
+  const [bumblebeePos, setBumblebeePos] = useState({ x: 120, y: 55 }); // Start off-screen right
+  const [birdPos, setBirdPos] = useState({ x: -20, y: 55 }); // Start off-screen left
+  const [bumblebeeGesture, setBumblebeeGesture] = useState<GestureType>("idle");
+  const [birdGesture, setBirdGesture] = useState<GestureType>("idle");
   const [showBird, setShowBird] = useState(false);
   const [isHidden, setIsHidden] = useState(false);
   const [clickCount, setClickCount] = useState(0);
@@ -3411,6 +3411,7 @@ const BumblebeeMascot = () => {
   const [isFirstMessage, setIsFirstMessage] = useState(true);
   const [introStep, setIntroStep] = useState(0); // 0 = tanishuv, 1 = motivatsiya, 2+ = o'rgatish
   const [shuffledKnowledge, setShuffledKnowledge] = useState<string[]>([]);
+  const [hasLanded, setHasLanded] = useState(false); // Track if robots have landed
   const [cameraEnabled, setCameraEnabled] = useState(() => {
     return localStorage.getItem('robot_camera_enabled') === 'true';
   });
@@ -3422,8 +3423,8 @@ const BumblebeeMascot = () => {
   const [bumblebeeTransformProgress, setBumblebeeTransformProgress] = useState(0);
   const [optimusTransformProgress, setOptimusTransformProgress] = useState(0);
   
-  const [bumblebeeTarget, setBumblebeeTarget] = useState({ x: 85, y: 20 });
-  const [birdTarget, setBirdTarget] = useState({ x: 15, y: 25 });
+  const [bumblebeeTarget, setBumblebeeTarget] = useState({ x: 75, y: 55 }); // Landing position
+  const [birdTarget, setBirdTarget] = useState({ x: 25, y: 55 }); // Landing position
   
   const clickTimerRef = useRef<NodeJS.Timeout | null>(null);
   const activityTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -3648,9 +3649,16 @@ const BumblebeeMascot = () => {
     setIsFirstMessage(true);
     setIntroStep(0); // Reset intro step on page change
     setCurrentSpeaker("bumblebee");
-    setBumblebeeGesture("wave");
-    setBirdGesture("listen");
-    setShowTip(true);
+    setBumblebeeGesture("idle");
+    setBirdGesture("idle");
+    setShowTip(false); // Don't show tip until robots land
+    setHasLanded(false); // Reset landing state
+    
+    // Reset positions to off-screen for new page
+    setBumblebeePos({ x: 120, y: 55 });
+    setBirdPos({ x: -20, y: 55 });
+    setBumblebeeTarget({ x: 75, y: 55 });
+    setBirdTarget({ x: 25, y: 55 });
     
     // Reset transformation states
     setBumblebeeTransformed(false);
@@ -3840,39 +3848,53 @@ const BumblebeeMascot = () => {
     return { x: spot.x, y: spot.y };
   }, [landingSpots]);
 
-  // Robots fly to landing spots and stay there longer
+  // Robots enter from sides, land, then start speaking
   useEffect(() => {
     if (isUserActive || isHidden) return;
 
-    // Set initial landing positions
-    setBumblebeeTarget(getLandingPosition('bumblebee'));
+    // Set landing positions (robots will fly to these from off-screen)
+    setBumblebeeTarget({ x: 75, y: 55 });
     if (showBird) {
-      setBirdTarget(getLandingPosition('bird'));
+      setBirdTarget({ x: 25, y: 55 });
     }
 
-    // Change position less frequently (every 20 seconds)
+    // After robots land (2 seconds), start showing tips and gesturing
+    const landingTimer = setTimeout(() => {
+      setHasLanded(true);
+      setBumblebeeGesture("wave");
+      setBirdGesture("listen");
+      setShowTip(true);
+    }, 2500);
+
+    // Change position less frequently (every 20 seconds) - only after landing
     const flyInterval = setInterval(() => {
-      setBumblebeeTarget(getLandingPosition('bumblebee'));
-      if (showBird) {
-        setBirdTarget(getLandingPosition('bird'));
+      if (hasLanded) {
+        setBumblebeeTarget(getLandingPosition('bumblebee'));
+        if (showBird) {
+          setBirdTarget(getLandingPosition('bird'));
+        }
       }
     }, 20000);
 
-    return () => clearInterval(flyInterval);
-  }, [showBird, isUserActive, isHidden, getLandingPosition]);
+    return () => {
+      clearTimeout(landingTimer);
+      clearInterval(flyInterval);
+    };
+  }, [showBird, isUserActive, isHidden, getLandingPosition, hasLanded]);
 
-  // Smooth position update
+  // Smooth position update - faster initial entry, slower movements after landing
   useEffect(() => {
     if (isUserActive) return;
     
     const animationInterval = setInterval(() => {
+      const speed = hasLanded ? 0.02 : 0.05; // Faster entry, slower movements after
       setBumblebeePos(prev => ({
-        x: prev.x + (bumblebeeTarget.x - prev.x) * 0.02,
-        y: prev.y + (bumblebeeTarget.y - prev.y) * 0.02
+        x: prev.x + (bumblebeeTarget.x - prev.x) * speed,
+        y: prev.y + (bumblebeeTarget.y - prev.y) * speed
       }));
       setBirdPos(prev => ({
-        x: prev.x + (birdTarget.x - prev.x) * 0.02,
-        y: prev.y + (birdTarget.y - prev.y) * 0.02
+        x: prev.x + (birdTarget.x - prev.x) * speed,
+        y: prev.y + (birdTarget.y - prev.y) * speed
       }));
     }, 50);
 
