@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useLocation } from "react-router-dom";
 import { X } from "lucide-react";
 
+type Emotion = "normal" | "happy" | "surprised" | "sleeping" | "love" | "thinking";
+
 const tips: Record<string, string[]> = {
   "/": [
     "Davriy jadvaldan elementlarni o'rganishingiz mumkin!",
@@ -40,6 +42,15 @@ const tips: Record<string, string[]> = {
   ],
 };
 
+const emotionEmojis: Record<Emotion, string> = {
+  normal: "",
+  happy: "😊",
+  surprised: "😮",
+  sleeping: "💤",
+  love: "❤️",
+  thinking: "🤔",
+};
+
 const CuteRobot = () => {
   const [isVisible, setIsVisible] = useState(true);
   const [currentTip, setCurrentTip] = useState(0);
@@ -47,6 +58,8 @@ const CuteRobot = () => {
   const [isWaving, setIsWaving] = useState(true);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isMoving, setIsMoving] = useState(false);
+  const [emotion, setEmotion] = useState<Emotion>("normal");
+  const [lastActivity, setLastActivity] = useState(Date.now());
   const location = useLocation();
 
   const currentTips = tips[location.pathname] || tips["/"];
@@ -62,13 +75,49 @@ const CuteRobot = () => {
 
   const moveToRandomPosition = useCallback(() => {
     setIsMoving(true);
+    setEmotion("happy");
     const newPos = getRandomPosition();
     setPosition(newPos);
-    setTimeout(() => setIsMoving(false), 2000);
+    setTimeout(() => {
+      setIsMoving(false);
+      setEmotion("normal");
+    }, 2000);
   }, [getRandomPosition]);
 
+  // Track user activity for sleeping state
   useEffect(() => {
-    // Set initial position
+    const handleActivity = () => {
+      setLastActivity(Date.now());
+      if (emotion === "sleeping") {
+        setEmotion("surprised");
+        setTimeout(() => setEmotion("normal"), 1500);
+      }
+    };
+
+    window.addEventListener("mousemove", handleActivity);
+    window.addEventListener("click", handleActivity);
+    window.addEventListener("keydown", handleActivity);
+
+    return () => {
+      window.removeEventListener("mousemove", handleActivity);
+      window.removeEventListener("click", handleActivity);
+      window.removeEventListener("keydown", handleActivity);
+    };
+  }, [emotion]);
+
+  // Check for inactivity and set sleeping state
+  useEffect(() => {
+    const checkSleep = setInterval(() => {
+      if (Date.now() - lastActivity > 30000 && emotion !== "sleeping") {
+        setEmotion("sleeping");
+        setShowSpeech(false);
+      }
+    }, 5000);
+
+    return () => clearInterval(checkSleep);
+  }, [lastActivity, emotion]);
+
+  useEffect(() => {
     setPosition({ x: window.innerWidth - 120, y: window.innerHeight - 180 });
   }, []);
 
@@ -76,35 +125,192 @@ const CuteRobot = () => {
     setCurrentTip(0);
     setShowSpeech(true);
     setIsWaving(true);
+    setEmotion("happy");
     
-    const waveTimer = setTimeout(() => setIsWaving(false), 2000);
+    const waveTimer = setTimeout(() => {
+      setIsWaving(false);
+      setEmotion("normal");
+    }, 2000);
     
     const tipInterval = setInterval(() => {
       setCurrentTip((prev) => (prev + 1) % currentTips.length);
     }, 5000);
 
-    // Move randomly every 8-15 seconds
     const moveInterval = setInterval(() => {
-      if (Math.random() > 0.4) {
+      if (Math.random() > 0.4 && emotion !== "sleeping") {
         moveToRandomPosition();
       }
     }, 8000 + Math.random() * 7000);
+
+    // Random emotion changes
+    const emotionInterval = setInterval(() => {
+      if (emotion !== "sleeping") {
+        const randomEmotions: Emotion[] = ["normal", "happy", "thinking", "love"];
+        const randomEmotion = randomEmotions[Math.floor(Math.random() * randomEmotions.length)];
+        setEmotion(randomEmotion);
+        setTimeout(() => setEmotion("normal"), 3000);
+      }
+    }, 15000);
 
     return () => {
       clearTimeout(waveTimer);
       clearInterval(tipInterval);
       clearInterval(moveInterval);
+      clearInterval(emotionInterval);
     };
   }, [location.pathname, currentTips.length, moveToRandomPosition]);
 
   const handleClick = () => {
-    setShowSpeech(!showSpeech);
-    setIsWaving(true);
-    setTimeout(() => setIsWaving(false), 1500);
+    setLastActivity(Date.now());
+    if (emotion === "sleeping") {
+      setEmotion("surprised");
+      setTimeout(() => setEmotion("happy"), 1000);
+    } else {
+      setShowSpeech(!showSpeech);
+      setIsWaving(true);
+      setEmotion("happy");
+      setTimeout(() => {
+        setIsWaving(false);
+        setEmotion("normal");
+      }, 1500);
+    }
   };
 
   const handleDoubleClick = () => {
-    moveToRandomPosition();
+    setLastActivity(Date.now());
+    setEmotion("surprised");
+    setTimeout(() => moveToRandomPosition(), 300);
+  };
+
+  // Eye rendering based on emotion
+  const renderEyes = () => {
+    switch (emotion) {
+      case "happy":
+        return (
+          <>
+            {/* Happy eyes - curved upward (^_^) */}
+            <path d="M30 45 Q38 38 46 45" fill="none" stroke="#4DD0E1" strokeWidth="4" strokeLinecap="round" filter="url(#glow)" />
+            <path d="M54 45 Q62 38 70 45" fill="none" stroke="#4DD0E1" strokeWidth="4" strokeLinecap="round" filter="url(#glow)" />
+          </>
+        );
+      case "surprised":
+        return (
+          <>
+            {/* Surprised eyes - big circles (O_O) */}
+            <motion.circle
+              cx="38"
+              cy="45"
+              r="10"
+              fill="#4DD0E1"
+              filter="url(#glow)"
+              initial={{ scale: 0.5 }}
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ duration: 0.3 }}
+            />
+            <motion.circle
+              cx="62"
+              cy="45"
+              r="10"
+              fill="#4DD0E1"
+              filter="url(#glow)"
+              initial={{ scale: 0.5 }}
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ duration: 0.3 }}
+            />
+            <circle cx="38" cy="45" r="4" fill="#0D0D15" />
+            <circle cx="62" cy="45" r="4" fill="#0D0D15" />
+          </>
+        );
+      case "sleeping":
+        return (
+          <>
+            {/* Sleeping eyes - horizontal lines (-_-) */}
+            <line x1="30" y1="45" x2="46" y2="45" stroke="#4DD0E1" strokeWidth="3" strokeLinecap="round" />
+            <line x1="54" y1="45" x2="70" y2="45" stroke="#4DD0E1" strokeWidth="3" strokeLinecap="round" />
+            {/* Z's */}
+            <motion.text
+              x="72"
+              y="25"
+              fill="#4DD0E1"
+              fontSize="12"
+              fontWeight="bold"
+              animate={{ opacity: [0, 1, 0], y: [25, 15, 5] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              Z
+            </motion.text>
+            <motion.text
+              x="80"
+              y="18"
+              fill="#4DD0E1"
+              fontSize="10"
+              fontWeight="bold"
+              animate={{ opacity: [0, 1, 0], y: [18, 10, 2] }}
+              transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
+            >
+              z
+            </motion.text>
+          </>
+        );
+      case "love":
+        return (
+          <>
+            {/* Love eyes - hearts */}
+            <motion.path
+              d="M32 42 C32 38 36 36 38 40 C40 36 44 38 44 42 C44 46 38 50 38 50 C38 50 32 46 32 42"
+              fill="#FF6B9D"
+              filter="url(#glow)"
+              animate={{ scale: [1, 1.15, 1] }}
+              transition={{ duration: 0.5, repeat: Infinity }}
+            />
+            <motion.path
+              d="M56 42 C56 38 60 36 62 40 C64 36 68 38 68 42 C68 46 62 50 62 50 C62 50 56 46 56 42"
+              fill="#FF6B9D"
+              filter="url(#glow)"
+              animate={{ scale: [1, 1.15, 1] }}
+              transition={{ duration: 0.5, repeat: Infinity }}
+            />
+          </>
+        );
+      case "thinking":
+        return (
+          <>
+            {/* Thinking eyes - looking up and to side */}
+            <ellipse cx="40" cy="43" rx="8" ry="6" fill="#4DD0E1" filter="url(#glow)" />
+            <ellipse cx="64" cy="43" rx="8" ry="6" fill="#4DD0E1" filter="url(#glow)" />
+            <circle cx="42" cy="42" r="2" fill="#7FEFFF" />
+            <circle cx="66" cy="42" r="2" fill="#7FEFFF" />
+          </>
+        );
+      default:
+        return (
+          <>
+            {/* Normal eyes */}
+            <motion.ellipse
+              cx="38"
+              cy="45"
+              rx="9"
+              ry="6"
+              fill="#4DD0E1"
+              filter="url(#glow)"
+              animate={{ scaleY: [1, 0.1, 1] }}
+              transition={{ duration: 3, repeat: Infinity, repeatDelay: 3 }}
+            />
+            <motion.ellipse
+              cx="62"
+              cy="45"
+              rx="9"
+              ry="6"
+              fill="#4DD0E1"
+              filter="url(#glow)"
+              animate={{ scaleY: [1, 0.1, 1] }}
+              transition={{ duration: 3, repeat: Infinity, repeatDelay: 3 }}
+            />
+            <ellipse cx="38" cy="44" rx="4" ry="2.5" fill="#7FEFFF" opacity="0.6" />
+            <ellipse cx="62" cy="44" rx="4" ry="2.5" fill="#7FEFFF" opacity="0.6" />
+          </>
+        );
+    }
   };
 
   if (!isVisible) return null;
@@ -128,9 +334,20 @@ const CuteRobot = () => {
       className="fixed top-0 left-0 z-50 flex flex-col items-center gap-2"
       style={{ pointerEvents: "auto" }}
     >
+      {/* Emotion indicator */}
+      {emotionEmojis[emotion] && (
+        <motion.div
+          initial={{ scale: 0, y: 10 }}
+          animate={{ scale: 1, y: 0 }}
+          className="text-2xl"
+        >
+          {emotionEmojis[emotion]}
+        </motion.div>
+      )}
+
       {/* Speech bubble */}
       <AnimatePresence mode="wait">
-        {showSpeech && (
+        {showSpeech && emotion !== "sleeping" && (
           <motion.div
             key={currentTip}
             initial={{ opacity: 0, scale: 0.8, y: 10 }}
@@ -139,7 +356,6 @@ const CuteRobot = () => {
             className="bg-card border border-border rounded-2xl p-3 max-w-[200px] shadow-lg relative"
           >
             <p className="text-sm text-foreground">{currentTips[currentTip]}</p>
-            {/* Speech bubble tail */}
             <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-card border-r border-b border-border rotate-45" />
           </motion.div>
         )}
@@ -163,20 +379,20 @@ const CuteRobot = () => {
         </button>
 
         <motion.div
-          animate={isMoving ? {
-            rotate: [0, -10, 10, -10, 10, 0],
-            y: [0, -5, 0, -5, 0],
-          } : {
-            y: [0, -8, 0],
-          }}
-          transition={isMoving ? {
-            duration: 0.5,
-            repeat: 3,
-          } : {
-            duration: 2,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
+          animate={
+            emotion === "sleeping" 
+              ? { y: [0, -3, 0], rotate: [0, 2, 0, -2, 0] }
+              : isMoving 
+                ? { rotate: [0, -10, 10, -10, 10, 0], y: [0, -5, 0, -5, 0] }
+                : { y: [0, -8, 0] }
+          }
+          transition={
+            emotion === "sleeping"
+              ? { duration: 3, repeat: Infinity, ease: "easeInOut" }
+              : isMoving
+                ? { duration: 0.5, repeat: 3 }
+                : { duration: 2, repeat: Infinity, ease: "easeInOut" }
+          }
         >
           <motion.svg
             viewBox="0 0 100 140"
@@ -204,10 +420,6 @@ const CuteRobot = () => {
               </filter>
               <filter id="softShadow">
                 <feDropShadow dx="0" dy="4" stdDeviation="6" floodOpacity="0.15" />
-              </filter>
-              <filter id="innerGlow">
-                <feGaussianBlur stdDeviation="1" result="blur" />
-                <feComposite in="SourceGraphic" in2="blur" operator="over" />
               </filter>
             </defs>
 
@@ -239,36 +451,25 @@ const CuteRobot = () => {
               fill="#0D0D15"
             />
             
-            {/* Eyes - glowing cyan oval eyes like EVE */}
-            <motion.ellipse
-              cx="38"
-              cy="45"
-              rx="9"
-              ry="6"
-              fill="#4DD0E1"
-              filter="url(#glow)"
-              animate={{ scaleY: [1, 0.1, 1] }}
-              transition={{ duration: 3, repeat: Infinity, repeatDelay: 3 }}
-            />
-            <motion.ellipse
-              cx="62"
-              cy="45"
-              rx="9"
-              ry="6"
-              fill="#4DD0E1"
-              filter="url(#glow)"
-              animate={{ scaleY: [1, 0.1, 1] }}
-              transition={{ duration: 3, repeat: Infinity, repeatDelay: 3 }}
-            />
-            
-            {/* Eye inner glow */}
-            <ellipse cx="38" cy="44" rx="4" ry="2.5" fill="#7FEFFF" opacity="0.6" />
-            <ellipse cx="62" cy="44" rx="4" ry="2.5" fill="#7FEFFF" opacity="0.6" />
+            {/* Dynamic eyes based on emotion */}
+            {renderEyes()}
 
-            {/* Left arm - sleek floating arm */}
+            {/* Left arm */}
             <motion.g
-              animate={isWaving ? { rotate: [0, -60, 40, -60, 0] } : { rotate: [0, 8, 0, -8, 0] }}
-              transition={isWaving ? { duration: 0.5, repeat: 3 } : { duration: 3, repeat: Infinity }}
+              animate={
+                emotion === "sleeping"
+                  ? { rotate: 0 }
+                  : isWaving 
+                    ? { rotate: [0, -60, 40, -60, 0] } 
+                    : { rotate: [0, 8, 0, -8, 0] }
+              }
+              transition={
+                emotion === "sleeping"
+                  ? {}
+                  : isWaving 
+                    ? { duration: 0.5, repeat: 3 } 
+                    : { duration: 3, repeat: Infinity }
+              }
               style={{ transformOrigin: "20px 70px" }}
             >
               <ellipse 
@@ -281,10 +482,22 @@ const CuteRobot = () => {
               />
             </motion.g>
 
-            {/* Right arm - sleek floating arm */}
+            {/* Right arm */}
             <motion.g
-              animate={isWaving ? { rotate: [0, 60, -40, 60, 0] } : { rotate: [0, -8, 0, 8, 0] }}
-              transition={isWaving ? { duration: 0.5, repeat: 3 } : { duration: 3, repeat: Infinity, delay: 0.5 }}
+              animate={
+                emotion === "sleeping"
+                  ? { rotate: 0 }
+                  : isWaving 
+                    ? { rotate: [0, 60, -40, 60, 0] } 
+                    : { rotate: [0, -8, 0, 8, 0] }
+              }
+              transition={
+                emotion === "sleeping"
+                  ? {}
+                  : isWaving 
+                    ? { duration: 0.5, repeat: 3 } 
+                    : { duration: 3, repeat: Infinity, delay: 0.5 }
+              }
               style={{ transformOrigin: "80px 70px" }}
             >
               <ellipse 
@@ -298,22 +511,24 @@ const CuteRobot = () => {
             </motion.g>
 
             {/* Bottom glow effect - hovering */}
-            <ellipse 
+            <motion.ellipse 
               cx="50" 
               cy="130" 
               rx="20" 
               ry="5" 
-              fill="#4DD0E1" 
+              fill={emotion === "love" ? "#FF6B9D" : "#4DD0E1"}
               opacity="0.3"
               filter="url(#glow)"
+              animate={emotion === "sleeping" ? { opacity: [0.1, 0.3, 0.1] } : {}}
+              transition={{ duration: 2, repeat: Infinity }}
             />
           </motion.svg>
         </motion.div>
       </div>
 
       {/* Hint text */}
-      <p className="text-xs text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
-        2x bosing - harakatlaning
+      <p className="text-xs text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity text-center">
+        {emotion === "sleeping" ? "Uyg'otish uchun bosing" : "2x bosing - harakatlaning"}
       </p>
     </motion.div>
   );
