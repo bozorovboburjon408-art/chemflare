@@ -153,16 +153,36 @@ const GirlRobot = ({
         </radialGradient>
       </defs>
       
-      {/* Bow on head */}
-      <g transform="translate(50, 8)">
-        <ellipse cx="-12" cy="0" rx="8" ry="5" fill={primaryColor}/>
-        <ellipse cx="12" cy="0" rx="8" ry="5" fill={primaryColor}/>
-        <circle cx="0" cy="0" r="4" fill={glowColor}/>
-      </g>
+      {/* Iroqi Do'ppi - Square traditional Uzbek cap */}
+      {/* Main square dome shape */}
+      <rect x="28" y="6" width="44" height="18" rx="3" fill="#FFFFFF" stroke="#1A1A1A" strokeWidth="0.5"/>
       
-      {/* Antenna with heart */}
-      <line x1="50" y1="12" x2="50" y2="22" stroke="#FFCCDD" strokeWidth="2"/>
-      <path d="M50 8 C47 5, 44 8, 50 14 C56 8, 53 5, 50 8" fill={glowColor}/>
+      {/* Center zigzag/chevron spine pattern */}
+      <path d="M50 6 L52 9 L50 12 L52 15 L50 18 L52 21 L50 24" fill="none" stroke="#1A1A1A" strokeWidth="1.5"/>
+      <path d="M50 6 L48 9 L50 12 L48 15 L50 18 L48 21 L50 24" fill="none" stroke="#1A1A1A" strokeWidth="1.5"/>
+      
+      {/* Left side floral patterns */}
+      <circle cx="36" cy="12" r="3" fill="#C41E3A"/>
+      <circle cx="36" cy="12" r="1.5" fill="#FFD700"/>
+      <circle cx="32" cy="16" r="2" fill="#C41E3A"/>
+      <circle cx="40" cy="16" r="2" fill="#C41E3A"/>
+      <rect x="34" y="18" width="4" height="3" fill="#1A1A1A"/>
+      
+      {/* Right side floral patterns */}
+      <circle cx="64" cy="12" r="3" fill="#C41E3A"/>
+      <circle cx="64" cy="12" r="1.5" fill="#FFD700"/>
+      <circle cx="60" cy="16" r="2" fill="#C41E3A"/>
+      <circle cx="68" cy="16" r="2" fill="#C41E3A"/>
+      <rect x="62" y="18" width="4" height="3" fill="#1A1A1A"/>
+      
+      {/* Small decorative dots */}
+      <circle cx="44" cy="10" r="0.8" fill="#1A1A1A"/>
+      <circle cx="56" cy="10" r="0.8" fill="#1A1A1A"/>
+      <circle cx="44" cy="18" r="0.8" fill="#1A1A1A"/>
+      <circle cx="56" cy="18" r="0.8" fill="#1A1A1A"/>
+      
+      {/* Bottom edge */}
+      <line x1="28" y1="24" x2="72" y2="24" stroke="#1A1A1A" strokeWidth="1"/>
       
       {/* Head - slightly rounder */}
       <ellipse cx="50" cy="40" rx="26" ry="22" fill="url(#bodyGrad-pink)" stroke="#FFDDEE" strokeWidth="1"/>
