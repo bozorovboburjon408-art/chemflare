@@ -422,19 +422,23 @@ const Experiments = () => {
           open={!!selectedExperiment} 
           onOpenChange={(open) => !open && setSelectedExperiment(null)}
         >
-          <DialogContent className="max-w-4xl">
+          <DialogContent className="max-w-4xl p-0 overflow-hidden">
             {selectedExperiment && (
               <>
-                <DialogHeader>
+                <DialogHeader className="p-6 pb-0">
                   <DialogTitle>{selectedExperiment.title}</DialogTitle>
                 </DialogHeader>
-                <div className="space-y-4">
-                  <video
-                    src={selectedExperiment.video_url}
-                    controls
-                    autoPlay
-                    className="w-full rounded-lg"
-                  />
+                <div className="space-y-4 p-6 pt-4">
+                  <div className="relative w-full bg-black rounded-lg overflow-hidden">
+                    <video
+                      src={selectedExperiment.video_url}
+                      controls
+                      autoPlay
+                      playsInline
+                      className="w-full max-h-[70vh] object-contain"
+                      style={{ aspectRatio: '16/9' }}
+                    />
+                  </div>
                   {selectedExperiment.description && (
                     <p className="text-muted-foreground">
                       {selectedExperiment.description}
