@@ -60,32 +60,78 @@ const CuteRobot = () => {
   const [isMoving, setIsMoving] = useState(false);
   const [emotion, setEmotion] = useState<Emotion>("normal");
   const [lastActivity, setLastActivity] = useState(Date.now());
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const location = useLocation();
 
   const currentTips = tips[location.pathname] || tips["/"];
 
-  const getRandomPosition = useCallback(() => {
-    const maxX = window.innerWidth - 150;
-    const maxY = window.innerHeight - 200;
+  // Preferred positions - corners and edges, away from center content
+  const getSmartPosition = useCallback(() => {
+    const padding = 100;
+    const robotWidth = 100;
+    const robotHeight = 150;
+    const screenW = window.innerWidth;
+    const screenH = window.innerHeight;
+
+    // Define safe zones (corners and edges)
+    const safeZones = [
+      { x: padding, y: padding + 80 }, // top-left
+      { x: screenW - robotWidth - padding, y: padding + 80 }, // top-right
+      { x: padding, y: screenH - robotHeight - padding }, // bottom-left
+      { x: screenW - robotWidth - padding, y: screenH - robotHeight - padding }, // bottom-right
+      { x: screenW / 2 - robotWidth / 2, y: screenH - robotHeight - padding }, // bottom-center
+    ];
+
+    // Find the position furthest from mouse
+    let bestPosition = safeZones[0];
+    let maxDistance = 0;
+
+    for (const zone of safeZones) {
+      const distance = Math.sqrt(
+        Math.pow(zone.x - mousePosition.x, 2) + Math.pow(zone.y - mousePosition.y, 2)
+      );
+      if (distance > maxDistance) {
+        maxDistance = distance;
+        bestPosition = zone;
+      }
+    }
+
+    // Add small random offset to make it feel more natural
     return {
-      x: Math.max(20, Math.random() * maxX),
-      y: Math.max(100, Math.random() * maxY),
+      x: bestPosition.x + (Math.random() - 0.5) * 40,
+      y: bestPosition.y + (Math.random() - 0.5) * 40,
     };
-  }, []);
+  }, [mousePosition]);
 
-  const moveToRandomPosition = useCallback(() => {
-    setIsMoving(true);
-    setEmotion("happy");
-    const newPos = getRandomPosition();
-    setPosition(newPos);
-    setTimeout(() => {
-      setIsMoving(false);
-      setEmotion("normal");
-    }, 2000);
-  }, [getRandomPosition]);
+  const moveToSafePosition = useCallback(() => {
+    // Only move if mouse is too close (within 200px)
+    const distance = Math.sqrt(
+      Math.pow(position.x - mousePosition.x, 2) + Math.pow(position.y - mousePosition.y, 2)
+    );
+    
+    if (distance < 200) {
+      setIsMoving(true);
+      setEmotion("surprised");
+      const newPos = getSmartPosition();
+      setPosition(newPos);
+      setTimeout(() => {
+        setIsMoving(false);
+        setEmotion("normal");
+      }, 1500);
+    }
+  }, [getSmartPosition, mousePosition, position]);
 
-  // Track user activity for sleeping state
+  // Track mouse position and user activity
   useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePosition({ x: e.clientX, y: e.clientY });
+      setLastActivity(Date.now());
+      if (emotion === "sleeping") {
+        setEmotion("surprised");
+        setTimeout(() => setEmotion("normal"), 1500);
+      }
+    };
+
     const handleActivity = () => {
       setLastActivity(Date.now());
       if (emotion === "sleeping") {
@@ -94,12 +140,12 @@ const CuteRobot = () => {
       }
     };
 
-    window.addEventListener("mousemove", handleActivity);
+    window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("click", handleActivity);
     window.addEventListener("keydown", handleActivity);
 
     return () => {
-      window.removeEventListener("mousemove", handleActivity);
+      window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("click", handleActivity);
       window.removeEventListener("keydown", handleActivity);
     };
@@ -136,11 +182,12 @@ const CuteRobot = () => {
       setCurrentTip((prev) => (prev + 1) % currentTips.length);
     }, 5000);
 
+    // Check if mouse is too close and move away
     const moveInterval = setInterval(() => {
-      if (Math.random() > 0.4 && emotion !== "sleeping") {
-        moveToRandomPosition();
+      if (emotion !== "sleeping") {
+        moveToSafePosition();
       }
-    }, 8000 + Math.random() * 7000);
+    }, 3000);
 
     // Random emotion changes
     const emotionInterval = setInterval(() => {
@@ -158,7 +205,7 @@ const CuteRobot = () => {
       clearInterval(moveInterval);
       clearInterval(emotionInterval);
     };
-  }, [location.pathname, currentTips.length, moveToRandomPosition]);
+  }, [location.pathname, currentTips.length, moveToSafePosition, emotion]);
 
   const handleClick = () => {
     setLastActivity(Date.now());
@@ -178,8 +225,14 @@ const CuteRobot = () => {
 
   const handleDoubleClick = () => {
     setLastActivity(Date.now());
-    setEmotion("surprised");
-    setTimeout(() => moveToRandomPosition(), 300);
+    setEmotion("happy");
+    setIsMoving(true);
+    const newPos = getSmartPosition();
+    setPosition(newPos);
+    setTimeout(() => {
+      setIsMoving(false);
+      setEmotion("normal");
+    }, 1500);
   };
 
   // Eye rendering based on emotion
