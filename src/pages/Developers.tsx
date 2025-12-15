@@ -3,7 +3,7 @@ import Navigation from "@/components/Navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Heart, Users, Lightbulb, MessageCircle, ExternalLink, Loader2, Upload, Camera, CameraOff, Rocket, Sparkles, Mail, UserPlus } from "lucide-react";
+import { Heart, Users, Lightbulb, MessageCircle, ExternalLink, Loader2, Upload, Camera, CameraOff, Sparkles, Mail, UserPlus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -283,26 +283,6 @@ const Developers = () => {
                 <h2 className="text-xl font-semibold text-foreground mb-3">Bizning Maqsadimiz</h2>
                 <p className="text-muted-foreground leading-relaxed">
                   Kimyoni <span className="text-primary font-medium">bepul</span>, <span className="text-primary font-medium">sodda</span>, <span className="text-primary font-medium">tushunarli</span> va eng muhimi <span className="text-primary font-medium">mukammal</span> tarzda o'rgatuvchi ilova yaratish edi. Bugun esa shu maqsadimiz ro'yobga chiqdi.
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Startup & Innovation Section */}
-        <Card className="mb-8 bg-gradient-to-br from-orange-500/5 to-yellow-500/5 border-orange-500/20">
-          <CardContent className="p-6 md:p-8">
-            <div className="flex items-start gap-4">
-              <div className="p-3 rounded-full bg-orange-500/10">
-                <Rocket className="w-6 h-6 text-orange-500" />
-              </div>
-              <div>
-                <h2 className="text-xl font-semibold text-foreground mb-3">Startaplar va Ixtirolar</h2>
-                <p className="text-muted-foreground leading-relaxed">
-                  Biz nafaqat dasturiy ta'minot, balki <span className="text-orange-500 font-medium">turli xil ixtirolar</span> va <span className="text-orange-500 font-medium">startap loyihalar</span> ustida ishlaymiz. Bizning jamoamiz doimo yangi imkoniyatlarni izlaydi va innovatsion yechimlar yaratadi.
-                </p>
-                <p className="text-muted-foreground leading-relaxed mt-3">
-                  Agar sizda ham qiziqarli g'oya bo'lsa — biz bilan bog'laning! Birgalikda yanada kattaroq muvaffaqiyatlarga erishishimiz mumkin.
                 </p>
               </div>
             </div>
