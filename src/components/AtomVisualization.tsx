@@ -1,7 +1,18 @@
-import { Canvas } from "@react-three/fiber";
-import { OrbitControls, Sphere, Text } from "@react-three/drei";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { OrbitControls, Sphere, Text, Line } from "@react-three/drei";
 import { useRef, useMemo } from "react";
 import * as THREE from "three";
+
+// Light pastel colors for electron orbits
+const orbitColors = [
+  "#ff9999", // Light red
+  "#99ff99", // Light green
+  "#9999ff", // Light blue
+  "#ffff99", // Light yellow
+  "#ff99ff", // Light magenta
+  "#99ffff", // Light cyan
+  "#ffcc99", // Light orange
+];
 
 interface AtomVisualizationProps {
   atomicNumber: number;
@@ -113,7 +124,110 @@ const DetailedNucleus = ({
   );
 };
 
-// Electron shell component
+// Electron with animated orbit trail
+const AnimatedElectron = ({ 
+  shellRadius, 
+  electronIndex, 
+  totalElectrons, 
+  shellIndex,
+  color
+}: { 
+  shellRadius: number; 
+  electronIndex: number; 
+  totalElectrons: number; 
+  shellIndex: number;
+  color: string;
+}) => {
+  const electronRef = useRef<THREE.Group>(null);
+  const trailRef = useRef<THREE.Line>(null);
+  
+  // Different rotation speeds and tilts for each electron
+  const speed = 0.5 + shellIndex * 0.2;
+  const tiltX = (electronIndex / totalElectrons) * Math.PI;
+  const tiltY = (electronIndex / totalElectrons) * Math.PI * 0.5;
+  const startOffset = (electronIndex / totalElectrons) * Math.PI * 2;
+  
+  // Generate 3D orbital path (elliptical with varying tilts)
+  const orbitPoints = useMemo(() => {
+    const points: THREE.Vector3[] = [];
+    const segments = 128;
+    
+    for (let i = 0; i <= segments; i++) {
+      const angle = (i / segments) * Math.PI * 2;
+      
+      // Create slightly elliptical orbit
+      const a = shellRadius;
+      const b = shellRadius * (0.8 + Math.random() * 0.2);
+      
+      const x = a * Math.cos(angle);
+      const y = b * Math.sin(angle) * Math.cos(tiltX);
+      const z = b * Math.sin(angle) * Math.sin(tiltX);
+      
+      // Apply secondary rotation
+      const rotatedX = x * Math.cos(tiltY) - z * Math.sin(tiltY);
+      const rotatedZ = x * Math.sin(tiltY) + z * Math.cos(tiltY);
+      
+      points.push(new THREE.Vector3(rotatedX, y, rotatedZ));
+    }
+    
+    return points;
+  }, [shellRadius, tiltX, tiltY]);
+  
+  useFrame((state) => {
+    if (electronRef.current) {
+      const time = state.clock.elapsedTime * speed + startOffset;
+      const angle = time % (Math.PI * 2);
+      
+      const a = shellRadius;
+      const b = shellRadius * 0.9;
+      
+      const x = a * Math.cos(angle);
+      const y = b * Math.sin(angle) * Math.cos(tiltX);
+      const z = b * Math.sin(angle) * Math.sin(tiltX);
+      
+      const rotatedX = x * Math.cos(tiltY) - z * Math.sin(tiltY);
+      const rotatedZ = x * Math.sin(tiltY) + z * Math.cos(tiltY);
+      
+      electronRef.current.position.set(rotatedX, y, rotatedZ);
+    }
+  });
+  
+  return (
+    <>
+      {/* Orbital path line */}
+      <Line
+        points={orbitPoints}
+        color={color}
+        lineWidth={2}
+        transparent
+        opacity={0.6}
+      />
+      
+      {/* Electron sphere */}
+      <group ref={electronRef}>
+        <Sphere args={[0.12, 16, 16]}>
+          <meshStandardMaterial 
+            color={color}
+            emissive={color}
+            emissiveIntensity={0.8}
+            metalness={0.3}
+            roughness={0.2}
+          />
+        </Sphere>
+        {/* Electron glow */}
+        <Sphere args={[0.2, 16, 16]}>
+          <meshBasicMaterial 
+            color={color}
+            transparent
+            opacity={0.3}
+          />
+        </Sphere>
+      </group>
+    </>
+  );
+};
+
+// Electron shell component with realistic orbits
 const ElectronShell = ({ 
   radius, 
   electrons, 
@@ -123,37 +237,22 @@ const ElectronShell = ({
   electrons: number; 
   shellIndex: number;
 }) => {
-  const ringRef = useRef<THREE.Mesh>(null);
+  const shellColor = orbitColors[shellIndex % orbitColors.length];
   
   return (
-    <>
-      {/* Shell ring */}
-      <mesh ref={ringRef} rotation={[Math.PI / 2, 0, shellIndex * 0.3]}>
-        <torusGeometry args={[radius, 0.02, 16, 100]} />
-        <meshBasicMaterial color="#666" transparent opacity={0.3} />
-      </mesh>
-      
-      {/* Electrons */}
-      {Array.from({ length: electrons }).map((_, i) => {
-        const angle = (i / electrons) * Math.PI * 2;
-        const x = Math.cos(angle) * radius;
-        const z = Math.sin(angle) * radius;
-        
-        return (
-          <Sphere 
-            key={`electron-${shellIndex}-${i}`} 
-            args={[0.15, 16, 16]} 
-            position={[x, 0, z]}
-          >
-            <meshStandardMaterial 
-              color="#60a5fa" 
-              emissive="#3b82f6"
-              emissiveIntensity={0.5}
-            />
-          </Sphere>
-        );
-      })}
-    </>
+    <group>
+      {/* Electrons with individual orbits */}
+      {Array.from({ length: electrons }).map((_, i) => (
+        <AnimatedElectron
+          key={`electron-${shellIndex}-${i}`}
+          shellRadius={radius}
+          electronIndex={i}
+          totalElectrons={electrons}
+          shellIndex={shellIndex}
+          color={shellColor}
+        />
+      ))}
+    </group>
   );
 };
 
