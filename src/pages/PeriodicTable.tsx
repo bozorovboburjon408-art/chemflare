@@ -17,22 +17,173 @@ interface Element {
   electrons: string;
   description: string;
   detailedInfo?: string;
+  // Extended properties (30+ fields)
+  discoveryYear?: string;
+  discoveredBy?: string;
+  meltingPoint?: string;
+  boilingPoint?: string;
+  density?: string;
+  electronegativity?: string;
+  atomicRadius?: string;
+  ionizationEnergy?: string;
+  oxidationStates?: string;
+  crystalStructure?: string;
+  magneticOrdering?: string;
+  thermalConductivity?: string;
+  electricalResistivity?: string;
+  abundance?: string;
+  isotopeCount?: number;
+  stableIsotopes?: string;
+  halfLife?: string;
+  electronAffinity?: string;
+  valencElectrons?: number;
+  period?: number;
+  group?: number;
+  block?: string;
+  state?: string;
+  color?: string;
+  origin?: string;
+  uses?: string[];
+  hazards?: string;
+  naturalOccurrence?: string;
+  covalentRadius?: string;
+  vanDerWaalsRadius?: string;
 }
 
 const elements: Element[] = [
   // Period 1
-  { symbol: "H", name: "Hydrogen", nameUz: "Vodorod", atomicNumber: 1, atomicMass: "1.008", category: "nonmetal", electrons: "1", description: "Eng yengil element, yulduzlarda ko'p uchraydi", detailedInfo: "Koinotdagi eng ko'p tarqalgan element. Suv (H₂O), ammiakli (NH₃) va barcha organik birikmalar tarkibida mavjud." },
-  { symbol: "He", name: "Helium", nameUz: "Geliy", atomicNumber: 2, atomicMass: "4.003", category: "noble", electrons: "2", description: "Inert gaz, havodagi sharlar uchun ishlatiladi", detailedInfo: "Eng yengil inert gaz. Kriyogen texnologiyada, kemiruvchi sharlar va MRI skanerlarida ishlatiladi." },
+  { 
+    symbol: "H", name: "Hydrogen", nameUz: "Vodorod", atomicNumber: 1, atomicMass: "1.008", category: "nonmetal", electrons: "1", 
+    description: "Eng yengil element, yulduzlarda ko'p uchraydi", 
+    detailedInfo: "Koinotdagi eng ko'p tarqalgan element. Suv (H₂O), ammiakli (NH₃) va barcha organik birikmalar tarkibida mavjud.",
+    discoveryYear: "1766", discoveredBy: "Genri Kavendish", meltingPoint: "-259.14°C", boilingPoint: "-252.87°C",
+    density: "0.00008988 g/cm³", electronegativity: "2.20", atomicRadius: "53 pm", ionizationEnergy: "1312 kJ/mol",
+    oxidationStates: "-1, +1", crystalStructure: "Geksagonal", magneticOrdering: "Diamagnetik", thermalConductivity: "0.1805 W/(m·K)",
+    electricalResistivity: "∞ (izolyator)", abundance: "Koinot: 75%, Yer qobig'i: 0.14%", isotopeCount: 7, stableIsotopes: "H-1, H-2",
+    halfLife: "Barqaror", electronAffinity: "72.8 kJ/mol", valencElectrons: 1, period: 1, group: 1, block: "s",
+    state: "Gaz", color: "Rangsiz", origin: "Primitiv (Big Bang)", 
+    uses: ["Yonilg'i hujayralari", "Ammiak ishlab chiqarish", "Raketalar yonilg'isi", "Neft qayta ishlash", "Suyultirilgan gaz"],
+    hazards: "Juda yonuvchan, portlovchi", naturalOccurrence: "Suv, organik moddalar", covalentRadius: "31 pm", vanDerWaalsRadius: "120 pm"
+  },
+  { 
+    symbol: "He", name: "Helium", nameUz: "Geliy", atomicNumber: 2, atomicMass: "4.003", category: "noble", electrons: "2", 
+    description: "Inert gaz, havodagi sharlar uchun ishlatiladi", 
+    detailedInfo: "Eng yengil inert gaz. Kriyogen texnologiyada, kemiruvchi sharlar va MRI skanerlarida ishlatiladi.",
+    discoveryYear: "1868", discoveredBy: "Per Yanssen, Jozef Loker", meltingPoint: "-272.20°C (bosim ostida)", boilingPoint: "-268.93°C",
+    density: "0.0001785 g/cm³", electronegativity: "Yo'q", atomicRadius: "31 pm", ionizationEnergy: "2372 kJ/mol",
+    oxidationStates: "0", crystalStructure: "Geksagonal", magneticOrdering: "Diamagnetik", thermalConductivity: "0.1513 W/(m·K)",
+    electricalResistivity: "∞ (izolyator)", abundance: "Koinot: 23%, Yer atmosferasi: 0.0005%", isotopeCount: 9, stableIsotopes: "He-3, He-4",
+    halfLife: "Barqaror", electronAffinity: "0 kJ/mol", valencElectrons: 0, period: 1, group: 18, block: "s",
+    state: "Gaz", color: "Rangsiz", origin: "Primitiv (Big Bang)", 
+    uses: ["Sharlar va dirijabllar", "MRI sovutish", "Sho'ng'uvchilar nafas aralashmasi", "Lazerlar", "Yadro reaktorlar"],
+    hazards: "Bo'g'ilish xavfi (havo o'rnini bosadi)", naturalOccurrence: "Tabiiy gaz konlari", covalentRadius: "28 pm", vanDerWaalsRadius: "140 pm"
+  },
   
   // Period 2
-  { symbol: "Li", name: "Lithium", nameUz: "Litiy", atomicNumber: 3, atomicMass: "6.941", category: "alkali", electrons: "2,1", description: "Eng yengil metall, batareyalarda ishlatiladi", detailedInfo: "Li-ion batareyalar uchun asosiy material. Psixiatriyada dori sifatida va shisha ishlab chiqarishda qo'llaniladi." },
-  { symbol: "Be", name: "Beryllium", nameUz: "Berilliy", atomicNumber: 4, atomicMass: "9.012", category: "alkaline", electrons: "2,2", description: "Qattiq va yengil metall", detailedInfo: "Kosmik texnologiyada, rentgen apparatlarida va yuqori aniqlikdagi asboblarda ishlatiladi." },
-  { symbol: "B", name: "Boron", nameUz: "Bor", atomicNumber: 5, atomicMass: "10.81", category: "metalloid", electrons: "2,3", description: "Yarim o'tkazgich xususiyatlariga ega", detailedInfo: "Shisha tolali materiallar, yuvish vositalari va yadro reaktorlarida ishlatiladi." },
-  { symbol: "C", name: "Carbon", nameUz: "Uglerod", atomicNumber: 6, atomicMass: "12.01", category: "nonmetal", electrons: "2,4", description: "Hayot asosi, organik birikmalar tuzilishi", detailedInfo: "Barcha organik moddalar asosi. Olmoslar, grafit, ko'mir va fulleren shakllarda mavjud. DNK, oqsillar va yog'lar tarkibida." },
-  { symbol: "N", name: "Nitrogen", nameUz: "Azot", atomicNumber: 7, atomicMass: "14.01", category: "nonmetal", electrons: "2,5", description: "Havo tarkibining 78%ini tashkil qiladi", detailedInfo: "Oqsillar va DNK tarkibida. O'g'itlar ishlab chiqarish va oziq-ovqat sanoatida (muzlatish) ishlatiladi." },
-  { symbol: "O", name: "Oxygen", nameUz: "Kislorod", atomicNumber: 8, atomicMass: "16.00", category: "nonmetal", electrons: "2,6", description: "Nafas olish va yonish uchun zarur", detailedInfo: "Havo tarkibining 21%i. Aerob hayot uchun zarur, yonish jarayonlarida ishtirok etadi. Suv molekulasi tarkibida." },
-  { symbol: "F", name: "Fluorine", nameUz: "Ftor", atomicNumber: 9, atomicMass: "19.00", category: "halogen", electrons: "2,7", description: "Eng reaktiv element", detailedInfo: "Eng kuchli oksidlovchi. Tish pastasi, teflon (politeflon) va sovutish suyuqliklari tarkibida ishlatiladi." },
-  { symbol: "Ne", name: "Neon", nameUz: "Neon", atomicNumber: 10, atomicMass: "20.18", category: "noble", electrons: "2,8", description: "Reklamalarda yorug'lik uchun ishlatiladi", detailedInfo: "Yorug'lik reklamalar, lazerlar va televizor trubkalarida ishlatiladi. Qizil-to'q sariq yorug'lik beradi." },
+  { 
+    symbol: "Li", name: "Lithium", nameUz: "Litiy", atomicNumber: 3, atomicMass: "6.941", category: "alkali", electrons: "2,1", 
+    description: "Eng yengil metall, batareyalarda ishlatiladi", 
+    detailedInfo: "Li-ion batareyalar uchun asosiy material. Psixiatriyada dori sifatida va shisha ishlab chiqarishda qo'llaniladi.",
+    discoveryYear: "1817", discoveredBy: "Yoxan Arfvedson", meltingPoint: "180.5°C", boilingPoint: "1342°C",
+    density: "0.534 g/cm³", electronegativity: "0.98", atomicRadius: "167 pm", ionizationEnergy: "520.2 kJ/mol",
+    oxidationStates: "+1", crystalStructure: "Kubik markazlangan", magneticOrdering: "Paramagnetik", thermalConductivity: "84.8 W/(m·K)",
+    electricalResistivity: "92.8 nΩ·m", abundance: "Yer qobig'i: 20 ppm", isotopeCount: 7, stableIsotopes: "Li-6, Li-7",
+    halfLife: "Barqaror", electronAffinity: "59.6 kJ/mol", valencElectrons: 1, period: 2, group: 1, block: "s",
+    state: "Qattiq", color: "Kumush-oq", origin: "Big Bang va kosmik nurlar", 
+    uses: ["Li-ion batareyalar", "Psixiatrik dorilar", "Qotishmalar", "Shisha va keramika", "Yadro reaktorlar"],
+    hazards: "Yonuvchan, suv bilan reaktiv", naturalOccurrence: "Minerallar (spodumen, lepidolit)", covalentRadius: "128 pm", vanDerWaalsRadius: "182 pm"
+  },
+  { 
+    symbol: "Be", name: "Beryllium", nameUz: "Berilliy", atomicNumber: 4, atomicMass: "9.012", category: "alkaline", electrons: "2,2", 
+    description: "Qattiq va yengil metall", 
+    detailedInfo: "Kosmik texnologiyada, rentgen apparatlarida va yuqori aniqlikdagi asboblarda ishlatiladi.",
+    discoveryYear: "1798", discoveredBy: "Lui Vokel", meltingPoint: "1287°C", boilingPoint: "2471°C",
+    density: "1.85 g/cm³", electronegativity: "1.57", atomicRadius: "112 pm", ionizationEnergy: "899.5 kJ/mol",
+    oxidationStates: "+2", crystalStructure: "Geksagonal", magneticOrdering: "Diamagnetik", thermalConductivity: "200 W/(m·K)",
+    electricalResistivity: "36 nΩ·m", abundance: "Yer qobig'i: 2.8 ppm", isotopeCount: 12, stableIsotopes: "Be-9",
+    halfLife: "Barqaror", electronAffinity: "0 kJ/mol", valencElectrons: 2, period: 2, group: 2, block: "s",
+    state: "Qattiq", color: "Kulrang-oq", origin: "Kosmik nurlar parchalanishi", 
+    uses: ["Kosmik oynalar", "Rentgen oynalari", "Yadro reaktorlar", "Qotishmalar", "Elektr kontaktlar"],
+    hazards: "Zaharli chang, saraton keltirib chiqaruvchi", naturalOccurrence: "Berill, xrizobberill minerallari", covalentRadius: "96 pm", vanDerWaalsRadius: "153 pm"
+  },
+  { 
+    symbol: "B", name: "Boron", nameUz: "Bor", atomicNumber: 5, atomicMass: "10.81", category: "metalloid", electrons: "2,3", 
+    description: "Yarim o'tkazgich xususiyatlariga ega", 
+    detailedInfo: "Shisha tolali materiallar, yuvish vositalari va yadro reaktorlarida ishlatiladi.",
+    discoveryYear: "1808", discoveredBy: "Lui Gay-Lyussak va Gemfri Devi", meltingPoint: "2076°C", boilingPoint: "3927°C",
+    density: "2.34 g/cm³", electronegativity: "2.04", atomicRadius: "87 pm", ionizationEnergy: "800.6 kJ/mol",
+    oxidationStates: "+3", crystalStructure: "Romboedr", magneticOrdering: "Diamagnetik", thermalConductivity: "27.4 W/(m·K)",
+    electricalResistivity: "10000 Ω·m", abundance: "Yer qobig'i: 10 ppm", isotopeCount: 14, stableIsotopes: "B-10, B-11",
+    halfLife: "Barqaror", electronAffinity: "26.7 kJ/mol", valencElectrons: 3, period: 2, group: 13, block: "p",
+    state: "Qattiq", color: "Qora", origin: "Kosmik nurlar parchalanishi", 
+    uses: ["Borosilikat shisha", "Yuvish kukunlari", "Yadro reaktorlar", "Abraziv materiallar", "Shisha tolalar"],
+    hazards: "O'rta darajada zaharli", naturalOccurrence: "Boraks, kernit minerallari", covalentRadius: "84 pm", vanDerWaalsRadius: "192 pm"
+  },
+  { 
+    symbol: "C", name: "Carbon", nameUz: "Uglerod", atomicNumber: 6, atomicMass: "12.01", category: "nonmetal", electrons: "2,4", 
+    description: "Hayot asosi, organik birikmalar tuzilishi", 
+    detailedInfo: "Barcha organik moddalar asosi. Olmoslar, grafit, ko'mir va fulleren shakllarda mavjud. DNK, oqsillar va yog'lar tarkibida.",
+    discoveryYear: "Qadimdan ma'lum", discoveredBy: "Noma'lum", meltingPoint: "3550°C (sublimatsiya)", boilingPoint: "4027°C (sublimatsiya)",
+    density: "2.267 g/cm³ (grafit)", electronegativity: "2.55", atomicRadius: "77 pm", ionizationEnergy: "1086.5 kJ/mol",
+    oxidationStates: "-4, -3, -2, -1, +1, +2, +3, +4", crystalStructure: "Geksagonal (grafit), Kubik (olmos)", magneticOrdering: "Diamagnetik", thermalConductivity: "129-2310 W/(m·K)",
+    electricalResistivity: "1250 nΩ·m (grafit)", abundance: "Yer qobig'i: 200 ppm, Inson tanasi: 18%", isotopeCount: 15, stableIsotopes: "C-12, C-13",
+    halfLife: "C-14: 5730 yil", electronAffinity: "153.9 kJ/mol", valencElectrons: 4, period: 2, group: 14, block: "p",
+    state: "Qattiq", color: "Qora (grafit), Shaffof (olmos)", origin: "Yulduzlar sintezi", 
+    uses: ["Po'lat ishlab chiqarish", "Yonilg'i", "Plastmassalar", "DNK asosi", "Olmoslar", "Grafen"],
+    hazards: "Ko'mir changi yonuvchan", naturalOccurrence: "Ko'mir, neft, olmos, grafit", covalentRadius: "77 pm", vanDerWaalsRadius: "170 pm"
+  },
+  { 
+    symbol: "N", name: "Nitrogen", nameUz: "Azot", atomicNumber: 7, atomicMass: "14.01", category: "nonmetal", electrons: "2,5", 
+    description: "Havo tarkibining 78%ini tashkil qiladi", 
+    detailedInfo: "Oqsillar va DNK tarkibida. O'g'itlar ishlab chiqarish va oziq-ovqat sanoatida (muzlatish) ishlatiladi.",
+    discoveryYear: "1772", discoveredBy: "Daniel Rezerford", meltingPoint: "-210.0°C", boilingPoint: "-195.8°C",
+    density: "0.001251 g/cm³", electronegativity: "3.04", atomicRadius: "56 pm", ionizationEnergy: "1402.3 kJ/mol",
+    oxidationStates: "-3, -2, -1, +1, +2, +3, +4, +5", crystalStructure: "Geksagonal", magneticOrdering: "Diamagnetik", thermalConductivity: "0.02583 W/(m·K)",
+    electricalResistivity: "∞ (izolyator)", abundance: "Atmosfera: 78%, Yer qobig'i: 19 ppm", isotopeCount: 16, stableIsotopes: "N-14, N-15",
+    halfLife: "Barqaror", electronAffinity: "7 kJ/mol", valencElectrons: 5, period: 2, group: 15, block: "p",
+    state: "Gaz", color: "Rangsiz", origin: "Yulduzlar sintezi", 
+    uses: ["Ammiak va o'g'itlar", "Portlovchi moddalar", "Oziq-ovqat saqlash", "Kriyogen suyuqlik", "Metallurgiya"],
+    hazards: "Bo'g'ilish xavfi", naturalOccurrence: "Atmosfera, nitratlar", covalentRadius: "71 pm", vanDerWaalsRadius: "155 pm"
+  },
+  { 
+    symbol: "O", name: "Oxygen", nameUz: "Kislorod", atomicNumber: 8, atomicMass: "16.00", category: "nonmetal", electrons: "2,6", 
+    description: "Nafas olish va yonish uchun zarur", 
+    detailedInfo: "Havo tarkibining 21%i. Aerob hayot uchun zarur, yonish jarayonlarida ishtirok etadi. Suv molekulasi tarkibida.",
+    discoveryYear: "1774", discoveredBy: "Jozef Pristli va Karl Shele", meltingPoint: "-218.8°C", boilingPoint: "-183.0°C",
+    density: "0.001429 g/cm³", electronegativity: "3.44", atomicRadius: "48 pm", ionizationEnergy: "1313.9 kJ/mol",
+    oxidationStates: "-2, -1, +1, +2", crystalStructure: "Kubik", magneticOrdering: "Paramagnetik", thermalConductivity: "0.02658 W/(m·K)",
+    electricalResistivity: "∞ (izolyator)", abundance: "Atmosfera: 21%, Yer qobig'i: 46%", isotopeCount: 17, stableIsotopes: "O-16, O-17, O-18",
+    halfLife: "Barqaror", electronAffinity: "141 kJ/mol", valencElectrons: 6, period: 2, group: 16, block: "p",
+    state: "Gaz", color: "Rangsiz (gaz), Och ko'k (suyuq)", origin: "Yulduzlar sintezi", 
+    uses: ["Nafas olish", "Po'lat ishlab chiqarish", "Suvga cho'kish", "Tibbiyot", "Raketalar oksidlovchisi"],
+    hazards: "Yonish tezlashtiruvchi", naturalOccurrence: "Atmosfera, suv, minerallar", covalentRadius: "66 pm", vanDerWaalsRadius: "152 pm"
+  },
+  { 
+    symbol: "F", name: "Fluorine", nameUz: "Ftor", atomicNumber: 9, atomicMass: "19.00", category: "halogen", electrons: "2,7", 
+    description: "Eng reaktiv element", 
+    detailedInfo: "Eng kuchli oksidlovchi. Tish pastasi, teflon (politeflon) va sovutish suyuqliklari tarkibida ishlatiladi.",
+    discoveryYear: "1886", discoveredBy: "Anri Muassan", meltingPoint: "-219.6°C", boilingPoint: "-188.1°C",
+    density: "0.001696 g/cm³", electronegativity: "3.98", atomicRadius: "42 pm", ionizationEnergy: "1681 kJ/mol",
+    oxidationStates: "-1", crystalStructure: "Kubik", magneticOrdering: "Diamagnetik", thermalConductivity: "0.0277 W/(m·K)",
+    electricalResistivity: "∞ (izolyator)", abundance: "Yer qobig'i: 585 ppm", isotopeCount: 18, stableIsotopes: "F-19",
+    halfLife: "Barqaror", electronAffinity: "328 kJ/mol", valencElectrons: 7, period: 2, group: 17, block: "p",
+    state: "Gaz", color: "Och sariq", origin: "Yulduzlar sintezi", 
+    uses: ["Tish pastasi (fluorid)", "Teflon", "Sovutish suyuqliklari", "Uran boyitish", "Plastmassalar"],
+    hazards: "Juda zaharli va korroziv", naturalOccurrence: "Fluorit, kriolit minerallari", covalentRadius: "64 pm", vanDerWaalsRadius: "147 pm"
+  },
+  { 
+    symbol: "Ne", name: "Neon", nameUz: "Neon", atomicNumber: 10, atomicMass: "20.18", category: "noble", electrons: "2,8", 
+    description: "Reklamalarda yorug'lik uchun ishlatiladi", 
+    detailedInfo: "Yorug'lik reklamalar, lazerlar va televizor trubkalarida ishlatiladi. Qizil-to'q sariq yorug'lik beradi.",
+    discoveryYear: "1898", discoveredBy: "Uilyam Remzi va Moris Trevers", meltingPoint: "-248.6°C", boilingPoint: "-246.1°C",
+    density: "0.0009002 g/cm³", electronegativity: "Yo'q", atomicRadius: "38 pm", ionizationEnergy: "2080.7 kJ/mol",
+    oxidationStates: "0", crystalStructure: "Kubik yuzasi markazlangan", magneticOrdering: "Diamagnetik", thermalConductivity: "0.0491 W/(m·K)",
+    electricalResistivity: "∞ (izolyator)", abundance: "Atmosfera: 18 ppm", isotopeCount: 19, stableIsotopes: "Ne-20, Ne-21, Ne-22",
+    halfLife: "Barqaror", electronAffinity: "0 kJ/mol", valencElectrons: 0, period: 2, group: 18, block: "p",
+    state: "Gaz", color: "Rangsiz, qizil-to'q sariq nur beradi", origin: "Yulduzlar sintezi", 
+    uses: ["Neon yorug'lik reklamalar", "Lazerlar", "Televizor trubkalari", "Yuqori kuchlanishli indikatorlar"],
+    hazards: "Bo'g'ilish xavfi", naturalOccurrence: "Atmosfera", covalentRadius: "58 pm", vanDerWaalsRadius: "154 pm"
+  },
   
   // Period 3
   { symbol: "Na", name: "Sodium", nameUz: "Natriy", atomicNumber: 11, atomicMass: "22.99", category: "alkali", electrons: "2,8,1", description: "Osh tuzi (NaCl) tarkibida", detailedInfo: "Nerv impulslari va muskul harakati uchun zarur. Sabun, shisha va kimyoviy ishlab chiqarishda ishlatiladi." },
@@ -561,21 +712,251 @@ const PeriodicTable = () => {
                 </TabsContent>
                 
                 <TabsContent value="info" className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="p-4 bg-muted/50 rounded-lg">
-                      <p className="text-sm text-muted-foreground">Atom raqami</p>
-                      <p className="text-2xl font-bold text-primary">{selectedElement.atomicNumber}</p>
+                  {/* Basic Info */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div className="p-3 bg-muted/50 rounded-lg">
+                      <p className="text-xs text-muted-foreground">Atom raqami</p>
+                      <p className="text-lg font-bold text-primary">{selectedElement.atomicNumber}</p>
                     </div>
-                    <div className="p-4 bg-muted/50 rounded-lg">
-                      <p className="text-sm text-muted-foreground">Atom massasi</p>
-                      <p className="text-2xl font-bold text-primary">{selectedElement.atomicMass}</p>
+                    <div className="p-3 bg-muted/50 rounded-lg">
+                      <p className="text-xs text-muted-foreground">Atom massasi</p>
+                      <p className="text-lg font-bold text-primary">{selectedElement.atomicMass}</p>
+                    </div>
+                    <div className="p-3 bg-muted/50 rounded-lg">
+                      <p className="text-xs text-muted-foreground">Davr</p>
+                      <p className="text-lg font-bold text-primary">{selectedElement.period || selectedElement.electrons.split(',').length}</p>
+                    </div>
+                    <div className="p-3 bg-muted/50 rounded-lg">
+                      <p className="text-xs text-muted-foreground">Guruh</p>
+                      <p className="text-lg font-bold text-primary">{selectedElement.group || "—"}</p>
                     </div>
                   </div>
                   
                   <div className="p-4 bg-muted/50 rounded-lg">
                     <p className="text-sm text-muted-foreground">Elektronlar taqsimoti</p>
                     <p className="text-lg font-mono font-semibold">{selectedElement.electrons}</p>
+                    {selectedElement.valencElectrons && (
+                      <p className="text-xs text-muted-foreground mt-1">Valent elektronlar: {selectedElement.valencElectrons}</p>
+                    )}
                   </div>
+                  
+                  {/* Discovery Info */}
+                  {(selectedElement.discoveryYear || selectedElement.discoveredBy) && (
+                    <div className="p-4 bg-amber-500/10 rounded-lg border border-amber-500/20">
+                      <p className="text-sm font-semibold text-amber-400 mb-2">Kashfiyot</p>
+                      <div className="grid grid-cols-2 gap-3 text-sm">
+                        {selectedElement.discoveryYear && (
+                          <div>
+                            <p className="text-xs text-muted-foreground">Kashf etilgan yili</p>
+                            <p className="font-medium">{selectedElement.discoveryYear}</p>
+                          </div>
+                        )}
+                        {selectedElement.discoveredBy && (
+                          <div>
+                            <p className="text-xs text-muted-foreground">Kashf etgan olim</p>
+                            <p className="font-medium">{selectedElement.discoveredBy}</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Physical Properties */}
+                  <div className="p-4 bg-blue-500/10 rounded-lg border border-blue-500/20">
+                    <p className="text-sm font-semibold text-blue-400 mb-3">Fizik xususiyatlar</p>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+                      {selectedElement.state && (
+                        <div>
+                          <p className="text-xs text-muted-foreground">Holati (xona t°)</p>
+                          <p className="font-medium">{selectedElement.state}</p>
+                        </div>
+                      )}
+                      {selectedElement.color && (
+                        <div>
+                          <p className="text-xs text-muted-foreground">Rangi</p>
+                          <p className="font-medium">{selectedElement.color}</p>
+                        </div>
+                      )}
+                      {selectedElement.meltingPoint && (
+                        <div>
+                          <p className="text-xs text-muted-foreground">Erish harorati</p>
+                          <p className="font-medium">{selectedElement.meltingPoint}</p>
+                        </div>
+                      )}
+                      {selectedElement.boilingPoint && (
+                        <div>
+                          <p className="text-xs text-muted-foreground">Qaynash harorati</p>
+                          <p className="font-medium">{selectedElement.boilingPoint}</p>
+                        </div>
+                      )}
+                      {selectedElement.density && (
+                        <div>
+                          <p className="text-xs text-muted-foreground">Zichlik</p>
+                          <p className="font-medium">{selectedElement.density}</p>
+                        </div>
+                      )}
+                      {selectedElement.crystalStructure && (
+                        <div>
+                          <p className="text-xs text-muted-foreground">Kristall tuzilishi</p>
+                          <p className="font-medium">{selectedElement.crystalStructure}</p>
+                        </div>
+                      )}
+                      {selectedElement.magneticOrdering && (
+                        <div>
+                          <p className="text-xs text-muted-foreground">Magnit xususiyati</p>
+                          <p className="font-medium">{selectedElement.magneticOrdering}</p>
+                        </div>
+                      )}
+                      {selectedElement.thermalConductivity && (
+                        <div>
+                          <p className="text-xs text-muted-foreground">Issiqlik o'tkazuvchanlik</p>
+                          <p className="font-medium">{selectedElement.thermalConductivity}</p>
+                        </div>
+                      )}
+                      {selectedElement.electricalResistivity && (
+                        <div>
+                          <p className="text-xs text-muted-foreground">Elektr qarshilik</p>
+                          <p className="font-medium">{selectedElement.electricalResistivity}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Chemical Properties */}
+                  <div className="p-4 bg-green-500/10 rounded-lg border border-green-500/20">
+                    <p className="text-sm font-semibold text-green-400 mb-3">Kimyoviy xususiyatlar</p>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+                      {selectedElement.electronegativity && (
+                        <div>
+                          <p className="text-xs text-muted-foreground">Elektronegativlik</p>
+                          <p className="font-medium">{selectedElement.electronegativity}</p>
+                        </div>
+                      )}
+                      {selectedElement.oxidationStates && (
+                        <div>
+                          <p className="text-xs text-muted-foreground">Oksidlanish darajasi</p>
+                          <p className="font-medium">{selectedElement.oxidationStates}</p>
+                        </div>
+                      )}
+                      {selectedElement.ionizationEnergy && (
+                        <div>
+                          <p className="text-xs text-muted-foreground">Ionlanish energiyasi</p>
+                          <p className="font-medium">{selectedElement.ionizationEnergy}</p>
+                        </div>
+                      )}
+                      {selectedElement.electronAffinity && (
+                        <div>
+                          <p className="text-xs text-muted-foreground">Elektron affinligi</p>
+                          <p className="font-medium">{selectedElement.electronAffinity}</p>
+                        </div>
+                      )}
+                      {selectedElement.block && (
+                        <div>
+                          <p className="text-xs text-muted-foreground">Blok</p>
+                          <p className="font-medium">{selectedElement.block}-blok</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Atomic Radii */}
+                  <div className="p-4 bg-purple-500/10 rounded-lg border border-purple-500/20">
+                    <p className="text-sm font-semibold text-purple-400 mb-3">Atom o'lchamlari</p>
+                    <div className="grid grid-cols-3 gap-3 text-sm">
+                      {selectedElement.atomicRadius && (
+                        <div>
+                          <p className="text-xs text-muted-foreground">Atom radiusi</p>
+                          <p className="font-medium">{selectedElement.atomicRadius}</p>
+                        </div>
+                      )}
+                      {selectedElement.covalentRadius && (
+                        <div>
+                          <p className="text-xs text-muted-foreground">Kovalent radius</p>
+                          <p className="font-medium">{selectedElement.covalentRadius}</p>
+                        </div>
+                      )}
+                      {selectedElement.vanDerWaalsRadius && (
+                        <div>
+                          <p className="text-xs text-muted-foreground">Van der Waals</p>
+                          <p className="font-medium">{selectedElement.vanDerWaalsRadius}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Isotopes */}
+                  {(selectedElement.isotopeCount || selectedElement.stableIsotopes) && (
+                    <div className="p-4 bg-cyan-500/10 rounded-lg border border-cyan-500/20">
+                      <p className="text-sm font-semibold text-cyan-400 mb-3">Izotoplar</p>
+                      <div className="grid grid-cols-3 gap-3 text-sm">
+                        {selectedElement.isotopeCount && (
+                          <div>
+                            <p className="text-xs text-muted-foreground">Izotoplar soni</p>
+                            <p className="font-medium">{selectedElement.isotopeCount}</p>
+                          </div>
+                        )}
+                        {selectedElement.stableIsotopes && (
+                          <div>
+                            <p className="text-xs text-muted-foreground">Barqaror izotoplar</p>
+                            <p className="font-medium">{selectedElement.stableIsotopes}</p>
+                          </div>
+                        )}
+                        {selectedElement.halfLife && (
+                          <div>
+                            <p className="text-xs text-muted-foreground">Yarim yemirilish</p>
+                            <p className="font-medium">{selectedElement.halfLife}</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Abundance & Origin */}
+                  <div className="p-4 bg-orange-500/10 rounded-lg border border-orange-500/20">
+                    <p className="text-sm font-semibold text-orange-400 mb-3">Tarqalishi va kelib chiqishi</p>
+                    <div className="space-y-2 text-sm">
+                      {selectedElement.abundance && (
+                        <div>
+                          <p className="text-xs text-muted-foreground">Tarqalishi</p>
+                          <p className="font-medium">{selectedElement.abundance}</p>
+                        </div>
+                      )}
+                      {selectedElement.origin && (
+                        <div>
+                          <p className="text-xs text-muted-foreground">Kelib chiqishi</p>
+                          <p className="font-medium">{selectedElement.origin}</p>
+                        </div>
+                      )}
+                      {selectedElement.naturalOccurrence && (
+                        <div>
+                          <p className="text-xs text-muted-foreground">Tabiatda uchraydi</p>
+                          <p className="font-medium">{selectedElement.naturalOccurrence}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Uses */}
+                  {selectedElement.uses && selectedElement.uses.length > 0 && (
+                    <div className="p-4 bg-gradient-card rounded-lg border border-border">
+                      <p className="text-sm font-semibold text-primary mb-3">Qo'llanilishi</p>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedElement.uses.map((use, i) => (
+                          <Badge key={i} variant="outline" className="text-xs">
+                            {use}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Hazards */}
+                  {selectedElement.hazards && (
+                    <div className="p-4 bg-red-500/10 rounded-lg border border-red-500/20">
+                      <p className="text-sm font-semibold text-red-400 mb-2">Xavflar</p>
+                      <p className="text-sm">{selectedElement.hazards}</p>
+                    </div>
+                  )}
                   
                   <div className="p-4 bg-muted/50 rounded-lg">
                     <p className="text-sm text-muted-foreground">Inglizcha nomi</p>
