@@ -5,7 +5,17 @@ import * as THREE from "three";
 
 // Electron blue color
 const ELECTRON_COLOR = "#3b82f6";
-const ORBIT_COLOR = "#60a5fa";
+
+// Light pastel colors for orbit rings
+const ORBIT_COLORS = [
+  "#ff9999", // Light red/pink
+  "#99ff99", // Light green
+  "#99ccff", // Light blue
+  "#ffcc99", // Light orange
+  "#cc99ff", // Light purple
+  "#99ffcc", // Light mint
+  "#ffff99", // Light yellow
+];
 
 interface AtomVisualizationProps {
   atomicNumber: number;
@@ -39,8 +49,22 @@ const Nucleus = ({ protons, color }: { protons: number; color: string }) => {
   );
 };
 
-// Simple circular orbit ring
-const OrbitRing = ({ radius }: { radius: number }) => {
+// Animated rotating orbit ring with color
+const AnimatedOrbitRing = ({ 
+  radius, 
+  color, 
+  rotationAxis, 
+  rotationSpeed,
+  initialRotation
+}: { 
+  radius: number; 
+  color: string;
+  rotationAxis: 'x' | 'y' | 'z' | 'xy' | 'xz' | 'yz';
+  rotationSpeed: number;
+  initialRotation: [number, number, number];
+}) => {
+  const groupRef = useRef<THREE.Group>(null);
+  
   const points = useMemo(() => {
     const pts: THREE.Vector3[] = [];
     const segments = 64;
@@ -55,14 +79,39 @@ const OrbitRing = ({ radius }: { radius: number }) => {
     return pts;
   }, [radius]);
 
+  useFrame((state) => {
+    if (groupRef.current) {
+      const time = state.clock.elapsedTime * rotationSpeed;
+      
+      if (rotationAxis === 'x') {
+        groupRef.current.rotation.x = initialRotation[0] + time;
+      } else if (rotationAxis === 'y') {
+        groupRef.current.rotation.y = initialRotation[1] + time;
+      } else if (rotationAxis === 'z') {
+        groupRef.current.rotation.z = initialRotation[2] + time;
+      } else if (rotationAxis === 'xy') {
+        groupRef.current.rotation.x = initialRotation[0] + time * 0.7;
+        groupRef.current.rotation.y = initialRotation[1] + time;
+      } else if (rotationAxis === 'xz') {
+        groupRef.current.rotation.x = initialRotation[0] + time;
+        groupRef.current.rotation.z = initialRotation[2] + time * 0.5;
+      } else if (rotationAxis === 'yz') {
+        groupRef.current.rotation.y = initialRotation[1] + time * 0.8;
+        groupRef.current.rotation.z = initialRotation[2] + time;
+      }
+    }
+  });
+
   return (
-    <Line
-      points={points}
-      color={ORBIT_COLOR}
-      lineWidth={1.5}
-      transparent
-      opacity={0.4}
-    />
+    <group ref={groupRef} rotation={initialRotation}>
+      <Line
+        points={points}
+        color={color}
+        lineWidth={2}
+        transparent
+        opacity={0.5}
+      />
+    </group>
   );
 };
 
@@ -95,7 +144,7 @@ const Electron = ({
       const z = shellRadius * Math.sin(time);
       
       // Apply tilt for 3D effect
-      const y = z * Math.sin(tiltAngle) * 0.3;
+      const y = z * Math.sin(tiltAngle) * 0.5;
       const newZ = z * Math.cos(tiltAngle);
       
       electronRef.current.position.set(x, y, newZ);
@@ -126,7 +175,7 @@ const Electron = ({
   );
 };
 
-// Electron shell with circular orbit
+// Electron shell with multiple colorful rotating orbit rings
 const ElectronShell = ({ 
   radius, 
   electrons, 
@@ -136,18 +185,46 @@ const ElectronShell = ({
   electrons: number; 
   shellIndex: number;
 }) => {
+  // Get 3 different colors for this shell's orbits
+  const color1 = ORBIT_COLORS[shellIndex % ORBIT_COLORS.length];
+  const color2 = ORBIT_COLORS[(shellIndex + 2) % ORBIT_COLORS.length];
+  const color3 = ORBIT_COLORS[(shellIndex + 4) % ORBIT_COLORS.length];
+  
+  // Different rotation speeds and axes for variety
+  const rotationConfigs: Array<{
+    axis: 'x' | 'y' | 'z' | 'xy' | 'xz' | 'yz';
+    speed: number;
+    initial: [number, number, number];
+  }> = [
+    { axis: 'x', speed: 0.3 + shellIndex * 0.1, initial: [0, 0, 0] },
+    { axis: 'yz', speed: 0.2 + shellIndex * 0.05, initial: [Math.PI / 3, 0, Math.PI / 4] },
+    { axis: 'xy', speed: 0.25 + shellIndex * 0.08, initial: [Math.PI / 2, Math.PI / 3, 0] },
+  ];
+
   return (
     <group>
-      {/* Circular orbit ring */}
-      <OrbitRing radius={radius} />
-      
-      {/* Additional tilted orbit rings for 3D effect */}
-      <group rotation={[Math.PI / 3, 0, 0]}>
-        <OrbitRing radius={radius} />
-      </group>
-      <group rotation={[Math.PI / 3, Math.PI / 3, 0]}>
-        <OrbitRing radius={radius} />
-      </group>
+      {/* Three colorful rotating orbit rings */}
+      <AnimatedOrbitRing 
+        radius={radius} 
+        color={color1}
+        rotationAxis={rotationConfigs[0].axis}
+        rotationSpeed={rotationConfigs[0].speed}
+        initialRotation={rotationConfigs[0].initial}
+      />
+      <AnimatedOrbitRing 
+        radius={radius} 
+        color={color2}
+        rotationAxis={rotationConfigs[1].axis}
+        rotationSpeed={rotationConfigs[1].speed}
+        initialRotation={rotationConfigs[1].initial}
+      />
+      <AnimatedOrbitRing 
+        radius={radius} 
+        color={color3}
+        rotationAxis={rotationConfigs[2].axis}
+        rotationSpeed={rotationConfigs[2].speed}
+        initialRotation={rotationConfigs[2].initial}
+      />
       
       {/* Blue electrons */}
       {Array.from({ length: electrons }).map((_, i) => (
