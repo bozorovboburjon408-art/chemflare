@@ -8,7 +8,23 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Upload, Loader2, CheckCircle2, XCircle, Trophy, LogOut, Shuffle, Brain, Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
+import { Upload, Loader2, CheckCircle2, XCircle, Trophy, LogOut, Shuffle, Brain, Sparkles, ChevronLeft, ChevronRight, Pencil, Trash2, MoreVertical, X, Check } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
@@ -80,6 +96,11 @@ const Quiz = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [aiTopic, setAiTopic] = useState('');
   const [aiQuestionCount, setAiQuestionCount] = useState(10);
+  
+  // Edit quiz states
+  const [editingQuizId, setEditingQuizId] = useState<string | null>(null);
+  const [editingTitle, setEditingTitle] = useState('');
+  const [deleteQuizId, setDeleteQuizId] = useState<string | null>(null);
   const [aiDifficulty, setAiDifficulty] = useState('medium');
   
   const navigate = useNavigate();
@@ -479,6 +500,93 @@ const Quiz = () => {
     setAiScore(0);
     setAiQuizComplete(false);
     setAiAnswers([]);
+  };
+
+  // Edit quiz functions
+  const startEditingQuiz = (quiz: Quiz, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditingQuizId(quiz.id);
+    setEditingTitle(quiz.title);
+  };
+
+  const cancelEditing = () => {
+    setEditingQuizId(null);
+    setEditingTitle('');
+  };
+
+  const saveQuizTitle = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!editingQuizId || !editingTitle.trim()) return;
+
+    const { error } = await supabase
+      .from('quizzes')
+      .update({ title: editingTitle.trim() })
+      .eq('id', editingQuizId);
+
+    if (error) {
+      toast({
+        title: "Xato",
+        description: "Test nomini o'zgartirishda xatolik",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Muvaffaqiyatli",
+      description: "Test nomi o'zgartirildi",
+    });
+
+    setEditingQuizId(null);
+    setEditingTitle('');
+    loadQuizzes();
+  };
+
+  const confirmDeleteQuiz = (quizId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setDeleteQuizId(quizId);
+  };
+
+  const deleteQuiz = async () => {
+    if (!deleteQuizId) return;
+
+    // First delete questions
+    const { error: questionsError } = await supabase
+      .from('questions')
+      .delete()
+      .eq('quiz_id', deleteQuizId);
+
+    if (questionsError) {
+      toast({
+        title: "Xato",
+        description: "Test savollarini o'chirishda xatolik",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Then delete quiz
+    const { error: quizError } = await supabase
+      .from('quizzes')
+      .delete()
+      .eq('id', deleteQuizId);
+
+    if (quizError) {
+      toast({
+        title: "Xato",
+        description: "Testni o'chirishda xatolik",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Muvaffaqiyatli",
+      description: "Test o'chirildi",
+    });
+
+    setDeleteQuizId(null);
+    loadQuizzes();
   };
 
   if (isLoading) {
@@ -1031,23 +1139,63 @@ const Quiz = () => {
               {quizzes.map((quiz) => (
                 <Card
                   key={quiz.id}
-                  className="p-6 hover:shadow-lg transition-shadow cursor-pointer"
-                  onClick={() => startQuiz(quiz.id)}
+                  className="p-6 hover:shadow-lg transition-shadow cursor-pointer relative"
+                  onClick={() => editingQuizId !== quiz.id && startQuiz(quiz.id)}
                 >
                   <div className="flex items-start justify-between mb-3">
-                    <h3 className="font-semibold text-lg">{quiz.title}</h3>
-                    <div className="flex gap-2">
-                      <Badge variant="outline" className="bg-primary/10 border-primary/30">
-                        <Shuffle className="w-3 h-3 mr-1" />
-                        Aralash
-                      </Badge>
-                      {quiz.completed_at && (
-                        <Badge variant="outline" className="bg-green-500/10 border-green-500/30">
-                          <CheckCircle2 className="w-3 h-3 mr-1" />
-                          Bajarilgan
+                    {editingQuizId === quiz.id ? (
+                      <div className="flex items-center gap-2 flex-1 mr-2" onClick={(e) => e.stopPropagation()}>
+                        <Input
+                          value={editingTitle}
+                          onChange={(e) => setEditingTitle(e.target.value)}
+                          className="h-8"
+                          autoFocus
+                        />
+                        <Button size="icon" variant="ghost" className="h-8 w-8" onClick={saveQuizTitle}>
+                          <Check className="w-4 h-4 text-green-500" />
+                        </Button>
+                        <Button size="icon" variant="ghost" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); cancelEditing(); }}>
+                          <X className="w-4 h-4 text-red-500" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <h3 className="font-semibold text-lg">{quiz.title}</h3>
+                    )}
+                    
+                    {editingQuizId !== quiz.id && (
+                      <div className="flex items-center gap-1">
+                        <Badge variant="outline" className="bg-primary/10 border-primary/30">
+                          <Shuffle className="w-3 h-3 mr-1" />
+                          Aralash
                         </Badge>
-                      )}
-                    </div>
+                        {quiz.completed_at && (
+                          <Badge variant="outline" className="bg-green-500/10 border-green-500/30">
+                            <CheckCircle2 className="w-3 h-3 mr-1" />
+                            Bajarilgan
+                          </Badge>
+                        )}
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 ml-1">
+                              <MoreVertical className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={(e) => startEditingQuiz(quiz, e as any)}>
+                              <Pencil className="w-4 h-4 mr-2" />
+                              Nomini o'zgartirish
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={(e) => confirmDeleteQuiz(quiz.id, e as any)}
+                              className="text-destructive focus:text-destructive"
+                            >
+                              <Trash2 className="w-4 h-4 mr-2" />
+                              O'chirish
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    )}
                   </div>
                   
                   {quiz.description && (
@@ -1067,6 +1215,24 @@ const Quiz = () => {
               ))}
             </div>
           )}
+
+          {/* Delete confirmation dialog */}
+          <AlertDialog open={!!deleteQuizId} onOpenChange={() => setDeleteQuizId(null)}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Testni o'chirish</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Haqiqatan ham bu testni o'chirmoqchimisiz? Bu amalni ortga qaytarib bo'lmaydi.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Bekor qilish</AlertDialogCancel>
+                <AlertDialogAction onClick={deleteQuiz} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                  O'chirish
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </main>
     </div>
