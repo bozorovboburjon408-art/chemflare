@@ -261,7 +261,6 @@ const BoyRobot = ({
 }) => {
   const primaryColor = "#4CAF50"; // Green
   const glowColor = "#81C784"; // Light green
-  const doppiColor = "#1A1A1A"; // Black doppi
   
   return (
     <svg viewBox="0 0 100 140" className="w-full h-full drop-shadow-lg">
@@ -280,27 +279,49 @@ const BoyRobot = ({
         </radialGradient>
       </defs>
       
-      {/* Uzbek Doppi (Traditional Cap) */}
-      <ellipse cx="50" cy="22" rx="24" ry="6" fill={doppiColor}/>
-      <path d="M28 22 Q28 8 50 6 Q72 8 72 22" fill={doppiColor}/>
-      {/* Doppi white decorative patterns */}
-      <ellipse cx="50" cy="18" rx="16" ry="3" fill="none" stroke="#FFFFFF" strokeWidth="0.8"/>
-      <circle cx="50" cy="10" r="2" fill="#FFFFFF"/>
-      <circle cx="42" cy="12" r="1" fill="#FFFFFF"/>
-      <circle cx="58" cy="12" r="1" fill="#FFFFFF"/>
-      {/* Doppi bottom border pattern */}
-      <line x1="30" y1="21" x2="70" y2="21" stroke="#FFFFFF" strokeWidth="1"/>
-      <line x1="32" y1="19" x2="68" y2="19" stroke="#FFFFFF" strokeWidth="0.5" strokeDasharray="3 2"/>
+      {/* Uzbek Doppi - Realistic Traditional Cap */}
+      {/* Main dome shape */}
+      <path d="M26 28 Q26 6 50 4 Q74 6 74 28" fill="#1A1A1A"/>
+      <ellipse cx="50" cy="28" rx="24" ry="5" fill="#1A1A1A"/>
       
-      {/* Head - cute round shape */}
-      <ellipse cx="50" cy="40" rx="24" ry="20" fill="url(#bodyGrad-boy)" stroke="#C8E6C9" strokeWidth="1"/>
+      {/* Top decorative swirl pattern */}
+      <path d="M40 12 Q50 8 60 12" fill="none" stroke="#FFFFFF" strokeWidth="1" strokeLinecap="round"/>
+      <path d="M42 10 Q50 14 58 10" fill="none" stroke="#FFFFFF" strokeWidth="0.8" strokeLinecap="round"/>
+      <circle cx="50" cy="8" r="1.5" fill="#FFFFFF"/>
+      <circle cx="44" cy="11" r="0.8" fill="#FFFFFF"/>
+      <circle cx="56" cy="11" r="0.8" fill="#FFFFFF"/>
       
-      {/* Face screen - rounder */}
-      <ellipse cx="50" cy="42" rx="18" ry="14" fill="#1A1A2E"/>
+      {/* Middle decorative band with geometric patterns */}
+      <rect x="28" y="18" width="44" height="8" fill="#1A1A1A"/>
+      <line x1="28" y1="18" x2="72" y2="18" stroke="#FFFFFF" strokeWidth="0.5"/>
+      <line x1="28" y1="26" x2="72" y2="26" stroke="#FFFFFF" strokeWidth="0.5"/>
       
-      {/* Eyes - big cute round eyes */}
+      {/* Geometric rectangle patterns in the band */}
+      <rect x="30" y="20" width="6" height="4" fill="none" stroke="#FFFFFF" strokeWidth="0.6" rx="0.5"/>
+      <rect x="38" y="20" width="6" height="4" fill="none" stroke="#FFFFFF" strokeWidth="0.6" rx="0.5"/>
+      <rect x="46" y="20" width="8" height="4" fill="none" stroke="#FFFFFF" strokeWidth="0.6" rx="0.5"/>
+      <rect x="56" y="20" width="6" height="4" fill="none" stroke="#FFFFFF" strokeWidth="0.6" rx="0.5"/>
+      <rect x="64" y="20" width="6" height="4" fill="none" stroke="#FFFFFF" strokeWidth="0.6" rx="0.5"/>
+      
+      {/* Small dots between rectangles */}
+      <circle cx="37" cy="22" r="0.6" fill="#FFFFFF"/>
+      <circle cx="45" cy="22" r="0.6" fill="#FFFFFF"/>
+      <circle cx="55" cy="22" r="0.6" fill="#FFFFFF"/>
+      <circle cx="63" cy="22" r="0.6" fill="#FFFFFF"/>
+      
+      {/* Bottom border with zigzag/wave pattern */}
+      <path d="M28 27 L30 25 L32 27 L34 25 L36 27 L38 25 L40 27 L42 25 L44 27 L46 25 L48 27 L50 25 L52 27 L54 25 L56 27 L58 25 L60 27 L62 25 L64 27 L66 25 L68 27 L70 25 L72 27" 
+        fill="none" stroke="#FFFFFF" strokeWidth="0.6"/>
+      
+      {/* Head - rounded rectangle shape */}
+      <rect x="28" y="32" width="44" height="28" rx="12" fill="url(#bodyGrad-boy)" stroke="#C8E6C9" strokeWidth="1"/>
+      
+      {/* Face screen */}
+      <rect x="32" y="36" width="36" height="20" rx="8" fill="#1A1A2E"/>
+      
+      {/* Eyes - cute round eyes */}
       <motion.ellipse 
-        cx="42" cy="42" rx="5" ry={isTalking ? 4 : 5}
+        cx="42" cy="46" rx="5" ry={isTalking ? 4 : 5}
         fill={glowColor} 
         filter="url(#glow-green)"
         animate={{ 
@@ -313,7 +334,7 @@ const BoyRobot = ({
         }}
       />
       <motion.ellipse 
-        cx="58" cy="42" rx="5" ry={isTalking ? 4 : 5}
+        cx="58" cy="46" rx="5" ry={isTalking ? 4 : 5}
         fill={glowColor} 
         filter="url(#glow-green)"
         animate={{ 
@@ -329,44 +350,44 @@ const BoyRobot = ({
       {/* Smile */}
       {isTalking ? (
         <motion.path 
-          d="M44 50 Q50 54 56 50" 
+          d="M44 52 Q50 56 56 52" 
           fill="none" 
           stroke={glowColor} 
           strokeWidth="2"
           strokeLinecap="round"
-          animate={{ d: ["M44 50 Q50 54 56 50", "M44 50 Q50 52 56 50", "M44 50 Q50 54 56 50"] }}
+          animate={{ d: ["M44 52 Q50 56 56 52", "M44 52 Q50 54 56 52", "M44 52 Q50 56 56 52"] }}
           transition={{ duration: 0.3, repeat: Infinity }}
         />
       ) : (
-        <path d="M44 49 Q50 53 56 49" fill="none" stroke={glowColor} strokeWidth="2" strokeLinecap="round"/>
+        <path d="M44 51 Q50 55 56 51" fill="none" stroke={glowColor} strokeWidth="2" strokeLinecap="round"/>
       )}
       
-      {/* Body - cute small body */}
-      <ellipse cx="50" cy="85" rx="18" ry="24" fill="url(#bodyGrad-boy)" stroke="#C8E6C9" strokeWidth="1"/>
+      {/* Body - rounded rectangle, not egg shape */}
+      <rect x="32" y="62" width="36" height="44" rx="10" fill="url(#bodyGrad-boy)" stroke="#C8E6C9" strokeWidth="1"/>
       
-      {/* Body accent - simple shirt */}
-      <path d="M38 70 Q50 65 62 70 L60 90 Q50 95 40 90 Z" fill={primaryColor} opacity="0.7"/>
+      {/* Body accent - shirt */}
+      <path d="M36 65 Q50 62 64 65 L62 90 Q50 94 38 90 Z" fill={primaryColor} opacity="0.7"/>
       
-      {/* Small buttons */}
-      <circle cx="50" cy="78" r="2" fill="#FFFFFF"/>
-      <circle cx="50" cy="86" r="2" fill="#FFFFFF"/>
+      {/* Buttons */}
+      <circle cx="50" cy="75" r="2" fill="#FFFFFF"/>
+      <circle cx="50" cy="83" r="2" fill="#FFFFFF"/>
       
-      {/* Arms - small cute arms */}
+      {/* Arms */}
       <motion.g
         animate={isWaving ? { rotate: [0, -30, 0] } : {}}
         transition={{ duration: 0.5, repeat: isWaving ? Infinity : 0, repeatDelay: 0.4 }}
         style={{ transformOrigin: "32px 78px" }}
       >
-        <ellipse cx="26" cy="82" rx="6" ry="10" fill="url(#bodyGrad-boy)" stroke="#C8E6C9" strokeWidth="1"/>
-        <ellipse cx="26" cy="82" rx="4" ry="6" fill={primaryColor} opacity="0.4"/>
+        <rect x="20" y="70" width="12" height="18" rx="5" fill="url(#bodyGrad-boy)" stroke="#C8E6C9" strokeWidth="1"/>
+        <rect x="22" y="74" width="8" height="10" rx="3" fill={primaryColor} opacity="0.4"/>
       </motion.g>
       
-      <ellipse cx="74" cy="82" rx="6" ry="10" fill="url(#bodyGrad-boy)" stroke="#C8E6C9" strokeWidth="1"/>
-      <ellipse cx="74" cy="82" rx="4" ry="6" fill={primaryColor} opacity="0.4"/>
+      <rect x="68" y="70" width="12" height="18" rx="5" fill="url(#bodyGrad-boy)" stroke="#C8E6C9" strokeWidth="1"/>
+      <rect x="70" y="74" width="8" height="10" rx="3" fill={primaryColor} opacity="0.4"/>
       
-      {/* Feet - small cute feet */}
-      <ellipse cx="42" cy="110" rx="8" ry="5" fill="url(#bodyGrad-boy)" stroke="#C8E6C9" strokeWidth="1"/>
-      <ellipse cx="58" cy="110" rx="8" ry="5" fill="url(#bodyGrad-boy)" stroke="#C8E6C9" strokeWidth="1"/>
+      {/* Feet */}
+      <rect x="36" y="106" width="12" height="8" rx="4" fill="url(#bodyGrad-boy)" stroke="#C8E6C9" strokeWidth="1"/>
+      <rect x="52" y="106" width="12" height="8" rx="4" fill="url(#bodyGrad-boy)" stroke="#C8E6C9" strokeWidth="1"/>
       
       {/* Name tag */}
       <text x="50" y="100" textAnchor="middle" fontSize="5" fill="#666666" fontFamily="Arial">{name}</text>
