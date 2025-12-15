@@ -249,7 +249,7 @@ const GirlRobot = ({
   );
 };
 
-// Boy Robot SVG Component (Piko - Blue/Navy)
+// Boy Robot SVG Component (Piko - Young boy with Uzbek doppi)
 const BoyRobot = ({ 
   isWaving = false, 
   isTalking = false,
@@ -259,49 +259,52 @@ const BoyRobot = ({
   isTalking?: boolean;
   name?: string;
 }) => {
-  const primaryColor = "#2196F3"; // Blue
-  const glowColor = "#64B5F6"; // Light blue
-  const accentColor = "#1565C0"; // Dark blue
+  const primaryColor = "#4CAF50"; // Green
+  const glowColor = "#81C784"; // Light green
+  const doppiColor = "#1A1A1A"; // Black doppi
   
   return (
     <svg viewBox="0 0 100 140" className="w-full h-full drop-shadow-lg">
       {/* Glow effect */}
       <defs>
-        <filter id="glow-blue" x="-50%" y="-50%" width="200%" height="200%">
+        <filter id="glow-green" x="-50%" y="-50%" width="200%" height="200%">
           <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
           <feMerge>
             <feMergeNode in="coloredBlur"/>
             <feMergeNode in="SourceGraphic"/>
           </feMerge>
         </filter>
-        <radialGradient id="bodyGrad-blue" cx="30%" cy="30%">
+        <radialGradient id="bodyGrad-boy" cx="30%" cy="30%">
           <stop offset="0%" stopColor="#FFFFFF"/>
-          <stop offset="100%" stopColor="#E3F2FD"/>
+          <stop offset="100%" stopColor="#E8F5E9"/>
         </radialGradient>
       </defs>
       
-      {/* Cap/Hat */}
-      <ellipse cx="50" cy="22" rx="30" ry="8" fill={accentColor}/>
-      <path d="M25 22 Q25 12 50 10 Q75 12 75 22" fill={primaryColor}/>
-      <rect x="45" y="5" width="10" height="8" rx="2" fill={accentColor}/>
+      {/* Uzbek Doppi (Traditional Cap) */}
+      <ellipse cx="50" cy="22" rx="24" ry="6" fill={doppiColor}/>
+      <path d="M28 22 Q28 8 50 6 Q72 8 72 22" fill={doppiColor}/>
+      {/* Doppi white decorative patterns */}
+      <ellipse cx="50" cy="18" rx="16" ry="3" fill="none" stroke="#FFFFFF" strokeWidth="0.8"/>
+      <circle cx="50" cy="10" r="2" fill="#FFFFFF"/>
+      <circle cx="42" cy="12" r="1" fill="#FFFFFF"/>
+      <circle cx="58" cy="12" r="1" fill="#FFFFFF"/>
+      {/* Doppi bottom border pattern */}
+      <line x1="30" y1="21" x2="70" y2="21" stroke="#FFFFFF" strokeWidth="1"/>
+      <line x1="32" y1="19" x2="68" y2="19" stroke="#FFFFFF" strokeWidth="0.5" strokeDasharray="3 2"/>
       
-      {/* Head - more square/angular */}
-      <rect x="24" cy="25" y="25" width="52" height="35" rx="12" fill="url(#bodyGrad-blue)" stroke="#BBDEFB" strokeWidth="1"/>
+      {/* Head - cute round shape */}
+      <ellipse cx="50" cy="40" rx="24" ry="20" fill="url(#bodyGrad-boy)" stroke="#C8E6C9" strokeWidth="1"/>
       
-      {/* Face screen */}
-      <rect x="30" y="32" width="40" height="22" rx="8" fill="#1A1A2E"/>
+      {/* Face screen - rounder */}
+      <ellipse cx="50" cy="42" rx="18" ry="14" fill="#1A1A2E"/>
       
-      {/* Thick eyebrows */}
-      <rect x="34" y="34" width="10" height="3" rx="1" fill={accentColor}/>
-      <rect x="56" y="34" width="10" height="3" rx="1" fill={accentColor}/>
-      
-      {/* Eyes - square style */}
-      <motion.rect 
-        x="35" y="40" width="10" height={isTalking ? 6 : 8} rx="2"
+      {/* Eyes - big cute round eyes */}
+      <motion.ellipse 
+        cx="42" cy="42" rx="5" ry={isTalking ? 4 : 5}
         fill={glowColor} 
-        filter="url(#glow-blue)"
+        filter="url(#glow-green)"
         animate={{ 
-          height: isTalking ? [8, 5, 8] : 8,
+          scaleY: isTalking ? [1, 0.7, 1] : 1,
           opacity: [0.8, 1, 0.8]
         }}
         transition={{ 
@@ -309,12 +312,12 @@ const BoyRobot = ({
           repeat: Infinity
         }}
       />
-      <motion.rect 
-        x="55" y="40" width="10" height={isTalking ? 6 : 8} rx="2"
+      <motion.ellipse 
+        cx="58" cy="42" rx="5" ry={isTalking ? 4 : 5}
         fill={glowColor} 
-        filter="url(#glow-blue)"
+        filter="url(#glow-green)"
         animate={{ 
-          height: isTalking ? [8, 5, 8] : 8,
+          scaleY: isTalking ? [1, 0.7, 1] : 1,
           opacity: [0.8, 1, 0.8]
         }}
         transition={{ 
@@ -323,53 +326,50 @@ const BoyRobot = ({
         }}
       />
       
-      {/* Smile/mouth */}
+      {/* Smile */}
       {isTalking ? (
-        <motion.rect 
-          x="42" y="52" width="16" height="4" rx="2"
-          fill={glowColor}
-          animate={{ height: [4, 2, 4] }}
+        <motion.path 
+          d="M44 50 Q50 54 56 50" 
+          fill="none" 
+          stroke={glowColor} 
+          strokeWidth="2"
+          strokeLinecap="round"
+          animate={{ d: ["M44 50 Q50 54 56 50", "M44 50 Q50 52 56 50", "M44 50 Q50 54 56 50"] }}
           transition={{ duration: 0.3, repeat: Infinity }}
         />
       ) : (
-        <rect x="44" y="52" width="12" height="2" rx="1" fill={glowColor} opacity="0.7"/>
+        <path d="M44 49 Q50 53 56 49" fill="none" stroke={glowColor} strokeWidth="2" strokeLinecap="round"/>
       )}
       
-      {/* Body - more rectangular/sturdy */}
-      <rect x="28" y="62" width="44" height="52" rx="10" fill="url(#bodyGrad-blue)" stroke="#BBDEFB" strokeWidth="1"/>
+      {/* Body - cute small body */}
+      <ellipse cx="50" cy="85" rx="18" ry="24" fill="url(#bodyGrad-boy)" stroke="#C8E6C9" strokeWidth="1"/>
       
-      {/* Tie/bowtie */}
-      <polygon points="50,64 44,70 50,76 56,70" fill={accentColor}/>
-      <circle cx="50" cy="70" r="3" fill={primaryColor}/>
+      {/* Body accent - simple shirt */}
+      <path d="M38 70 Q50 65 62 70 L60 90 Q50 95 40 90 Z" fill={primaryColor} opacity="0.7"/>
       
-      {/* Body accent - vest style */}
-      <path d="M35 75 L35 105 Q50 110 65 105 L65 75 Q50 80 35 75 Z" fill={primaryColor} opacity="0.6"/>
+      {/* Small buttons */}
+      <circle cx="50" cy="78" r="2" fill="#FFFFFF"/>
+      <circle cx="50" cy="86" r="2" fill="#FFFFFF"/>
       
-      {/* Belt */}
-      <rect x="32" y="95" width="36" height="5" fill={accentColor} rx="2"/>
-      <rect x="46" y="94" width="8" height="7" fill="#FFD700" rx="1"/>
-      
-      {/* Arms - stronger */}
+      {/* Arms - small cute arms */}
       <motion.g
-        animate={isWaving ? { rotate: [0, -35, 0] } : {}}
+        animate={isWaving ? { rotate: [0, -30, 0] } : {}}
         transition={{ duration: 0.5, repeat: isWaving ? Infinity : 0, repeatDelay: 0.4 }}
-        style={{ transformOrigin: "28px 78px" }}
+        style={{ transformOrigin: "32px 78px" }}
       >
-        <rect x="14" y="70" width="14" height="24" rx="5" fill="url(#bodyGrad-blue)" stroke="#BBDEFB" strokeWidth="1"/>
-        <rect x="17" y="75" width="8" height="14" rx="3" fill={primaryColor} opacity="0.5"/>
+        <ellipse cx="26" cy="82" rx="6" ry="10" fill="url(#bodyGrad-boy)" stroke="#C8E6C9" strokeWidth="1"/>
+        <ellipse cx="26" cy="82" rx="4" ry="6" fill={primaryColor} opacity="0.4"/>
       </motion.g>
       
-      <rect x="72" y="70" width="14" height="24" rx="5" fill="url(#bodyGrad-blue)" stroke="#BBDEFB" strokeWidth="1"/>
-      <rect x="75" y="75" width="8" height="14" rx="3" fill={primaryColor} opacity="0.5"/>
+      <ellipse cx="74" cy="82" rx="6" ry="10" fill="url(#bodyGrad-boy)" stroke="#C8E6C9" strokeWidth="1"/>
+      <ellipse cx="74" cy="82" rx="4" ry="6" fill={primaryColor} opacity="0.4"/>
       
-      {/* Feet - boots style */}
-      <rect x="32" y="114" width="14" height="10" rx="3" fill={accentColor}/>
-      <rect x="54" y="114" width="14" height="10" rx="3" fill={accentColor}/>
-      <rect x="32" y="114" width="14" height="4" rx="2" fill={primaryColor}/>
-      <rect x="54" y="114" width="14" height="4" rx="2" fill={primaryColor}/>
+      {/* Feet - small cute feet */}
+      <ellipse cx="42" cy="110" rx="8" ry="5" fill="url(#bodyGrad-boy)" stroke="#C8E6C9" strokeWidth="1"/>
+      <ellipse cx="58" cy="110" rx="8" ry="5" fill="url(#bodyGrad-boy)" stroke="#C8E6C9" strokeWidth="1"/>
       
       {/* Name tag */}
-      <text x="50" y="88" textAnchor="middle" fontSize="5" fill="#FFFFFF" fontFamily="Arial" fontWeight="bold">{name}</text>
+      <text x="50" y="100" textAnchor="middle" fontSize="5" fill="#666666" fontFamily="Arial">{name}</text>
     </svg>
   );
 };
