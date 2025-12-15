@@ -15,7 +15,6 @@ import ApiSettings from "./pages/ApiSettings";
 import Experiments from "./pages/Experiments";
 import NotFound from "./pages/NotFound";
 import IntroAnimation from "./components/IntroAnimation";
-import BumblebeeMascot from "./components/BumblebeeMascot";
 
 const queryClient = new QueryClient();
 
@@ -33,7 +32,6 @@ const App = () => {
         <Sonner />
         {showIntro && <IntroAnimation onComplete={handleIntroComplete} />}
         <BrowserRouter>
-          {!showIntro && <BumblebeeMascot />}
           <Routes>
             <Route path="/" element={<PeriodicTable />} />
             <Route path="/quiz" element={<Quiz />} />
