@@ -122,33 +122,158 @@ const pageTips: Record<string, string[]> = {
   ],
 };
 
-// Cute Robot SVG Component
-const CuteRobot = ({ 
-  color = "cyan", 
+// Girl Robot SVG Component (Nano - Pink/Purple)
+const GirlRobot = ({ 
   isWaving = false, 
   isTalking = false,
-  name = "Robot"
+  name = "Nano"
 }: { 
-  color?: "cyan" | "mint";
   isWaving?: boolean;
   isTalking?: boolean;
   name?: string;
 }) => {
-  const primaryColor = color === "cyan" ? "#00BCD4" : "#4DB6AC";
-  const glowColor = color === "cyan" ? "#00E5FF" : "#64FFDA";
+  const primaryColor = "#FF69B4"; // Hot pink
+  const glowColor = "#FF1493"; // Deep pink
+  const accentColor = "#9B59B6"; // Purple
   
   return (
     <svg viewBox="0 0 100 140" className="w-full h-full drop-shadow-lg">
       {/* Glow effect */}
       <defs>
-        <filter id={`glow-${color}`} x="-50%" y="-50%" width="200%" height="200%">
+        <filter id="glow-pink" x="-50%" y="-50%" width="200%" height="200%">
           <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
           <feMerge>
             <feMergeNode in="coloredBlur"/>
             <feMergeNode in="SourceGraphic"/>
           </feMerge>
         </filter>
-        <radialGradient id={`bodyGrad-${color}`} cx="30%" cy="30%">
+        <radialGradient id="bodyGrad-pink" cx="30%" cy="30%">
+          <stop offset="0%" stopColor="#FFFFFF"/>
+          <stop offset="100%" stopColor="#FFE4EC"/>
+        </radialGradient>
+      </defs>
+      
+      {/* Bow on head */}
+      <g transform="translate(50, 8)">
+        <ellipse cx="-12" cy="0" rx="8" ry="5" fill={primaryColor}/>
+        <ellipse cx="12" cy="0" rx="8" ry="5" fill={primaryColor}/>
+        <circle cx="0" cy="0" r="4" fill={glowColor}/>
+      </g>
+      
+      {/* Antenna with heart */}
+      <line x1="50" y1="12" x2="50" y2="22" stroke="#FFCCDD" strokeWidth="2"/>
+      <path d="M50 8 C47 5, 44 8, 50 14 C56 8, 53 5, 50 8" fill={glowColor}/>
+      
+      {/* Head - slightly rounder */}
+      <ellipse cx="50" cy="40" rx="26" ry="22" fill="url(#bodyGrad-pink)" stroke="#FFDDEE" strokeWidth="1"/>
+      
+      {/* Face screen */}
+      <ellipse cx="50" cy="42" rx="20" ry="15" fill="#1A1A2E"/>
+      
+      {/* Eyes with eyelashes */}
+      <motion.g
+        animate={{ 
+          scaleY: isTalking ? [1, 0.7, 1] : 1
+        }}
+        transition={{ 
+          duration: isTalking ? 0.3 : 2,
+          repeat: Infinity
+        }}
+      >
+        {/* Left eye */}
+        <ellipse cx="40" cy="42" rx="5" ry="5" fill={glowColor} filter="url(#glow-pink)"/>
+        {/* Left eyelashes */}
+        <line x1="36" y1="35" x2="34" y2="32" stroke={primaryColor} strokeWidth="1.5" strokeLinecap="round"/>
+        <line x1="40" y1="34" x2="40" y2="30" stroke={primaryColor} strokeWidth="1.5" strokeLinecap="round"/>
+        <line x1="44" y1="35" x2="46" y2="32" stroke={primaryColor} strokeWidth="1.5" strokeLinecap="round"/>
+        
+        {/* Right eye */}
+        <ellipse cx="60" cy="42" rx="5" ry="5" fill={glowColor} filter="url(#glow-pink)"/>
+        {/* Right eyelashes */}
+        <line x1="56" y1="35" x2="54" y2="32" stroke={primaryColor} strokeWidth="1.5" strokeLinecap="round"/>
+        <line x1="60" y1="34" x2="60" y2="30" stroke={primaryColor} strokeWidth="1.5" strokeLinecap="round"/>
+        <line x1="64" y1="35" x2="66" y2="32" stroke={primaryColor} strokeWidth="1.5" strokeLinecap="round"/>
+      </motion.g>
+      
+      {/* Blush circles */}
+      <circle cx="32" cy="46" r="4" fill="#FFB6C1" opacity="0.6"/>
+      <circle cx="68" cy="46" r="4" fill="#FFB6C1" opacity="0.6"/>
+      
+      {/* Smile */}
+      {isTalking ? (
+        <motion.ellipse 
+          cx="50" cy="51" rx="6" ry="3"
+          fill={glowColor}
+          animate={{ ry: [3, 2, 3] }}
+          transition={{ duration: 0.3, repeat: Infinity }}
+        />
+      ) : (
+        <path d="M44 50 Q50 54 56 50" fill="none" stroke={glowColor} strokeWidth="2" strokeLinecap="round"/>
+      )}
+      
+      {/* Body - hourglass shape */}
+      <path d="M30 65 Q28 90 35 115 L65 115 Q72 90 70 65 Q60 72 50 72 Q40 72 30 65 Z" 
+        fill="url(#bodyGrad-pink)" stroke="#FFDDEE" strokeWidth="1"/>
+      
+      {/* Body accent - dress style */}
+      <path d="M35 70 Q50 75 65 70 L62 95 Q50 100 38 95 Z" fill={primaryColor} opacity="0.7"/>
+      
+      {/* Heart on chest */}
+      <path d="M50 80 C47 77, 43 80, 50 88 C57 80, 53 77, 50 80" fill={glowColor}/>
+      
+      {/* Arms */}
+      <motion.g
+        animate={isWaving ? { rotate: [0, -35, 0] } : {}}
+        transition={{ duration: 0.5, repeat: isWaving ? Infinity : 0, repeatDelay: 0.4 }}
+        style={{ transformOrigin: "28px 78px" }}
+      >
+        <ellipse cx="22" cy="82" rx="7" ry="10" fill="url(#bodyGrad-pink)" stroke="#FFDDEE" strokeWidth="1"/>
+        <ellipse cx="22" cy="82" rx="4" ry="6" fill={primaryColor} opacity="0.4"/>
+      </motion.g>
+      
+      <ellipse cx="78" cy="82" rx="7" ry="10" fill="url(#bodyGrad-pink)" stroke="#FFDDEE" strokeWidth="1"/>
+      <ellipse cx="78" cy="82" rx="4" ry="6" fill={primaryColor} opacity="0.4"/>
+      
+      {/* Skirt detail */}
+      <path d="M35 100 Q50 105 65 100 L68 115 Q50 120 32 115 Z" fill={accentColor} opacity="0.5"/>
+      
+      {/* Feet - with small heels */}
+      <ellipse cx="40" cy="120" rx="9" ry="5" fill="url(#bodyGrad-pink)" stroke="#FFDDEE" strokeWidth="1"/>
+      <ellipse cx="60" cy="120" rx="9" ry="5" fill="url(#bodyGrad-pink)" stroke="#FFDDEE" strokeWidth="1"/>
+      <rect x="36" y="120" width="8" height="3" fill={primaryColor} rx="1"/>
+      <rect x="56" y="120" width="8" height="3" fill={primaryColor} rx="1"/>
+      
+      {/* Name tag */}
+      <text x="50" y="108" textAnchor="middle" fontSize="5" fill="#666666" fontFamily="Arial">{name}</text>
+    </svg>
+  );
+};
+
+// Boy Robot SVG Component (Piko - Cyan/Blue)
+const BoyRobot = ({ 
+  isWaving = false, 
+  isTalking = false,
+  name = "Piko"
+}: { 
+  isWaving?: boolean;
+  isTalking?: boolean;
+  name?: string;
+}) => {
+  const primaryColor = "#00BCD4";
+  const glowColor = "#00E5FF";
+  
+  return (
+    <svg viewBox="0 0 100 140" className="w-full h-full drop-shadow-lg">
+      {/* Glow effect */}
+      <defs>
+        <filter id="glow-cyan" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+          <feMerge>
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+        <radialGradient id="bodyGrad-cyan" cx="30%" cy="30%">
           <stop offset="0%" stopColor="#FFFFFF"/>
           <stop offset="100%" stopColor="#E8E8E8"/>
         </radialGradient>
@@ -159,7 +284,7 @@ const CuteRobot = ({
       <line x1="50" y1="16" x2="50" y2="25" stroke="#CCCCCC" strokeWidth="3"/>
       
       {/* Head */}
-      <ellipse cx="50" cy="40" rx="28" ry="22" fill={`url(#bodyGrad-${color})`} stroke="#DDDDDD" strokeWidth="1"/>
+      <ellipse cx="50" cy="40" rx="28" ry="22" fill="url(#bodyGrad-cyan)" stroke="#DDDDDD" strokeWidth="1"/>
       
       {/* Face screen */}
       <ellipse cx="50" cy="42" rx="22" ry="16" fill="#1A1A2E"/>
@@ -168,7 +293,7 @@ const CuteRobot = ({
       <motion.ellipse 
         cx="40" cy="42" rx="6" ry={isTalking ? 4 : 5} 
         fill={glowColor} 
-        filter={`url(#glow-${color})`}
+        filter="url(#glow-cyan)"
         animate={{ 
           scaleY: isTalking ? [1, 0.7, 1] : 1,
           opacity: [0.8, 1, 0.8]
@@ -181,7 +306,7 @@ const CuteRobot = ({
       <motion.ellipse 
         cx="60" cy="42" rx="6" ry={isTalking ? 4 : 5} 
         fill={glowColor} 
-        filter={`url(#glow-${color})`}
+        filter="url(#glow-cyan)"
         animate={{ 
           scaleY: isTalking ? [1, 0.7, 1] : 1,
           opacity: [0.8, 1, 0.8]
@@ -206,7 +331,7 @@ const CuteRobot = ({
       )}
       
       {/* Body */}
-      <ellipse cx="50" cy="90" rx="22" ry="28" fill={`url(#bodyGrad-${color})`} stroke="#DDDDDD" strokeWidth="1"/>
+      <ellipse cx="50" cy="90" rx="22" ry="28" fill="url(#bodyGrad-cyan)" stroke="#DDDDDD" strokeWidth="1"/>
       
       {/* Body accent */}
       <path d="M38 75 Q50 70 62 75 L60 95 Q50 100 40 95 Z" fill={primaryColor} opacity="0.8"/>
@@ -223,16 +348,16 @@ const CuteRobot = ({
         transition={{ duration: 0.6, repeat: isWaving ? Infinity : 0, repeatDelay: 0.5 }}
         style={{ transformOrigin: "30px 80px" }}
       >
-        <ellipse cx="22" cy="85" rx="8" ry="12" fill={`url(#bodyGrad-${color})`} stroke="#DDDDDD" strokeWidth="1"/>
+        <ellipse cx="22" cy="85" rx="8" ry="12" fill="url(#bodyGrad-cyan)" stroke="#DDDDDD" strokeWidth="1"/>
         <ellipse cx="22" cy="85" rx="5" ry="8" fill={primaryColor} opacity="0.5"/>
       </motion.g>
       
-      <ellipse cx="78" cy="85" rx="8" ry="12" fill={`url(#bodyGrad-${color})`} stroke="#DDDDDD" strokeWidth="1"/>
+      <ellipse cx="78" cy="85" rx="8" ry="12" fill="url(#bodyGrad-cyan)" stroke="#DDDDDD" strokeWidth="1"/>
       <ellipse cx="78" cy="85" rx="5" ry="8" fill={primaryColor} opacity="0.5"/>
       
       {/* Feet */}
-      <ellipse cx="40" cy="118" rx="10" ry="6" fill={`url(#bodyGrad-${color})`} stroke="#DDDDDD" strokeWidth="1"/>
-      <ellipse cx="60" cy="118" rx="10" ry="6" fill={`url(#bodyGrad-${color})`} stroke="#DDDDDD" strokeWidth="1"/>
+      <ellipse cx="40" cy="118" rx="10" ry="6" fill="url(#bodyGrad-cyan)" stroke="#DDDDDD" strokeWidth="1"/>
+      <ellipse cx="60" cy="118" rx="10" ry="6" fill="url(#bodyGrad-cyan)" stroke="#DDDDDD" strokeWidth="1"/>
       
       {/* Name tag */}
       <text x="50" y="105" textAnchor="middle" fontSize="6" fill="#666666" fontFamily="Arial">{name}</text>
@@ -474,8 +599,7 @@ const BumblebeeMascot = () => {
               )}
             </AnimatePresence>
 
-            <CuteRobot 
-              color="cyan" 
+            <GirlRobot 
               isWaving={showTip && currentSpeaker === "robot1"} 
               isTalking={showTip && currentSpeaker === "robot1"}
               name={ROBOT_1_NAME}
@@ -509,8 +633,7 @@ const BumblebeeMascot = () => {
                   )}
                 </AnimatePresence>
 
-                <CuteRobot 
-                  color="mint" 
+                <BoyRobot 
                   isWaving={showTip && currentSpeaker === "robot2"} 
                   isTalking={showTip && currentSpeaker === "robot2"}
                   name={ROBOT_2_NAME}
