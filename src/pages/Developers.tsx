@@ -3,7 +3,7 @@ import Navigation from "@/components/Navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Heart, Users, Lightbulb, MessageCircle, ExternalLink, Loader2, Upload, Sparkles, Mail, UserPlus } from "lucide-react";
+import { Heart, Users, Lightbulb, MessageCircle, ExternalLink, Loader2, Upload, Sparkles, Mail } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -329,34 +329,6 @@ const Developers = () => {
             ))}
           </div>
         </div>
-
-        {/* Join Our Team Section */}
-        <Card className="mb-8 bg-gradient-to-br from-green-500/5 to-emerald-500/5 border-green-500/20">
-          <CardContent className="p-6 md:p-8">
-            <div className="flex items-start gap-4">
-              <div className="p-3 rounded-full bg-green-500/10">
-                <UserPlus className="w-6 h-6 text-green-500" />
-              </div>
-              <div className="flex-1">
-                <h2 className="text-xl font-semibold text-foreground mb-3">Jamoaga Qo'shiling!</h2>
-                <p className="text-muted-foreground leading-relaxed mb-4">
-                  Agar siz ham <span className="text-green-500 font-medium">ixtirolar</span>, <span className="text-green-500 font-medium">startaplar</span> va <span className="text-green-500 font-medium">innovatsiyalar</span> bilan qiziqsangiz — jamoamizga qo'shiling! Biz yangi a'zolarni kutib olamiz.
-                </p>
-                <a 
-                  href="https://t.me/ndktu_iqtidorlilar" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                >
-                  <Button className="gap-2 bg-green-500 hover:bg-green-600 text-white">
-                    <MessageCircle className="w-4 h-4" />
-                    Telegram Guruhimiz
-                    <ExternalLink className="w-3 h-3" />
-                  </Button>
-                </a>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Custom App Offer Section */}
         <Card className="mb-8 bg-gradient-to-br from-purple-500/5 to-pink-500/5 border-purple-500/20">
