@@ -3,8 +3,8 @@ import { useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
 // Robot names - chemistry themed
-const ROBOT_1_NAME = "Kimik"; // Kimyo + ik
-const ROBOT_2_NAME = "Atomik"; // Atom + ik
+const ROBOT_1_NAME = "Nano"; // Nanometr
+const ROBOT_2_NAME = "Piko"; // Pikometr
 
 // Intro sequences - SHORT
 const robot1Intro = [
