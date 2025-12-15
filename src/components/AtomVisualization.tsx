@@ -49,19 +49,21 @@ const Nucleus = ({ protons, color }: { protons: number; color: string }) => {
   );
 };
 
-// Animated rotating orbit ring with color
-const AnimatedOrbitRing = ({ 
+// Orbit ring with electrons attached - they rotate together
+const OrbitWithElectrons = ({ 
   radius, 
   color, 
   rotationAxis, 
   rotationSpeed,
-  initialRotation
+  initialRotation,
+  electronCount
 }: { 
   radius: number; 
   color: string;
   rotationAxis: 'x' | 'y' | 'z' | 'xy' | 'xz' | 'yz';
   rotationSpeed: number;
   initialRotation: [number, number, number];
+  electronCount: number;
 }) => {
   const groupRef = useRef<THREE.Group>(null);
   
@@ -78,6 +80,20 @@ const AnimatedOrbitRing = ({
     }
     return pts;
   }, [radius]);
+
+  // Calculate electron positions on the ring
+  const electronPositions = useMemo(() => {
+    const positions: [number, number, number][] = [];
+    for (let i = 0; i < electronCount; i++) {
+      const angle = (i / electronCount) * Math.PI * 2;
+      positions.push([
+        radius * Math.cos(angle),
+        0,
+        radius * Math.sin(angle)
+      ]);
+    }
+    return positions;
+  }, [radius, electronCount]);
 
   useFrame((state) => {
     if (groupRef.current) {
@@ -104,6 +120,7 @@ const AnimatedOrbitRing = ({
 
   return (
     <group ref={groupRef} rotation={initialRotation}>
+      {/* Orbit ring */}
       <Line
         points={points}
         color={color}
@@ -111,71 +128,35 @@ const AnimatedOrbitRing = ({
         transparent
         opacity={0.5}
       />
+      
+      {/* Electrons attached to this orbit */}
+      {electronPositions.map((pos, i) => (
+        <group key={`electron-${i}`} position={pos}>
+          {/* Electron sphere - blue */}
+          <Sphere args={[0.15, 16, 16]}>
+            <meshStandardMaterial 
+              color={ELECTRON_COLOR}
+              emissive={ELECTRON_COLOR}
+              emissiveIntensity={0.6}
+              metalness={0.3}
+              roughness={0.2}
+            />
+          </Sphere>
+          {/* Electron glow */}
+          <Sphere args={[0.25, 16, 16]}>
+            <meshBasicMaterial 
+              color={ELECTRON_COLOR}
+              transparent
+              opacity={0.25}
+            />
+          </Sphere>
+        </group>
+      ))}
     </group>
   );
 };
 
-// Single electron that moves on circular orbit
-const Electron = ({ 
-  shellRadius, 
-  electronIndex, 
-  totalElectrons, 
-  shellIndex 
-}: { 
-  shellRadius: number; 
-  electronIndex: number; 
-  totalElectrons: number; 
-  shellIndex: number;
-}) => {
-  const electronRef = useRef<THREE.Group>(null);
-  
-  // Different rotation speeds for each shell
-  const speed = 0.8 - shellIndex * 0.1;
-  const startOffset = (electronIndex / totalElectrons) * Math.PI * 2;
-  // Tilt orbit based on electron index for 3D distribution
-  const tiltAngle = (electronIndex / totalElectrons) * Math.PI;
-  
-  useFrame((state) => {
-    if (electronRef.current) {
-      const time = state.clock.elapsedTime * speed + startOffset;
-      
-      // Circular motion
-      const x = shellRadius * Math.cos(time);
-      const z = shellRadius * Math.sin(time);
-      
-      // Apply tilt for 3D effect
-      const y = z * Math.sin(tiltAngle) * 0.5;
-      const newZ = z * Math.cos(tiltAngle);
-      
-      electronRef.current.position.set(x, y, newZ);
-    }
-  });
-  
-  return (
-    <group ref={electronRef}>
-      {/* Electron sphere - blue */}
-      <Sphere args={[0.15, 16, 16]}>
-        <meshStandardMaterial 
-          color={ELECTRON_COLOR}
-          emissive={ELECTRON_COLOR}
-          emissiveIntensity={0.6}
-          metalness={0.3}
-          roughness={0.2}
-        />
-      </Sphere>
-      {/* Electron glow */}
-      <Sphere args={[0.25, 16, 16]}>
-        <meshBasicMaterial 
-          color={ELECTRON_COLOR}
-          transparent
-          opacity={0.25}
-        />
-      </Sphere>
-    </group>
-  );
-};
-
-// Electron shell with multiple colorful rotating orbit rings
+// Electron shell with multiple colorful rotating orbit rings with attached electrons
 const ElectronShell = ({ 
   radius, 
   electrons, 
@@ -190,52 +171,56 @@ const ElectronShell = ({
   const color2 = ORBIT_COLORS[(shellIndex + 2) % ORBIT_COLORS.length];
   const color3 = ORBIT_COLORS[(shellIndex + 4) % ORBIT_COLORS.length];
   
+  // Distribute electrons across 3 orbits
+  const electronsPerOrbit = Math.ceil(electrons / 3);
+  const orbit1Electrons = Math.min(electrons, electronsPerOrbit);
+  const orbit2Electrons = Math.min(Math.max(0, electrons - electronsPerOrbit), electronsPerOrbit);
+  const orbit3Electrons = Math.max(0, electrons - electronsPerOrbit * 2);
+  
   // Different rotation speeds and axes for variety
   const rotationConfigs: Array<{
     axis: 'x' | 'y' | 'z' | 'xy' | 'xz' | 'yz';
     speed: number;
     initial: [number, number, number];
   }> = [
-    { axis: 'x', speed: 0.3 + shellIndex * 0.1, initial: [0, 0, 0] },
-    { axis: 'yz', speed: 0.2 + shellIndex * 0.05, initial: [Math.PI / 3, 0, Math.PI / 4] },
-    { axis: 'xy', speed: 0.25 + shellIndex * 0.08, initial: [Math.PI / 2, Math.PI / 3, 0] },
+    { axis: 'x', speed: 0.4 + shellIndex * 0.1, initial: [0, 0, 0] },
+    { axis: 'yz', speed: 0.3 + shellIndex * 0.08, initial: [Math.PI / 3, 0, Math.PI / 4] },
+    { axis: 'xy', speed: 0.35 + shellIndex * 0.06, initial: [Math.PI / 2, Math.PI / 3, 0] },
   ];
 
   return (
     <group>
-      {/* Three colorful rotating orbit rings */}
-      <AnimatedOrbitRing 
-        radius={radius} 
-        color={color1}
-        rotationAxis={rotationConfigs[0].axis}
-        rotationSpeed={rotationConfigs[0].speed}
-        initialRotation={rotationConfigs[0].initial}
-      />
-      <AnimatedOrbitRing 
-        radius={radius} 
-        color={color2}
-        rotationAxis={rotationConfigs[1].axis}
-        rotationSpeed={rotationConfigs[1].speed}
-        initialRotation={rotationConfigs[1].initial}
-      />
-      <AnimatedOrbitRing 
-        radius={radius} 
-        color={color3}
-        rotationAxis={rotationConfigs[2].axis}
-        rotationSpeed={rotationConfigs[2].speed}
-        initialRotation={rotationConfigs[2].initial}
-      />
-      
-      {/* Blue electrons */}
-      {Array.from({ length: electrons }).map((_, i) => (
-        <Electron
-          key={`electron-${shellIndex}-${i}`}
-          shellRadius={radius}
-          electronIndex={i}
-          totalElectrons={electrons}
-          shellIndex={shellIndex}
+      {/* Three colorful rotating orbit rings with electrons attached */}
+      {orbit1Electrons > 0 && (
+        <OrbitWithElectrons 
+          radius={radius} 
+          color={color1}
+          rotationAxis={rotationConfigs[0].axis}
+          rotationSpeed={rotationConfigs[0].speed}
+          initialRotation={rotationConfigs[0].initial}
+          electronCount={orbit1Electrons}
         />
-      ))}
+      )}
+      {orbit2Electrons > 0 && (
+        <OrbitWithElectrons 
+          radius={radius} 
+          color={color2}
+          rotationAxis={rotationConfigs[1].axis}
+          rotationSpeed={rotationConfigs[1].speed}
+          initialRotation={rotationConfigs[1].initial}
+          electronCount={orbit2Electrons}
+        />
+      )}
+      {orbit3Electrons > 0 && (
+        <OrbitWithElectrons 
+          radius={radius} 
+          color={color3}
+          rotationAxis={rotationConfigs[2].axis}
+          rotationSpeed={rotationConfigs[2].speed}
+          initialRotation={rotationConfigs[2].initial}
+          electronCount={orbit3Electrons}
+        />
+      )}
     </group>
   );
 };
