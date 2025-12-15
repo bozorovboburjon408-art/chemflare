@@ -374,20 +374,8 @@ const Developers = () => {
               <div>
                 <h2 className="text-xl font-semibold text-foreground mb-3">Bog'lanish</h2>
                 <p className="text-muted-foreground leading-relaxed">
-                  Taklif va fikr-mulohazalar uchun biz bilan bemalol bog'lanishingiz mumkin. Telegram username'larimiz yuqorida ko'rsatilgan yoki guruhimizga qo'shiling:
+                  Taklif va fikr-mulohazalar uchun biz bilan bemalol bog'lanishingiz mumkin. Telegram username'larimiz yuqorida ko'rsatilgan.
                 </p>
-                <div className="mt-4 flex flex-wrap gap-3">
-                  <a 
-                    href="https://t.me/ndktu_iqtidorlilar" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                  >
-                    <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 hover:bg-primary/10 cursor-pointer transition-colors">
-                      @ndktu_iqtidorlilar
-                      <ExternalLink className="w-3 h-3 ml-1" />
-                    </Badge>
-                  </a>
-                </div>
                 <div className="mt-4">
                   <Badge variant="outline" className="bg-accent/5 text-accent border-accent/20">
                     Oldinda yanada ko'proq g'oyalar, yangilanishlar va imkoniyatlar kutmoqda!
