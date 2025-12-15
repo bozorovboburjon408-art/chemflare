@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Atom, Loader2, User, Lock } from "lucide-react";
+import { Atom, Loader2, User, Lock, ChevronLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 const Auth = () => {
@@ -126,7 +126,16 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-secondary/10 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md p-8 space-y-6 bg-gradient-card border-primary/20 shadow-elegant">
+      <div className="w-full max-w-md">
+        <Button
+          variant="ghost"
+          onClick={() => navigate("/")}
+          className="mb-4"
+        >
+          <ChevronLeft className="w-4 h-4 mr-2" />
+          Bosh sahifaga
+        </Button>
+        <Card className="p-8 space-y-6 bg-gradient-card border-primary/20 shadow-elegant">
         <div className="text-center space-y-2">
           <div className="w-20 h-20 mx-auto rounded-2xl bg-gradient-hero flex items-center justify-center shadow-elegant mb-4">
             <Atom className="w-12 h-12 text-primary-foreground" />
@@ -200,7 +209,8 @@ const Auth = () => {
               : "Akkauntingiz yo'qmi? Ro'yxatdan o'tish"}
           </button>
         </div>
-      </Card>
+        </Card>
+      </div>
     </div>
   );
 };
