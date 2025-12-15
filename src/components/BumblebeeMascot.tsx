@@ -1,6 +1,7 @@
-import { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef, Suspense } from "react";
 import { useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { GirlRobot3DCanvas, BoyRobot3DCanvas } from "./Robot3D";
 
 // Robot names - chemistry themed
 const ROBOT_1_NAME = "Nano"; // Nanometr
@@ -649,11 +650,12 @@ const BumblebeeMascot = () => {
               )}
             </AnimatePresence>
 
-            <GirlRobot 
-              isWaving={showTip && currentSpeaker === "robot1"} 
-              isTalking={showTip && currentSpeaker === "robot1"}
-              name={ROBOT_1_NAME}
-            />
+            <Suspense fallback={<div className="w-full h-full bg-pink-100/50 rounded-full animate-pulse" />}>
+              <GirlRobot3DCanvas 
+                isWaving={showTip && currentSpeaker === "robot1"} 
+                isTalking={showTip && currentSpeaker === "robot1"}
+              />
+            </Suspense>
           </motion.div>
 
           {/* Robot 2 - Atomik (Mint) */}
@@ -683,11 +685,12 @@ const BumblebeeMascot = () => {
                   )}
                 </AnimatePresence>
 
-                <BoyRobot 
-                  isWaving={showTip && currentSpeaker === "robot2"} 
-                  isTalking={showTip && currentSpeaker === "robot2"}
-                  name={ROBOT_2_NAME}
-                />
+                <Suspense fallback={<div className="w-full h-full bg-green-100/50 rounded-full animate-pulse" />}>
+                  <BoyRobot3DCanvas 
+                    isWaving={showTip && currentSpeaker === "robot2"} 
+                    isTalking={showTip && currentSpeaker === "robot2"}
+                  />
+                </Suspense>
               </motion.div>
             )}
           </AnimatePresence>
