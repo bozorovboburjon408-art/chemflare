@@ -8,7 +8,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Upload, Loader2, CheckCircle2, XCircle, Trophy, LogOut, Shuffle, Brain, Sparkles, ChevronLeft, ChevronRight, Pencil, Trash2, MoreVertical, X, Check } from "lucide-react";
+import { Upload, Loader2, CheckCircle2, XCircle, Trophy, LogOut, Shuffle, Brain, Sparkles, ChevronLeft, ChevronRight, Pencil, Trash2, MoreVertical, X, Check, UserPlus } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,6 +25,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
@@ -102,6 +110,7 @@ const Quiz = () => {
   const [editingTitle, setEditingTitle] = useState('');
   const [deleteQuizId, setDeleteQuizId] = useState<string | null>(null);
   const [aiDifficulty, setAiDifficulty] = useState('medium');
+  const [showAuthPrompt, setShowAuthPrompt] = useState(false);
   
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -111,22 +120,16 @@ const Quiz = () => {
       (event, session) => {
         setUser(session?.user ?? null);
         setIsLoading(false);
-        if (!session) {
-          navigate("/auth");
-        }
       }
     );
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       setIsLoading(false);
-      if (!session) {
-        navigate("/auth");
-      }
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -248,19 +251,15 @@ const Quiz = () => {
       return;
     }
 
+    // Check auth - if not logged in, show auth prompt
+    if (!user) {
+      setShowAuthPrompt(true);
+      return;
+    }
+
     setIsUploading(true);
 
     try {
-      // Check auth
-      if (!user) {
-        toast({
-          title: "Xato",
-          description: "Tizimga kirish talab qilinadi",
-          variant: "destructive",
-        });
-        return;
-      }
-
       const { data, error } = await supabase.functions.invoke('process-quiz-image', {
         body: {
           imageBase64: questionsImages[0],
@@ -925,10 +924,17 @@ const Quiz = () => {
               Test rasmini yuklang, AI test yarating yoki mavjud testlarni yeching
             </p>
           </div>
-          <Button variant="outline" onClick={handleSignOut}>
-            <LogOut className="w-4 h-4 mr-2" />
-            Chiqish
-          </Button>
+          {user ? (
+            <Button variant="outline" onClick={handleSignOut}>
+              <LogOut className="w-4 h-4 mr-2" />
+              Chiqish
+            </Button>
+          ) : (
+            <Button onClick={() => navigate("/auth")}>
+              <UserPlus className="w-4 h-4 mr-2" />
+              Kirish
+            </Button>
+          )}
         </div>
 
         <Tabs defaultValue="upload" className="mb-8">
@@ -1125,6 +1131,7 @@ const Quiz = () => {
         </Tabs>
 
         {/* Quizzes List */}
+        {user && (
         <div>
           <h2 className="text-2xl font-semibold mb-4">Sizning testlaringiz</h2>
           
@@ -1234,6 +1241,30 @@ const Quiz = () => {
             </AlertDialogContent>
           </AlertDialog>
         </div>
+        )}
+
+        {/* Auth prompt dialog */}
+        <Dialog open={showAuthPrompt} onOpenChange={setShowAuthPrompt}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Ro'yxatdan o'tish talab qilinadi</DialogTitle>
+              <DialogDescription>
+                Testlaringiz saqlanib qolishi uchun ro'yxatdan o'tishingiz kerak. 
+                Ro'yxatdan o'tganingizdan so'ng, barcha yaratilgan testlaringiz 
+                hisobingizda saqlanadi va istalgan qurilmadan foydalanishingiz mumkin.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="flex-col sm:flex-row gap-2">
+              <Button variant="outline" onClick={() => setShowAuthPrompt(false)}>
+                Keyinroq
+              </Button>
+              <Button onClick={() => navigate("/auth")}>
+                <UserPlus className="w-4 h-4 mr-2" />
+                Ro'yxatdan o'tish
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </main>
     </div>
   );
