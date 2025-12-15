@@ -3,24 +3,9 @@ import { OrbitControls, Sphere, Text, Line } from "@react-three/drei";
 import { useRef, useMemo } from "react";
 import * as THREE from "three";
 
-// Light pastel colors for electron orbits
-const orbitColors = [
-  "#ff9999", // Light red
-  "#99ff99", // Light green
-  "#9999ff", // Light blue
-  "#ffff99", // Light yellow
-  "#ff99ff", // Light magenta
-  "#99ffff", // Light cyan
-  "#ffcc99", // Light orange
-];
-
-// Orbital colors
-const orbitalColors = {
-  s: "#ff6b6b", // Light red for s orbital
-  p: "#4ecdc4", // Cyan for p orbital
-  d: "#ffe66d", // Yellow for d orbital
-  f: "#c44dff", // Purple for f orbital
-};
+// Electron blue color
+const ELECTRON_COLOR = "#3b82f6";
+const ORBIT_COLOR = "#60a5fa";
 
 interface AtomVisualizationProps {
   atomicNumber: number;
@@ -28,29 +13,6 @@ interface AtomVisualizationProps {
   electrons: string;
   atomicMass: string;
 }
-
-// Parse electron configuration to orbital notation
-const parseElectronConfig = (atomicNumber: number): { shell: number; type: 's' | 'p' | 'd' | 'f'; count: number }[] => {
-  const config: { shell: number; type: 's' | 'p' | 'd' | 'f'; count: number }[] = [];
-  let remaining = atomicNumber;
-  
-  // Aufbau principle order
-  const order: [number, 's' | 'p' | 'd' | 'f', number][] = [
-    [1, 's', 2], [2, 's', 2], [2, 'p', 6], [3, 's', 2], [3, 'p', 6],
-    [4, 's', 2], [3, 'd', 10], [4, 'p', 6], [5, 's', 2], [4, 'd', 10],
-    [5, 'p', 6], [6, 's', 2], [4, 'f', 14], [5, 'd', 10], [6, 'p', 6],
-    [7, 's', 2], [5, 'f', 14], [6, 'd', 10], [7, 'p', 6]
-  ];
-  
-  for (const [shell, type, max] of order) {
-    if (remaining <= 0) break;
-    const count = Math.min(remaining, max);
-    config.push({ shell, type, count });
-    remaining -= count;
-  }
-  
-  return config;
-};
 
 // Parse electron configuration
 const parseElectrons = (electronStr: string): number[] => {
@@ -68,14 +30,7 @@ const getAtomColor = (atomicNumber: number): string => {
   return "#ecc94b"; // Period 7 - yellow
 };
 
-// Calculate neutrons from atomic mass
-const calculateNeutrons = (atomicMass: string, protons: number): number => {
-  const mass = parseFloat(atomicMass.replace(/[()]/g, ''));
-  if (isNaN(mass)) return protons; // Fallback for unstable elements
-  return Math.round(mass) - protons;
-};
-
-// Nucleus component with protons and neutrons
+// Nucleus component
 const Nucleus = ({ protons, color }: { protons: number; color: string }) => {
   return (
     <Sphere args={[0.8, 32, 32]} position={[0, 0, 0]}>
@@ -84,369 +39,94 @@ const Nucleus = ({ protons, color }: { protons: number; color: string }) => {
   );
 };
 
-// Detailed nucleus with individual protons and neutrons
-const DetailedNucleus = ({ 
-  protons, 
-  neutrons 
-}: { 
-  protons: number; 
-  neutrons: number;
-}) => {
-  // Generate positions for nucleons using sphere packing algorithm
-  const nucleonPositions = useMemo(() => {
-    const positions: Array<[number, number, number]> = [];
-    const total = protons + neutrons;
-    const radius = Math.max(0.8, Math.pow(total, 1/3) * 0.4); // Scale nucleus size
-    
-    // Fibonacci sphere algorithm for even distribution
-    const goldenRatio = (1 + Math.sqrt(5)) / 2;
-    
-    for (let i = 0; i < total; i++) {
-      const theta = 2 * Math.PI * i / goldenRatio;
-      const phi = Math.acos(1 - 2 * (i + 0.5) / total);
-      
-      const x = radius * Math.sin(phi) * Math.cos(theta);
-      const y = radius * Math.sin(phi) * Math.sin(theta);
-      const z = radius * Math.cos(phi);
-      
-      positions.push([x, y, z]);
+// Simple circular orbit ring
+const OrbitRing = ({ radius }: { radius: number }) => {
+  const points = useMemo(() => {
+    const pts: THREE.Vector3[] = [];
+    const segments = 64;
+    for (let i = 0; i <= segments; i++) {
+      const angle = (i / segments) * Math.PI * 2;
+      pts.push(new THREE.Vector3(
+        radius * Math.cos(angle),
+        0,
+        radius * Math.sin(angle)
+      ));
     }
-    
-    return { positions, radius };
-  }, [protons, neutrons]);
+    return pts;
+  }, [radius]);
 
   return (
-    <group>
-      {/* Protons - red */}
-      {nucleonPositions.positions.slice(0, protons).map((pos, i) => (
-        <Sphere key={`proton-${i}`} args={[0.18, 16, 16]} position={pos}>
-          <meshStandardMaterial 
-            color="#ef4444" 
-            emissive="#dc2626"
-            emissiveIntensity={0.4}
-            metalness={0.6}
-            roughness={0.3}
-          />
-        </Sphere>
-      ))}
-      
-      {/* Neutrons - blue */}
-      {nucleonPositions.positions.slice(protons).map((pos, i) => (
-        <Sphere key={`neutron-${i}`} args={[0.18, 16, 16]} position={pos}>
-          <meshStandardMaterial 
-            color="#3b82f6" 
-            emissive="#2563eb"
-            emissiveIntensity={0.3}
-            metalness={0.6}
-            roughness={0.3}
-          />
-        </Sphere>
-      ))}
-      
-      {/* Nucleus glow effect */}
-      <Sphere args={[nucleonPositions.radius * 1.1, 32, 32]} position={[0, 0, 0]}>
-        <meshBasicMaterial 
-          color="#fbbf24" 
-          transparent 
-          opacity={0.1}
-        />
-      </Sphere>
-    </group>
+    <Line
+      points={points}
+      color={ORBIT_COLOR}
+      lineWidth={1.5}
+      transparent
+      opacity={0.4}
+    />
   );
 };
 
-// S Orbital - Spherical cloud
-const SOrbital = ({ radius, color, opacity = 0.3 }: { radius: number; color: string; opacity?: number }) => {
-  const meshRef = useRef<THREE.Mesh>(null);
-  
-  useFrame((state) => {
-    if (meshRef.current) {
-      const scale = 1 + Math.sin(state.clock.elapsedTime * 2) * 0.05;
-      meshRef.current.scale.setScalar(scale);
-    }
-  });
-  
-  return (
-    <Sphere ref={meshRef} args={[radius, 32, 32]}>
-      <meshStandardMaterial 
-        color={color}
-        transparent
-        opacity={opacity}
-        side={THREE.DoubleSide}
-      />
-    </Sphere>
-  );
-};
-
-// P Orbital - Dumbbell/Figure-8 shape
-const POrbital = ({ 
-  radius, 
-  color, 
-  rotation = [0, 0, 0],
-  opacity = 0.25
-}: { 
-  radius: number; 
-  color: string; 
-  rotation?: [number, number, number];
-  opacity?: number;
-}) => {
-  const groupRef = useRef<THREE.Group>(null);
-  
-  useFrame((state) => {
-    if (groupRef.current) {
-      const pulse = 1 + Math.sin(state.clock.elapsedTime * 1.5) * 0.03;
-      groupRef.current.scale.setScalar(pulse);
-    }
-  });
-  
-  const lobeRadius = radius * 0.6;
-  const lobeDistance = radius * 0.5;
-  
-  return (
-    <group ref={groupRef} rotation={rotation}>
-      {/* Positive lobe */}
-      <Sphere args={[lobeRadius, 24, 24]} position={[0, lobeDistance, 0]}>
-        <meshStandardMaterial 
-          color={color}
-          transparent
-          opacity={opacity}
-          side={THREE.DoubleSide}
-        />
-      </Sphere>
-      {/* Negative lobe */}
-      <Sphere args={[lobeRadius, 24, 24]} position={[0, -lobeDistance, 0]}>
-        <meshStandardMaterial 
-          color={color}
-          transparent
-          opacity={opacity * 0.8}
-          side={THREE.DoubleSide}
-        />
-      </Sphere>
-      {/* Node at center */}
-      <Sphere args={[lobeRadius * 0.2, 16, 16]} position={[0, 0, 0]}>
-        <meshBasicMaterial 
-          color={color}
-          transparent
-          opacity={0.1}
-        />
-      </Sphere>
-    </group>
-  );
-};
-
-// D Orbital - Cloverleaf shape
-const DOrbital = ({ 
-  radius, 
-  color, 
-  variant = 0,
-  opacity = 0.2
-}: { 
-  radius: number; 
-  color: string; 
-  variant?: number;
-  opacity?: number;
-}) => {
-  const groupRef = useRef<THREE.Group>(null);
-  
-  useFrame((state) => {
-    if (groupRef.current) {
-      const pulse = 1 + Math.sin(state.clock.elapsedTime * 1.2 + variant) * 0.04;
-      groupRef.current.scale.setScalar(pulse);
-    }
-  });
-  
-  const lobeRadius = radius * 0.4;
-  const lobeDistance = radius * 0.45;
-  
-  const rotations: [number, number, number][] = [
-    [0, 0, 0],
-    [Math.PI / 2, 0, 0],
-    [0, 0, Math.PI / 2],
-    [0, Math.PI / 4, 0],
-    [0, 0, 0],
-  ];
-  
-  const rotation = rotations[variant % 5];
-  
-  return (
-    <group ref={groupRef} rotation={rotation}>
-      <Sphere args={[lobeRadius, 20, 20]} position={[lobeDistance, lobeDistance, 0]}>
-        <meshStandardMaterial color={color} transparent opacity={opacity} side={THREE.DoubleSide} />
-      </Sphere>
-      <Sphere args={[lobeRadius, 20, 20]} position={[-lobeDistance, lobeDistance, 0]}>
-        <meshStandardMaterial color={color} transparent opacity={opacity * 0.9} side={THREE.DoubleSide} />
-      </Sphere>
-      <Sphere args={[lobeRadius, 20, 20]} position={[lobeDistance, -lobeDistance, 0]}>
-        <meshStandardMaterial color={color} transparent opacity={opacity * 0.9} side={THREE.DoubleSide} />
-      </Sphere>
-      <Sphere args={[lobeRadius, 20, 20]} position={[-lobeDistance, -lobeDistance, 0]}>
-        <meshStandardMaterial color={color} transparent opacity={opacity} side={THREE.DoubleSide} />
-      </Sphere>
-    </group>
-  );
-};
-
-// Orbital Cloud Component
-const OrbitalCloud = ({ 
-  shell, 
-  type, 
-  count,
-  baseRadius
-}: { 
-  shell: number; 
-  type: 's' | 'p' | 'd' | 'f'; 
-  count: number;
-  baseRadius: number;
-}) => {
-  const radius = baseRadius + shell * 0.8;
-  const color = orbitalColors[type];
-  const intensity = Math.min(count / (type === 's' ? 2 : type === 'p' ? 6 : type === 'd' ? 10 : 14), 1);
-  
-  if (type === 's') {
-    return <SOrbital radius={radius * 0.5} color={color} opacity={0.15 + intensity * 0.15} />;
-  }
-  
-  if (type === 'p') {
-    const pCount = Math.min(count, 6);
-    return (
-      <group>
-        {pCount >= 1 && <POrbital radius={radius} color={color} rotation={[0, 0, 0]} opacity={0.12 + intensity * 0.1} />}
-        {pCount >= 3 && <POrbital radius={radius} color={color} rotation={[0, 0, Math.PI / 2]} opacity={0.12 + intensity * 0.1} />}
-        {pCount >= 5 && <POrbital radius={radius} color={color} rotation={[Math.PI / 2, 0, 0]} opacity={0.12 + intensity * 0.1} />}
-      </group>
-    );
-  }
-  
-  if (type === 'd') {
-    const dCount = Math.min(count, 10);
-    return (
-      <group>
-        {dCount >= 1 && <DOrbital radius={radius} color={color} variant={0} opacity={0.1 + intensity * 0.08} />}
-        {dCount >= 3 && <DOrbital radius={radius} color={color} variant={1} opacity={0.1 + intensity * 0.08} />}
-        {dCount >= 5 && <DOrbital radius={radius} color={color} variant={2} opacity={0.1 + intensity * 0.08} />}
-        {dCount >= 7 && <DOrbital radius={radius} color={color} variant={3} opacity={0.1 + intensity * 0.08} />}
-        {dCount >= 9 && <DOrbital radius={radius} color={color} variant={4} opacity={0.1 + intensity * 0.08} />}
-      </group>
-    );
-  }
-  
-  if (type === 'f') {
-    return (
-      <group>
-        <DOrbital radius={radius * 1.1} color={color} variant={0} opacity={0.08 + intensity * 0.06} />
-        <DOrbital radius={radius * 1.1} color={color} variant={1} opacity={0.08 + intensity * 0.06} />
-        <DOrbital radius={radius * 1.1} color={color} variant={2} opacity={0.08 + intensity * 0.06} />
-      </group>
-    );
-  }
-  
-  return null;
-};
-
-// Electron with animated orbit trail
-const AnimatedElectron = ({ 
+// Single electron that moves on circular orbit
+const Electron = ({ 
   shellRadius, 
   electronIndex, 
   totalElectrons, 
-  shellIndex,
-  color
+  shellIndex 
 }: { 
   shellRadius: number; 
   electronIndex: number; 
   totalElectrons: number; 
   shellIndex: number;
-  color: string;
 }) => {
   const electronRef = useRef<THREE.Group>(null);
-  const trailRef = useRef<THREE.Line>(null);
   
-  // Different rotation speeds and tilts for each electron
-  const speed = 0.5 + shellIndex * 0.2;
-  const tiltX = (electronIndex / totalElectrons) * Math.PI;
-  const tiltY = (electronIndex / totalElectrons) * Math.PI * 0.5;
+  // Different rotation speeds for each shell
+  const speed = 0.8 - shellIndex * 0.1;
   const startOffset = (electronIndex / totalElectrons) * Math.PI * 2;
-  
-  // Generate 3D orbital path (elliptical with varying tilts)
-  const orbitPoints = useMemo(() => {
-    const points: THREE.Vector3[] = [];
-    const segments = 128;
-    
-    for (let i = 0; i <= segments; i++) {
-      const angle = (i / segments) * Math.PI * 2;
-      
-      // Create slightly elliptical orbit
-      const a = shellRadius;
-      const b = shellRadius * (0.8 + Math.random() * 0.2);
-      
-      const x = a * Math.cos(angle);
-      const y = b * Math.sin(angle) * Math.cos(tiltX);
-      const z = b * Math.sin(angle) * Math.sin(tiltX);
-      
-      // Apply secondary rotation
-      const rotatedX = x * Math.cos(tiltY) - z * Math.sin(tiltY);
-      const rotatedZ = x * Math.sin(tiltY) + z * Math.cos(tiltY);
-      
-      points.push(new THREE.Vector3(rotatedX, y, rotatedZ));
-    }
-    
-    return points;
-  }, [shellRadius, tiltX, tiltY]);
+  // Tilt orbit based on electron index for 3D distribution
+  const tiltAngle = (electronIndex / totalElectrons) * Math.PI;
   
   useFrame((state) => {
     if (electronRef.current) {
       const time = state.clock.elapsedTime * speed + startOffset;
-      const angle = time % (Math.PI * 2);
       
-      const a = shellRadius;
-      const b = shellRadius * 0.9;
+      // Circular motion
+      const x = shellRadius * Math.cos(time);
+      const z = shellRadius * Math.sin(time);
       
-      const x = a * Math.cos(angle);
-      const y = b * Math.sin(angle) * Math.cos(tiltX);
-      const z = b * Math.sin(angle) * Math.sin(tiltX);
+      // Apply tilt for 3D effect
+      const y = z * Math.sin(tiltAngle) * 0.3;
+      const newZ = z * Math.cos(tiltAngle);
       
-      const rotatedX = x * Math.cos(tiltY) - z * Math.sin(tiltY);
-      const rotatedZ = x * Math.sin(tiltY) + z * Math.cos(tiltY);
-      
-      electronRef.current.position.set(rotatedX, y, rotatedZ);
+      electronRef.current.position.set(x, y, newZ);
     }
   });
   
   return (
-    <>
-      {/* Orbital path line */}
-      <Line
-        points={orbitPoints}
-        color={color}
-        lineWidth={2}
-        transparent
-        opacity={0.6}
-      />
-      
-      {/* Electron sphere */}
-      <group ref={electronRef}>
-        <Sphere args={[0.12, 16, 16]}>
-          <meshStandardMaterial 
-            color={color}
-            emissive={color}
-            emissiveIntensity={0.8}
-            metalness={0.3}
-            roughness={0.2}
-          />
-        </Sphere>
-        {/* Electron glow */}
-        <Sphere args={[0.2, 16, 16]}>
-          <meshBasicMaterial 
-            color={color}
-            transparent
-            opacity={0.3}
-          />
-        </Sphere>
-      </group>
-    </>
+    <group ref={electronRef}>
+      {/* Electron sphere - blue */}
+      <Sphere args={[0.15, 16, 16]}>
+        <meshStandardMaterial 
+          color={ELECTRON_COLOR}
+          emissive={ELECTRON_COLOR}
+          emissiveIntensity={0.6}
+          metalness={0.3}
+          roughness={0.2}
+        />
+      </Sphere>
+      {/* Electron glow */}
+      <Sphere args={[0.25, 16, 16]}>
+        <meshBasicMaterial 
+          color={ELECTRON_COLOR}
+          transparent
+          opacity={0.25}
+        />
+      </Sphere>
+    </group>
   );
 };
 
-// Electron shell component with realistic orbits
+// Electron shell with circular orbit
 const ElectronShell = ({ 
   radius, 
   electrons, 
@@ -456,30 +136,37 @@ const ElectronShell = ({
   electrons: number; 
   shellIndex: number;
 }) => {
-  const shellColor = orbitColors[shellIndex % orbitColors.length];
-  
   return (
     <group>
-      {/* Electrons with individual orbits */}
+      {/* Circular orbit ring */}
+      <OrbitRing radius={radius} />
+      
+      {/* Additional tilted orbit rings for 3D effect */}
+      <group rotation={[Math.PI / 3, 0, 0]}>
+        <OrbitRing radius={radius} />
+      </group>
+      <group rotation={[Math.PI / 3, Math.PI / 3, 0]}>
+        <OrbitRing radius={radius} />
+      </group>
+      
+      {/* Blue electrons */}
       {Array.from({ length: electrons }).map((_, i) => (
-        <AnimatedElectron
+        <Electron
           key={`electron-${shellIndex}-${i}`}
           shellRadius={radius}
           electronIndex={i}
           totalElectrons={electrons}
           shellIndex={shellIndex}
-          color={shellColor}
         />
       ))}
     </group>
   );
 };
 
-// Main atom scene with orbital clouds
+// Main atom scene - simplified realistic model
 const AtomScene = ({ atomicNumber, symbol, electrons }: AtomVisualizationProps) => {
   const shellElectrons = parseElectrons(electrons);
   const atomColor = getAtomColor(atomicNumber);
-  const orbitalConfig = parseElectronConfig(atomicNumber);
   
   return (
     <>
@@ -501,18 +188,7 @@ const AtomScene = ({ atomicNumber, symbol, electrons }: AtomVisualizationProps) 
         {symbol}
       </Text>
       
-      {/* Orbital clouds (s, p, d, f shapes) */}
-      {orbitalConfig.map((orbital, index) => (
-        <OrbitalCloud
-          key={`orbital-${orbital.shell}-${orbital.type}-${index}`}
-          shell={orbital.shell}
-          type={orbital.type}
-          count={orbital.count}
-          baseRadius={1.2}
-        />
-      ))}
-      
-      {/* Electron shells with animated electrons */}
+      {/* Electron shells with animated blue electrons */}
       {shellElectrons.map((numElectrons, index) => (
         <ElectronShell
           key={`shell-${index}`}
@@ -534,6 +210,79 @@ const AtomScene = ({ atomicNumber, symbol, electrons }: AtomVisualizationProps) 
   );
 };
 
+// Calculate neutrons from atomic mass
+const calculateNeutrons = (atomicMass: string, protons: number): number => {
+  const mass = parseFloat(atomicMass.replace(/[()]/g, ''));
+  if (isNaN(mass)) return protons;
+  return Math.round(mass) - protons;
+};
+
+// Detailed nucleus with individual protons and neutrons
+const DetailedNucleus = ({ 
+  protons, 
+  neutrons 
+}: { 
+  protons: number; 
+  neutrons: number;
+}) => {
+  const nucleonPositions = useMemo(() => {
+    const positions: Array<[number, number, number]> = [];
+    const total = protons + neutrons;
+    const radius = Math.max(0.8, Math.pow(total, 1/3) * 0.4);
+    
+    const goldenRatio = (1 + Math.sqrt(5)) / 2;
+    
+    for (let i = 0; i < total; i++) {
+      const theta = 2 * Math.PI * i / goldenRatio;
+      const phi = Math.acos(1 - 2 * (i + 0.5) / total);
+      
+      const x = radius * Math.sin(phi) * Math.cos(theta);
+      const y = radius * Math.sin(phi) * Math.sin(theta);
+      const z = radius * Math.cos(phi);
+      
+      positions.push([x, y, z]);
+    }
+    
+    return { positions, radius };
+  }, [protons, neutrons]);
+
+  return (
+    <group>
+      {nucleonPositions.positions.slice(0, protons).map((pos, i) => (
+        <Sphere key={`proton-${i}`} args={[0.18, 16, 16]} position={pos}>
+          <meshStandardMaterial 
+            color="#ef4444" 
+            emissive="#dc2626"
+            emissiveIntensity={0.4}
+            metalness={0.6}
+            roughness={0.3}
+          />
+        </Sphere>
+      ))}
+      
+      {nucleonPositions.positions.slice(protons).map((pos, i) => (
+        <Sphere key={`neutron-${i}`} args={[0.18, 16, 16]} position={pos}>
+          <meshStandardMaterial 
+            color="#3b82f6" 
+            emissive="#2563eb"
+            emissiveIntensity={0.3}
+            metalness={0.6}
+            roughness={0.3}
+          />
+        </Sphere>
+      ))}
+      
+      <Sphere args={[nucleonPositions.radius * 1.1, 32, 32]} position={[0, 0, 0]}>
+        <meshBasicMaterial 
+          color="#fbbf24" 
+          transparent 
+          opacity={0.1}
+        />
+      </Sphere>
+    </group>
+  );
+};
+
 // Nucleus-only scene for detailed view
 const NucleusScene = ({ 
   atomicNumber, 
@@ -549,10 +298,8 @@ const NucleusScene = ({
       <pointLight position={[-5, -5, -5]} intensity={0.8} />
       <pointLight position={[0, 0, 5]} intensity={0.8} color="#fbbf24" />
       
-      {/* Detailed nucleus */}
       <DetailedNucleus protons={atomicNumber} neutrons={neutrons} />
       
-      {/* Symbol label */}
       <Text
         position={[0, -3, 0]}
         fontSize={0.5}
@@ -563,7 +310,6 @@ const NucleusScene = ({
         {symbol}
       </Text>
       
-      {/* Legend */}
       <group position={[-4, 3, 0]}>
         <Sphere args={[0.15, 16, 16]} position={[0, 0, 0]}>
           <meshStandardMaterial color="#ef4444" emissive="#dc2626" emissiveIntensity={0.4} />
