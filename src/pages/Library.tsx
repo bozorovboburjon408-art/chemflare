@@ -11,7 +11,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Search,
-  GraduationCap
+  GraduationCap,
+  Download
 } from "lucide-react";
 import AdminBookUpload from "@/components/AdminBookUpload";
 import { useToast } from "@/hooks/use-toast";
@@ -26,6 +27,7 @@ interface ChemistryBook {
   cover_image_url: string | null;
   difficulty_level: number | null;
   topic: string;
+  pdf_url: string | null;
 }
 
 interface BookChapter {
@@ -299,7 +301,7 @@ const Library = () => {
                       {selectedBook.description}
                     </p>
                   )}
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 flex-wrap">
                     <Badge>{selectedBook.topic}</Badge>
                     {selectedBook.difficulty_level !== null && (
                       <Badge variant="outline">
@@ -307,6 +309,18 @@ const Library = () => {
                       </Badge>
                     )}
                   </div>
+                  {selectedBook.pdf_url && (
+                    <Button
+                      className="mt-4"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        window.open(selectedBook.pdf_url!, '_blank');
+                      }}
+                    >
+                      <Download className="w-4 h-4 mr-2" />
+                      PDF yuklab olish
+                    </Button>
+                  )}
                 </div>
               </div>
             </Card>
