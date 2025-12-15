@@ -179,129 +179,133 @@ const CuteRobot = () => {
           }}
         >
           <motion.svg
-            viewBox="0 0 120 160"
+            viewBox="0 0 100 140"
             className="w-20 h-28 md:w-24 md:h-32 drop-shadow-xl"
             animate={isWaving ? { rotate: [0, -5, 5, -5, 0] } : {}}
             transition={{ duration: 0.5, repeat: isWaving ? 3 : 0 }}
           >
             {/* Definitions */}
             <defs>
-              <linearGradient id="bodyGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <linearGradient id="eveBody" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stopColor="#FFFFFF" />
-                <stop offset="100%" stopColor="#E8F4FC" />
+                <stop offset="50%" stopColor="#F8FCFF" />
+                <stop offset="100%" stopColor="#E0F2F7" />
               </linearGradient>
-              <linearGradient id="accentGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor="#4DD0E1" />
-                <stop offset="100%" stopColor="#26C6DA" />
+              <linearGradient id="eveShine" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.8" />
+                <stop offset="50%" stopColor="#FFFFFF" stopOpacity="0" />
               </linearGradient>
               <filter id="glow">
-                <feGaussianBlur stdDeviation="2" result="coloredBlur" />
+                <feGaussianBlur stdDeviation="3" result="coloredBlur" />
                 <feMerge>
                   <feMergeNode in="coloredBlur" />
                   <feMergeNode in="SourceGraphic" />
                 </feMerge>
               </filter>
-              <filter id="shadow">
-                <feDropShadow dx="0" dy="2" stdDeviation="3" floodOpacity="0.2" />
+              <filter id="softShadow">
+                <feDropShadow dx="0" dy="4" stdDeviation="6" floodOpacity="0.15" />
+              </filter>
+              <filter id="innerGlow">
+                <feGaussianBlur stdDeviation="1" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
               </filter>
             </defs>
 
-            {/* Head - rounded egg shape */}
-            <ellipse cx="60" cy="45" rx="35" ry="40" fill="url(#bodyGradient)" filter="url(#shadow)" />
+            {/* Main body - single smooth egg shape like EVE */}
+            <ellipse 
+              cx="50" 
+              cy="65" 
+              rx="35" 
+              ry="55" 
+              fill="url(#eveBody)" 
+              filter="url(#softShadow)"
+            />
             
-            {/* Head accent - top curve */}
-            <path d="M35 25 Q60 5 85 25" fill="url(#accentGradient)" />
+            {/* Subtle body shine/highlight */}
+            <ellipse 
+              cx="38" 
+              cy="45" 
+              rx="15" 
+              ry="30" 
+              fill="url(#eveShine)"
+            />
+
+            {/* Face screen - sleek black visor */}
+            <ellipse 
+              cx="50" 
+              cy="45" 
+              rx="28" 
+              ry="18" 
+              fill="#0D0D15"
+            />
             
-            {/* Face screen */}
-            <ellipse cx="60" cy="50" rx="28" ry="25" fill="#1A1A2E" />
-            
-            {/* Eyes - glowing cyan */}
+            {/* Eyes - glowing cyan oval eyes like EVE */}
             <motion.ellipse
-              cx="48"
-              cy="48"
-              rx="8"
-              ry="10"
+              cx="38"
+              cy="45"
+              rx="9"
+              ry="6"
               fill="#4DD0E1"
               filter="url(#glow)"
               animate={{ scaleY: [1, 0.1, 1] }}
-              transition={{ duration: 3, repeat: Infinity, repeatDelay: 2 }}
+              transition={{ duration: 3, repeat: Infinity, repeatDelay: 3 }}
             />
             <motion.ellipse
-              cx="72"
-              cy="48"
-              rx="8"
-              ry="10"
+              cx="62"
+              cy="45"
+              rx="9"
+              ry="6"
               fill="#4DD0E1"
               filter="url(#glow)"
               animate={{ scaleY: [1, 0.1, 1] }}
-              transition={{ duration: 3, repeat: Infinity, repeatDelay: 2 }}
+              transition={{ duration: 3, repeat: Infinity, repeatDelay: 3 }}
             />
             
-            {/* Eye highlights */}
-            <circle cx="45" cy="45" r="2" fill="#FFFFFF" opacity="0.8" />
-            <circle cx="69" cy="45" r="2" fill="#FFFFFF" opacity="0.8" />
-            
-            {/* Smile */}
-            <motion.path 
-              d="M50 60 Q60 66 70 60" 
-              fill="none" 
-              stroke="#4DD0E1" 
-              strokeWidth="2" 
-              strokeLinecap="round"
-              animate={isWaving ? { d: ["M50 60 Q60 66 70 60", "M48 58 Q60 70 72 58", "M50 60 Q60 66 70 60"] } : {}}
-              transition={{ duration: 0.5 }}
-            />
+            {/* Eye inner glow */}
+            <ellipse cx="38" cy="44" rx="4" ry="2.5" fill="#7FEFFF" opacity="0.6" />
+            <ellipse cx="62" cy="44" rx="4" ry="2.5" fill="#7FEFFF" opacity="0.6" />
 
-            {/* Body - egg/oval shape */}
-            <ellipse cx="60" cy="115" rx="30" ry="35" fill="url(#bodyGradient)" filter="url(#shadow)" />
-            
-            {/* Body accent stripes */}
-            <path d="M35 100 Q60 95 85 100" fill="none" stroke="url(#accentGradient)" strokeWidth="4" strokeLinecap="round" />
-            <path d="M38 112 Q60 107 82 112" fill="none" stroke="url(#accentGradient)" strokeWidth="3" strokeLinecap="round" />
-            
-            {/* Neck connector */}
-            <rect x="50" y="82" width="20" height="10" rx="3" fill="url(#accentGradient)" />
-
-            {/* Left arm */}
+            {/* Left arm - sleek floating arm */}
             <motion.g
-              animate={isWaving ? { rotate: [0, -45, 30, -45, 0] } : { rotate: [0, 5, 0, -5, 0] }}
-              transition={isWaving ? { duration: 0.5, repeat: 3 } : { duration: 2, repeat: Infinity }}
-              style={{ transformOrigin: "35px 100px" }}
+              animate={isWaving ? { rotate: [0, -60, 40, -60, 0] } : { rotate: [0, 8, 0, -8, 0] }}
+              transition={isWaving ? { duration: 0.5, repeat: 3 } : { duration: 3, repeat: Infinity }}
+              style={{ transformOrigin: "20px 70px" }}
             >
-              <ellipse cx="25" cy="100" rx="8" ry="12" fill="url(#accentGradient)" />
-              <circle cx="22" cy="108" r="6" fill="url(#bodyGradient)" stroke="#4DD0E1" strokeWidth="1" />
+              <ellipse 
+                cx="8" 
+                cy="70" 
+                rx="8" 
+                ry="20" 
+                fill="url(#eveBody)" 
+                filter="url(#softShadow)"
+              />
             </motion.g>
 
-            {/* Right arm */}
+            {/* Right arm - sleek floating arm */}
             <motion.g
-              animate={isWaving ? { rotate: [0, 45, -30, 45, 0] } : { rotate: [0, -5, 0, 5, 0] }}
-              transition={isWaving ? { duration: 0.5, repeat: 3 } : { duration: 2, repeat: Infinity, delay: 0.5 }}
-              style={{ transformOrigin: "85px 100px" }}
+              animate={isWaving ? { rotate: [0, 60, -40, 60, 0] } : { rotate: [0, -8, 0, 8, 0] }}
+              transition={isWaving ? { duration: 0.5, repeat: 3 } : { duration: 3, repeat: Infinity, delay: 0.5 }}
+              style={{ transformOrigin: "80px 70px" }}
             >
-              <ellipse cx="95" cy="100" rx="8" ry="12" fill="url(#accentGradient)" />
-              <circle cx="98" cy="108" r="6" fill="url(#bodyGradient)" stroke="#4DD0E1" strokeWidth="1" />
+              <ellipse 
+                cx="92" 
+                cy="70" 
+                rx="8" 
+                ry="20" 
+                fill="url(#eveBody)" 
+                filter="url(#softShadow)"
+              />
             </motion.g>
 
-            {/* Feet */}
-            <motion.ellipse 
-              cx="48" 
-              cy="148" 
-              rx="10" 
-              ry="6" 
-              fill="url(#accentGradient)"
-              animate={isMoving ? { rotate: [0, -15, 15, -15, 0] } : {}}
-              transition={{ duration: 0.3, repeat: isMoving ? 6 : 0 }}
-              style={{ transformOrigin: "48px 145px" }}
-            />
-            <motion.ellipse 
-              cx="72" 
-              cy="148" 
-              rx="10" 
-              ry="6" 
-              fill="url(#accentGradient)"
-              animate={isMoving ? { rotate: [0, 15, -15, 15, 0] } : {}}
-              transition={{ duration: 0.3, repeat: isMoving ? 6 : 0, delay: 0.15 }}
-              style={{ transformOrigin: "72px 145px" }}
+            {/* Bottom glow effect - hovering */}
+            <ellipse 
+              cx="50" 
+              cy="130" 
+              rx="20" 
+              ry="5" 
+              fill="#4DD0E1" 
+              opacity="0.3"
+              filter="url(#glow)"
             />
           </motion.svg>
         </motion.div>
