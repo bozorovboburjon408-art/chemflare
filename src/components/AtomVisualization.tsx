@@ -14,12 +14,43 @@ const orbitColors = [
   "#ffcc99", // Light orange
 ];
 
+// Orbital colors
+const orbitalColors = {
+  s: "#ff6b6b", // Light red for s orbital
+  p: "#4ecdc4", // Cyan for p orbital
+  d: "#ffe66d", // Yellow for d orbital
+  f: "#c44dff", // Purple for f orbital
+};
+
 interface AtomVisualizationProps {
   atomicNumber: number;
   symbol: string;
   electrons: string;
   atomicMass: string;
 }
+
+// Parse electron configuration to orbital notation
+const parseElectronConfig = (atomicNumber: number): { shell: number; type: 's' | 'p' | 'd' | 'f'; count: number }[] => {
+  const config: { shell: number; type: 's' | 'p' | 'd' | 'f'; count: number }[] = [];
+  let remaining = atomicNumber;
+  
+  // Aufbau principle order
+  const order: [number, 's' | 'p' | 'd' | 'f', number][] = [
+    [1, 's', 2], [2, 's', 2], [2, 'p', 6], [3, 's', 2], [3, 'p', 6],
+    [4, 's', 2], [3, 'd', 10], [4, 'p', 6], [5, 's', 2], [4, 'd', 10],
+    [5, 'p', 6], [6, 's', 2], [4, 'f', 14], [5, 'd', 10], [6, 'p', 6],
+    [7, 's', 2], [5, 'f', 14], [6, 'd', 10], [7, 'p', 6]
+  ];
+  
+  for (const [shell, type, max] of order) {
+    if (remaining <= 0) break;
+    const count = Math.min(remaining, max);
+    config.push({ shell, type, count });
+    remaining -= count;
+  }
+  
+  return config;
+};
 
 // Parse electron configuration
 const parseElectrons = (electronStr: string): number[] => {
@@ -122,6 +153,194 @@ const DetailedNucleus = ({
       </Sphere>
     </group>
   );
+};
+
+// S Orbital - Spherical cloud
+const SOrbital = ({ radius, color, opacity = 0.3 }: { radius: number; color: string; opacity?: number }) => {
+  const meshRef = useRef<THREE.Mesh>(null);
+  
+  useFrame((state) => {
+    if (meshRef.current) {
+      const scale = 1 + Math.sin(state.clock.elapsedTime * 2) * 0.05;
+      meshRef.current.scale.setScalar(scale);
+    }
+  });
+  
+  return (
+    <Sphere ref={meshRef} args={[radius, 32, 32]}>
+      <meshStandardMaterial 
+        color={color}
+        transparent
+        opacity={opacity}
+        side={THREE.DoubleSide}
+      />
+    </Sphere>
+  );
+};
+
+// P Orbital - Dumbbell/Figure-8 shape
+const POrbital = ({ 
+  radius, 
+  color, 
+  rotation = [0, 0, 0],
+  opacity = 0.25
+}: { 
+  radius: number; 
+  color: string; 
+  rotation?: [number, number, number];
+  opacity?: number;
+}) => {
+  const groupRef = useRef<THREE.Group>(null);
+  
+  useFrame((state) => {
+    if (groupRef.current) {
+      const pulse = 1 + Math.sin(state.clock.elapsedTime * 1.5) * 0.03;
+      groupRef.current.scale.setScalar(pulse);
+    }
+  });
+  
+  const lobeRadius = radius * 0.6;
+  const lobeDistance = radius * 0.5;
+  
+  return (
+    <group ref={groupRef} rotation={rotation}>
+      {/* Positive lobe */}
+      <Sphere args={[lobeRadius, 24, 24]} position={[0, lobeDistance, 0]}>
+        <meshStandardMaterial 
+          color={color}
+          transparent
+          opacity={opacity}
+          side={THREE.DoubleSide}
+        />
+      </Sphere>
+      {/* Negative lobe */}
+      <Sphere args={[lobeRadius, 24, 24]} position={[0, -lobeDistance, 0]}>
+        <meshStandardMaterial 
+          color={color}
+          transparent
+          opacity={opacity * 0.8}
+          side={THREE.DoubleSide}
+        />
+      </Sphere>
+      {/* Node at center */}
+      <Sphere args={[lobeRadius * 0.2, 16, 16]} position={[0, 0, 0]}>
+        <meshBasicMaterial 
+          color={color}
+          transparent
+          opacity={0.1}
+        />
+      </Sphere>
+    </group>
+  );
+};
+
+// D Orbital - Cloverleaf shape
+const DOrbital = ({ 
+  radius, 
+  color, 
+  variant = 0,
+  opacity = 0.2
+}: { 
+  radius: number; 
+  color: string; 
+  variant?: number;
+  opacity?: number;
+}) => {
+  const groupRef = useRef<THREE.Group>(null);
+  
+  useFrame((state) => {
+    if (groupRef.current) {
+      const pulse = 1 + Math.sin(state.clock.elapsedTime * 1.2 + variant) * 0.04;
+      groupRef.current.scale.setScalar(pulse);
+    }
+  });
+  
+  const lobeRadius = radius * 0.4;
+  const lobeDistance = radius * 0.45;
+  
+  const rotations: [number, number, number][] = [
+    [0, 0, 0],
+    [Math.PI / 2, 0, 0],
+    [0, 0, Math.PI / 2],
+    [0, Math.PI / 4, 0],
+    [0, 0, 0],
+  ];
+  
+  const rotation = rotations[variant % 5];
+  
+  return (
+    <group ref={groupRef} rotation={rotation}>
+      <Sphere args={[lobeRadius, 20, 20]} position={[lobeDistance, lobeDistance, 0]}>
+        <meshStandardMaterial color={color} transparent opacity={opacity} side={THREE.DoubleSide} />
+      </Sphere>
+      <Sphere args={[lobeRadius, 20, 20]} position={[-lobeDistance, lobeDistance, 0]}>
+        <meshStandardMaterial color={color} transparent opacity={opacity * 0.9} side={THREE.DoubleSide} />
+      </Sphere>
+      <Sphere args={[lobeRadius, 20, 20]} position={[lobeDistance, -lobeDistance, 0]}>
+        <meshStandardMaterial color={color} transparent opacity={opacity * 0.9} side={THREE.DoubleSide} />
+      </Sphere>
+      <Sphere args={[lobeRadius, 20, 20]} position={[-lobeDistance, -lobeDistance, 0]}>
+        <meshStandardMaterial color={color} transparent opacity={opacity} side={THREE.DoubleSide} />
+      </Sphere>
+    </group>
+  );
+};
+
+// Orbital Cloud Component
+const OrbitalCloud = ({ 
+  shell, 
+  type, 
+  count,
+  baseRadius
+}: { 
+  shell: number; 
+  type: 's' | 'p' | 'd' | 'f'; 
+  count: number;
+  baseRadius: number;
+}) => {
+  const radius = baseRadius + shell * 0.8;
+  const color = orbitalColors[type];
+  const intensity = Math.min(count / (type === 's' ? 2 : type === 'p' ? 6 : type === 'd' ? 10 : 14), 1);
+  
+  if (type === 's') {
+    return <SOrbital radius={radius * 0.5} color={color} opacity={0.15 + intensity * 0.15} />;
+  }
+  
+  if (type === 'p') {
+    const pCount = Math.min(count, 6);
+    return (
+      <group>
+        {pCount >= 1 && <POrbital radius={radius} color={color} rotation={[0, 0, 0]} opacity={0.12 + intensity * 0.1} />}
+        {pCount >= 3 && <POrbital radius={radius} color={color} rotation={[0, 0, Math.PI / 2]} opacity={0.12 + intensity * 0.1} />}
+        {pCount >= 5 && <POrbital radius={radius} color={color} rotation={[Math.PI / 2, 0, 0]} opacity={0.12 + intensity * 0.1} />}
+      </group>
+    );
+  }
+  
+  if (type === 'd') {
+    const dCount = Math.min(count, 10);
+    return (
+      <group>
+        {dCount >= 1 && <DOrbital radius={radius} color={color} variant={0} opacity={0.1 + intensity * 0.08} />}
+        {dCount >= 3 && <DOrbital radius={radius} color={color} variant={1} opacity={0.1 + intensity * 0.08} />}
+        {dCount >= 5 && <DOrbital radius={radius} color={color} variant={2} opacity={0.1 + intensity * 0.08} />}
+        {dCount >= 7 && <DOrbital radius={radius} color={color} variant={3} opacity={0.1 + intensity * 0.08} />}
+        {dCount >= 9 && <DOrbital radius={radius} color={color} variant={4} opacity={0.1 + intensity * 0.08} />}
+      </group>
+    );
+  }
+  
+  if (type === 'f') {
+    return (
+      <group>
+        <DOrbital radius={radius * 1.1} color={color} variant={0} opacity={0.08 + intensity * 0.06} />
+        <DOrbital radius={radius * 1.1} color={color} variant={1} opacity={0.08 + intensity * 0.06} />
+        <DOrbital radius={radius * 1.1} color={color} variant={2} opacity={0.08 + intensity * 0.06} />
+      </group>
+    );
+  }
+  
+  return null;
 };
 
 // Electron with animated orbit trail
@@ -256,10 +475,11 @@ const ElectronShell = ({
   );
 };
 
-// Main atom scene
+// Main atom scene with orbital clouds
 const AtomScene = ({ atomicNumber, symbol, electrons }: AtomVisualizationProps) => {
   const shellElectrons = parseElectrons(electrons);
   const atomColor = getAtomColor(atomicNumber);
+  const orbitalConfig = parseElectronConfig(atomicNumber);
   
   return (
     <>
@@ -281,7 +501,18 @@ const AtomScene = ({ atomicNumber, symbol, electrons }: AtomVisualizationProps) 
         {symbol}
       </Text>
       
-      {/* Electron shells */}
+      {/* Orbital clouds (s, p, d, f shapes) */}
+      {orbitalConfig.map((orbital, index) => (
+        <OrbitalCloud
+          key={`orbital-${orbital.shell}-${orbital.type}-${index}`}
+          shell={orbital.shell}
+          type={orbital.type}
+          count={orbital.count}
+          baseRadius={1.2}
+        />
+      ))}
+      
+      {/* Electron shells with animated electrons */}
       {shellElectrons.map((numElectrons, index) => (
         <ElectronShell
           key={`shell-${index}`}
