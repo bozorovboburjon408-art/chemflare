@@ -3,7 +3,7 @@ import Navigation from "@/components/Navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Heart, Users, Lightbulb, MessageCircle, ExternalLink, Loader2, Upload, Camera, CameraOff, Sparkles, Mail, UserPlus } from "lucide-react";
+import { Heart, Users, Lightbulb, MessageCircle, ExternalLink, Loader2, Upload, Sparkles, Mail, UserPlus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -32,7 +32,6 @@ interface OldMentor {
 const STORAGE_KEYS = {
   TEAM_MEMBERS: "developers_team_members",
   MENTORS: "developers_mentors",
-  CAMERA_ENABLED: "robot_camera_enabled",
 };
 
 const Developers = () => {
@@ -41,18 +40,8 @@ const Developers = () => {
   const [loading, setLoading] = useState(true);
   const [migrating, setMigrating] = useState(false);
   const [hasLocalData, setHasLocalData] = useState(false);
-  const [cameraEnabled, setCameraEnabled] = useState(() => {
-    return localStorage.getItem(STORAGE_KEYS.CAMERA_ENABLED) === 'true';
-  });
-  const [cameraPermission, setCameraPermission] = useState<'granted' | 'denied' | 'prompt'>('prompt');
 
   useEffect(() => {
-    // Check camera permission status
-    if (navigator.permissions) {
-      navigator.permissions.query({ name: 'camera' as PermissionName }).then((result) => {
-        setCameraPermission(result.state as 'granted' | 'denied' | 'prompt');
-      }).catch(() => {});
-    }
 
     // Check if there's old localStorage data with avatars
     const oldMembers = localStorage.getItem(STORAGE_KEYS.TEAM_MEMBERS);
@@ -68,35 +57,6 @@ const Developers = () => {
 
     fetchDevelopers();
   }, []);
-
-  const toggleCamera = async () => {
-    if (!cameraEnabled) {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        // Stop immediately - we just needed permission
-        stream.getTracks().forEach(track => track.stop());
-        
-        setCameraEnabled(true);
-        localStorage.setItem(STORAGE_KEYS.CAMERA_ENABLED, 'true');
-        setCameraPermission('granted');
-        toast.success("Kamera yoqildi! Robotlar sizni ko'rishi mumkin.");
-        
-        // Dispatch event to notify BumblebeeMascot
-        window.dispatchEvent(new CustomEvent('cameraStatusChanged', { detail: { enabled: true } }));
-      } catch (error) {
-        console.error('Camera permission denied:', error);
-        setCameraPermission('denied');
-        toast.error("Kamera ruxsati berilmadi");
-      }
-    } else {
-      setCameraEnabled(false);
-      localStorage.setItem(STORAGE_KEYS.CAMERA_ENABLED, 'false');
-      toast.info("Kamera o'chirildi");
-      
-      // Dispatch event to notify BumblebeeMascot
-      window.dispatchEvent(new CustomEvent('cameraStatusChanged', { detail: { enabled: false } }));
-    }
-  };
 
   const fetchDevelopers = async () => {
     const { data, error } = await supabase
@@ -369,57 +329,6 @@ const Developers = () => {
             ))}
           </div>
         </div>
-
-        {/* Camera Settings Section */}
-        <Card className="mb-8 bg-gradient-to-br from-blue-500/5 to-cyan-500/5 border-blue-500/20">
-          <CardContent className="p-6 md:p-8">
-            <div className="flex items-start gap-4">
-              <div className="p-3 rounded-full bg-blue-500/10">
-                {cameraEnabled ? (
-                  <Camera className="w-6 h-6 text-blue-500" />
-                ) : (
-                  <CameraOff className="w-6 h-6 text-muted-foreground" />
-                )}
-              </div>
-              <div className="flex-1">
-                <h2 className="text-xl font-semibold text-foreground mb-3">Robot Kamerasi</h2>
-                <p className="text-muted-foreground leading-relaxed mb-4">
-                  Kamerani yoqsangiz, robotlar sizni "ko'rishi" mumkin va sizga qarab javob beradi. 
-                  Siz ekranda ko'rinmaysiz - faqat robotlar sizni sezadi.
-                </p>
-                <div className="flex items-center gap-4">
-                  <Button 
-                    onClick={toggleCamera}
-                    variant={cameraEnabled ? "destructive" : "default"}
-                    className="gap-2"
-                  >
-                    {cameraEnabled ? (
-                      <>
-                        <CameraOff className="w-4 h-4" />
-                        Kamerani o'chirish
-                      </>
-                    ) : (
-                      <>
-                        <Camera className="w-4 h-4" />
-                        Kamerani yoqish
-                      </>
-                    )}
-                  </Button>
-                  {cameraPermission === 'denied' && (
-                    <Badge variant="outline" className="bg-destructive/10 text-destructive border-destructive/20">
-                      Ruxsat berilmagan
-                    </Badge>
-                  )}
-                  {cameraEnabled && cameraPermission === 'granted' && (
-                    <Badge variant="outline" className="bg-green-500/10 text-green-600 border-green-500/20">
-                      Faol
-                    </Badge>
-                  )}
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Join Our Team Section */}
         <Card className="mb-8 bg-gradient-to-br from-green-500/5 to-emerald-500/5 border-green-500/20">
