@@ -766,25 +766,37 @@ const Learning = () => {
 
             <h3 className="text-xl font-semibold mb-4">Bo'limni tanlang:</h3>
             
-            <div className="space-y-3">
-              {chapters.map((chapter, idx) => (
-                <Card
-                  key={chapter.id}
-                  className="p-4 hover:shadow-lg transition-all cursor-pointer hover:border-primary/50"
-                  onClick={() => setSelectedChapter(chapter)}
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                      <span className="font-bold text-primary">{idx + 1}</span>
+            {chapters.length === 0 ? (
+              <Card className="p-8 text-center">
+                <BookOpen className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+                <p className="text-muted-foreground mb-2">
+                  Bu kitob uchun bo'limlar hali qo'shilmagan
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  AI Savollar bo'limidan foydalaning yoki boshqa kitobni tanlang
+                </p>
+              </Card>
+            ) : (
+              <div className="space-y-3">
+                {chapters.map((chapter, idx) => (
+                  <Card
+                    key={chapter.id}
+                    className="p-4 hover:shadow-lg transition-all cursor-pointer hover:border-primary/50"
+                    onClick={() => setSelectedChapter(chapter)}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <span className="font-bold text-primary">{idx + 1}</span>
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-semibold">{chapter.title}</h4>
+                      </div>
+                      <ChevronRight className="w-5 h-5 text-muted-foreground" />
                     </div>
-                    <div className="flex-1">
-                      <h4 className="font-semibold">{chapter.title}</h4>
-                    </div>
-                    <ChevronRight className="w-5 h-5 text-muted-foreground" />
-                  </div>
-                </Card>
-              ))}
-            </div>
+                  </Card>
+                ))}
+              </div>
+            )}
           </div>
         </main>
       </div>
