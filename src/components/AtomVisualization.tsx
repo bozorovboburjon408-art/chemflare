@@ -6,15 +6,20 @@ import * as THREE from "three";
 // Electron blue color
 const ELECTRON_COLOR = "#3b82f6";
 
-// Light pastel colors for orbit rings
+// Bright vivid colors for orbit rings (NOT white)
 const ORBIT_COLORS = [
-  "#ff9999", // Light red/pink
-  "#99ff99", // Light green
-  "#99ccff", // Light blue
-  "#ffcc99", // Light orange
-  "#cc99ff", // Light purple
-  "#99ffcc", // Light mint
-  "#ffff99", // Light yellow
+  "#ff6b6b", // Bright red
+  "#4ecdc4", // Teal
+  "#45b7d1", // Sky blue
+  "#f7dc6f", // Golden yellow
+  "#bb8fce", // Purple
+  "#58d68d", // Bright green
+  "#f1948a", // Coral
+  "#85c1e9", // Light blue
+  "#f8c471", // Orange
+  "#7dcea0", // Mint green
+  "#d7bde2", // Lavender
+  "#82e0aa", // Spring green
 ];
 
 interface AtomVisualizationProps {
