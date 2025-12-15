@@ -166,6 +166,151 @@ const categoryColors = {
   actinide: "bg-rose-500/20 border-rose-500/40 hover:bg-rose-500/30",
 };
 
+// Standard Mendeleev periodic table positions (col, row)
+const getElementPosition = (atomicNumber: number): { col: number; row: number } | null => {
+  const positions: { [key: number]: { col: number; row: number } } = {
+    // Period 1
+    1: { col: 1, row: 1 },   // H
+    2: { col: 18, row: 1 },  // He
+    
+    // Period 2
+    3: { col: 1, row: 2 },   // Li
+    4: { col: 2, row: 2 },   // Be
+    5: { col: 13, row: 2 },  // B
+    6: { col: 14, row: 2 },  // C
+    7: { col: 15, row: 2 },  // N
+    8: { col: 16, row: 2 },  // O
+    9: { col: 17, row: 2 },  // F
+    10: { col: 18, row: 2 }, // Ne
+    
+    // Period 3
+    11: { col: 1, row: 3 },  // Na
+    12: { col: 2, row: 3 },  // Mg
+    13: { col: 13, row: 3 }, // Al
+    14: { col: 14, row: 3 }, // Si
+    15: { col: 15, row: 3 }, // P
+    16: { col: 16, row: 3 }, // S
+    17: { col: 17, row: 3 }, // Cl
+    18: { col: 18, row: 3 }, // Ar
+    
+    // Period 4
+    19: { col: 1, row: 4 },  // K
+    20: { col: 2, row: 4 },  // Ca
+    21: { col: 3, row: 4 },  // Sc
+    22: { col: 4, row: 4 },  // Ti
+    23: { col: 5, row: 4 },  // V
+    24: { col: 6, row: 4 },  // Cr
+    25: { col: 7, row: 4 },  // Mn
+    26: { col: 8, row: 4 },  // Fe
+    27: { col: 9, row: 4 },  // Co
+    28: { col: 10, row: 4 }, // Ni
+    29: { col: 11, row: 4 }, // Cu
+    30: { col: 12, row: 4 }, // Zn
+    31: { col: 13, row: 4 }, // Ga
+    32: { col: 14, row: 4 }, // Ge
+    33: { col: 15, row: 4 }, // As
+    34: { col: 16, row: 4 }, // Se
+    35: { col: 17, row: 4 }, // Br
+    36: { col: 18, row: 4 }, // Kr
+    
+    // Period 5
+    37: { col: 1, row: 5 },  // Rb
+    38: { col: 2, row: 5 },  // Sr
+    39: { col: 3, row: 5 },  // Y
+    40: { col: 4, row: 5 },  // Zr
+    41: { col: 5, row: 5 },  // Nb
+    42: { col: 6, row: 5 },  // Mo
+    43: { col: 7, row: 5 },  // Tc
+    44: { col: 8, row: 5 },  // Ru
+    45: { col: 9, row: 5 },  // Rh
+    46: { col: 10, row: 5 }, // Pd
+    47: { col: 11, row: 5 }, // Ag
+    48: { col: 12, row: 5 }, // Cd
+    49: { col: 13, row: 5 }, // In
+    50: { col: 14, row: 5 }, // Sn
+    51: { col: 15, row: 5 }, // Sb
+    52: { col: 16, row: 5 }, // Te
+    53: { col: 17, row: 5 }, // I
+    54: { col: 18, row: 5 }, // Xe
+    
+    // Period 6
+    55: { col: 1, row: 6 },  // Cs
+    56: { col: 2, row: 6 },  // Ba
+    // Lanthanides (57-71) go in row 9
+    72: { col: 4, row: 6 },  // Hf
+    73: { col: 5, row: 6 },  // Ta
+    74: { col: 6, row: 6 },  // W
+    75: { col: 7, row: 6 },  // Re
+    76: { col: 8, row: 6 },  // Os
+    77: { col: 9, row: 6 },  // Ir
+    78: { col: 10, row: 6 }, // Pt
+    79: { col: 11, row: 6 }, // Au
+    80: { col: 12, row: 6 }, // Hg
+    81: { col: 13, row: 6 }, // Tl
+    82: { col: 14, row: 6 }, // Pb
+    83: { col: 15, row: 6 }, // Bi
+    84: { col: 16, row: 6 }, // Po
+    85: { col: 17, row: 6 }, // At
+    86: { col: 18, row: 6 }, // Rn
+    
+    // Period 7
+    87: { col: 1, row: 7 },  // Fr
+    88: { col: 2, row: 7 },  // Ra
+    // Actinides (89-103) go in row 10
+    104: { col: 4, row: 7 },  // Rf
+    105: { col: 5, row: 7 },  // Db
+    106: { col: 6, row: 7 },  // Sg
+    107: { col: 7, row: 7 },  // Bh
+    108: { col: 8, row: 7 },  // Hs
+    109: { col: 9, row: 7 },  // Mt
+    110: { col: 10, row: 7 }, // Ds
+    111: { col: 11, row: 7 }, // Rg
+    112: { col: 12, row: 7 }, // Cn
+    113: { col: 13, row: 7 }, // Nh
+    114: { col: 14, row: 7 }, // Fl
+    115: { col: 15, row: 7 }, // Mc
+    116: { col: 16, row: 7 }, // Lv
+    117: { col: 17, row: 7 }, // Ts
+    118: { col: 18, row: 7 }, // Og
+    
+    // Lanthanides (row 9)
+    57: { col: 4, row: 9 },  // La
+    58: { col: 5, row: 9 },  // Ce
+    59: { col: 6, row: 9 },  // Pr
+    60: { col: 7, row: 9 },  // Nd
+    61: { col: 8, row: 9 },  // Pm
+    62: { col: 9, row: 9 },  // Sm
+    63: { col: 10, row: 9 }, // Eu
+    64: { col: 11, row: 9 }, // Gd
+    65: { col: 12, row: 9 }, // Tb
+    66: { col: 13, row: 9 }, // Dy
+    67: { col: 14, row: 9 }, // Ho
+    68: { col: 15, row: 9 }, // Er
+    69: { col: 16, row: 9 }, // Tm
+    70: { col: 17, row: 9 }, // Yb
+    71: { col: 18, row: 9 }, // Lu
+    
+    // Actinides (row 10)
+    89: { col: 4, row: 10 },  // Ac
+    90: { col: 5, row: 10 },  // Th
+    91: { col: 6, row: 10 },  // Pa
+    92: { col: 7, row: 10 },  // U
+    93: { col: 8, row: 10 },  // Np
+    94: { col: 9, row: 10 },  // Pu
+    95: { col: 10, row: 10 }, // Am
+    96: { col: 11, row: 10 }, // Cm
+    97: { col: 12, row: 10 }, // Bk
+    98: { col: 13, row: 10 }, // Cf
+    99: { col: 14, row: 10 }, // Es
+    100: { col: 15, row: 10 }, // Fm
+    101: { col: 16, row: 10 }, // Md
+    102: { col: 17, row: 10 }, // No
+    103: { col: 18, row: 10 }, // Lr
+  };
+  
+  return positions[atomicNumber] || null;
+};
+
 const PeriodicTable = () => {
   const [selectedElement, setSelectedElement] = useState<Element | null>(null);
 
@@ -183,29 +328,60 @@ const PeriodicTable = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-3 sm:grid-cols-6 md:grid-cols-9 lg:grid-cols-12 xl:grid-cols-18 gap-1 md:gap-2">
-          {elements.map((element) => (
-            <Card
-              key={element.symbol}
-              onClick={() => setSelectedElement(element)}
-              className={`p-2 cursor-pointer border-2 transition-all hover:scale-105 hover:shadow-elegant ${
-                categoryColors[element.category as keyof typeof categoryColors]
-              }`}
+        {/* Standard Mendeleev Periodic Table Layout */}
+        <div className="overflow-x-auto pb-4">
+          <div className="grid gap-1 md:gap-1.5 min-w-[900px]" style={{ 
+            gridTemplateColumns: 'repeat(18, minmax(45px, 1fr))',
+            gridTemplateRows: 'repeat(10, auto)'
+          }}>
+            {elements.map((element) => {
+              const position = getElementPosition(element.atomicNumber);
+              if (!position) return null;
+              
+              return (
+                <Card
+                  key={element.symbol}
+                  onClick={() => setSelectedElement(element)}
+                  className={`p-1.5 md:p-2 cursor-pointer border-2 transition-all hover:scale-105 hover:shadow-elegant ${
+                    categoryColors[element.category as keyof typeof categoryColors]
+                  }`}
+                  style={{
+                    gridColumn: position.col,
+                    gridRow: position.row
+                  }}
+                >
+                  <div className="text-[8px] md:text-[10px] text-muted-foreground text-right mb-0.5">
+                    {element.atomicNumber}
+                  </div>
+                  <div className="text-sm md:text-lg font-bold text-center text-foreground mb-0.5">
+                    {element.symbol}
+                  </div>
+                  <div className="text-[7px] md:text-[9px] text-center text-muted-foreground truncate">
+                    {element.nameUz}
+                  </div>
+                  <div className="text-[7px] md:text-[9px] text-center text-muted-foreground">
+                    {element.atomicMass}
+                  </div>
+                </Card>
+              );
+            })}
+            
+            {/* Lanthanide indicator */}
+            <div 
+              className="flex items-center justify-center text-[10px] md:text-xs text-pink-400 font-medium"
+              style={{ gridColumn: 3, gridRow: 6 }}
             >
-              <div className="text-[10px] text-muted-foreground text-right mb-0.5">
-                {element.atomicNumber}
-              </div>
-              <div className="text-lg md:text-xl font-bold text-center text-foreground mb-0.5">
-                {element.symbol}
-              </div>
-              <div className="text-[9px] md:text-xs text-center text-muted-foreground truncate">
-                {element.nameUz}
-              </div>
-              <div className="text-[9px] text-center text-muted-foreground mt-0.5">
-                {element.atomicMass}
-              </div>
-            </Card>
-          ))}
+              57-71
+            </div>
+            
+            {/* Actinide indicator */}
+            <div 
+              className="flex items-center justify-center text-[10px] md:text-xs text-rose-400 font-medium"
+              style={{ gridColumn: 3, gridRow: 7 }}
+            >
+              89-103
+            </div>
+          </div>
         </div>
 
         <div className="mt-8 flex flex-wrap gap-2 md:gap-3 justify-center text-xs md:text-sm">
