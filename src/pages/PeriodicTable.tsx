@@ -6,49 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { AtomVisualization, NucleusVisualization } from "@/components/AtomVisualization";
 import { NuclearStability } from "@/components/NuclearStability";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-interface Element {
-  symbol: string;
-  name: string;
-  nameUz: string;
-  atomicNumber: number;
-  atomicMass: string;
-  category: string;
-  electrons: string;
-  description: string;
-  detailedInfo?: string;
-  // Extended properties (30+ fields)
-  discoveryYear?: string;
-  discoveredBy?: string;
-  meltingPoint?: string;
-  boilingPoint?: string;
-  density?: string;
-  electronegativity?: string;
-  atomicRadius?: string;
-  ionizationEnergy?: string;
-  oxidationStates?: string;
-  crystalStructure?: string;
-  magneticOrdering?: string;
-  thermalConductivity?: string;
-  electricalResistivity?: string;
-  abundance?: string;
-  isotopeCount?: number;
-  stableIsotopes?: string;
-  halfLife?: string;
-  electronAffinity?: string;
-  valencElectrons?: number;
-  period?: number;
-  group?: number;
-  block?: string;
-  state?: string;
-  color?: string;
-  origin?: string;
-  uses?: string[];
-  hazards?: string;
-  naturalOccurrence?: string;
-  covalentRadius?: string;
-  vanDerWaalsRadius?: string;
-}
+import { elements, Element } from "@/data/elementsData";
 
 const elements: Element[] = [
   // Period 1
