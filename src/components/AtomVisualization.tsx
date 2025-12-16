@@ -182,15 +182,15 @@ const ElectronShell = ({
   const orbit2Electrons = Math.min(Math.max(0, electrons - electronsPerOrbit), electronsPerOrbit);
   const orbit3Electrons = Math.max(0, electrons - electronsPerOrbit * 2);
   
-  // Different rotation speeds and axes for variety
+  // Different rotation speeds and axes for variety (slower speeds)
   const rotationConfigs: Array<{
     axis: 'x' | 'y' | 'z' | 'xy' | 'xz' | 'yz';
     speed: number;
     initial: [number, number, number];
   }> = [
-    { axis: 'x', speed: 0.4 + shellIndex * 0.1, initial: [0, 0, 0] },
-    { axis: 'yz', speed: 0.3 + shellIndex * 0.08, initial: [Math.PI / 3, 0, Math.PI / 4] },
-    { axis: 'xy', speed: 0.35 + shellIndex * 0.06, initial: [Math.PI / 2, Math.PI / 3, 0] },
+    { axis: 'x', speed: 0.1 + shellIndex * 0.02, initial: [0, 0, 0] },
+    { axis: 'yz', speed: 0.08 + shellIndex * 0.015, initial: [Math.PI / 3, 0, Math.PI / 4] },
+    { axis: 'xy', speed: 0.09 + shellIndex * 0.012, initial: [Math.PI / 2, Math.PI / 3, 0] },
   ];
 
   return (
@@ -271,7 +271,7 @@ const AtomScene = ({ atomicNumber, symbol, electrons }: AtomVisualizationProps) 
         minDistance={3}
         maxDistance={15}
         autoRotate
-        autoRotateSpeed={0.5}
+        autoRotateSpeed={0.15}
       />
     </>
   );
@@ -413,7 +413,7 @@ const NucleusScene = ({
         minDistance={2}
         maxDistance={10}
         autoRotate
-        autoRotateSpeed={1}
+        autoRotateSpeed={0.3}
       />
     </>
   );
