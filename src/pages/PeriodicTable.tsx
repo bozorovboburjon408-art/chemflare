@@ -481,10 +481,103 @@ const PeriodicTable = () => {
 
         {/* Standard Mendeleev Periodic Table Layout */}
         <div className="overflow-x-auto pb-4">
-          <div className="grid gap-1 md:gap-1.5 min-w-[900px]" style={{ 
-            gridTemplateColumns: 'repeat(18, minmax(45px, 1fr))',
-            gridTemplateRows: 'repeat(10, auto)'
+          <div className="grid gap-1 md:gap-1.5 min-w-[950px]" style={{ 
+            gridTemplateColumns: 'auto repeat(18, minmax(45px, 1fr))',
+            gridTemplateRows: 'auto auto repeat(10, auto)'
           }}>
+            {/* Group Names Row */}
+            <div style={{ gridColumn: 1, gridRow: 1 }}></div>
+            <div 
+              className="text-[8px] md:text-[10px] text-red-400 font-medium text-center py-1"
+              style={{ gridColumn: 2, gridRow: 1 }}
+            >
+              Ishqoriy
+            </div>
+            <div 
+              className="text-[8px] md:text-[10px] text-orange-400 font-medium text-center py-1"
+              style={{ gridColumn: 3, gridRow: 1 }}
+            >
+              Ishqoriy-yer
+            </div>
+            <div 
+              className="text-[8px] md:text-[10px] text-cyan-400 font-medium text-center py-1 col-span-10"
+              style={{ gridColumn: '4 / 14', gridRow: 1 }}
+            >
+              O'tish metallari
+            </div>
+            <div 
+              className="text-[8px] md:text-[10px] text-gray-400 font-medium text-center py-1"
+              style={{ gridColumn: 14, gridRow: 1 }}
+            >
+              
+            </div>
+            <div 
+              className="text-[8px] md:text-[10px] text-gray-400 font-medium text-center py-1"
+              style={{ gridColumn: 15, gridRow: 1 }}
+            >
+              
+            </div>
+            <div 
+              className="text-[8px] md:text-[10px] text-blue-400 font-medium text-center py-1"
+              style={{ gridColumn: 16, gridRow: 1 }}
+            >
+              
+            </div>
+            <div 
+              className="text-[8px] md:text-[10px] text-yellow-400 font-medium text-center py-1"
+              style={{ gridColumn: 18, gridRow: 1 }}
+            >
+              Galogenlar
+            </div>
+            <div 
+              className="text-[8px] md:text-[10px] text-purple-400 font-medium text-center py-1"
+              style={{ gridColumn: 19, gridRow: 1 }}
+            >
+              Inert gazlar
+            </div>
+            
+            {/* Group Numbers Row */}
+            <div 
+              className="text-[10px] md:text-xs text-muted-foreground font-bold text-center"
+              style={{ gridColumn: 1, gridRow: 2 }}
+            >
+              Davr
+            </div>
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18].map((group) => (
+              <div 
+                key={`group-${group}`}
+                className="text-[10px] md:text-xs text-primary font-bold text-center py-1"
+                style={{ gridColumn: group + 1, gridRow: 2 }}
+              >
+                {group}
+              </div>
+            ))}
+            
+            {/* Period Labels */}
+            {[1, 2, 3, 4, 5, 6, 7].map((period) => (
+              <div 
+                key={`period-${period}`}
+                className="text-[10px] md:text-xs text-primary font-bold flex items-center justify-center"
+                style={{ gridColumn: 1, gridRow: period + 2 }}
+              >
+                {period}
+              </div>
+            ))}
+            
+            {/* Lanthanide/Actinide Period Labels */}
+            <div 
+              className="text-[10px] md:text-xs text-pink-400 font-bold flex items-center justify-center"
+              style={{ gridColumn: 1, gridRow: 11 }}
+            >
+              *
+            </div>
+            <div 
+              className="text-[10px] md:text-xs text-rose-400 font-bold flex items-center justify-center"
+              style={{ gridColumn: 1, gridRow: 12 }}
+            >
+              **
+            </div>
+            
             {elements.map((element) => {
               const position = getElementPosition(element.atomicNumber);
               if (!position) return null;
@@ -497,8 +590,8 @@ const PeriodicTable = () => {
                     categoryColors[element.category as keyof typeof categoryColors]
                   }`}
                   style={{
-                    gridColumn: position.col,
-                    gridRow: position.row
+                    gridColumn: position.col + 1,
+                    gridRow: position.row + 2
                   }}
                 >
                   <div className="text-[8px] md:text-[10px] text-muted-foreground text-right mb-0.5">
@@ -520,17 +613,17 @@ const PeriodicTable = () => {
             {/* Lanthanide indicator */}
             <div 
               className="flex items-center justify-center text-[10px] md:text-xs text-pink-400 font-medium"
-              style={{ gridColumn: 3, gridRow: 6 }}
+              style={{ gridColumn: 4, gridRow: 8 }}
             >
-              57-71
+              *57-71
             </div>
             
             {/* Actinide indicator */}
             <div 
               className="flex items-center justify-center text-[10px] md:text-xs text-rose-400 font-medium"
-              style={{ gridColumn: 3, gridRow: 7 }}
+              style={{ gridColumn: 4, gridRow: 9 }}
             >
-              89-103
+              **89-103
             </div>
           </div>
         </div>
