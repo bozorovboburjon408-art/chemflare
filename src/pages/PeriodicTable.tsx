@@ -481,7 +481,7 @@ const PeriodicTable = () => {
 
         {/* Standard Mendeleev Periodic Table Layout */}
         <div className="overflow-x-auto pb-4">
-          <div className="grid gap-1 md:gap-1.5 min-w-[950px]" style={{ 
+          <div className="grid gap-0 min-w-[950px] border border-border/50 rounded-lg overflow-hidden" style={{ 
             gridTemplateColumns: 'auto repeat(18, minmax(45px, 1fr))',
             gridTemplateRows: 'auto auto repeat(10, auto)'
           }}>
@@ -586,7 +586,7 @@ const PeriodicTable = () => {
                 <Card
                   key={element.symbol}
                   onClick={() => setSelectedElement(element)}
-                  className={`p-1.5 md:p-2 cursor-pointer border-2 transition-all hover:scale-105 hover:shadow-elegant ${
+                  className={`p-1.5 md:p-2 cursor-pointer border border-border/70 rounded-none transition-all hover:scale-105 hover:shadow-elegant hover:z-10 hover:border-primary ${
                     categoryColors[element.category as keyof typeof categoryColors]
                   }`}
                   style={{
