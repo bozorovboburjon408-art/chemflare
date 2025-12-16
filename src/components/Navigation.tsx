@@ -1,11 +1,13 @@
 import { NavLink } from "@/components/NavLink";
-import { Atom, Brain, Calculator, Menu, X, BookOpen, Beaker, Info, FlaskConical } from "lucide-react";
+import { Atom, Brain, Calculator, Menu, X, BookOpen, Beaker, Info, FlaskConical, Sun, Moon } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import universityLogo from "@/assets/university-logo.jpg";
+import { useTheme } from "@/hooks/useTheme";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { theme, toggleTheme } = useTheme();
 
   const navItems = [
     { to: "/", icon: Atom, label: "Davriy Jadval" },
@@ -45,17 +47,46 @@ const Navigation = () => {
                 <span className="font-medium">{label}</span>
               </NavLink>
             ))}
+            
+            {/* Theme Toggle Button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleTheme}
+              className="ml-2 hover:bg-primary/10"
+              title={theme === "light" ? "Tungi rejim" : "Kunduzgi rejim"}
+            >
+              {theme === "light" ? (
+                <Moon className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" />
+              ) : (
+                <Sun className="w-5 h-5 text-yellow-400 hover:text-yellow-300 transition-colors" />
+              )}
+            </Button>
           </div>
 
           {/* Mobile Menu Button */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="md:hidden hover:bg-primary/10"
-            onClick={() => setIsOpen(!isOpen)}
-          >
-            {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </Button>
+          <div className="md:hidden flex items-center space-x-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleTheme}
+              className="hover:bg-primary/10"
+            >
+              {theme === "light" ? (
+                <Moon className="w-5 h-5 text-muted-foreground" />
+              ) : (
+                <Sun className="w-5 h-5 text-yellow-400" />
+              )}
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="hover:bg-primary/10"
+              onClick={() => setIsOpen(!isOpen)}
+            >
+              {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </Button>
+          </div>
         </div>
 
         {/* Mobile Navigation */}
