@@ -166,21 +166,86 @@ const getElementPosition = (atomicNumber: number): { col: number; row: number } 
   return positions[atomicNumber] || null;
 };
 
+const categoryLabels: { [key: string]: string } = {
+  all: "Barchasi",
+  nonmetal: "Nometall",
+  noble: "Inert gaz",
+  alkali: "Ishqoriy metall",
+  alkaline: "Ishqoriy-yer metall",
+  metalloid: "Yarim metall",
+  halogen: "Galogen",
+  metal: "Metall",
+  transition: "O'tish metall",
+  lanthanide: "Lantanoidlar",
+  actinide: "Aktinoidlar",
+};
+
+const categoryBadgeColors: { [key: string]: string } = {
+  all: "bg-primary/10 border-primary/40 hover:bg-primary/20",
+  nonmetal: "bg-blue-500/10 border-blue-500/40 hover:bg-blue-500/20",
+  noble: "bg-purple-500/10 border-purple-500/40 hover:bg-purple-500/20",
+  alkali: "bg-red-500/10 border-red-500/40 hover:bg-red-500/20",
+  alkaline: "bg-orange-500/10 border-orange-500/40 hover:bg-orange-500/20",
+  metalloid: "bg-green-500/10 border-green-500/40 hover:bg-green-500/20",
+  halogen: "bg-yellow-500/10 border-yellow-500/40 hover:bg-yellow-500/20",
+  metal: "bg-gray-500/10 border-gray-500/40 hover:bg-gray-500/20",
+  transition: "bg-cyan-500/10 border-cyan-500/40 hover:bg-cyan-500/20",
+  lanthanide: "bg-pink-500/10 border-pink-500/40 hover:bg-pink-500/20",
+  actinide: "bg-rose-500/10 border-rose-500/40 hover:bg-rose-500/20",
+};
+
 const PeriodicTable = () => {
   const [selectedElement, setSelectedElement] = useState<Element | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+
+  const filteredElements = selectedCategory === "all" 
+    ? elements 
+    : elements.filter(el => el.category === selectedCategory);
+
+  const filteredCount = filteredElements.length;
 
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
       
       <main className="container mx-auto px-4 pt-24 pb-12">
-        <div className="text-center mb-12 animate-fade-in">
+        <div className="text-center mb-8 animate-fade-in">
           <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
             KIMYOVIY ELEMENTLAR DAVRIY JADVALI
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Barcha elementlarni o'rganing va ularning xususiyatlari haqida batafsil ma'lumot oling
           </p>
+        </div>
+
+        {/* Category Filter */}
+        <div className="mb-6">
+          <div className="flex flex-wrap gap-2 justify-center">
+            {Object.entries(categoryLabels).map(([key, label]) => (
+              <Badge
+                key={key}
+                variant="outline"
+                onClick={() => setSelectedCategory(key)}
+                className={`cursor-pointer transition-all ${categoryBadgeColors[key]} ${
+                  selectedCategory === key 
+                    ? "ring-2 ring-primary ring-offset-2 ring-offset-background scale-105" 
+                    : "opacity-70 hover:opacity-100"
+                }`}
+              >
+                {label}
+                {key !== "all" && (
+                  <span className="ml-1.5 text-[10px] opacity-70">
+                    ({elements.filter(el => el.category === key).length})
+                  </span>
+                )}
+              </Badge>
+            ))}
+          </div>
+          {selectedCategory !== "all" && (
+            <p className="text-center text-sm text-muted-foreground mt-3">
+              {filteredCount} ta element topildi
+            </p>
+          )}
         </div>
 
         {/* Standard Mendeleev Periodic Table Layout */}
@@ -286,13 +351,15 @@ const PeriodicTable = () => {
               const position = getElementPosition(element.atomicNumber);
               if (!position) return null;
               
+              const isHighlighted = selectedCategory === "all" || element.category === selectedCategory;
+              
               return (
                 <Card
                   key={element.symbol}
                   onClick={() => setSelectedElement(element)}
                   className={`p-1.5 md:p-2 cursor-pointer border border-border/70 rounded-none transition-all hover:scale-105 hover:shadow-elegant hover:z-10 hover:border-primary ${
                     categoryColors[element.category as keyof typeof categoryColors]
-                  }`}
+                  } ${!isHighlighted ? "opacity-20 grayscale" : ""}`}
                   style={{
                     gridColumn: position.col + 1,
                     gridRow: position.row + 2
@@ -332,38 +399,6 @@ const PeriodicTable = () => {
           </div>
         </div>
 
-        <div className="mt-8 flex flex-wrap gap-2 md:gap-3 justify-center text-xs md:text-sm">
-          <Badge variant="outline" className="bg-blue-500/10 border-blue-500/40">
-            Nometall
-          </Badge>
-          <Badge variant="outline" className="bg-purple-500/10 border-purple-500/40">
-            Inert gaz
-          </Badge>
-          <Badge variant="outline" className="bg-red-500/10 border-red-500/40">
-            Ishqoriy metall
-          </Badge>
-          <Badge variant="outline" className="bg-orange-500/10 border-orange-500/40">
-            Ishqoriy-yer metall
-          </Badge>
-          <Badge variant="outline" className="bg-green-500/10 border-green-500/40">
-            Yarim metall
-          </Badge>
-          <Badge variant="outline" className="bg-yellow-500/10 border-yellow-500/40">
-            Galogen
-          </Badge>
-          <Badge variant="outline" className="bg-gray-500/10 border-gray-500/40">
-            Metall
-          </Badge>
-          <Badge variant="outline" className="bg-cyan-500/10 border-cyan-500/40">
-            O'tish metall
-          </Badge>
-          <Badge variant="outline" className="bg-pink-500/10 border-pink-500/40">
-            Lantanoidlar
-          </Badge>
-          <Badge variant="outline" className="bg-rose-500/10 border-rose-500/40">
-            Aktinoidlar
-          </Badge>
-        </div>
       </main>
 
       <Dialog open={!!selectedElement} onOpenChange={() => setSelectedElement(null)}>
