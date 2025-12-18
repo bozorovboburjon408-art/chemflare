@@ -40,11 +40,11 @@ All colors MUST be HSL.
     
     --gradient-hero: linear-gradient(135deg, hsl(221 83% 53%), hsl(217 91% 60%));
     --gradient-accent: linear-gradient(135deg, hsl(43 96% 56%), hsl(38 92% 50%));
-    --gradient-card: hsl(0 0% 100%);
+    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%), hsl(220 20% 98%));
     --gradient-silver: linear-gradient(135deg, hsl(217 19% 78%), hsl(220 13% 91%));
-    --shadow-elegant: 0 4px 12px -4px hsl(221 83% 53% / 0.15);
-    --shadow-gold: 0 4px 12px -4px hsl(43 96% 56% / 0.2);
-    --transition-smooth: all 0.2s ease;
+    --shadow-elegant: 0 10px 40px -10px hsl(221 83% 53% / 0.25);
+    --shadow-gold: 0 10px 40px -10px hsl(43 96% 56% / 0.35);
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     --sidebar-background: 220 20% 98%;
     --sidebar-foreground: 222 47% 11%;
@@ -87,10 +87,10 @@ All colors MUST be HSL.
     
     --gradient-hero: linear-gradient(135deg, hsl(217 91% 60%), hsl(221 83% 53%));
     --gradient-accent: linear-gradient(135deg, hsl(43 96% 56%), hsl(38 92% 50%));
-    --gradient-card: hsl(222 47% 10%);
+    --gradient-card: linear-gradient(180deg, hsl(222 47% 10%), hsl(222 47% 12%));
     --gradient-silver: linear-gradient(135deg, hsl(217 19% 40%), hsl(220 13% 30%));
-    --shadow-elegant: 0 4px 12px -4px hsl(217 91% 60% / 0.2);
-    --shadow-gold: 0 4px 12px -4px hsl(43 96% 56% / 0.25);
+    --shadow-elegant: 0 10px 40px -10px hsl(217 91% 60% / 0.35);
+    --shadow-gold: 0 10px 40px -10px hsl(43 96% 56% / 0.4);
     --sidebar-background: 222 47% 8%;
     --sidebar-foreground: 220 20% 98%;
     --sidebar-primary: 217 91% 60%;
