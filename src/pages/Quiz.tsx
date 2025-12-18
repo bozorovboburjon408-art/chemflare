@@ -1146,7 +1146,7 @@ const Quiz = () => {
               {quizzes.map((quiz) => (
                 <Card
                   key={quiz.id}
-                  className="p-6 hover:shadow-lg transition-shadow cursor-pointer relative"
+                  className="p-6 cursor-pointer relative"
                   onClick={() => editingQuizId !== quiz.id && startQuiz(quiz.id)}
                 >
                   <div className="flex items-start justify-between mb-3">
@@ -1171,12 +1171,12 @@ const Quiz = () => {
                     
                     {editingQuizId !== quiz.id && (
                       <div className="flex items-center gap-1">
-                        <Badge variant="outline" className="bg-primary/10 border-primary/30">
+                        <Badge variant="outline">
                           <Shuffle className="w-3 h-3 mr-1" />
                           Aralash
                         </Badge>
                         {quiz.completed_at && (
-                          <Badge variant="outline" className="bg-green-500/10 border-green-500/30">
+                          <Badge variant="secondary">
                             <CheckCircle2 className="w-3 h-3 mr-1" />
                             Bajarilgan
                           </Badge>
