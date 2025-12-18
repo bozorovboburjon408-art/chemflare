@@ -11,10 +11,10 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
   const [showButtons, setShowButtons] = useState(false);
 
   useEffect(() => {
-    // Show buttons after animation completes
+    // Show buttons quickly - don't make users wait
     const timer = setTimeout(() => {
       setShowButtons(true);
-    }, 3500);
+    }, 800);
 
     return () => clearTimeout(timer);
   }, []);
