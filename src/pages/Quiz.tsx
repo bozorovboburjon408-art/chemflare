@@ -1146,7 +1146,7 @@ const Quiz = () => {
               {quizzes.map((quiz) => (
                 <Card
                   key={quiz.id}
-                  className="p-6 hover:shadow-lg transition-shadow cursor-pointer relative"
+                  className="p-6 cursor-pointer"
                   onClick={() => editingQuizId !== quiz.id && startQuiz(quiz.id)}
                 >
                   <div className="flex items-start justify-between mb-3">
