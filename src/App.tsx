@@ -30,22 +30,25 @@ const App = () => {
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        {showIntro && <IntroAnimation onComplete={handleIntroComplete} />}
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<PeriodicTable />} />
-            <Route path="/quiz" element={<Quiz />} />
-            <Route path="/calculator" element={<Calculator />} />
-            <Route path="/library" element={<Library />} />
-            <Route path="/reactions" element={<ChemicalReactions />} />
-            <Route path="/experiments" element={<Experiments />} />
-            <Route path="/developers" element={<Developers />} />
-            <Route path="/api-settings" element={<ApiSettings />} />
-            <Route path="/auth" element={<Auth />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
+        {showIntro ? (
+          <IntroAnimation onComplete={handleIntroComplete} />
+        ) : (
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<PeriodicTable />} />
+              <Route path="/quiz" element={<Quiz />} />
+              <Route path="/calculator" element={<Calculator />} />
+              <Route path="/library" element={<Library />} />
+              <Route path="/reactions" element={<ChemicalReactions />} />
+              <Route path="/experiments" element={<Experiments />} />
+              <Route path="/developers" element={<Developers />} />
+              <Route path="/api-settings" element={<ApiSettings />} />
+              <Route path="/auth" element={<Auth />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        )}
       </TooltipProvider>
     </QueryClientProvider>
   );
