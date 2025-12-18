@@ -24,61 +24,59 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
     setTimeout(onComplete, 500);
   };
 
-  // Generate floating molecules with stable values
-  const molecules = useMemo(() => Array.from({ length: 8 }, (_, i) => ({
+  // Generate floating molecules - reduced for performance
+  const molecules = useMemo(() => Array.from({ length: 4 }, (_, i) => ({
     id: i,
-    x: 10 + (i * 11) % 80,
-    y: 10 + (i * 13) % 80,
-    scale: 0.3 + (i * 0.05),
-    duration: 15 + (i * 1.2),
+    x: 15 + (i * 20),
+    y: 20 + (i * 15),
+    scale: 0.35 + (i * 0.05),
+    duration: 18 + (i * 2),
   })), []);
 
-  // Shooting stars
-  const shootingStars = useMemo(() => Array.from({ length: 6 }, (_, i) => ({
+  // Shooting stars - reduced
+  const shootingStars = useMemo(() => Array.from({ length: 3 }, (_, i) => ({
     id: i,
-    startX: Math.random() * 100,
-    startY: Math.random() * 50,
-    delay: i * 1.5,
+    startX: 10 + i * 30,
+    startY: 10 + i * 15,
+    delay: i * 2,
   })), []);
 
-  // Floating particles
-  const particles = useMemo(() => Array.from({ length: 30 }, (_, i) => ({
+  // Floating particles - significantly reduced for mobile
+  const particles = useMemo(() => Array.from({ length: 8 }, (_, i) => ({
     id: i,
-    x: Math.random() * 100,
-    y: Math.random() * 100,
-    size: 2 + Math.random() * 4,
-    duration: 3 + Math.random() * 4,
-    delay: Math.random() * 2,
+    x: 10 + i * 12,
+    y: 10 + i * 11,
+    size: 3 + (i % 3),
+    duration: 4 + i * 0.5,
+    delay: i * 0.3,
   })), []);
 
-  // Glowing orbs
-  const orbs = useMemo(() => Array.from({ length: 5 }, (_, i) => ({
+  // Glowing orbs - reduced
+  const orbs = useMemo(() => Array.from({ length: 3 }, (_, i) => ({
     id: i,
-    x: 20 + i * 15,
-    y: 30 + (i % 2) * 40,
-    color: ["#00d4ff", "#a78bfa", "#ff6b6b", "#4ade80", "#fbbf24"][i],
-    size: 80 + i * 20,
+    x: 25 + i * 25,
+    y: 35 + (i % 2) * 30,
+    color: ["#00d4ff", "#a78bfa", "#ff6b6b"][i],
+    size: 100 + i * 20,
   })), []);
 
-  // Periodic table elements floating
+  // Periodic table elements floating - reduced
   const elements = [
     { symbol: "H", name: "Vodorod", number: 1, color: "#00d4ff" },
     { symbol: "O", name: "Kislorod", number: 8, color: "#ff6b6b" },
     { symbol: "C", name: "Uglerod", number: 6, color: "#4ade80" },
     { symbol: "N", name: "Azot", number: 7, color: "#a78bfa" },
-    { symbol: "Fe", name: "Temir", number: 26, color: "#fbbf24" },
-    { symbol: "Au", name: "Oltin", number: 79, color: "#f59e0b" },
   ];
 
-  // DNA helix points
-  const helixPoints = useMemo(() => Array.from({ length: 20 }, (_, i) => ({
+  // DNA helix points - reduced
+  const helixPoints = useMemo(() => Array.from({ length: 10 }, (_, i) => ({
     id: i,
-    y: i * 15,
-    delay: i * 0.05,
+    y: i * 25,
+    delay: i * 0.1,
   })), []);
 
-  // Stable bubble positions
-  const bubblePositions = useMemo(() => [42, 48, 55, 62, 70, 45, 58, 65], []);
+  // Stable bubble positions - reduced
+  const bubblePositions = useMemo(() => [45, 55, 65, 50], []);
 
   return (
     <AnimatePresence>
@@ -105,91 +103,92 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
             }}
           />
 
-          {/* Glowing orbs in background */}
-          {orbs.map((orb) => (
-            <motion.div
-              key={`orb-${orb.id}`}
-              className="absolute rounded-full pointer-events-none"
-              style={{
-                left: `${orb.x}%`,
-                top: `${orb.y}%`,
-                width: orb.size,
-                height: orb.size,
-                background: `radial-gradient(circle, ${orb.color}30 0%, transparent 70%)`,
-                filter: "blur(40px)",
-              }}
-              animate={{
-                scale: [1, 1.3, 1],
-                opacity: [0.3, 0.6, 0.3],
-              }}
-              transition={{
-                duration: 4 + orb.id,
-                repeat: Infinity,
-                delay: orb.id * 0.5,
-              }}
-            />
-          ))}
-
-          {/* Shooting stars */}
-          {shootingStars.map((star) => (
-            <motion.div
-              key={`star-${star.id}`}
-              className="absolute pointer-events-none"
-              style={{
-                left: `${star.startX}%`,
-                top: `${star.startY}%`,
-              }}
-              initial={{ opacity: 0, x: 0, y: 0 }}
-              animate={{
-                opacity: [0, 1, 0],
-                x: [0, 200],
-                y: [0, 100],
-              }}
-              transition={{
-                duration: 1,
-                repeat: Infinity,
-                repeatDelay: 3,
-                delay: star.delay,
-              }}
-            >
-              <div
+          {/* Glowing orbs - hidden on mobile for performance */}
+          <div className="hidden md:block">
+            {orbs.map((orb) => (
+              <motion.div
+                key={`orb-${orb.id}`}
+                className="absolute rounded-full pointer-events-none"
                 style={{
-                  width: 100,
-                  height: 2,
-                  background: "linear-gradient(90deg, transparent, #fff, transparent)",
-                  borderRadius: 2,
-                  transform: "rotate(45deg)",
-                  boxShadow: "0 0 10px #fff, 0 0 20px #00d4ff",
+                  left: `${orb.x}%`,
+                  top: `${orb.y}%`,
+                  width: orb.size,
+                  height: orb.size,
+                  background: `radial-gradient(circle, ${orb.color}25 0%, transparent 70%)`,
+                  filter: "blur(30px)",
+                }}
+                animate={{
+                  opacity: [0.2, 0.4, 0.2],
+                }}
+                transition={{
+                  duration: 5 + orb.id,
+                  repeat: Infinity,
                 }}
               />
-            </motion.div>
-          ))}
+            ))}
+          </div>
 
-          {/* Floating particles */}
-          {particles.map((particle) => (
-            <motion.div
-              key={`particle-${particle.id}`}
-              className="absolute rounded-full pointer-events-none"
-              style={{
-                left: `${particle.x}%`,
-                top: `${particle.y}%`,
-                width: particle.size,
-                height: particle.size,
-                background: particle.id % 3 === 0 ? "#00d4ff" : particle.id % 3 === 1 ? "#a78bfa" : "#ff6b6b",
-                boxShadow: `0 0 ${particle.size * 2}px ${particle.id % 3 === 0 ? "#00d4ff" : particle.id % 3 === 1 ? "#a78bfa" : "#ff6b6b"}`,
-              }}
-              animate={{
-                y: [0, -30, 0],
-                opacity: [0.2, 0.8, 0.2],
-                scale: [1, 1.2, 1],
-              }}
-              transition={{
-                duration: particle.duration,
-                repeat: Infinity,
-                delay: particle.delay,
-              }}
-            />
-          ))}
+          {/* Shooting stars - hidden on mobile */}
+          <div className="hidden md:block">
+            {shootingStars.map((star) => (
+              <motion.div
+                key={`star-${star.id}`}
+                className="absolute pointer-events-none"
+                style={{
+                  left: `${star.startX}%`,
+                  top: `${star.startY}%`,
+                }}
+                initial={{ opacity: 0, x: 0, y: 0 }}
+                animate={{
+                  opacity: [0, 1, 0],
+                  x: [0, 200],
+                  y: [0, 100],
+                }}
+                transition={{
+                  duration: 1.5,
+                  repeat: Infinity,
+                  repeatDelay: 4,
+                  delay: star.delay,
+                }}
+              >
+                <div
+                  style={{
+                    width: 80,
+                    height: 2,
+                    background: "linear-gradient(90deg, transparent, #fff, transparent)",
+                    borderRadius: 2,
+                    transform: "rotate(45deg)",
+                  }}
+                />
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Floating particles - hidden on mobile */}
+          <div className="hidden md:block">
+            {particles.map((particle) => (
+              <motion.div
+                key={`particle-${particle.id}`}
+                className="absolute rounded-full pointer-events-none"
+                style={{
+                  left: `${particle.x}%`,
+                  top: `${particle.y}%`,
+                  width: particle.size,
+                  height: particle.size,
+                  background: particle.id % 2 === 0 ? "#00d4ff" : "#a78bfa",
+                }}
+                animate={{
+                  y: [0, -20, 0],
+                  opacity: [0.3, 0.7, 0.3],
+                }}
+                transition={{
+                  duration: particle.duration,
+                  repeat: Infinity,
+                  delay: particle.delay,
+                }}
+              />
+            ))}
+          </div>
 
           {/* Rotating atom orbits */}
           <motion.div
@@ -287,37 +286,38 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
           </motion.div>
 
 
-          {/* Floating molecules in background */}
-          {molecules.map((mol) => (
-            <motion.div
-              key={mol.id}
-              className="absolute pointer-events-none"
-              style={{
-                left: `${mol.x}%`,
-                top: `${mol.y}%`,
-              }}
-              initial={{ opacity: 0, scale: 0 }}
-              animate={{ 
-                opacity: [0, 0.3, 0.3, 0],
-                scale: mol.scale,
-                x: [0, 50, -30, 0],
-                y: [0, -30, 20, 0],
-              }}
-              transition={{
-                duration: mol.duration,
-                repeat: Infinity,
-                delay: mol.id * 0.3,
-              }}
-            >
-              <svg width="60" height="60" viewBox="0 0 60 60">
-                <circle cx="30" cy="20" r="8" fill="rgba(0, 212, 255, 0.4)" />
-                <circle cx="20" cy="40" r="6" fill="rgba(255, 107, 107, 0.4)" />
-                <circle cx="40" cy="40" r="6" fill="rgba(255, 107, 107, 0.4)" />
-                <line x1="30" y1="20" x2="20" y2="40" stroke="rgba(255,255,255,0.2)" strokeWidth="2" />
-                <line x1="30" y1="20" x2="40" y2="40" stroke="rgba(255,255,255,0.2)" strokeWidth="2" />
-              </svg>
-            </motion.div>
-          ))}
+          {/* Floating molecules - hidden on mobile */}
+          <div className="hidden lg:block">
+            {molecules.map((mol) => (
+              <motion.div
+                key={mol.id}
+                className="absolute pointer-events-none"
+                style={{
+                  left: `${mol.x}%`,
+                  top: `${mol.y}%`,
+                }}
+                initial={{ opacity: 0 }}
+                animate={{ 
+                  opacity: [0, 0.25, 0],
+                  x: [0, 30, 0],
+                  y: [0, -20, 0],
+                }}
+                transition={{
+                  duration: mol.duration,
+                  repeat: Infinity,
+                  delay: mol.id * 0.5,
+                }}
+              >
+                <svg width="50" height="50" viewBox="0 0 60 60">
+                  <circle cx="30" cy="20" r="7" fill="rgba(0, 212, 255, 0.4)" />
+                  <circle cx="20" cy="40" r="5" fill="rgba(255, 107, 107, 0.4)" />
+                  <circle cx="40" cy="40" r="5" fill="rgba(255, 107, 107, 0.4)" />
+                  <line x1="30" y1="20" x2="20" y2="40" stroke="rgba(255,255,255,0.2)" strokeWidth="2" />
+                  <line x1="30" y1="20" x2="40" y2="40" stroke="rgba(255,255,255,0.2)" strokeWidth="2" />
+                </svg>
+              </motion.div>
+            ))}
+          </div>
 
           {/* DNA Helix on left side */}
           <motion.div
@@ -424,8 +424,8 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
 
               {/* Floating elements around circle */}
               {elements.map((el, i) => {
-                const angle = (i * 60 - 90) * (Math.PI / 180);
-                const radius = 130;
+                const angle = (i * 90 - 90) * (Math.PI / 180);
+                const radius = 120;
                 const x = Math.cos(angle) * radius;
                 const y = Math.sin(angle) * radius;
                 
@@ -434,33 +434,22 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
                     key={el.symbol}
                     className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
                     style={{ x, y }}
-                    initial={{ opacity: 0, scale: 0 }}
-                    animate={{ 
-                      opacity: 1, 
-                      scale: 1,
-                    }}
-                    transition={{ delay: 0.5 + i * 0.15, duration: 0.5 }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.5 + i * 0.2, duration: 0.5 }}
                   >
                     <motion.div
-                      className="w-12 h-14 md:w-14 md:h-16 rounded-lg flex flex-col items-center justify-center"
+                      className="w-10 h-12 md:w-12 md:h-14 rounded-lg flex flex-col items-center justify-center"
                       style={{
                         background: `linear-gradient(135deg, ${el.color}20, ${el.color}10)`,
-                        border: `1px solid ${el.color}50`,
-                        boxShadow: `0 0 20px ${el.color}30`,
+                        border: `1px solid ${el.color}40`,
                       }}
-                      animate={{ 
-                        y: [0, -5, 0],
-                        boxShadow: [
-                          `0 0 20px ${el.color}30`,
-                          `0 0 30px ${el.color}50`,
-                          `0 0 20px ${el.color}30`,
-                        ]
-                      }}
-                      transition={{ duration: 2, delay: i * 0.2, repeat: Infinity }}
+                      animate={{ y: [0, -4, 0] }}
+                      transition={{ duration: 3, delay: i * 0.3, repeat: Infinity }}
                     >
-                      <span className="text-[10px] text-white/50">{el.number}</span>
+                      <span className="text-[9px] text-white/50">{el.number}</span>
                       <span 
-                        className="text-lg md:text-xl font-bold"
+                        className="text-base md:text-lg font-bold"
                         style={{ color: el.color }}
                       >
                         {el.symbol}
@@ -536,23 +525,22 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
                   ))}
                   
                   {/* Steam/vapor from top */}
-                  {[...Array(3)].map((_, i) => (
+                  {[0, 1].map((i) => (
                     <motion.path
                       key={`steam-${i}`}
-                      d={`M${55 + i * 5} 8 Q${50 + i * 5} -5 ${55 + i * 5} -15`}
+                      d={`M${55 + i * 8} 8 Q${50 + i * 8} -5 ${55 + i * 8} -12`}
                       fill="none"
-                      stroke="rgba(255, 255, 255, 0.3)"
+                      stroke="rgba(255, 255, 255, 0.25)"
                       strokeWidth="2"
                       strokeLinecap="round"
-                      initial={{ opacity: 0, pathLength: 0 }}
+                      initial={{ opacity: 0 }}
                       animate={{ 
-                        opacity: [0, 0.5, 0],
-                        pathLength: [0, 1],
-                        y: [0, -10],
+                        opacity: [0, 0.4, 0],
+                        y: [0, -8],
                       }}
                       transition={{
-                        duration: 2,
-                        delay: 1.5 + i * 0.3,
+                        duration: 2.5,
+                        delay: 1.5 + i * 0.4,
                         repeat: Infinity,
                       }}
                     />
