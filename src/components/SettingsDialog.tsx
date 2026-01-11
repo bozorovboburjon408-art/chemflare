@@ -1,4 +1,4 @@
-import { Settings } from "lucide-react";
+import { Settings, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -11,9 +11,11 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useIntroSettings } from "@/hooks/useIntroSettings";
+import { useTheme } from "@/hooks/useTheme";
 
 const SettingsDialog = () => {
   const { introEnabled, toggleIntro } = useIntroSettings();
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <Dialog>
@@ -35,6 +37,29 @@ const SettingsDialog = () => {
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
+          {/* Theme Toggle */}
+          <div className="flex items-center justify-between space-x-4">
+            <div className="flex-1">
+              <Label htmlFor="theme-toggle" className="text-base font-medium flex items-center gap-2">
+                {theme === "light" ? (
+                  <Sun className="w-4 h-4 text-yellow-500" />
+                ) : (
+                  <Moon className="w-4 h-4 text-blue-400" />
+                )}
+                Mavzu
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                {theme === "light" ? "Kunduzgi rejim" : "Tungi rejim"}
+              </p>
+            </div>
+            <Switch
+              id="theme-toggle"
+              checked={theme === "dark"}
+              onCheckedChange={toggleTheme}
+            />
+          </div>
+
+          {/* Intro Animation Toggle */}
           <div className="flex items-center justify-between space-x-4">
             <div className="flex-1">
               <Label htmlFor="intro-animation" className="text-base font-medium">
