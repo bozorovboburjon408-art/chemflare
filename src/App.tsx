@@ -15,11 +15,12 @@ import ApiSettings from "./pages/ApiSettings";
 import Experiments from "./pages/Experiments";
 import NotFound from "./pages/NotFound";
 import IntroAnimation from "./components/IntroAnimation";
+import { getIntroEnabled } from "./hooks/useIntroSettings";
 
 const queryClient = new QueryClient();
 
 const App = () => {
-  const [showIntro, setShowIntro] = useState(true);
+  const [showIntro, setShowIntro] = useState(() => getIntroEnabled());
 
   const handleIntroComplete = () => {
     setShowIntro(false);
