@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import universityLogo from "@/assets/university-logo.jpg";
 import { useTheme } from "@/hooks/useTheme";
+import SettingsDialog from "@/components/SettingsDialog";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -62,10 +63,14 @@ const Navigation = () => {
                 <Sun className="w-5 h-5 text-yellow-400 hover:text-yellow-300 transition-colors" />
               )}
             </Button>
+            
+            {/* Settings Button */}
+            <SettingsDialog />
           </div>
 
           {/* Mobile Menu Button */}
           <div className="md:hidden flex items-center space-x-2">
+            <SettingsDialog />
             <Button
               variant="ghost"
               size="icon"
